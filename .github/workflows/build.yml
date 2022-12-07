@@ -57,5 +57,5 @@ jobs:
         ls -l
     - uses: actions/upload-artifact@v3
       with:
-        name: weather.exe
-        path: ./dist/weather.exe
+        name: weather (Unix)
+        path: ./dist/weather
