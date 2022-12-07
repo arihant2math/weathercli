@@ -6,12 +6,12 @@ class OpenWeatherMapWeatherData(WeatherData):
     def __init__(self, data: dict):
         super().__init__(data['main']['temp'])
         if 'cod' in data:
-            self.status = data['cod']
+            self.status: int = data['cod']
         else:
-            self.status = 200
-        self.aqi = data['air_quality']['main']['aqi']
-        self.region = data['name']
-        self.country = data['sys']['country']
-        self.wind = WindData(data['wind'])
-        self.cloud_cover = data['clouds']['all']
+            self.status: int = 200
+        self.aqi: int = data['air_quality']['main']['aqi']
+        self.region: str = data['name']
+        self.country: str = data['sys']['country']
+        self.wind: WindData = WindData(data['wind'])
+        self.cloud_cover: int = data['clouds']['all']
         self.weather = data['weather']

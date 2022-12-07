@@ -19,7 +19,7 @@ def get_device_location_web():
     return requests.get("https://ipinfo.io").json()["loc"].split(",")
 
 
-def get_device_location(no_sys_loc):
+def get_device_location(no_sys_loc=False):
     if platform.system() == "Windows" and not no_sys_loc:
         try:
             return asyncio.run(get_device_location_windows())

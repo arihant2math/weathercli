@@ -5,7 +5,7 @@ from click import group, option, pass_context, argument
 import colorama
 
 import aiohttp
-import api_keys
+from api import weather, air_quality, forecast
 from custom_multi_command import CustomMultiCommand
 
 from location import get_device_location, get_coordinates
@@ -29,30 +29,6 @@ async def fetch_all(session, urls):
         tasks.append(task)
     results = await asyncio.gather(*tasks)
     return results
-
-
-def weather(location, metric):
-    out = api_keys.OPEN_WEATHER_MAP_API_URL + "weather?lat=" + str(location[0]) + "&lon=" + str(
-        location[1]) + "&appid=" + api_keys.OPEN_WEATHER_MAP_API_KEY
-    if not metric:
-        return out + "&units=imperial"
-    else:
-        return out + "&units=metric"
-
-
-def air_quality(location, metric):
-    return (
-            api_keys.OPEN_WEATHER_MAP_API_URL + "air_pollution?lat=" + str(location[0]) + "&lon=" + str(location[1]) +
-            "&appid=" + api_keys.OPEN_WEATHER_MAP_API_KEY
-            + "&units=imperial")
-
-
-def forecast(location, metric):
-    out = api_keys.OPEN_WEATHER_MAP_API_URL + "forecast?lat=" + str(location[0]) + "&lon=" + str(location[1]) + "&appid=" + api_keys.OPEN_WEATHER_MAP_API_KEY
-    if not metric:
-        return out + "&units=imperial"
-    else:
-        return out + "&units=metric"
 
 
 def get_description(condition_id: int) -> (str, int):
@@ -87,7 +63,7 @@ def get_description(condition_id: int) -> (str, int):
     return condition[condition_id], condition_id in condition_intro_text_override
 
 
-def condition_sentence(data: list[dict]) -> str:
+def condition_sentence(data: list) -> str:
     condition_match, override_previous = get_description(data[0]["id"])
     if override_previous:
         out = condition_match
@@ -122,8 +98,8 @@ def forecast_sentence(data):
     forecast_data.pop(0)
     while len(forecast_data) != 0:
         if forecast_data[0]['weather'][0]['main']:
-            return "It will rain in the next " + str((len(data)-len(forecast_data) + 1)*3) + "-" +\
-                str((len(data)-len(forecast_data) + 2)*3) + " hours"
+            return "It will rain in the next " + str((len(data) - len(forecast_data) + 1) * 3) + "-" + \
+                str((len(data) - len(forecast_data) + 2) * 3) + " hours"
         forecast_data.pop(0)
     return "It is not predicted to rain for the next 2 days"
 
@@ -132,7 +108,7 @@ def print_out(raw_data, data, json, no_color, celsius):
     if not no_color:
         Fore = colorama.Fore
     else:
-        Fore = DummyFore()
+        Fore = DummyFore
     if json:
         raw_data["forecast"] = "unavailable because of length"
         print(raw_data)
@@ -150,7 +126,7 @@ def print_out(raw_data, data, json, no_color, celsius):
         while len(forecast_temps) > 8:
             forecast_temps.pop()
         for temp in forecast_temps:
-            print(str(int(temp['main']['temp']//1)), end=" ")
+            print(str(int(temp['main']['temp'] // 1)), end=" ")
         print("")
         print(Fore.BLUE + "Wind: " + Fore.GREEN + str(
             data.wind.speed) + Fore.MAGENTA, end=" ")

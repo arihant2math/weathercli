@@ -5,3 +5,4 @@ venv/*
 .idea/*
 weather.exe
 weather.spec
+test.http
