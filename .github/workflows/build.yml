@@ -51,10 +51,6 @@ jobs:
     - name: Build with pyinstaller
       run: |
         pyinstaller -F weather.py
-    - name: See dir
-      run: |
-        cd dist
-        ls -l
     - uses: actions/upload-artifact@v3
       with:
         name: weather (Unix)
