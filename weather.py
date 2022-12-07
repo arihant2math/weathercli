@@ -112,6 +112,7 @@ class DummyFore:
     LIGHTMAGENTA_EX = ""
     MAGENTA = ""
     YELLOW = ""
+    RESET = ""
 
 
 def forecast_sentence(data):
@@ -168,8 +169,9 @@ def print_out(raw_data, data, json, no_color, celsius):
         elif aqi < 3:
             aqi_color = Fore.GREEN
         print(Fore.BLUE + "AQI: " + aqi_color + str(aqi))
+        print(Fore.RESET)
     else:
-        print(Fore.RED + raw_data["message"])
+        print(Fore.RED + raw_data["message"] + Fore.RESET)
 
 
 async def get_combined_data(coordinates, celsius) -> dict:
