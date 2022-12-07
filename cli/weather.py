@@ -113,45 +113,45 @@ def print_out(raw_data, data, json, no_color, celsius):
         raw_data["forecast"] = "unavailable because of length"
         print(raw_data)
     elif data.status:
-        print(Fore.BLUE + "Weather for " + Fore.GREEN + data.region + ", " + data.country)
+        print(Fore.LIGHTBLUE_EX + "Weather for " + Fore.LIGHTGREEN_EX + data.region + ", " + data.country)
         print(Fore.LIGHTMAGENTA_EX + condition_sentence(raw_data['weather']))
         print(Fore.LIGHTMAGENTA_EX + forecast_sentence(raw_data['forecast']))
-        print(Fore.BLUE + "Temperature: " + Fore.GREEN + str(data.temperature) + Fore.MAGENTA, end="° ")
+        print(Fore.LIGHTBLUE_EX + "Temperature: " + Fore.LIGHTGREEN_EX + str(data.temperature) + Fore.MAGENTA, end="° ")
         if celsius:
             print("C")
         else:
             print("F")
-        print(Fore.BLUE + "Forecast (3h intervals): " + Fore.GREEN, end="")
+        print(Fore.LIGHTBLUE_EX + "Forecast (3h intervals): " + Fore.LIGHTGREEN_EX, end="")
         forecast_temps = raw_data["forecast"]
         while len(forecast_temps) > 8:
             forecast_temps.pop()
         for temp in forecast_temps:
             print(str(int(temp['main']['temp'] // 1)), end=" ")
         print("")
-        print(Fore.BLUE + "Wind: " + Fore.GREEN + str(
+        print(Fore.LIGHTBLUE_EX + "Wind: " + Fore.LIGHTGREEN_EX + str(
             data.wind.speed) + Fore.MAGENTA, end=" ")
         if celsius:
             print("km/h", end=" ")
         else:
             print("mph", end=" ")
-        print(Fore.BLUE + "at " + Fore.GREEN +
-              str(data.wind.heading) + Fore.MAGENTA + " deg")
+        print(Fore.LIGHTBLUE_EX + "at " + Fore.LIGHTGREEN_EX +
+              str(data.wind.heading) + Fore.MAGENTA + "°")
         if data.cloud_cover != 0:
-            print(Fore.BLUE + "Cloud Cover: " + Fore.GREEN + str(data.cloud_cover) + Fore.MAGENTA + "%")
+            print(Fore.LIGHTBLUE_EX + "Cloud Cover: " + Fore.LIGHTGREEN_EX + str(data.cloud_cover) + Fore.MAGENTA + "%")
         aqi = data.aqi
-        aqi_color = Fore.YELLOW
+        aqi_color = Fore.LIGHTYELLOW_EX
         if aqi == 5:
             aqi_color = Fore.RED
         elif aqi < 3:
-            aqi_color = Fore.GREEN
-        print(Fore.BLUE + "AQI: " + aqi_color + str(aqi))
+            aqi_color = Fore.LIGHTGREEN_EX
+        print(Fore.LIGHTBLUE_EX + "AQI: " + aqi_color + str(aqi))
         print(Fore.RESET)
     else:
         print(Fore.RED + raw_data["message"] + Fore.RESET)
 
 
-async def get_combined_data(coordinates, celsius) -> dict:
-    to_get = [weather(coordinates, celsius), air_quality(coordinates, celsius), forecast(coordinates, celsius)]
+async def get_combined_data(coordinates, metric: bool) -> dict:
+    to_get = [weather(coordinates, metric), air_quality(coordinates, metric), forecast(coordinates, metric)]
     async with aiohttp.ClientSession() as session:
         responses = await fetch_all(session, to_get)
         data = responses[0]

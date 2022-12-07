@@ -1,5 +1,5 @@
-from weather_data import WeatherData
-from wind_data import WindData
+from cli.weather_data import WeatherData
+from cli.wind_data import WindData
 
 
 class OpenWeatherMapWeatherData(WeatherData):
