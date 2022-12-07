@@ -6,7 +6,7 @@ from geopy import Bing, Nominatim
 if platform.system() == "Windows":
     from winsdk.windows.devices import geolocation as wdg
 
-import api_keys
+from cli import api_keys
 
 
 async def get_device_location_windows():

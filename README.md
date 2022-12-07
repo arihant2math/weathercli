@@ -1,9 +1,9 @@
 # weathercli
 
 ## Usage
-Create `api_keys.py` with the following code:
-```
-OPEN_WEATHER_MAP_API_URL = "https://api.openweathermap.org/data/2.5/"
-OPEN_WEATHER_MAP_API_KEY = "[Get an api key from openweathermap.org]"
-BING_MAPS_API_KEY = "" # If you leave this blank it will use openstreetmaps for geoposition data
-```
+First, you must set your open weather map api key.
+Get an API key and run `weather config OPEN_WEATHER_MAP_API_URL --value [your api key here]`
+If you want better geo-positioning, get a Bing Maps API Key and run `weather config BING_MAPS_API_KEY --value [your key here]`
+## Config
+If you do not like the colors, run `weather config NO_COLOR --value true`, and if you want metric by default run `weather config METRIC --value true`
+

@@ -1,15 +1,14 @@
 import asyncio
 import platform
 
-from click import group, option, pass_context, argument
 import colorama
 
 import aiohttp
-from api import weather, air_quality, forecast
-from custom_multi_command import CustomMultiCommand
+from cli.api import weather, air_quality, forecast
+from cli.custom_multi_command import CustomMultiCommand
 
-from location import get_device_location, get_coordinates
-from openweathermap_weather_data import OpenWeatherMapWeatherData
+from cli.location import get_device_location, get_coordinates
+from cli.openweathermap_weather_data import OpenWeatherMapWeatherData
 
 if platform.system() == "Windows":
     pass
@@ -158,38 +157,3 @@ async def get_combined_data(coordinates, metric: bool) -> dict:
         data["air_quality"] = responses[1]['list'][0]
         data["forecast"] = responses[2]['list']
     return data
-
-
-@group(invoke_without_command=True, cls=CustomMultiCommand)
-@option('-j', '--json', is_flag=True, help='If used the raw json will be printed out')
-@option('-n', '--no-color', is_flag=True, help='This will not use color when printing the data out')
-@option('--no-sys-loc', is_flag=True, help='If used the location will be gotten from the web rather than the system'
-                                           'even if system location is available')
-@option('--metric', is_flag=True, help='This will switch the output to metric')
-@pass_context
-def main(ctx, json, no_color, no_sys_loc, metric):
-    if ctx.invoked_subcommand is None:
-        raw_data = asyncio.run(get_combined_data(get_device_location(no_sys_loc), metric))
-        data = OpenWeatherMapWeatherData(raw_data)
-        print_out(raw_data, data, json, no_color, metric)
-    else:
-        ctx.ensure_object(dict)
-        ctx.obj["JSON"] = json
-        ctx.obj["NO_COLOR"] = no_color
-        ctx.obj["METRIC"] = metric
-
-
-@main.command(['place', 'p', 'c'])
-@argument("location")
-@option('-j', '--json', is_flag=True, help='If used the raw json will be printed out')
-@option('-n', '--no-color', is_flag=True, help='This will not use color when printing the data out')
-@option('--metric', is_flag=True, help='This will switch the output to metric')
-@pass_context
-def place(ctx, location, json, no_color, metric):
-    raw_data = asyncio.run(get_combined_data(get_coordinates(location), metric))
-    data = OpenWeatherMapWeatherData(raw_data)
-    print_out(raw_data, data, ctx.obj["JSON"] or json, ctx.obj["NO_COLOR"] or no_color, ctx.obj["METRIC"] or metric)
-
-
-if __name__ == '__main__':
-    main(obj={})

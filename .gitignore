@@ -1,4 +1,3 @@
-cli/api_keys.py
 build/*
 dist/*
 venv/*

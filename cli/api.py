@@ -1,4 +1,4 @@
-import api_keys
+from cli import api_keys
 
 
 def weather(location, metric):
