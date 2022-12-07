@@ -32,5 +32,5 @@ jobs:
         pyinstaller -F weather.py
     - uses: actions/upload-artifact@v3
       with:
-        name: exe
+        name: weather.exe
         path: ./dist/weather.exe
