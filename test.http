@@ -1,0 +1,8 @@
+###
+GET https://api.openweathermap.org/data/2.5/air_pollution?lat=37.368832&lon=-122.036346&appid=de92b5b10e99bac9731d0275dda1629c&units=imperial
+
+###
+GET https://api.openweathermap.org/data/2.5/forecast?lat=37.368832&lon=-122.036346&appid=de92b5b10e99bac9731d0275dda1629c&units=imperial
+
+###
+GET https://api.weather.gov/points/37.368832,-122.036346
