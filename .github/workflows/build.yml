@@ -58,7 +58,7 @@ jobs:
         for file in target/wheels/*.whl
         do
           name=${file##*/}
-          pip install "$file"
+          pip install "$pwd+$file"
         done
     - name: Build with pyinstaller
       run: |
