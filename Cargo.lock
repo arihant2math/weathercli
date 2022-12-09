@@ -209,7 +209,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "58ee9362deb4a96cef4d437d1ad49cffc9b9e92d202b6995674e928ce684f112"
 
 [[package]]
-name = "weathercli"
+name = "weather_core"
 version = "0.1.0"
 dependencies = [
  "pyo3",

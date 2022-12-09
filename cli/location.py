@@ -6,7 +6,7 @@ from geopy import Bing, Nominatim
 if platform.system() == "Windows":
     from winsdk.windows.devices import geolocation as wdg
 
-from cli import api_keys
+from cli import settings
 
 
 async def get_device_location_windows():
@@ -29,8 +29,8 @@ def get_device_location(no_sys_loc=False):
 
 
 def get_coordinates(location):
-    if api_keys.BING_MAPS_API_KEY != "":
-        geolocator = Bing(api_key=api_keys.BING_MAPS_API_KEY, user_agent="weathercli")
+    if settings.BING_MAPS_API_KEY != "":
+        geolocator = Bing(api_key=settings.BING_MAPS_API_KEY, user_agent="weathercli")
     else:
         geolocator = Nominatim(user_agent="weathercli")
     coordinates = geolocator.geocode(location, timeout=10000)

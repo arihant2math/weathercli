@@ -4,7 +4,10 @@ import platform
 import colorama
 
 import aiohttp
+import core
+
 from cli.api import weather, air_quality, forecast
+from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
 from cli.custom_multi_command import CustomMultiCommand
 
 from cli.location import get_device_location, get_coordinates
@@ -84,7 +87,11 @@ def condition_sentence(data: list) -> str:
 class DummyFore:
     BLUE = ""
     GREEN = ""
+    RED = ""
+    LIGHTBLUE_EX = ""
+    LIGHTGREEN_EX = ""
     LIGHTMAGENTA_EX = ""
+    LIGHTYELLOW_EX = ""
     MAGENTA = ""
     YELLOW = ""
     RESET = ""
@@ -150,7 +157,7 @@ def print_out(raw_data, data, json, no_color, celsius):
 
 
 async def get_combined_data(coordinates, metric: bool) -> dict:
-    to_get = [weather(coordinates, metric), air_quality(coordinates, metric), forecast(coordinates, metric)]
+    to_get = core.get_urls(OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY, str(coordinates[0]) + ',' + str(coordinates[1]), metric)
     async with aiohttp.ClientSession() as session:
         responses = await fetch_all(session, to_get)
         data = responses[0]

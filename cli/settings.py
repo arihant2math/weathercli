@@ -44,5 +44,5 @@ def get_key(key: str, default=None) -> Any:
 OPEN_WEATHER_MAP_API_URL = get_key('OPEN_WEATHER_MAP_API_URL', 'https://api.openweathermap.org/data/2.5/')
 OPEN_WEATHER_MAP_API_KEY = get_key('OPEN_WEATHER_MAP_API_KEY')
 BING_MAPS_API_KEY = get_key('BING_MAPS_API_KEY')
-NO_COLOR_DEFAULT = get_key('NO_COLOR', True)
+NO_COLOR_DEFAULT = get_key('NO_COLOR', False)
 METRIC_DEFAULT = get_key('METRIC', False)
