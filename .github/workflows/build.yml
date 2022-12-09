@@ -67,3 +67,30 @@ jobs:
       with:
         name: weather (Unix)
         path: ./dist/weather
+
+  macos-build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+        maturin build -r
+        for file in target/wheels/*.whl
+        do
+          name=${file##*/}
+          pip install "$pwd+$file"
+        done
+    - name: Build with pyinstaller
+      run: |
+        pyinstaller -F --target-arch universal2 weather.py
+    - uses: actions/upload-artifact@v3
+      with:
+        name: weather.app (not recommended)
+        path: ./dist/weather.app
