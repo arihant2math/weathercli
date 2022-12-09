@@ -23,9 +23,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.11"
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
+        python -m pip install wheel
         pip install -r requirements.txt
         maturin build -r
         $files = Get-ChildItem "target/wheels/"
@@ -49,9 +53,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.11"
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
+        python3 -m pip install wheel
         pip install -r requirements.txt
         maturin build -r
         for file in target/wheels/*.whl
@@ -76,9 +84,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.11"
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
+        python3 -m pip install wheel
         pip install -r requirements.txt
         maturin build -r
         for file in target/wheels/*.whl
