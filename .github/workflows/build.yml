@@ -30,7 +30,7 @@ jobs:
         maturin build -r
         $files = Get-ChildItem "target/wheels/"
         foreach ($f in $files) {
-            pip install $f
+            pip install $pwd+$f
         }
         pip install /target/wheels/weather_core-0.1.0-cp311-none-win_amd64.whl
     - name: Build with pyinstaller
@@ -58,7 +58,7 @@ jobs:
         for file in target/wheels/*.whl
         do
           name=${file##*/}
-          pip install "$pwd+$file"
+          pip install "$file"
         done
     - name: Build with pyinstaller
       run: |
@@ -85,7 +85,7 @@ jobs:
         for file in target/wheels/*.whl
         do
           name=${file##*/}
-          pip install "$pwd+$file"
+          pip install "$file"
         done
     - name: Build with pyinstaller
       run: |
