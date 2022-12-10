@@ -1,4 +1,6 @@
 use pyo3::prelude::*;
+use windows::Devices::Geolocation::Geolocator;
+// use futures::executor;
 
 /// Formats the sum of two numbers as string.
 #[pyfunction]
@@ -7,11 +9,8 @@ fn get_urls(url: String, api_key: String, location: String, metric: bool) -> Vec
     let mut coordinates: Vec<&str> = location.split(",").collect();
     let longitude = coordinates.pop().expect("Need both coordinates").to_string();
     let latitude = coordinates.pop().expect("Need both coordinates").to_string();
-    // let mut weather_string = url.borrow() + "weather?lat=" + &latitude + "&lon=" + &longitude + "&appid=" + &api_key;
     let mut weather_string = String::from(format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}"));
-    // let mut air_quality = url.borrow() + "air_pollution?lat=" + &latitude + "&lon=" + &longitude + "&appid=" + &api_key;
     let mut air_quality = String::from(format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}"));
-    // let mut forecast = url.borrow() + "forecast?lat=" + &latitude + "&lon=" + &longitude + "&appid=" + &api_key;
     let mut forecast = String::from(format!("{url}forecast?lat={latitude}&lon={longitude}&appid={api_key}"));
     if metric {
         weather_string += "&units=metric";
@@ -26,9 +25,21 @@ fn get_urls(url: String, api_key: String, location: String, metric: bool) -> Vec
     return vec![weather_string, air_quality, forecast];
 }
 
-/// A Python module implemented in Rust.
+#[pyfunction]
+fn get_location_windows() -> Vec<String> {
+    let geolocator_result = Geolocator::new();
+    let geolocator = geolocator_result.expect("Geolocator not found");
+    let geolocation = geolocator.GetGeopositionAsync().expect("Location not found");
+    let coordinates = geolocation.get().expect("geolocation not found").Coordinate().expect("Coordinate not found").Point().expect("Point not found").Position().expect("Position not found");
+    let latitude = coordinates.Latitude;
+    let longitude = coordinates.Longitude;
+    return vec![latitude.to_string(), longitude.to_string()];
+}
+
+/// core module implemented in Rust.
 #[pymodule]
 fn core(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_urls, m)?)?;
+    m.add_function(wrap_pyfunction!(get_location_windows, m)?)?;
     Ok(())
 }

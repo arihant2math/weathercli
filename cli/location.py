@@ -1,18 +1,8 @@
-import asyncio
 import platform
-
+import core
 import requests
 from geopy import Bing, Nominatim
-if platform.system() == "Windows":
-    from winsdk.windows.devices import geolocation as wdg
-
 from cli import settings
-
-
-async def get_device_location_windows():
-    locator = wdg.Geolocator()
-    pos = await locator.get_geoposition_async()
-    return [str(pos.coordinate.latitude), str(pos.coordinate.longitude)]
 
 
 def get_device_location_web():
@@ -22,7 +12,7 @@ def get_device_location_web():
 def get_device_location(no_sys_loc=False):
     if platform.system() == "Windows" and not no_sys_loc:
         try:
-            return asyncio.run(get_device_location_windows())
+            return core.get_location_windows()
         except PermissionError:
             return get_device_location_web()
     return get_device_location_web()

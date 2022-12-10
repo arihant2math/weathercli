@@ -6,7 +6,6 @@ import colorama
 import aiohttp
 import core
 
-from cli.api import weather, air_quality, forecast
 from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
 from cli.custom_multi_command import CustomMultiCommand
 

@@ -17,3 +17,10 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.17.3", features = ["extension-module"] }
+
+[dependencies.windows]
+version = "0.43.0"
+features = [
+    "Foundation",
+    "Devices_Geolocation"
+]
