@@ -1,6 +1,6 @@
 import asyncio
 import platform
-
+import csv
 import colorama
 
 import aiohttp
@@ -32,53 +32,23 @@ async def fetch_all(session, urls):
     return results
 
 
-def get_description(condition_id: int) -> (str, int):
-    if condition_id // 100 == 2:
-        return "There is a thunderstorm", True
-    elif condition_id // 100 == 3:
-        return "It is drizzling", True
-    elif condition_id // 100 == 5:
-        return "It is raining", True
-    elif condition_id == 615:
-        return "There is light rain at it is snowing", True
-    elif condition_id == 616:
-        return "It is raining and snowing", True
-    elif condition_id // 100 == 6:
-        return "It is snowing", True
-    condition = {701: "misty",
-                 711: "smokey",
-                 721: "There is a haze",
-                 731: "It is dusty, expect to see dust whirls",
-                 741: "foggy",
-                 751: "sandy",
-                 761: "dusty",
-                 762: "There is ash in the air",
-                 771: "There are squalls",
-                 781: "There is a Tornado nearby",
-                 800: "clear",
-                 801: "slightly cloudy",
-                 802: "moderately cloudy",
-                 803: "very cloudy",
-                 804: "overcast"}
-    condition_intro_text_override = [721, 731, 762, 771, 781]
-    return condition[condition_id], condition_id in condition_intro_text_override
+def get_description(condition_id: int) -> str:
+    with open('weather_codes.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+        for row in reader:
+            if str(row[0]) == str(condition_id):
+                return row[4]
+    return "Unknown Conditions, condition id=" + str(condition_id)
 
 
 def condition_sentence(data: list) -> str:
-    condition_match, override_previous = get_description(data[0]["id"])
-    if override_previous:
-        out = condition_match
-    else:
-        out = "Conditions are " + condition_match
+    condition_match = get_description(data[0]["id"])
+    out = condition_match
     data.pop(0)
     for condition in data:
-        if override_previous:
-            out += ". Also, "
-        condition_match, override_previous = get_description(condition["id"])
-        if override_previous:
-            out += condition_match.lower()
-        else:
-            out += " and " + condition_match
+        out += ". Also, "
+        condition_match = get_description(condition["id"])
+        out += condition_match.lower()
     out += "."
     return out
 

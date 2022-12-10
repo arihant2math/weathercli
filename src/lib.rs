@@ -27,8 +27,7 @@ fn get_urls(url: String, api_key: String, location: String, metric: bool) -> Vec
 
 #[pyfunction]
 fn get_location_windows() -> Vec<String> {
-    let geolocator_result = Geolocator::new();
-    let geolocator = geolocator_result.expect("Geolocator not found");
+    let geolocator = Geolocator::new().expect("Geolocator not found");
     let geolocation = geolocator.GetGeopositionAsync().expect("Location not found");
     let coordinates = geolocation.get().expect("geolocation not found").Coordinate().expect("Coordinate not found").Point().expect("Point not found").Position().expect("Position not found");
     let latitude = coordinates.Latitude;
