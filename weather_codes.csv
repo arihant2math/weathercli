@@ -49,13 +49,8 @@ ID,Main,Description,Icon,Sentence
 762,Ash,volcanic ash,50d,Volcanic ash is present
 771,Squall,squalls,50d,There are squalls
 781,Tornado,tornado,50d,"There is a tornado nearby, seek shelter if nessicary"
-800,Clear,clear sky,"01d 
-01n",Conditions are clear
-801,Clouds,few clouds: 11-25%,"02d 
-02n",Conditions are slightly cloudy
-802,Clouds,scattered clouds: 25-50%,"03d 
-03n",Conditions are cloudy
-803,Clouds,broken clouds: 51-84%,"04d 
-04n",Conditions are very cloudy
-804,Clouds,overcast clouds: 85-100%,"04d 
-04n",Conditions are overcast
+800,Clear,clear sky,01d,Conditions are clear
+801,Clouds,few clouds: 11-25%,02d,Conditions are slightly cloudy
+802,Clouds,scattered clouds: 25-50%,03d,Conditions are cloudy
+803,Clouds,broken clouds: 51-84%,04d,Conditions are very cloudy
+804,Clouds,overcast clouds: 85-100%,04d,Conditions are overcast

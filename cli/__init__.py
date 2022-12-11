@@ -1,4 +1,3 @@
-import asyncio
 import platform
 import csv
 import colorama
@@ -9,32 +8,16 @@ import core
 from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
 from cli.custom_multi_command import CustomMultiCommand
 
-from cli.location import get_device_location, get_coordinates
 from cli.openweathermap_weather_data import OpenWeatherMapWeatherData
+from cli.url import fetch_all
 
 if platform.system() == "Windows":
     pass
 
 
-async def fetch(session, url):
-    async with session.get(url) as response:
-        if response.status != 200:
-            response.raise_for_status()
-        return await response.json()
-
-
-async def fetch_all(session, urls):
-    tasks = []
-    for url in urls:
-        task = asyncio.create_task(fetch(session, url))
-        tasks.append(task)
-    results = await asyncio.gather(*tasks)
-    return results
-
-
 def get_description(condition_id: int) -> str:
-    with open('weather_codes.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    with open('weather_codes.csv') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='\\')
         for row in reader:
             if str(row[0]) == str(condition_id):
                 return row[4]
@@ -126,7 +109,8 @@ def print_out(raw_data, data, json, no_color, celsius):
 
 
 async def get_combined_data(coordinates, metric: bool) -> dict:
-    to_get = core.get_urls(OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY, str(coordinates[0]) + ',' + str(coordinates[1]), metric)
+    to_get = core.get_urls(OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY, str(coordinates[0]) + ',' +
+                           str(coordinates[1]), metric)
     async with aiohttp.ClientSession() as session:
         responses = await fetch_all(session, to_get)
         data = responses[0]

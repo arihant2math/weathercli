@@ -1,9 +1,10 @@
 import asyncio
 
 from click import group, option, pass_context, argument
+import core
 
-from cli import OpenWeatherMapWeatherData, get_combined_data, print_out, CustomMultiCommand, get_device_location, \
-    get_coordinates
+from cli import OpenWeatherMapWeatherData, get_combined_data, print_out, CustomMultiCommand
+from cli.location import get_coordinates
 from cli.settings import store_key, get_key, METRIC_DEFAULT, NO_COLOR_DEFAULT
 
 
@@ -30,7 +31,7 @@ def main(ctx, json, no_sys_loc, no_color, color, metric, imperial):
         true_no_color = False
 
     if ctx.invoked_subcommand is None:
-        raw_data = asyncio.run(get_combined_data(get_device_location(no_sys_loc), true_metric))
+        raw_data = asyncio.run(get_combined_data(core.get_location(no_sys_loc), true_metric))
         data = OpenWeatherMapWeatherData(raw_data)
         print_out(raw_data, data, json, true_no_color, true_metric)
     else:

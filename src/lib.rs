@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
-use windows::Devices::Geolocation::Geolocator;
-// use futures::executor;
+use std::collections::HashMap;
+use reqwest;
+mod location;
 
 /// Formats the sum of two numbers as string.
 #[pyfunction]
@@ -26,19 +27,17 @@ fn get_urls(url: String, api_key: String, location: String, metric: bool) -> Vec
 }
 
 #[pyfunction]
-fn get_location_windows() -> Vec<String> {
-    let geolocator = Geolocator::new().expect("Geolocator not found");
-    let geolocation = geolocator.GetGeopositionAsync().expect("Location not found");
-    let coordinates = geolocation.get().expect("geolocation not found").Coordinate().expect("Coordinate not found").Point().expect("Point not found").Position().expect("Position not found");
-    let latitude = coordinates.Latitude;
-    let longitude = coordinates.Longitude;
-    return vec![latitude.to_string(), longitude.to_string()];
+fn get_url(url: String) -> Option<HashMap<String, String>> {
+    let resp = reqwest::blocking::get(url).expect("").json::<HashMap<String, String>>().expect("");
+    return Some(resp);
 }
+
 
 /// core module implemented in Rust.
 #[pymodule]
 fn core(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(location::get_location, m)?)?;
     m.add_function(wrap_pyfunction!(get_urls, m)?)?;
-    m.add_function(wrap_pyfunction!(get_location_windows, m)?)?;
+    m.add_function(wrap_pyfunction!(get_url, m)?)?;
     Ok(())
 }
