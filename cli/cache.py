@@ -50,6 +50,10 @@ def get_key(store: str, key: str) -> Any:
     with open(file, 'r') as f:
         data = json.load(f)
     if (store in data) and (key in data[store]):
+        time = datetime.datetime.now()
+        data[store][key]['count'] += 1
+        time_str = str(time.year) + ":" + str(time.month) + ":" + str(time.day)
+        data[store][key]['last_queried'] = time_str
         return data[store][key]['value']
     else:
         return None
