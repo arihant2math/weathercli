@@ -1,26 +1,19 @@
-import platform
-import csv
-import colorama
-
 import aiohttp
+import colorama
 import core
 
-from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
+import weather_codes
 from cli.custom_multi_command import CustomMultiCommand
-
 from cli.openweathermap_weather_data import OpenWeatherMapWeatherData
+from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
 from cli.url import fetch_all
-
-if platform.system() == "Windows":
-    pass
 
 
 def get_description(condition_id: int) -> str:
-    with open('weather_codes.csv') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',', quotechar='\\')
-        for row in reader:
-            if str(row[0]) == str(condition_id):
-                return row[4]
+    reader = weather_codes.data
+    for row in reader:
+        if str(row[0]) == str(condition_id):
+            return row[4]
     return "Unknown Conditions, condition id=" + str(condition_id)
 
 
