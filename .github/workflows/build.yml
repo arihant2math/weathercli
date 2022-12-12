@@ -100,7 +100,7 @@ jobs:
         done
     - name: Build with pyinstaller
       run: |
-        pyinstaller -F --target-arch universal2 weather.py
+        pyinstaller -F weather.py
     - uses: actions/upload-artifact@v3
       with:
         name: weather.app (not recommended)
