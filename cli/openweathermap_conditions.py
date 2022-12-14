@@ -42,6 +42,8 @@ class OpenWeatherMapConditions:
             data = core.get_urls(["https://raw.githubusercontent.com/arihant2math/weathercli/main/weather_codes.json"])[0]
             with open(f.path, 'w') as out:
                 out.write(data)
+            f = WeatherFile("weather_codes.json")
+
         if str(self.id) in f.data:
             return f.data[str(self.id)][3]
         return "Unknown Conditions, condition id=" + str(self.id)
