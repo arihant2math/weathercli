@@ -1,3 +1,5 @@
+import sys
+
 from click import group, option, pass_context, argument
 import core
 
@@ -81,6 +83,17 @@ def config(ctx, key_name: str, value):
         elif value.lower() in ["false", "f", "no", "n"]:
             value = False
         store_key(key_name.upper(), value)
+
+
+@main.command(['update-windows'], help="updates the cli (windows only)")
+@pass_context
+def update_windows(ctx):
+    if getattr(sys, 'frozen', False):
+        application_path = sys.executable
+        print("Checking for updates")
+        print("Updating weather.exe at " + application_path)
+    else:
+        print("Not implemented for non executable installs")
 
 
 if __name__ == '__main__':

@@ -1,6 +1,5 @@
-import json
-
 import core
+from cli.settings import WEATHER_DATA_HASH, store_key
 from cli.weather_file import WeatherFile
 import hashlib
 
@@ -35,13 +34,14 @@ class OpenWeatherMapConditions:
 
     def get_sentence(self):
         f = WeatherFile("weather_codes.json")
-        true_hash = "b5c4e4f4c9c210b77b1ef94a4d440cd057cc900a"
         file_hash = hash_file(f.path)
-        if true_hash != file_hash:
+        if WEATHER_DATA_HASH != file_hash:
             print("Warning: weather_codes.json is out of date or has been modified, downloading replacement.")
             data = core.get_urls(["https://raw.githubusercontent.com/arihant2math/weathercli/main/weather_codes.json"])[0]
             with open(f.path, 'w') as out:
                 out.write(data)
+            new_file_hash = hash_file(f.path)
+            store_key(WEATHER_DATA_HASH, new_file_hash)
             f = WeatherFile("weather_codes.json")
 
         if str(self.id) in f.data:
