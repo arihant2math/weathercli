@@ -31,6 +31,7 @@ fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: boo
     return vec![weather_string, air_quality, forecast];
 }
 
+#[pyfunction]
 fn get_urls(urls: Vec<String>) -> Vec<String> {
     let data : Vec<_>= urls
         .par_iter()
@@ -56,6 +57,7 @@ fn get_combined_data_unformatted(
 #[pymodule]
 fn core(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(location::get_location, m)?)?;
+    m.add_function(wrap_pyfunction!(get_urls, m)?)?;
     m.add_function(wrap_pyfunction!(get_combined_data_unformatted, m)?)?;
     m.add_class::<wind_data::WindData>()?;
     m.add_class::<weather_data::WeatherData>()?;

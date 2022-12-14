@@ -12,6 +12,9 @@ def get_location(no_sys_loc: bool) -> list[str]:
 def get_combined_data_unformatted(open_weather_map_api_url: str, open_weather_map_api_key: str, coordinates: list[str], metric: bool) -> list[str]:
     pass
 
+def get_urls(urls: list[str]) -> list[str]:
+    pass
+
 # classes
 
 class WindData(object):

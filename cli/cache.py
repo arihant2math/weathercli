@@ -27,7 +27,7 @@ def add_data(store: str, key: str, value: str):
     # Serializing json
     json_object = json.dumps(data, indent=4)
     # Writing to sample.json
-    with open(f.file, "w") as f:
+    with open(f.path, "w") as f:
         f.write(json_object)
 
 
