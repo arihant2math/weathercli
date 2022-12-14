@@ -3,25 +3,12 @@ import json
 import colorama
 import core
 
-import weather_codes
 from cli.custom_multi_command import CustomMultiCommand
+from cli.dummy_fore import DummyFore
 from cli.openweathermap_weather_data import OpenWeatherMapWeatherData
 from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
 from cli.url import fetch_all
 from cli.weather_data import WeatherData
-
-
-class DummyFore:
-    BLUE = ""
-    GREEN = ""
-    RED = ""
-    LIGHTBLUE_EX = ""
-    LIGHTGREEN_EX = ""
-    LIGHTMAGENTA_EX = ""
-    LIGHTYELLOW_EX = ""
-    MAGENTA = ""
-    YELLOW = ""
-    RESET = ""
 
 
 def color_value(value, units=None):
