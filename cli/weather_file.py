@@ -13,8 +13,6 @@ class WeatherFile:
             with open(self.path, 'w') as f:
                 f.write('{}')
         with open(self.path, 'r') as f:
-            self.text = f.read()
-            print(self.path)
             self.data = json.load(f)
 
     def write(self):

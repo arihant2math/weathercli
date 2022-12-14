@@ -35,13 +35,13 @@ class OpenWeatherMapConditions:
 
     def get_sentence(self):
         f = WeatherFile("weather_codes.json")
-        true_hash = "642497b7a27601d03c9c1ab2eae7b289d2382e8a"
+        true_hash = "b5c4e4f4c9c210b77b1ef94a4d440cd057cc900a"
         file_hash = hash_file(f.path)
         if true_hash != file_hash:
             print("Warning: weather_codes.json is out of date or has been modified, downloading replacement.")
             data = core.get_urls(["https://raw.githubusercontent.com/arihant2math/weathercli/main/weather_codes.json"])[0]
-            f.data = json.loads(data)
-            f.write()
+            with open(f.path, 'w') as out:
+                out.write(data)
         if str(self.id) in f.data:
             return f.data[str(self.id)][3]
         return "Unknown Conditions, condition id=" + str(self.id)
