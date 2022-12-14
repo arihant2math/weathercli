@@ -5,11 +5,11 @@
 
 # functions
 
-def get_location(no_sys_loc: bool):
+def get_location(no_sys_loc: bool) -> list[str]:
     """:param no_sys_loc If true the location will always be gotten from the web, if not, the location will be gotten via the win32 api if possible"""
     pass
 
-def get_combined_data_unformatted(open_weather_map_api_url: str, open_weather_map_api_key: str, coordinates: list[str], metric: bool):
+def get_combined_data_unformatted(open_weather_map_api_url: str, open_weather_map_api_key: str, coordinates: list[str], metric: bool) -> list[str]:
     pass
 
 # classes
@@ -17,7 +17,8 @@ def get_combined_data_unformatted(open_weather_map_api_url: str, open_weather_ma
 class WindData(object):
     """Represents the wind"""
     def __init__(self, speed: str, heading: int):
-        pass
+        self.speed = speed
+        self.heading = heading
 
 
 # variables with complex values
