@@ -1,3 +1,4 @@
+# TODO: Port to Rust
 data = [
     [200, "Thunderstorm", "thunderstorm with light rain", "11d", "A thunderstorm is occurring and there is light rain"],
     [201, "Thunderstorm", "thunderstorm with rain", "11d", "A thunderstorm is occurring and there is rain"],
@@ -20,15 +21,15 @@ data = [
     [313, "Drizzle", "shower rain and drizzle", "09d", "It is currently showering and drizzling"],
     [314, "Drizzle", "heavy shower rain and drizzle", "09d", "It is currently showering heavily and drizzling"],
     [321, "Drizzle", "shower drizzle", "09d", "It is currently drizzling heavily"],
-    [500, "Rain", "light rain", "10d", "A light rain is occuring"],
+    [500, "Rain", "light rain", "10d", "A light rain is occurring"],
     [501, "Rain", "moderate rain", "10d", "It is raining"],
     [502, "Rain", "heavy intensity rain", "10d", "It is raining heavily"],
     [503, "Rain", "very heavy rain", "10d", "It is raining very heavily"],
     [504, "Rain", "extreme rain", "10d", "It is raining extremely heavily"],
     [511, "Rain", "freezing rain", "13d", "It is raining cold water"],
-    [520, "Rain", "light intensity shower rain", "09d", "A light intensity shower rain is occuring"],
+    [520, "Rain", "light intensity shower rain", "09d", "A light intensity shower rain is occurring"],
     [521, "Rain", "shower rain", "09d", "It is showering"],
-    [522, "Rain", "heavy intensity shower rain", "09d", "A heavy intensity shower rain is occuring"],
+    [522, "Rain", "heavy intensity shower rain", "09d", "A heavy intensity shower rain is occurring"],
     [531, "Rain", "ragged shower rain", "09d", "It is showering"],
     [600, "Snow", "light snow", "13d", "It is snowing lightly"],
     [601, "Snow", "Snow", "13d", "It is snowing"],

@@ -1,5 +1,3 @@
-import asyncio
-
 from click import group, option, pass_context, argument
 import core
 
@@ -31,9 +29,9 @@ def main(ctx, json, no_sys_loc, no_color, color, metric, imperial):
         true_no_color = False
 
     if ctx.invoked_subcommand is None:
-        raw_data = asyncio.run(get_combined_data(core.get_location(no_sys_loc), true_metric))
+        raw_data = get_combined_data(core.get_location(no_sys_loc), true_metric)
         data = OpenWeatherMapWeatherData(raw_data)
-        print_out(raw_data, data, json, true_no_color, true_metric)
+        print_out(data, json, true_no_color, true_metric)
     else:
         ctx.ensure_object(dict)
         ctx.obj["JSON"] = json
@@ -50,7 +48,7 @@ def main(ctx, json, no_sys_loc, no_color, color, metric, imperial):
 @option('--imperial', is_flag=True, help='This will switch the output to imperial')
 @pass_context
 def place(ctx, location, json, no_color, color, metric, imperial):
-    raw_data = asyncio.run(get_combined_data(get_coordinates(location), metric))
+    raw_data = get_combined_data(get_coordinates(location), metric)
     data = OpenWeatherMapWeatherData(raw_data)
     true_metric = ctx.obj["METRIC"]
     if metric:
@@ -64,14 +62,14 @@ def place(ctx, location, json, no_color, color, metric, imperial):
     elif color:
         true_no_color = False
 
-    print_out(raw_data, data, ctx.obj["JSON"] or json, true_no_color, true_metric)
+    print_out(data, ctx.obj["JSON"] or json, true_no_color, true_metric)
 
 
 @main.command(['config', 'setting', 'c'], help="prints or changes the settings")
 @argument('key_name')
 @option('--value', help='This sets the key')
 @pass_context
-def test(ctx, key_name: str, value):
+def config(ctx, key_name: str, value):
     value = str(value)
     if value is None:
         print(get_key(key_name.upper()))
