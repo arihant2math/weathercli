@@ -36,3 +36,7 @@ __all__ = [
 __loader__ = None
 
 __spec__ = None
+
+
+def is_update_available() -> str:
+    pass

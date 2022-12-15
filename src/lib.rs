@@ -5,6 +5,7 @@ use reqwest;
 mod location;
 mod wind_data;
 mod weather_data;
+mod update;
 
 fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: bool) -> Vec<String> {
     // Gets the urls from the server
@@ -59,6 +60,9 @@ fn core(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(location::get_location, m)?)?;
     m.add_function(wrap_pyfunction!(get_urls, m)?)?;
     m.add_function(wrap_pyfunction!(get_combined_data_unformatted, m)?)?;
+    m.add_function(wrap_pyfunction!(update::is_update_available, m)?)?;
+    m.add_function(wrap_pyfunction!(update::is_updater_update_available, m)?)?;
+    m.add_function(wrap_pyfunction!(update::get_updater, m)?)?;
     m.add_class::<wind_data::WindData>()?;
     m.add_class::<weather_data::WeatherData>()?;
     Ok(())
