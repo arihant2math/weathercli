@@ -1,4 +1,6 @@
+import subprocess
 import sys
+from pathlib import Path, WindowsPath
 
 from click import group, option, pass_context, argument
 import core
@@ -88,10 +90,18 @@ def config(ctx, key_name: str, value):
 @main.command(['update-windows'], help="updates the cli (windows only)")
 @pass_context
 def update_windows(ctx):
+    print("Checking for updates ...")
+    latest_version = core.is_update_available()
     if getattr(sys, 'frozen', False):
-        application_path = sys.executable
-        print("Checking for updates")
-        print("Updating weather.exe at " + application_path)
+        application_path = WindowsPath(sys.executable)
+        print("Latest Version: " + latest_version)
+        if latest_version != "12/13/2022":
+            print("Updating weather.exe at " + str(application_path))
+            updater_location = application_path.parent / "updater.exe"
+            if not updater_location.exists():
+                print("Updater not found, downloading updater")
+                core.get_updater(str(updater_location))
+            subprocess.call([updater_location], cwd=str(application_path.parent))
     else:
         print("Not implemented for non executable installs")
 
