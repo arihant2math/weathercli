@@ -1,6 +1,6 @@
 import subprocess
 import sys
-from pathlib import Path, WindowsPath
+from pathlib import WindowsPath
 
 from click import group, option, pass_context, argument
 import core

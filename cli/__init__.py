@@ -7,7 +7,6 @@ from cli.custom_multi_command import CustomMultiCommand
 from cli.dummy_fore import DummyFore
 from cli.openweathermap_weather_data import OpenWeatherMapWeatherData
 from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
-from cli.url import fetch_all
 from cli.weather_data import WeatherData
 
 

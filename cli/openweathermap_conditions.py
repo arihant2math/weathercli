@@ -41,7 +41,7 @@ class OpenWeatherMapConditions:
             with open(f.path, 'w') as out:
                 out.write(data)
             new_file_hash = hash_file(f.path)
-            store_key(WEATHER_DATA_HASH, new_file_hash)
+            store_key('WEATHER_DATA_HASH', new_file_hash)
             f = WeatherFile("weather_codes.json")
 
         if str(self.id) in f.data:

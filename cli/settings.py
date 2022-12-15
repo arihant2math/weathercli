@@ -14,7 +14,8 @@ def get_key(key: str, default=None) -> Any:
     if key in f.data:
         return f.data[key]
     else:
-        store_key(key, default)
+        if default is not None:
+            store_key(key, default)
         return default
 
 
@@ -23,4 +24,4 @@ OPEN_WEATHER_MAP_API_KEY = get_key('OPEN_WEATHER_MAP_API_KEY')
 BING_MAPS_API_KEY = get_key('BING_MAPS_API_KEY')
 NO_COLOR_DEFAULT = get_key('NO_COLOR', False)
 METRIC_DEFAULT = get_key('METRIC', False)
-WEATHER_DATA_HASH = get_key('WEATHER_DATA_HASH', '')
+WEATHER_DATA_HASH = get_key('WEATHER_DATA_HASH')
