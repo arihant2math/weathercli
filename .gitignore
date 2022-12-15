@@ -2,6 +2,7 @@ build/*
 dist/*
 venv/*
 target/*
+updater/target/*
 .idea/*
 weather.exe
 weather.spec
