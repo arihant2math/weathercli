@@ -1,0 +1,25 @@
+name: Updater build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  windows-build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Build
+      run: |
+        cd updater
+        cargo build -r
+    - uses: actions/upload-artifact@v3
+      with:
+        name: weather.exe
+        path: ./updater/target/release/weather.exe
