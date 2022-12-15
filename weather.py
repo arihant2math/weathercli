@@ -101,7 +101,9 @@ def update_windows(ctx):
             if not updater_location.exists():
                 print("Updater not found, downloading updater")
                 core.get_updater(str(updater_location))
+            print("Starting updater and exiting")
             subprocess.call([updater_location], cwd=str(application_path.parent))
+            sys.exit(0)
     else:
         print("Not implemented for non executable installs")
 
