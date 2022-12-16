@@ -18,7 +18,7 @@ def color_value(value, units=None):
 
 
 def print_out(data: OpenWeatherMapWeatherData, print_json: bool, no_color: bool,
-              metric: bool):  # TODO: Remove dependence on raw data
+              metric: bool):
     global Fore
     if not no_color:
         Fore = colorama.Fore

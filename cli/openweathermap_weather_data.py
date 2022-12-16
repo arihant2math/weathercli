@@ -6,12 +6,11 @@ from core import WindData
 class OpenWeatherMapWeatherData(WeatherData):
     def __init__(self, data: dict):
         super().__init__(data['main']['temp'], data['main']['temp_min'], data['main']['temp_max'], data['name'],
-                         WindData(data['wind']['speed'], data['wind']['deg']))
+                         WindData(data['wind']['speed'], data['wind']['deg']), data)
         if 'cod' in data:
             self.status: int = data['cod']
         else:
             self.status: int = 200
-        self.raw_data: dict = data
         self.aqi: int = data['air_quality']['main']['aqi']
         self.country: str = data['sys']['country']
         self.cloud_cover: int = data['clouds']['all']
