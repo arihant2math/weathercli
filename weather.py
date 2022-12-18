@@ -1,7 +1,7 @@
 import platform
 import subprocess
 import sys
-from pathlib import WindowsPath
+from pathlib import WindowsPath, Path
 
 from click import group, option, pass_context, argument
 import core
@@ -117,24 +117,26 @@ def config(ctx, key_name: str, value):
         store_key(key_name.upper(), value)
 
 
-@main.command(["update-windows"], help="updates the cli (windows only)")
+@main.command(["update", "update-windows"], help="updates the cli (standalone executable install only)")
 @pass_context
-def update_windows(ctx):
+def update(ctx):
     print("Checking for updates ...")
     latest_version = core.update.get_latest_version()
     if getattr(sys, "frozen", False):
-        if platform.system() == "Windows":
-            application_path = WindowsPath(sys.executable)
-            print("Latest Version: " + latest_version)
-            if latest_version != "12/13/2022":
-                print("Updating weather.exe at " + str(application_path))
+        application_path = Path(sys.executable)
+        print("Latest Version: " + latest_version)
+        if latest_version != "12/13/2022":
+            print("Updating weather.exe at " + str(application_path))
+            if platform.system() == "Windows":
                 updater_location = application_path.parent / "updater.exe"
-                if not updater_location.exists():
-                    print("Updater not found, downloading updater")
-                    core.update.get_updater(str(updater_location))
-                print("Starting updater and exiting")
-                subprocess.Popen([updater_location], cwd=str(application_path.parent))
-                sys.exit(0)
+            else:
+                updater_location = application_path.parent / "update"
+            if not updater_location.exists():
+                print("Updater not found, downloading updater")
+                core.update.get_updater(str(updater_location))
+            print("Starting updater and exiting")
+            subprocess.Popen([updater_location], cwd=str(application_path.parent))
+            sys.exit(0)
     else:
         print("Not implemented for non executable installs")
 

@@ -21,7 +21,17 @@ pub fn get_latest_updater_version() -> String {
 
 #[pyfunction]
 pub fn get_updater(path: String) {
-    let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/updater.exe").expect("url expected").bytes().expect("bytes expected");
-    let mut file = OpenOptions::new().create_new(true).write(true).open(path).unwrap();
-    file.write_all(&data).expect("Something went wrong opening the file");
+    if cfg!(windows) {
+        let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/updater.exe").expect("url expected").bytes().expect("bytes expected");
+        let mut file = OpenOptions::new().create_new(true).write(true).open(path).unwrap();
+        file.write_all(&data).expect("Something went wrong opening the file");
+    }
+    else if cfg!(unix) {
+        let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/updater").expect("url expected").bytes().expect("bytes expected");
+        let mut file = OpenOptions::new().create_new(true).write(true).open(path).unwrap();
+        file.write_all(&data).expect("Something went wrong opening the file");
+    }
+    else {
+        println!("OS unsupported");
+    }
 }
