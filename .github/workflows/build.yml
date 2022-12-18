@@ -36,7 +36,7 @@ jobs:
         pyinstaller -F weather.py -i ./icon/icon.png
     - uses: actions/upload-artifact@v3
       with:
-        name: weather.exe
+        name: weather (Windows)
         path: ./dist/weather.exe
   unix-build:
 
