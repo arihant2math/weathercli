@@ -5,17 +5,23 @@ from core import WindData
 
 class OpenWeatherMapWeatherData(WeatherData):
     def __init__(self, data: dict):
-        super().__init__(data['main']['temp'], data['main']['temp_min'], data['main']['temp_max'], data['name'],
-                         WindData(data['wind']['speed'], data['wind']['deg']), data)
-        if 'cod' in data:
-            self.status: int = data['cod']
+        super().__init__(
+            data["main"]["temp"],
+            data["main"]["temp_min"],
+            data["main"]["temp_max"],
+            data["name"],
+            WindData(data["wind"]["speed"], data["wind"]["deg"]),
+            data,
+        )
+        if "cod" in data:
+            self.status: int = data["cod"]
         else:
             self.status: int = 200
-        self.aqi: int = data['air_quality']['main']['aqi']
-        self.country: str = data['sys']['country']
-        self.cloud_cover: int = data['clouds']['all']
+        self.aqi: int = data["air_quality"]["main"]["aqi"]
+        self.country: str = data["sys"]["country"]
+        self.cloud_cover: int = data["clouds"]["all"]
         self.conditions: list[OpenWeatherMapConditions] = []
-        for condition in data['weather']:
+        for condition in data["weather"]:
             self.conditions.append(OpenWeatherMapConditions(condition))
         self.condition_ids: list[int] = self.get_condition_ids()
         self.condition_sentence: str = self.get_condition_sentence()
@@ -40,13 +46,13 @@ class OpenWeatherMapWeatherData(WeatherData):
         return out
 
     def get_forecast_sentence(self):
-        data = self.raw_data['forecast']
+        data = self.raw_data["forecast"]
         rain = []
         snow = []
         for period in data:
-            if period['weather'][0]['main'] == "Rain":
+            if period["weather"][0]["main"] == "Rain":
                 rain.append(True)
-            elif period['weather'][0]['main'] == "Snow":
+            elif period["weather"][0]["main"] == "Snow":
                 snow.append(True)
             # if period['weather'][1]['main'] == "Rain":
             #     rain.append(True)
@@ -72,7 +78,7 @@ class OpenWeatherMapWeatherData(WeatherData):
             for period in combined:
                 t += 1
                 if period[0]:
-                    return "It will rain in " + str(t*3) + " hours"
+                    return "It will rain in " + str(t * 3) + " hours"
                 elif period[1]:
-                    return "It will snow in " + str(t*3) + " hours"
+                    return "It will snow in " + str(t * 3) + " hours"
         return "Conditions are predicted to be clear for the next 3 days."

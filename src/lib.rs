@@ -1,6 +1,8 @@
 use pyo3::prelude::*;
 use rayon::prelude::*;
 use reqwest;
+use sha256::try_digest;
+use std::path::Path;
 
 mod location;
 mod wind_data;
@@ -54,12 +56,20 @@ fn get_combined_data_unformatted(
     return get_urls(urls);
 }
 
+#[pyfunction]
+fn hash_file(filename: String) -> String {
+    let input = Path::new(&filename);
+    let val = try_digest(input).unwrap();
+    return val;
+}
+
 /// core module implemented in Rust.
 #[pymodule]
 fn core(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(location::get_location, m)?)?;
     m.add_function(wrap_pyfunction!(get_urls, m)?)?;
     m.add_function(wrap_pyfunction!(get_combined_data_unformatted, m)?)?;
+    m.add_function(wrap_pyfunction!(hash_file, m)?)?;
     m.add_function(wrap_pyfunction!(update::is_update_available, m)?)?;
     m.add_function(wrap_pyfunction!(update::is_updater_update_available, m)?)?;
     m.add_function(wrap_pyfunction!(update::get_updater, m)?)?;

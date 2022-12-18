@@ -6,7 +6,7 @@ from cli.weather_file import WeatherFile
 
 
 def add_data(store: str, key: str, value: str):
-    f = WeatherFile('cache.json')
+    f = WeatherFile("cache.json")
     data = f.data
     if store in data:
         store_values = data[store]
@@ -32,25 +32,25 @@ def add_data(store: str, key: str, value: str):
 
 
 def get_key(store: str, key: str) -> Any:
-    f = WeatherFile('cache.json')
+    f = WeatherFile("cache.json")
     if (store in f.data) and (key in f.data[store]):
         time = datetime.datetime.now()
-        f.data[store][key]['count'] += 1
+        f.data[store][key]["count"] += 1
         time_str = str(time.year) + ":" + str(time.month) + ":" + str(time.day)
-        f.data[store][key]['last_queried'] = time_str
+        f.data[store][key]["last_queried"] = time_str
         f.write()
-        return f.data[store][key]['value']
+        return f.data[store][key]["value"]
     else:
         return None
 
 
 def prune_cache():
     time = datetime.datetime.now()
-    f = WeatherFile('cache.json')
+    f = WeatherFile("cache.json")
     data = f.data
     for store in data:
         for key in store:
             if len(store) > 100:
-                query_date: list[str] = data[store][key]['last_queried'].split(":")
+                query_date: list[str] = data[store][key]["last_queried"].split(":")
                 if int(query_date[0]) != time.now():
                     store.pop(key, None)

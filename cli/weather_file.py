@@ -10,9 +10,9 @@ class WeatherFile:
             os.mkdir(directory)
         self.path = directory / file_name
         if not self.path.exists():
-            with open(self.path, 'w') as f:
-                f.write('{}')
-        with open(self.path, 'r') as f:
+            with open(self.path, "w") as f:
+                f.write("{}")
+        with open(self.path, "r") as f:
             self.data = json.load(f)
 
     def write(self):
