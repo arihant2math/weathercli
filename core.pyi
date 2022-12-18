@@ -20,17 +20,14 @@ def get_combined_data_unformatted(
 def get_urls(urls: list[str]) -> list[str]:
     pass
 
-
 def is_update_available() -> str:
     pass
 
 def get_updater(location: str):
     pass
 
-
 def hash_file(path: str) -> str:
     pass
-
 
 # classes
 
