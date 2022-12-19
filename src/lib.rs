@@ -8,6 +8,7 @@ mod location;
 mod wind_data;
 mod weather_data;
 mod update;
+mod networking;
 
 fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: bool) -> Vec<String> {
     // Gets the urls from the server
@@ -35,23 +36,6 @@ fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: boo
 }
 
 #[pyfunction]
-fn get_url(url: String) -> String {
-    let data  = reqwest::blocking::get(url).expect("Url Get failed").text().expect("text expected");
-    return data;
-}
-
-
-#[pyfunction]
-fn get_urls(urls: Vec<String>) -> Vec<String> {
-    let data : Vec<_>= urls
-        .par_iter()
-        .map(|url| reqwest::blocking::get(url).expect("Url Get failed").text().expect("text expected"))
-        .collect();
-
-    return data;
-}
-
-#[pyfunction]
 fn get_combined_data_unformatted(
     open_weather_map_api_url: String,
     open_weather_map_api_key: String,
@@ -60,7 +44,7 @@ fn get_combined_data_unformatted(
 ) -> Vec<String> {
     let urls = get_api_urls(open_weather_map_api_url, open_weather_map_api_key,
                             coordinates, metric);
-    return get_urls(urls);
+    return networking::get_urls(urls);
 }
 
 #[pyfunction]
@@ -78,24 +62,7 @@ fn core(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(hash_file, m)?)?;
     m.add_class::<wind_data::WindData>()?;
     m.add_class::<weather_data::WeatherData>()?;
-    register_networking_module(py, m)?;
-    register_update_module(py, m)?;
-    Ok(())
-}
-
-fn register_networking_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
-    let child_module = PyModule::new(py, "networking")?;
-    child_module.add_function(wrap_pyfunction!(get_url, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(get_urls, child_module)?)?;
-    parent_module.add_submodule(child_module)?;
-    Ok(())
-}
-
-fn register_update_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
-    let child_module = PyModule::new(py, "update")?;
-    child_module.add_function(wrap_pyfunction!(update::get_latest_version, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(update::get_latest_updater_version, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(update::get_updater, child_module)?)?;
-    parent_module.add_submodule(child_module)?;
+    networking::register_networking_module(py, m)?;
+    update::register_update_module(py, m)?;
     Ok(())
 }
