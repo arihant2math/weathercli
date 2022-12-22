@@ -2,6 +2,7 @@ import json
 
 import colorama
 import core
+from core import color_value
 
 from cli.custom_multi_command import CustomMultiCommand
 from cli.dummy_fore import DummyFore
@@ -10,15 +11,8 @@ from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
 from cli.weather_data import WeatherData
 
 
-def color_value(value, units=None):
-    if units is None:
-        return Fore.LIGHTGREEN_EX + value + Fore.LIGHTBLUE_EX
-    else:
-        return Fore.LIGHTGREEN_EX + value + Fore.MAGENTA + units + Fore.LIGHTBLUE_EX
-
-
 def print_out(
-    data: OpenWeatherMapWeatherData, print_json: bool, no_color: bool, metric: bool
+        data: OpenWeatherMapWeatherData, print_json: bool, no_color: bool, metric: bool
 ):
     global Fore
     if not no_color:
@@ -31,7 +25,7 @@ def print_out(
         print(
             Fore.LIGHTBLUE_EX
             + "Weather for "
-            + color_value(data.region + ", " + data.country)
+            + color_value(data.region + ", " + data.country, None, not no_color)
         )
         print(Fore.LIGHTMAGENTA_EX + data.condition_sentence)
         print(Fore.LIGHTMAGENTA_EX + data.forecast_sentence)
@@ -42,23 +36,23 @@ def print_out(
         print(
             Fore.LIGHTBLUE_EX
             + "Temperature: "
-            + color_value(str(data.temperature), degree_ending),
+            + color_value(str(data.temperature), degree_ending, not no_color),
             end="",
         )
         print(
             " with a min of {} and a max of {}".format(
-                color_value(str(data.min_temp), degree_ending),
-                color_value(str(data.max_temp), degree_ending),
+                color_value(str(data.min_temp), degree_ending, not no_color),
+                color_value(str(data.max_temp), degree_ending, not no_color),
             )
         )
         print(
             Fore.LIGHTBLUE_EX + "Forecast (3h intervals): " + Fore.LIGHTGREEN_EX, end=""
         )
-        forecast_temps = data.raw_data["forecast"]
+        forecast_temps = data.forecast.copy()
         while len(forecast_temps) > 8:
             forecast_temps.pop()
         for temp in forecast_temps:
-            print(str(int(temp["main"]["temp"] // 1)), end=" ")
+            print(str(int(temp.main.temp // 1)), end=" ")
         print("")
         print(
             Fore.LIGHTBLUE_EX
@@ -72,12 +66,12 @@ def print_out(
             print("km/h", end=" ")
         else:
             print("mph", end=" ")
-        print(Fore.LIGHTBLUE_EX + "at " + color_value(str(data.wind.heading), "°"))
+        print(Fore.LIGHTBLUE_EX + "at " + color_value(str(data.wind.heading), "°", not no_color))
         if data.cloud_cover != 0:
             print(
                 Fore.LIGHTBLUE_EX
                 + "Cloud Cover: "
-                + color_value(str(data.cloud_cover), "%")
+                + color_value(str(data.cloud_cover), "%", not no_color)
             )
         aqi = data.aqi
         aqi_color = Fore.LIGHTYELLOW_EX
@@ -91,11 +85,6 @@ def print_out(
 
 
 def get_combined_data(coordinates, metric: bool) -> dict:
-    responses = core.get_combined_data_unformatted(
+    return core.get_combined_data_formatted(
         OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY, coordinates, metric
     )
-    json_responses = [json.loads(r) for r in responses]
-    data = json_responses[0]
-    data["air_quality"] = json_responses[1]["list"][0]
-    data["forecast"] = json_responses[2]["list"]
-    return data

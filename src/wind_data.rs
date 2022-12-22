@@ -4,9 +4,8 @@ use pyo3::prelude::*;
 #[derive(Clone, Copy)]
 pub struct WindData {
     speed: f64,
-    heading: i16
+    heading: i16,
 }
-
 
 #[pymethods]
 impl WindData {
@@ -15,14 +14,13 @@ impl WindData {
         WindData { speed, heading }
     }
 
-
-     #[getter(speed)]
-     fn speed(&self) -> PyResult<f64> {
+    #[getter(speed)]
+    fn speed(&self) -> PyResult<f64> {
         Ok(self.speed)
-     }
+    }
 
-     #[getter(heading)]
-     fn heading(&self) -> PyResult<i16> {
+    #[getter(heading)]
+    fn heading(&self) -> PyResult<i16> {
         Ok(self.heading)
-     }
+    }
 }

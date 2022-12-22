@@ -5,10 +5,10 @@ from cli.weather_file import WeatherFile
 
 class OpenWeatherMapConditions:
     def __init__(self, data):
-        self.id: int = data["id"]
-        self.name = data["main"]
-        self.description = data["description"]
-        self.icon = data["icon"]
+        self.id: int = data.id
+        self.name = data.main
+        self.description = data.description
+        self.icon = data.icon
         self.sentence = self.get_sentence()
 
     def get_sentence(self):

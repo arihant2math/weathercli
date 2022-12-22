@@ -1,8 +1,8 @@
 use pyo3::prelude::*;
 use std::collections::HashMap;
-use std::env;
 use windows::Devices::Geolocation::Geolocator;
 
+#[cfg(target_os = "windows")]
 fn get_location_windows() -> Vec<String> {
     let geolocator = Geolocator::new().expect("Geolocator not found");
     let geolocation = geolocator
@@ -38,7 +38,7 @@ fn get_location_web() -> Vec<String> {
 #[pyfunction]
 pub fn get_location(no_sys_loc: bool) -> Vec<String> {
     // If no_sys_loc is true, the location will always be gotten from the web
-    if (env::consts::OS == "windows") && (!no_sys_loc) {
+    if (cfg!(windows)) && (!no_sys_loc) {
         return get_location_windows();
     }
     return get_location_web();

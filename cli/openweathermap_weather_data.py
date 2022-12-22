@@ -4,24 +4,22 @@ from core import WindData
 
 
 class OpenWeatherMapWeatherData(WeatherData):
-    def __init__(self, data: dict):
+    def __init__(self, data):
         super().__init__(
-            data["main"]["temp"],
-            data["main"]["temp_min"],
-            data["main"]["temp_max"],
-            data["name"],
-            WindData(data["wind"]["speed"], data["wind"]["deg"]),
-            data,
+            data.weather.main.temp,
+            data.weather.main.temp_min,
+            data.weather.main.temp_max,
+            data.weather.name,
+            WindData(data.weather.wind.speed, data.weather.wind.deg),
+            data.raw_data
         )
-        if "cod" in data:
-            self.status: int = data["cod"]
-        else:
-            self.status: int = 200
-        self.aqi: int = data["air_quality"]["main"]["aqi"]
-        self.country: str = data["sys"]["country"]
-        self.cloud_cover: int = data["clouds"]["all"]
+        self.status = data.weather.cod
+        self.aqi: int = data.air_quality.list[0].main["aqi"]
+        self.forecast = data.forecast.list
+        self.country: str = data.weather.sys.country
+        self.cloud_cover: int = data.weather.clouds.all
         self.conditions: list[OpenWeatherMapConditions] = []
-        for condition in data["weather"]:
+        for condition in data.weather.weather:
             self.conditions.append(OpenWeatherMapConditions(condition))
         self.condition_ids: list[int] = self.get_condition_ids()
         self.condition_sentence: str = self.get_condition_sentence()
@@ -46,13 +44,13 @@ class OpenWeatherMapWeatherData(WeatherData):
         return out
 
     def get_forecast_sentence(self):
-        data = self.raw_data["forecast"]
+        data = self.forecast.copy()
         rain = []
         snow = []
         for period in data:
-            if period["weather"][0]["main"] == "Rain":
+            if period.weather[0].main == "Rain":
                 rain.append(True)
-            elif period["weather"][0]["main"] == "Snow":
+            elif period.weather[0].main == "Snow":
                 snow.append(True)
             # if period['weather'][1]['main'] == "Rain":
             #     rain.append(True)

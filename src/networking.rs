@@ -1,19 +1,26 @@
-use pyo3::{pyfunction, PyResult, Python, wrap_pyfunction};
 use pyo3::prelude::PyModule;
+use pyo3::{pyfunction, wrap_pyfunction, PyResult, Python};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 #[pyfunction]
 fn get_url(url: String) -> String {
-    let data  = reqwest::blocking::get(url).expect("Url Get failed").text().expect("text expected");
+    let data = reqwest::blocking::get(url)
+        .expect("Url Get failed")
+        .text()
+        .expect("text expected");
     return data;
 }
 
-
 #[pyfunction]
 pub fn get_urls(urls: Vec<String>) -> Vec<String> {
-    let data : Vec<_>= urls
+    let data: Vec<_> = urls
         .par_iter()
-        .map(|url| reqwest::blocking::get(url).expect("Url Get failed").text().expect("text expected"))
+        .map(|url| {
+            reqwest::blocking::get(url)
+                .expect("Url Get failed")
+                .text()
+                .expect("text expected")
+        })
         .collect();
 
     return data;
