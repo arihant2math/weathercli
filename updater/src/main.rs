@@ -6,7 +6,6 @@ use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::Client;
 
-
 #[tokio::main]
 async fn main() -> Result<(), String> {
     let url;

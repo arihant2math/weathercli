@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 use sha256::try_digest;
 use std::path::Path;
-use crate::openweathermap_json::{OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson};
+use crate::openweathermap_json::{AirQualityJson, ForecastJson, OpenWeatherMapJson};
 
 mod color;
 mod location;
@@ -15,15 +15,15 @@ fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: boo
     // Gets the urls from the server
     let longitude = location.get(1).expect("");
     let latitude = location.get(0).expect("");
-    let mut weather_string = String::from(format!(
+    let mut weather_string = format!(
         "{url}weather?lat={latitude}&lon={longitude}&appid={api_key}"
-    ));
-    let mut air_quality = String::from(format!(
+    );
+    let mut air_quality = format!(
         "{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}"
-    ));
-    let mut forecast = String::from(format!(
+    );
+    let mut forecast = format!(
         "{url}forecast?lat={latitude}&lon={longitude}&appid={api_key}"
-    ));
+    );
     if metric {
         weather_string += "&units=metric";
         air_quality += "&units=metric";
@@ -33,23 +33,7 @@ fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: boo
         air_quality += "&units=imperial";
         forecast += "&units=imperial";
     }
-    return vec![weather_string, air_quality, forecast];
-}
-
-#[pyfunction]
-fn get_combined_data_unformatted(
-    open_weather_map_api_url: String,
-    open_weather_map_api_key: String,
-    coordinates: Vec<String>,
-    metric: bool,
-) -> Vec<String> {
-    let urls = get_api_urls(
-        open_weather_map_api_url,
-        open_weather_map_api_key,
-        coordinates,
-        metric,
-    );
-    return networking::get_urls(urls);
+    vec![weather_string, air_quality, forecast]
 }
 
 #[pyclass]
@@ -58,9 +42,9 @@ struct FormattedData {
     #[pyo3(get)]
     weather: OpenWeatherMapJson,
     #[pyo3(get)]
-    air_quality: OpenWeatherMapAirQualityJson,
+    air_quality: AirQualityJson,
     #[pyo3(get)]
-    forecast: OpenWeatherMapForecastJson,
+    forecast: ForecastJson,
     #[pyo3(get)]
     raw_data: Vec<String>
 }
@@ -81,9 +65,9 @@ fn get_combined_data_formatted(
     );
     let n = networking::get_urls(urls);
     let r1: OpenWeatherMapJson = serde_json::from_str(n.get(0).expect("")).expect("");
-    let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(n.get(1).expect("")).expect("");
-    let r3: OpenWeatherMapForecastJson = serde_json::from_str(n.get(2).expect("")).expect("");
-    return FormattedData {weather: r1, air_quality: r2, forecast: r3, raw_data: n};
+    let r2: AirQualityJson = serde_json::from_str(n.get(1).expect("")).expect("");
+    let r3: ForecastJson = serde_json::from_str(n.get(2).expect("")).expect("");
+    FormattedData {weather: r1, air_quality: r2, forecast: r3, raw_data: n}
 }
 
 
@@ -91,8 +75,7 @@ fn get_combined_data_formatted(
 #[pyfunction]
 fn hash_file(filename: String) -> String {
     let input = Path::new(&filename);
-    let val = try_digest(input).unwrap();
-    return val;
+    try_digest(input).unwrap()
 }
 
 #[pyfunction]
@@ -115,14 +98,13 @@ fn color_value(value: String, units: Option<String>, color: bool) -> String {
         Some(p) => r = lightgreen_ex + &value + &magenta + &p + &lightblue_ex,
         None => r = lightgreen_ex + &value + &lightblue_ex,
     }
-    return r;
+    r
 }
 
 /// core module implemented in Rust.
 #[pymodule]
 fn core(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(location::get_location, m)?)?;
-    m.add_function(wrap_pyfunction!(get_combined_data_unformatted, m)?)?;
     m.add_function(wrap_pyfunction!(get_combined_data_formatted, m)?)?;
     m.add_function(wrap_pyfunction!(hash_file, m)?)?;
     m.add_function(wrap_pyfunction!(color_value, m)?)?;
