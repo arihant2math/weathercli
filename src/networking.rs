@@ -3,12 +3,14 @@ use pyo3::{pyfunction, wrap_pyfunction, PyResult, Python};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 #[pyfunction]
-fn get_url(url: String) -> String {
-    let data = reqwest::blocking::get(url)
+fn get_url(url: String, user_agent: Option<String>) -> String {
+    let mut app_user_agent = "weathercli/1".to_string();
+    if let Some(user_agent) = user_agent { app_user_agent = user_agent }
+    let client = reqwest::blocking::Client::builder().user_agent(app_user_agent).build().expect("");
+    client.get(url).send()
         .expect("Url Get failed")
         .text()
-        .expect("text expected");
-    return data;
+        .expect("text expected")
 }
 
 #[pyfunction]
@@ -23,7 +25,7 @@ pub fn get_urls(urls: Vec<String>) -> Vec<String> {
         })
         .collect();
 
-    return data;
+    data
 }
 
 pub fn register_networking_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {

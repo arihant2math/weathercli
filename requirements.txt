@@ -4,3 +4,5 @@ Pillow
 geopy
 colorama==0.4.6
 maturin
+beautifulsoup4
+certifi

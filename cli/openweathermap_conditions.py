@@ -1,14 +1,13 @@
 import core
 from cli.settings import WEATHER_DATA_HASH, store_key
+from cli.weather_condition import WeatherCondition
 from cli.weather_file import WeatherFile
 
 
-class OpenWeatherMapConditions:
+class OpenWeatherMapWeatherCondition(WeatherCondition):
     def __init__(self, data):
-        self.id: int = data.id
-        self.name = data.main
-        self.description = data.description
-        self.icon = data.icon
+        super().__init__(data.main, data.description, data.icon, "")
+        self.condition_id: int = data.id
         self.sentence = self.get_sentence()
 
     def get_sentence(self):
@@ -25,6 +24,6 @@ class OpenWeatherMapConditions:
             store_key("WEATHER_DATA_HASH", new_file_hash)
             f = WeatherFile("weather_codes.json")
 
-        if str(self.id) in f.data:
-            return f.data[str(self.id)][3]
-        return "Unknown Conditions, condition id=" + str(self.id)
+        if str(self.condition_id) in f.data:
+            return f.data[str(self.condition_id)][3]
+        return "Unknown Conditions, condition id=" + str(self.condition_id)

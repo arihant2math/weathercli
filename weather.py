@@ -1,14 +1,13 @@
 import platform
 import subprocess
 import sys
-from pathlib import WindowsPath, Path
+from pathlib import Path
 
 from click import group, option, pass_context, argument
 import core
 
 from cli import (
     OpenWeatherMapWeatherData,
-    get_combined_data,
     print_out,
     CustomMultiCommand,
 )
@@ -52,8 +51,7 @@ def main(ctx, json, no_sys_loc, no_color, color, metric, imperial):
         true_no_color = False
 
     if ctx.invoked_subcommand is None:
-        raw_data = get_combined_data(core.get_location(no_sys_loc), true_metric)
-        data = OpenWeatherMapWeatherData(raw_data)
+        data = OpenWeatherMapWeatherData(core.get_location(no_sys_loc), true_metric)
         print_out(data, json, true_no_color, true_metric)
     else:
         ctx.ensure_object(dict)
@@ -82,8 +80,7 @@ def main(ctx, json, no_sys_loc, no_color, color, metric, imperial):
 @option("--imperial", is_flag=True, help="This will switch the output to imperial")
 @pass_context
 def place(ctx, location, json, no_color, color, metric, imperial):
-    raw_data = get_combined_data(get_coordinates(location), metric)
-    data = OpenWeatherMapWeatherData(raw_data)
+    data = OpenWeatherMapWeatherData(get_coordinates(location), metric)
     true_metric = ctx.obj["METRIC"]
     if metric:
         true_metric = True

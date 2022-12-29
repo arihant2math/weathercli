@@ -1,34 +1,42 @@
-from cli.openweathermap_conditions import OpenWeatherMapConditions
+import core
+
+from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
+from cli.openweathermap_conditions import OpenWeatherMapWeatherCondition
 from cli.weather_data import WeatherData
 from core import WindData
 
 
 class OpenWeatherMapWeatherData(WeatherData):
-    def __init__(self, data):
-        super().__init__(
-            data.weather.main.temp,
-            data.weather.main.temp_min,
-            data.weather.main.temp_max,
-            data.weather.name,
-            WindData(data.weather.wind.speed, data.weather.wind.deg),
-            data.raw_data
+    def __init__(self, coordinates, metric):
+        data = core.get_combined_data_formatted(
+            OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY, coordinates, metric
         )
-        self.status = data.weather.cod
-        self.aqi: int = data.air_quality.list[0].main["aqi"]
-        self.forecast = data.forecast.list
-        self.country: str = data.weather.sys.country
-        self.cloud_cover: int = data.weather.clouds.all
-        self.conditions: list[OpenWeatherMapConditions] = []
+        super().__init__(
+            status=data.weather.cod,
+            temperature=data.weather.main.temp,
+            min_temp=data.weather.main.temp_min,
+            max_temp=data.weather.main.temp_max,
+            region=data.weather.name,
+            wind=WindData(data.weather.wind.speed, data.weather.wind.deg),
+            raw_data=data.raw_data,
+            aqi=data.air_quality.list[0].main["aqi"],
+            forecast=data.forecast.list,
+            country=data.weather.sys.country,
+            cloud_cover=data.weather.clouds.all,
+            conditions=[],
+            condition_sentence="",
+            forecast_sentence="",
+        )
+        self.condition_ids = self.get_condition_ids()
         for condition in data.weather.weather:
-            self.conditions.append(OpenWeatherMapConditions(condition))
-        self.condition_ids: list[int] = self.get_condition_ids()
-        self.condition_sentence: str = self.get_condition_sentence()
-        self.forecast_sentence: str = self.get_forecast_sentence()
+            self.conditions.append(OpenWeatherMapWeatherCondition(condition))
+        self.condition_sentence = self.get_condition_sentence()
+        self.forecast_sentence = self.get_forecast_sentence()
 
     def get_condition_ids(self):
         ids = []
         for condition in self.conditions:
-            ids.append(condition.id)
+            ids.append(condition.condition_id)
         return ids
 
     def get_condition_sentence(self):
