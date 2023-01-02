@@ -1,4 +1,5 @@
 """Alternative Weather Backend weather.com, but has to be carefully scraped"""
+import math
 import ssl
 
 import certifi
@@ -63,7 +64,11 @@ class TheWeatherChannel(WeatherData):
     def get_high_low(self, soup):
         data = soup.find("div", attrs={"data-testid": "wxData"}).text.replace("°", "")
         high_low = data.split("/")
-        return int(high_low[0]), int(high_low[1])
+        if high_low[0] == "--":
+            high_low[0] = math.nan
+        if high_low[1] == "--":
+            high_low[1] = math.nan
+        return float(high_low[0]), float(high_low[1])
 
 
 w = TheWeatherChannel(core.get_location(False))
