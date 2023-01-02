@@ -8,8 +8,7 @@ fn get_latest_version() -> String {
     let data =
         reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
     let json = data.json::<HashMap<String, String>>().expect("");
-    let version_server = json.get("version").expect("").to_string();
-    return version_server;
+    json.get("version").expect("").to_string()
 }
 
 #[pyfunction]
@@ -17,8 +16,7 @@ fn get_latest_updater_version() -> String {
     let data =
         reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
     let json = data.json::<HashMap<String, String>>().expect("");
-    let version_server = json.get("updater-version").expect("").to_string();
-    return version_server;
+    json.get("updater-version").expect("").to_string()
 }
 
 #[pyfunction]
