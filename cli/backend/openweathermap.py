@@ -1,12 +1,12 @@
 import core
 
 from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
-from cli.openweathermap_conditions import OpenWeatherMapWeatherCondition
-from cli.weather_data import WeatherData
+from cli.backend.openweathermap_conditions import OpenWeatherMapWeatherCondition
+from cli.backend.weather_data import WeatherData
 from core import WindData
 
 
-class OpenWeatherMapWeatherData(WeatherData):
+class OpenWeatherMap(WeatherData):
     def __init__(self, coordinates, metric):
         data = core.get_combined_data_formatted(
             OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY, coordinates, metric
@@ -39,39 +39,23 @@ class OpenWeatherMapWeatherData(WeatherData):
             ids.append(condition.condition_id)
         return ids
 
-    def get_condition_sentence(self):
-        data = self.conditions.copy()
-        condition_match = data[0].sentence
-        out = condition_match
-        data.pop(0)
-        for condition in data:
-            out += ". Also, "
-            condition_match = condition.sentence
-            out += condition_match.lower()
-        out += "."
-        return out
-
     def get_forecast_sentence(self):
         data = self.forecast.copy()
         rain = []
         snow = []
         for period in data:
-            if period.weather[0].main == "Rain":
+            if self.conditions[0].condition_id // 100 == 5:
                 rain.append(True)
-            elif period.weather[0].main == "Snow":
+            elif self.conditions[0].condition_id // 100 == 6:
                 snow.append(True)
-            # if period['weather'][1]['main'] == "Rain":
-            #     rain.append(True)
-            # elif period['weather'][1]['main'] == "Snow":
-            #     snow.append(True)
-        if self.conditions[0].name == "Rain":
+        if self.conditions[0].condition_id // 100 == 5:
             t = 0
             for i in rain:
                 if not i:
                     break
                 t += 1
             return "It will continue raining for " + str(t * 3) + " hours."
-        elif self.conditions[0].name == "Snow":
+        elif self.conditions[0].condition_id // 100 == 6:
             t = 0
             for i in snow:
                 if not i:

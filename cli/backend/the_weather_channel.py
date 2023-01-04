@@ -9,26 +9,39 @@ from bs4 import BeautifulSoup
 from core import WindData
 from geopy import Nominatim
 
-from cli import WeatherData, print_out
+from cli import WeatherData
 
 
 class TheWeatherChannel(WeatherData):
     def __init__(self, loc):
         ctx = ssl.create_default_context(cafile=certifi.where())
         geopy.geocoders.options.default_ssl_context = ctx
-        geolocator = Nominatim(user_agent="weathercli/0", scheme='http')
+        geolocator = Nominatim(user_agent="weathercli/0", scheme="http")
         location = geolocator.reverse(loc[0] + ", " + loc[1])
-        country = location.raw['address']['country']
-        r = core.networking.get_urls(["https://weather.com/weather/today/l/" + loc[0] + "," + loc[1],
-                                      "https://weather.com/weather/hourbyhour/l/" + loc[0] + "," + loc[1],
-                                      "https://weather.com/forecast/air-quality/l/" + loc[0] + "," + loc[1]])
+        country = location.raw["address"]["country"]
+        r = core.networking.get_urls(
+            [
+                "https://weather.com/weather/today/l/" + loc[0] + "," + loc[1],
+                "https://weather.com/weather/hourbyhour/l/" + loc[0] + "," + loc[1],
+                "https://weather.com/forecast/air-quality/l/" + loc[0] + "," + loc[1],
+            ]
+        )
         weather_soup = BeautifulSoup(r[0], "html.parser")
         forecast_soup = BeautifulSoup(r[1], "html.parser")
         air_quality_soup = BeautifulSoup(r[2], "html.parser")
         high, low = self.get_high_low(weather_soup)
-        region = location.raw['address']['city']
+        region = location.raw["address"]["city"]
         wind_data = forecast_soup.find("span", attrs={"data-testid": "Wind"}).getText()
-        compass = {"N": 0, "NE": 45, "E": 90, "SE": 125, "S": 180, "SW": 225, "W": 270, "NW": 315}
+        compass = {
+            "N": 0,
+            "NE": 45,
+            "E": 90,
+            "SE": 125,
+            "S": 180,
+            "SW": 225,
+            "W": 270,
+            "NW": 315,
+        }
         heading = 0
         for key in compass:
             if key in wind_data:
@@ -46,7 +59,7 @@ class TheWeatherChannel(WeatherData):
             region=region,
             wind=wind,
             raw_data=r,
-            aqi=self.get_air_quality(air_quality_soup),
+            aqi=self.get_air_quality(air_quality_soup) // 20,
             forecast=[],
             country=country,
             cloud_cover=0,
@@ -56,10 +69,17 @@ class TheWeatherChannel(WeatherData):
         )
 
     def get_air_quality(self, soup):
-        return int(soup.find("text", attrs={"data-testid": "DonutChartValue"}).getText())
+        return int(
+            soup.find("text", attrs={"data-testid": "DonutChartValue"}).getText()
+        )
 
     def get_temp(self, soup):
-        return int(soup.find("div", attrs={"data-testid": "CurrentConditionsContainer"}).find("span", attrs={"data-testid": "TemperatureValue"}).getText().replace("°", ""))
+        return int(
+            soup.find("div", attrs={"data-testid": "CurrentConditionsContainer"})
+            .find("span", attrs={"data-testid": "TemperatureValue"})
+            .getText()
+            .replace("°", "")
+        )
 
     def get_high_low(self, soup):
         data = soup.find("div", attrs={"data-testid": "wxData"}).text.replace("°", "")
@@ -69,8 +89,3 @@ class TheWeatherChannel(WeatherData):
         if high_low[1] == "--":
             high_low[1] = math.nan
         return float(high_low[0]), float(high_low[1])
-
-
-w = TheWeatherChannel(core.get_location(False))
-
-print_out(w, False, False, False)

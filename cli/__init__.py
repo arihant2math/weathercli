@@ -1,15 +1,10 @@
 import colorama
 from core import color_value
-
-from cli.custom_multi_command import CustomMultiCommand
 from cli.dummy_fore import DummyFore
-from cli.openweathermap_weather_data import OpenWeatherMapWeatherData
-from cli.weather_data import WeatherData
+from cli.backend.weather_data import WeatherData
 
 
-def print_out(
-        data: WeatherData, print_json: bool, no_color: bool, metric: bool
-):
+def print_out(data: WeatherData, print_json: bool, no_color: bool, metric: bool):
     if not no_color:
         color = colorama.Fore
     else:
@@ -52,7 +47,11 @@ def print_out(
             print("km/h", end=" ")
         else:
             print("mph", end=" ")
-        print(color.LIGHTBLUE_EX + "at " + color_value(str(data.wind.heading), "°", not no_color))
+        print(
+            color.LIGHTBLUE_EX
+            + "at "
+            + color_value(str(data.wind.heading), "°", not no_color)
+        )
         if data.cloud_cover != 0:
             print(
                 color.LIGHTBLUE_EX

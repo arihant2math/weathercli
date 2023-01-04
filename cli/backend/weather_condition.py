@@ -1,13 +1,12 @@
 import core
+
 from cli.settings import WEATHER_DATA_HASH, store_key
-from cli.weather_condition import WeatherCondition
 from cli.weather_file import WeatherFile
 
 
-class OpenWeatherMapWeatherCondition(WeatherCondition):
-    def __init__(self, data):
-        super().__init__(data.main, data.description, data.icon, "")
-        self.condition_id: int = data.id
+class WeatherCondition:
+    def __init__(self, condition_id):
+        self.condition_id = condition_id
         self.sentence = self.get_sentence()
 
     def get_sentence(self):
@@ -17,7 +16,9 @@ class OpenWeatherMapWeatherCondition(WeatherCondition):
             print(
                 "Warning: weather_codes.json is out of date or has been modified, downloading replacement."
             )
-            data = core.networking.get_url('https://arihant2math.github.io/weathercli/weather_codes.json')
+            data = core.networking.get_url(
+                "https://arihant2math.github.io/weathercli/weather_codes.json"
+            )
             with open(f.path, "w") as out:
                 out.write(data)
             new_file_hash = core.hash_file(str(f.path.absolute()))

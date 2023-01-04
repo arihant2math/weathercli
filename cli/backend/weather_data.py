@@ -36,3 +36,15 @@ class WeatherData:  # TODO: Abstract more attributes
         self.conditions = conditions
         self.condition_sentence = condition_sentence
         self.forecast_sentence = forecast_sentence
+
+    def get_condition_sentence(self):
+        data = self.conditions.copy()
+        condition_match = data[0].sentence
+        out = condition_match
+        data.pop(0)
+        for condition in data:
+            out += ". Also, "
+            condition_match = condition.sentence
+            out += condition_match.lower()
+        out += "."
+        return out
