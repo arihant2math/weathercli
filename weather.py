@@ -2,16 +2,18 @@ import platform
 import subprocess
 import sys
 from pathlib import Path
+import plotext
 
 from click import group, option, pass_context, argument
 import core
 
 from cli import print_out
+from cli.backend.meteo import Meteo
 from cli.custom_multi_command import CustomMultiCommand
 from cli.location import get_coordinates
 from cli.backend.nws import NationalWeatherService
 from cli.backend.openweathermap import OpenWeatherMap
-from cli.settings import store_key, get_key, METRIC_DEFAULT, NO_COLOR_DEFAULT
+from cli.settings import store_key, get_key, METRIC_DEFAULT, NO_COLOR_DEFAULT, DEFAULT_BACKEND
 from cli.backend.the_weather_channel import TheWeatherChannel
 from cli.weather_file import WeatherFile
 
@@ -22,7 +24,7 @@ from cli.weather_file import WeatherFile
     "--no-sys-loc",
     is_flag=True,
     help="If used the location will be gotten from the web rather than the system"
-    "even if system location is available",
+         "even if system location is available",
 )
 @option(
     "-n",
@@ -38,13 +40,15 @@ from cli.weather_file import WeatherFile
 @option("--metric", is_flag=True, help="This will switch the output to metric")
 @option("--imperial", is_flag=True, help="This will switch the output to imperial")
 @option(
-    "--data-source",
+    "--datasource",
     help="The data source to retrieve the data from, current options are openweathermap, theweatherchannel, and nws",
 )
 @pass_context
-def main(ctx, json, no_sys_loc, no_color, color, metric, imperial, data_source):
-    if data_source is None:
-        data_source = "openweathermap"
+def main(ctx, json, no_sys_loc, no_color, color, metric, imperial, datasource):
+    if datasource is None:
+        datasource = DEFAULT_BACKEND
+    else:
+        datasource = datasource.upper()
     true_metric = METRIC_DEFAULT
     if metric:
         true_metric = True
@@ -58,17 +62,17 @@ def main(ctx, json, no_sys_loc, no_color, color, metric, imperial, data_source):
         true_no_color = False
 
     if ctx.invoked_subcommand is None:
-        if data_source == "nws":
+        if datasource == "NWS":
             data = NationalWeatherService(core.get_location(no_sys_loc))
-        elif data_source == "theweatherchannel":
+        elif datasource == "THEWEATHERCHANNEL":
             data = TheWeatherChannel(core.get_location(no_sys_loc))
-        elif data_source == "openweathermap":
+        elif datasource == "OPENWEATHERMAP":
             data = OpenWeatherMap(core.get_location(no_sys_loc), true_metric)
-        elif data_source == "meteo":
-            data = OpenWeatherMap(core.get_location(no_sys_loc), true_metric)
+        elif datasource == "METEO":
+            data = Meteo(core.get_location(no_sys_loc), true_metric)
         else:
             print("Invalid Data Source!")
-            exit()
+            exit(1)
         print_out(data, json, true_no_color, true_metric)
     else:
         ctx.ensure_object(dict)
@@ -80,28 +84,18 @@ def main(ctx, json, no_sys_loc, no_color, color, metric, imperial, data_source):
 @main.command(["place", "p"], help="prints the weather for the specified location")
 @argument("location")
 @option("-j", "--json", is_flag=True, help="If used the raw json will be printed out")
-@option(
-    "-n",
-    "--no-color",
-    is_flag=True,
-    help="This will not use color when printing the data out",
-)
-@option(
-    "--color",
-    is_flag=True,
-    help="This will force the cli to use color when printing the data out",
-)
+@option("-n", "--no-color", is_flag=True, help="This will not use color when printing the data out")
+@option("--color", is_flag=True, help="This will force the cli to use color when printing the data out")
 @option("--metric", is_flag=True, help="This will switch the output to metric")
 @option("--imperial", is_flag=True, help="This will switch the output to imperial")
-@option(
-    "--data-source",
-    help="The data source to retrieve the data from, current options are openweathermap, theweatherchannel, meteo, "
-         "and nws",
-)
+@option("--datasource", help="The data source to retrieve the data from, current options are openweathermap, "
+                             "theweatherchannel, meteo, and nws")
 @pass_context
-def place(ctx, location, json, no_color, color, metric, imperial, data_source):
-    if data_source is None:
-        data_source = "openweathermap"
+def place(ctx, location, json, no_color, color, metric, imperial, datasource):
+    if datasource is None:
+        datasource = DEFAULT_BACKEND
+    else:
+        datasource = datasource.upper()
     true_metric = ctx.obj["METRIC"]
     if metric:
         true_metric = True
@@ -113,17 +107,17 @@ def place(ctx, location, json, no_color, color, metric, imperial, data_source):
         true_no_color = True
     elif color:
         true_no_color = False
-    if data_source == "nws":
+    if datasource == "NWS":
         data = NationalWeatherService(get_coordinates(location))
-    elif data_source == "theweatherchannel":
+    elif datasource == "THEWEATHERCHANNEL":
         data = TheWeatherChannel(get_coordinates(location))
-    elif data_source == "openweathermap":
+    elif datasource == "OPENWEATHERMAP":
         data = OpenWeatherMap(get_coordinates(location), true_metric)
-    elif data_source == "meteo":
-        data = OpenWeatherMap(get_coordinates(location), true_metric)
+    elif datasource == "METEO":
+        data = Meteo(get_coordinates(location), true_metric)
     else:
         print("Invalid Data Source!")
-        exit()
+        exit(1)
     print_out(data, ctx.obj["JSON"] or json, true_no_color, true_metric)
 
 
@@ -178,6 +172,15 @@ def clear_cache(ctx):
     f = WeatherFile("cache.json")
     f.data = {}
     f.write()
+
+
+@main.command("plot-temp", help="plots the temperature over time")
+@pass_context
+def plot_temp(ctx):
+    data = Meteo(core.get_location(False), False)
+    plotext.plot([i for i in range(0, len(data.raw_data["hourly"]['temperature_2m']))], data.raw_data["hourly"]['temperature_2m'])
+    plotext.title("Temperature")
+    plotext.show()
 
 
 if __name__ == "__main__":

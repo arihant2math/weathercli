@@ -1,12 +1,20 @@
+use std::collections::HashMap;
 use pyo3::prelude::PyModule;
-use pyo3::{pyfunction, wrap_pyfunction, PyResult, Python};
+use pyo3::{pyfunction, wrap_pyfunction, PyResult, Python, ToPyObject};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use reqwest::header::HeaderMap;
 
 #[pyfunction]
-fn get_url(url: String, user_agent: Option<String>) -> String {
+fn get_url(url: String, user_agent: Option<String>, headers: Option<HashMap<String, String>>) -> String {
     let mut app_user_agent = "weathercli/1".to_string();
     if let Some(user_agent) = user_agent { app_user_agent = user_agent }
-    let client = reqwest::blocking::Client::builder().user_agent(app_user_agent).build().expect("");
+    let client_pre = reqwest::blocking::Client::builder().user_agent(app_user_agent);
+    let mut header_map = HeaderMap::new();
+    match headers {
+        Some(h) => for (k, v) in h.iter() {header_map.insert(k.as_str(), v.parse().unwrap());},
+        None => ()
+    }
+    let client = client_pre.default_headers(header_map).build().expect("");
     client.get(url).send()
         .expect("Url Get failed")
         .text()

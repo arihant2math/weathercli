@@ -44,10 +44,15 @@ class OpenWeatherMap(WeatherData):
         rain = []
         snow = []
         for period in data:
-            if self.conditions[0].condition_id // 100 == 5:
+            if period.weather[0].id // 100 == 5:
                 rain.append(True)
-            elif self.conditions[0].condition_id // 100 == 6:
+                snow.append(False)
+            elif period.weather[0].id // 100 == 6:
                 snow.append(True)
+                rain.append(False)
+            else:
+                rain.append(False)
+                snow.append(False)
         if self.conditions[0].condition_id // 100 == 5:
             t = 0
             for i in rain:

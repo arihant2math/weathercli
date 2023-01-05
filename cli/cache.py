@@ -54,3 +54,4 @@ def prune_cache():
                 query_date: list[str] = data[store][key]["last_queried"].split(":")
                 if int(query_date[0]) != time.now():
                     store.pop(key, None)
+    f.write()
