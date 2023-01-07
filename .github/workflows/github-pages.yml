@@ -33,7 +33,9 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Build
-        run: make docs
+        run: |
+          chmod 555 ./jc
+          make docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
