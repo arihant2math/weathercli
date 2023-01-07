@@ -150,7 +150,7 @@ def update(ctx):
     if getattr(sys, "frozen", False):
         application_path = Path(sys.executable)
         print("Latest Version: " + latest_version)
-        if latest_version != "12/13/2022":
+        if latest_version != "0.0.0":
             print("Updating weather.exe at " + str(application_path))
             if platform.system() == "Windows":
                 updater_location = application_path.parent / "updater.exe"
@@ -158,7 +158,7 @@ def update(ctx):
                 updater_location = application_path.parent / "update"
             if not updater_location.exists():
                 print("Updater not found, downloading updater")
-                core.update.get_updater(str(updater_location))
+                core.updater.get_updater(str(updater_location))
             print("Starting updater and exiting")
             subprocess.Popen([updater_location], cwd=str(application_path.parent))
             sys.exit(0)
