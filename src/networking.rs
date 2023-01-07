@@ -10,10 +10,10 @@ fn get_url(url: String, user_agent: Option<String>, headers: Option<HashMap<Stri
     if let Some(user_agent) = user_agent { app_user_agent = user_agent }
     let client_pre = reqwest::blocking::Client::builder().user_agent(app_user_agent);
     let mut header_map = HeaderMap::new();
-    match headers {
-        Some(h) => for (k, v) in h.iter() {header_map.insert(k.as_str(), v.parse().unwrap());},
-        None => ()
-    }
+    // match headers {
+    //     Some(h) => for (k, v) in h.iter() {header_map.insert(k.as_str(), v.parse().unwrap());},
+    //     None => ()
+    // }
     let client = client_pre.default_headers(header_map).build().expect("");
     client.get(url).send()
         .expect("Url Get failed")
