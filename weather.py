@@ -146,7 +146,7 @@ def config(ctx, key_name: str, value):
 @pass_context
 def update(ctx):
     print("Checking for updates ...")
-    latest_version = core.update.get_latest_version()
+    latest_version = core.updater.get_latest_version()
     if getattr(sys, "frozen", False):
         application_path = Path(sys.executable)
         print("Latest Version: " + latest_version)
