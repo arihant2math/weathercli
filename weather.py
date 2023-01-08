@@ -150,7 +150,7 @@ def update(ctx):
     if getattr(sys, "frozen", False):
         application_path = Path(sys.executable)
         print("Latest Version: " + latest_version)
-        if latest_version != "0.0.0":
+        if latest_version != "0":
             print("Updating weather.exe at " + str(application_path))
             if platform.system() == "Windows":
                 updater_location = application_path.parent / "updater.exe"
