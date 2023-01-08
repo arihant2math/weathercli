@@ -11,10 +11,10 @@ async fn main() -> Result<(), String> {
     let url;
     let path;
     if cfg!(windows) {
-        url = "https://arihant2math.github.io/weathercli/weather.exe";
+        url = "https://arihant2math.github.io/weathercli/docs/weather.exe";
         path = "weather.exe";
     } else if cfg!(unix) {
-        url = "https://arihant2math.github.io/weathercli/weather";
+        url = "https://arihant2math.github.io/weathercli/docs/weather";
         path = "weather";
     } else {
         return Err("OS unsupported".to_string());
