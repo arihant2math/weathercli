@@ -1,5 +1,6 @@
 # weathercli
-
+[![Website](https://github.com/arihant2math/weathercli/actions/workflows/pages/pages-build-deployment/badge.svg)]([https://github.com/arihant2math/weathercli/actions/workflows/pages/pages-build-deployment](https://arihant2math.github.io/weathercli/index.html))
+[![CI(https://github.com/arihant2math/weathercli/actions/workflows/build.yml/badge.svg)](https://github.com/arihant2math/weathercli/actions/workflows/build.yml)
 ## Usage
 First, you must set your open weather map api key.
 Get an API key and run `weather config OPEN_WEATHER_MAP_API_URL --value [your api key here]`
