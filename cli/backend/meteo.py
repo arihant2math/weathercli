@@ -78,8 +78,14 @@ class Meteo(WeatherData):
             self.conditions.append(WeatherCondition(803))
         else:
             self.conditions.append(WeatherCondition(804))
-        if forecast_json["hourly"]["rain"][self.now] != 0:
+        if (0 < forecast_json["hourly"]["rain"][self.now] < 0.098 and not metric) or (0 < forecast_json["hourly"]["rain"][self.now] < 2.5 and metric):
+            self.conditions.append(WeatherCondition(500))
+        elif (forecast_json["hourly"]["rain"][self.now] < 0.39 and not metric) or (forecast_json["hourly"]["rain"][self.now] < 10 and metric):
             self.conditions.append(WeatherCondition(501))
+        elif (forecast_json["hourly"]["rain"][self.now] < 2 and not metric) or (forecast_json["hourly"]["rain"][self.now] < 50 and metric):
+            self.conditions.append(WeatherCondition(502))
+        else:
+            self.conditions.append(WeatherCondition(503))
         if forecast_json["hourly"]["snowfall"][self.now] != 0:
             self.conditions.append(WeatherCondition(601))
         self.condition_ids = self.get_condition_ids()
@@ -140,7 +146,7 @@ class Meteo(WeatherData):
             else:
                 snow_end = math.inf
             if rain_start != math.inf:
-                return "It will rain in " + str(rain_start) + " for " + str(rain_end - rain_start) + " hours"
+                return "It will rain in " + str(rain_start) + " hours for " + str(rain_end - rain_start) + " hours"
             if snow_start != math.inf:
-                return "It will rain in " + str(snow_start) + " for " + str(snow_end - snow_start) + " hours"
+                return "It will rain in " + str(snow_start) + " hours for " + str(snow_end - snow_start) + " hours"
         return "Conditions are predicted to be clear for the next 7 days."
