@@ -26,7 +26,7 @@ fn get_location_web() -> Vec<String> {
         .expect("")
         .json::<HashMap<String, String>>()
         .expect("");
-    let location = resp.get("loc").expect("No loc section").split(",");
+    let location = resp.get("loc").expect("No loc section").split(',');
     let mut location_vec: Vec<String> = vec![];
     for s in location {
         location_vec.push(s.to_string());
@@ -37,7 +37,7 @@ fn get_location_web() -> Vec<String> {
 #[pyfunction]
 pub fn get_location(no_sys_loc: bool) -> Vec<String> {
     // If no_sys_loc is true, the location will always be gotten from the web
-    if (cfg!(windows)) && (!no_sys_loc) {
+    if cfg!(windows) && (!no_sys_loc) {
         return get_location_windows();
     }
     get_location_web()
