@@ -3,7 +3,6 @@ use sha256::try_digest;
 use std::path::Path;
 use crate::openweathermap_json::{AirQualityJson, ForecastJson, OpenWeatherMapJson};
 
-mod color;
 mod location;
 mod networking;
 mod updater;
@@ -78,36 +77,12 @@ fn hash_file(filename: String) -> String {
     try_digest(input).unwrap()
 }
 
-#[pyfunction]
-fn color_value(value: String, units: Option<String>, color: bool) -> String {
-    let lightgreen_ex;
-    let magenta;
-    let lightblue_ex;
-    if color {
-        lightgreen_ex = color::code_to_chars(92);
-        magenta = color::code_to_chars(35);
-        lightblue_ex = color::code_to_chars(94);
-    }
-    else {
-        lightgreen_ex = "".to_string();
-        magenta = "".to_string();
-        lightblue_ex = "".to_string();
-    }
-    let r;
-    match units {
-        Some(p) => r = lightgreen_ex + &value + &magenta + &p + &lightblue_ex,
-        None => r = lightgreen_ex + &value + &lightblue_ex,
-    }
-    r
-}
-
 /// core module implemented in Rust.
 #[pymodule]
 fn core(py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(location::get_location, m)?)?;
     m.add_function(wrap_pyfunction!(get_combined_data_formatted, m)?)?;
     m.add_function(wrap_pyfunction!(hash_file, m)?)?;
-    m.add_function(wrap_pyfunction!(color_value, m)?)?;
     m.add_class::<wind_data::WindData>()?;
     m.add_class::<weather_data::WeatherData>()?;
     networking::register_networking_module(py, m)?;
