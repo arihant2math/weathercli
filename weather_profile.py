@@ -1,6 +1,7 @@
 import core
-from cli import print_out
-from cli.backend.openweathermap import OpenWeatherMap
+from cli.backend.openweathermap.openweathermap import OpenWeatherMap
+from cli.layout import Layout
 
 data = OpenWeatherMap(core.get_location(False), False)
-print_out(data, False, False, False)
+l = Layout()
+print(l.to_string(data, False))

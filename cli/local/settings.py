@@ -1,6 +1,6 @@
 from typing import Any
 
-from cli.weather_file import WeatherFile
+from cli.local.weather_file import WeatherFile
 
 
 def store_key(key_name: str, value):
@@ -19,15 +19,13 @@ def get_key(key: str, default=None) -> Any:
         return default
 
 
-OPEN_WEATHER_MAP_API_URL = get_key(
-    "OPEN_WEATHER_MAP_API_URL", "https://api.openweathermap.org/data/2.5/"
-)
 OPEN_WEATHER_MAP_API_KEY = get_key("OPEN_WEATHER_MAP_API_KEY")
 BING_MAPS_API_KEY = get_key("BING_MAPS_API_KEY")
-NO_COLOR_DEFAULT = get_key("NO_COLOR", False)
+NCDC_API_KEY = get_key("NCDC_API_KEY")
 METRIC_DEFAULT = get_key("METRIC", False)
 WEATHER_DATA_HASH = get_key("WEATHER_DATA_HASH")
 DEFAULT_BACKEND = get_key("DEFAULT_BACKEND", "METEO")
+CONSTANT_LOCATION = get_key("CONSTANT_LOCATION", False)
 if type(DEFAULT_BACKEND) != str:
     print("Invalid Default Backend, defaulting")
     DEFAULT_BACKEND = "METEO"

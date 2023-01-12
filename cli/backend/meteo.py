@@ -1,13 +1,10 @@
 """Alternative Weather Backend"""
 import json
 import math
-import ssl
+from datetime import datetime
 
-import certifi
 import core
-import geopy
 from core import WindData
-from geopy import Nominatim
 
 from cli import WeatherData
 from cli.backend.weather_condition import WeatherCondition
@@ -15,10 +12,7 @@ from cli.backend.weather_condition import WeatherCondition
 
 class Meteo(WeatherData):
     def __init__(self, loc, metric):
-        ctx = ssl.create_default_context(cafile=certifi.where())
-        geopy.geocoders.options.default_ssl_context = ctx
-        geolocator = Nominatim(user_agent="weathercli/0", scheme="http")
-        location = geolocator.reverse(loc[0] + ", " + loc[1])
+        location = self.get_location(loc)
         country = location.raw["address"]["country"]
         region = location.raw["address"]["city"]
         if not metric:
@@ -44,7 +38,9 @@ class Meteo(WeatherData):
             )
         forecast_json = json.loads(forecast[0])
         aqi_json = json.loads(forecast[1])
-        self.now = forecast_json["hourly"]["time"].index(forecast_json["current_weather"]['time'])
+        self.now = forecast_json["hourly"]["time"].index(
+            forecast_json["current_weather"]["time"]
+        )
         min_temp = self.get_min(forecast_json["hourly"]["temperature_2m"])
         max_temp = self.get_max(forecast_json["hourly"]["temperature_2m"])
         wind = WindData(
@@ -54,6 +50,7 @@ class Meteo(WeatherData):
         cloud_cover = forecast_json["hourly"]["cloudcover"][self.now]
         super().__init__(
             status="200",
+            time=datetime.now,
             temperature=forecast_json["current_weather"]["temperature"],
             min_temp=min_temp,
             max_temp=max_temp,
@@ -78,11 +75,17 @@ class Meteo(WeatherData):
             self.conditions.append(WeatherCondition(803))
         else:
             self.conditions.append(WeatherCondition(804))
-        if (0 < forecast_json["hourly"]["rain"][self.now] < 0.098 and not metric) or (0 < forecast_json["hourly"]["rain"][self.now] < 2.5 and metric):
+        if (0 < forecast_json["hourly"]["rain"][self.now] < 0.098 and not metric) or (
+            0 < forecast_json["hourly"]["rain"][self.now] < 2.5 and metric
+        ):
             self.conditions.append(WeatherCondition(500))
-        elif (forecast_json["hourly"]["rain"][self.now] < 0.39 and not metric) or (forecast_json["hourly"]["rain"][self.now] < 10 and metric):
+        elif (forecast_json["hourly"]["rain"][self.now] < 0.39 and not metric) or (
+            forecast_json["hourly"]["rain"][self.now] < 10 and metric
+        ):
             self.conditions.append(WeatherCondition(501))
-        elif (forecast_json["hourly"]["rain"][self.now] < 2 and not metric) or (forecast_json["hourly"]["rain"][self.now] < 50 and metric):
+        elif (forecast_json["hourly"]["rain"][self.now] < 2 and not metric) or (
+            forecast_json["hourly"]["rain"][self.now] < 50 and metric
+        ):
             self.conditions.append(WeatherCondition(502))
         else:
             self.conditions.append(WeatherCondition(503))
@@ -92,12 +95,6 @@ class Meteo(WeatherData):
         self.condition_sentence = self.get_condition_sentence()
         self.forecast_sentence = self.get_forecast_sentence()
 
-    def get_condition_ids(self):
-        ids = []
-        for condition in self.conditions:
-            ids.append(condition.condition_id)
-        return ids
-
     def get_min(self, data):
         return min(data[0:24])
 
@@ -105,8 +102,8 @@ class Meteo(WeatherData):
         return max(data[0:24])
 
     def get_forecast_sentence(self):
-        rain = [amount != 0 for amount in self.raw_data['hourly']['rain']]
-        snow = [amount != 0 for amount in self.raw_data['hourly']['snowfall']]
+        rain = [amount != 0 for amount in self.raw_data["hourly"]["rain"]]
+        snow = [amount != 0 for amount in self.raw_data["hourly"]["snowfall"]]
         for i in range(self.now):
             rain.pop(0)
             snow.pop(0)
@@ -146,7 +143,19 @@ class Meteo(WeatherData):
             else:
                 snow_end = math.inf
             if rain_start != math.inf:
-                return "It will rain in " + str(rain_start) + " hours for " + str(rain_end - rain_start) + " hours"
+                return (
+                    "It will rain in "
+                    + str(rain_start)
+                    + " hours for "
+                    + str(rain_end - rain_start)
+                    + " hours"
+                )
             if snow_start != math.inf:
-                return "It will rain in " + str(snow_start) + " hours for " + str(snow_end - snow_start) + " hours"
+                return (
+                    "It will rain in "
+                    + str(snow_start)
+                    + " hours for "
+                    + str(snow_end - snow_start)
+                    + " hours"
+                )
         return "Conditions are predicted to be clear for the next 7 days."

@@ -1,7 +1,10 @@
 import platform
 import subprocess
 import sys
+import time
 from pathlib import Path
+
+import colorama
 import plotext
 
 from click import group, option, pass_context, argument
@@ -10,12 +13,29 @@ import core
 from cli import print_out
 from cli.backend.meteo import Meteo
 from cli.custom_multi_command import CustomMultiCommand
-from cli.location import get_coordinates
+from cli.getch import _Getch
+from cli.local import settings
+from cli.location import get_coordinates, get_location
 from cli.backend.nws import NationalWeatherService
 from cli.backend.openweathermap import OpenWeatherMap
-from cli.settings import store_key, get_key, METRIC_DEFAULT, NO_COLOR_DEFAULT, DEFAULT_BACKEND
+from cli.local.settings import store_key, get_key, METRIC_DEFAULT, DEFAULT_BACKEND
 from cli.backend.the_weather_channel import TheWeatherChannel
-from cli.weather_file import WeatherFile
+from cli.local.weather_file import WeatherFile
+
+
+def get_data_from_datasource(datasource, location, true_metric):
+    if datasource == "NWS":
+        data = NationalWeatherService(location, true_metric)
+    elif datasource == "THEWEATHERCHANNEL":
+        data = TheWeatherChannel(location)
+    elif datasource == "OPENWEATHERMAP":
+        data = OpenWeatherMap(location, true_metric)
+    elif datasource == "METEO":
+        data = Meteo(location, true_metric)
+    else:
+        print(colorama.Fore.RED + "Invalid Data Source!")
+        exit(1)
+    return data
 
 
 @group(invoke_without_command=True, cls=CustomMultiCommand)
@@ -24,27 +44,17 @@ from cli.weather_file import WeatherFile
     "--no-sys-loc",
     is_flag=True,
     help="If used the location will be gotten from the web rather than the system"
-         "even if system location is available",
-)
-@option(
-    "-n",
-    "--no-color",
-    is_flag=True,
-    help="This will not use color when printing the data out",
-)
-@option(
-    "--color",
-    is_flag=True,
-    help="This will force the cli to use color when printing the data out",
+    "even if system location is available",
 )
 @option("--metric", is_flag=True, help="This will switch the output to metric")
 @option("--imperial", is_flag=True, help="This will switch the output to imperial")
 @option(
     "--datasource",
-    help="The data source to retrieve the data from, current options are openweathermap, theweatherchannel, and nws",
+    help="The data source to retrieve the data from, current options are openweathermap, "
+    "theweatherchannel, meteo, and nws",
 )
 @pass_context
-def main(ctx, json, no_sys_loc, no_color, color, metric, imperial, datasource):
+def main(ctx, json, no_sys_loc, metric, imperial, datasource):
     if datasource is None:
         datasource = DEFAULT_BACKEND
     else:
@@ -55,43 +65,28 @@ def main(ctx, json, no_sys_loc, no_color, color, metric, imperial, datasource):
     elif imperial:
         true_metric = False
 
-    true_no_color = NO_COLOR_DEFAULT
-    if no_color:
-        true_no_color = True
-    elif color:
-        true_no_color = False
-
     if ctx.invoked_subcommand is None:
-        if datasource == "NWS":
-            data = NationalWeatherService(core.get_location(no_sys_loc))
-        elif datasource == "THEWEATHERCHANNEL":
-            data = TheWeatherChannel(core.get_location(no_sys_loc))
-        elif datasource == "OPENWEATHERMAP":
-            data = OpenWeatherMap(core.get_location(no_sys_loc), true_metric)
-        elif datasource == "METEO":
-            data = Meteo(core.get_location(no_sys_loc), true_metric)
-        else:
-            print("Invalid Data Source!")
-            exit(1)
-        print_out(data, json, true_no_color, true_metric)
+        location = get_location(no_sys_loc)
+        data = get_data_from_datasource(datasource, location, true_metric)
+        print_out(data, json, true_metric)
     else:
         ctx.ensure_object(dict)
         ctx.obj["JSON"] = json
-        ctx.obj["NO_COLOR"] = true_no_color
         ctx.obj["METRIC"] = true_metric
 
 
 @main.command(["place", "p"], help="prints the weather for the specified location")
 @argument("location")
 @option("-j", "--json", is_flag=True, help="If used the raw json will be printed out")
-@option("-n", "--no-color", is_flag=True, help="This will not use color when printing the data out")
-@option("--color", is_flag=True, help="This will force the cli to use color when printing the data out")
 @option("--metric", is_flag=True, help="This will switch the output to metric")
 @option("--imperial", is_flag=True, help="This will switch the output to imperial")
-@option("--datasource", help="The data source to retrieve the data from, current options are openweathermap, "
-                             "theweatherchannel, meteo, and nws")
+@option(
+    "--datasource",
+    help="The data source to retrieve the data from, current options are openweathermap, "
+    "theweatherchannel, meteo, and nws",
+)
 @pass_context
-def place(ctx, location, json, no_color, color, metric, imperial, datasource):
+def place(ctx, location, json, metric, imperial, datasource):
     if datasource is None:
         datasource = DEFAULT_BACKEND
     else:
@@ -101,24 +96,13 @@ def place(ctx, location, json, no_color, color, metric, imperial, datasource):
         true_metric = True
     elif imperial:
         true_metric = False
-
-    true_no_color = ctx.obj["NO_COLOR"]
-    if no_color:
-        true_no_color = True
-    elif color:
-        true_no_color = False
-    if datasource == "NWS":
-        data = NationalWeatherService(get_coordinates(location))
-    elif datasource == "THEWEATHERCHANNEL":
-        data = TheWeatherChannel(get_coordinates(location))
-    elif datasource == "OPENWEATHERMAP":
-        data = OpenWeatherMap(get_coordinates(location), true_metric)
-    elif datasource == "METEO":
-        data = Meteo(get_coordinates(location), true_metric)
-    else:
-        print("Invalid Data Source!")
-        exit(1)
-    print_out(data, ctx.obj["JSON"] or json, true_no_color, true_metric)
+    try:
+        location = get_coordinates(location)
+    except LookupError:
+        print(colorama.Fore.RED + "Place not Found")
+        exit()
+    data = get_data_from_datasource(datasource, location, true_metric)
+    print_out(data, ctx.obj["JSON"] or json, true_metric)
 
 
 @main.command(["config", "c"], help="prints or changes the settings")
@@ -178,9 +162,102 @@ def clear_cache(ctx):
 @pass_context
 def plot_temp(ctx):
     data = Meteo(core.get_location(False), False)
-    plotext.plot([i for i in range(0, len(data.raw_data["hourly"]['temperature_2m']))], data.raw_data["hourly"]['temperature_2m'])
+    plotext.plot(
+        [i for i in range(0, len(data.raw_data["hourly"]["temperature_2m"]))],
+        data.raw_data["hourly"]["temperature_2m"],
+    )
     plotext.title("Temperature")
     plotext.show()
+
+
+@main.command("setup", help="setup prompt")
+@pass_context
+def setup(ctx):
+    print(colorama.Fore.GREEN + "=== Weather CLI Setup ===")
+    print(colorama.Fore.BLUE + "Choose the default weather backend: ")
+    options = [
+        "Meteo",
+        "Open Weather Map",
+        "National Weather Service",
+        "The Weather Channel",
+    ]
+    current = 0
+    cursor_move = False
+    for i in range(0, 4):
+        if current != i:
+            print("  " + options[i])
+        else:
+            print("> " + options[i])
+    while True:
+        g = _Getch().__call__()
+        if cursor_move:
+            if (g == b"M") or (g == b"P"):
+                if current != 3:
+                    current += 1
+            elif (g == b"K") or (g == b"H"):
+                if current != 0:
+                    current -= 1
+            cursor_move = False
+        else:
+            if g == b"\x03":
+                exit(0)
+            elif g == g == b"\r":
+                break
+            elif (g == b"a") or (g == b"1"):
+                current = 0
+            elif g == b"b" or (g == b"2"):
+                current = 1
+            elif g == b"c" or (g == b"3"):
+                current = 2
+            elif g == b"d" or (g == b"4"):
+                current = 3
+            elif g == b"\xe0":
+                cursor_move = True
+        sys.stdout.write("\u001b[1000D")  # Move left
+        sys.stdout.write("\u001b[" + str(4) + "A")  # Move up
+        for i in range(0, 4):
+            if current != i:
+                print("  " + options[i])
+            else:
+                print("> " + options[i])
+        sys.stdout.flush()
+    weather_backend_setting = ["meteo", "openweathermap", "nws", "theweatherchannel"][
+        current
+    ]
+    settings.store_key("DEFAULT_BACKEND", weather_backend_setting)
+    time.sleep(0.1)
+    print("Is your location constant? yes (no)", end="")
+    sys.stdout.flush()
+    cursor_move = False
+    current = 1
+    while True:
+        g = _Getch().__call__()
+        if cursor_move:
+            if (g == b"M") or (g == b"P"):
+                current = 1
+            elif (g == b"K") or (g == b"H"):
+                current = 0
+            cursor_move = False
+        else:
+            if g == b"\x03":
+                exit(0)
+            elif g == g == b"\r":
+                break
+            elif (g == b"a") or (g == b"1"):
+                current = 0
+            elif g == b"b" or (g == b"2"):
+                current = 1
+            elif g == b"\xe0":
+                cursor_move = True
+        sys.stdout.write("\u001b[1000D")  # Move left
+        if current == 0:
+            print("Is your location constant? (yes) no", end="")
+        else:
+            print("Is your location constant? yes (no)", end="")
+        sys.stdout.flush()
+    constant_location_setting = [True, False][current]
+    settings.store_key("CONSTANT_LOCATION", constant_location_setting)
+    time.sleep(0.1)
 
 
 if __name__ == "__main__":

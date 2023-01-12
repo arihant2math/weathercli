@@ -5,10 +5,9 @@ import pathlib
 
 class WeatherFile:
     def __init__(self, file_name):
-        directory = pathlib.Path.home() / ".weathercli"
-        if not directory.exists():
-            os.mkdir(directory)
-        self.path = directory / file_name
+        self.path = pathlib.Path.home() / ".weathercli" / file_name
+        if not self.path.parent.exists():
+            os.mkdir(self.path.parent)
         if not self.path.exists():
             with open(self.path, "w") as f:
                 f.write("{}")

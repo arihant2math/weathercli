@@ -1,7 +1,7 @@
 import core
 
-from cli.settings import WEATHER_DATA_HASH, store_key
-from cli.weather_file import WeatherFile
+from cli.local.settings import WEATHER_DATA_HASH, store_key
+from cli.local.weather_file import WeatherFile
 
 
 class WeatherCondition:

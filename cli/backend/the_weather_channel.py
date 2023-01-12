@@ -1,24 +1,21 @@
 """Alternative Weather Backend weather.com, but has to be carefully scraped"""
 import math
 import ssl
+from datetime import datetime
 
 import certifi
 import core
-import geopy
 from bs4 import BeautifulSoup
 from core import WindData
-from geopy import Nominatim
 
 from cli import WeatherData
 
 
 class TheWeatherChannel(WeatherData):
     def __init__(self, loc):
-        ctx = ssl.create_default_context(cafile=certifi.where())
-        geopy.geocoders.options.default_ssl_context = ctx
-        geolocator = Nominatim(user_agent="weathercli/0", scheme="http")
-        location = geolocator.reverse(loc[0] + ", " + loc[1])
+        location = self.get_location(loc)
         country = location.raw["address"]["country"]
+        region = location.raw["address"]["city"]
         r = core.networking.get_urls(
             [
                 "https://weather.com/weather/today/l/" + loc[0] + "," + loc[1],
@@ -30,7 +27,6 @@ class TheWeatherChannel(WeatherData):
         forecast_soup = BeautifulSoup(r[1], "html.parser")
         air_quality_soup = BeautifulSoup(r[2], "html.parser")
         high, low = self.get_high_low(weather_soup)
-        region = location.raw["address"]["city"]
         wind_data = forecast_soup.find("span", attrs={"data-testid": "Wind"}).getText()
         compass = {
             "N": 0,
@@ -53,6 +49,7 @@ class TheWeatherChannel(WeatherData):
         wind = WindData(int(speed), heading)
         super().__init__(
             status="200",
+            time=datetime.now,
             temperature=self.get_temp(weather_soup),
             min_temp=low,
             max_temp=high,

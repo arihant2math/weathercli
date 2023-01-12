@@ -2,7 +2,7 @@ import json
 from typing import Any
 import datetime
 
-from cli.weather_file import WeatherFile
+from cli.local.weather_file import WeatherFile
 
 
 def add_data(store: str, key: str, value: str):

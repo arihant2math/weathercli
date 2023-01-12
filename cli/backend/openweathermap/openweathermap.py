@@ -1,7 +1,10 @@
+from datetime import datetime
+
 import core
 
-from cli.settings import OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY
-from cli.backend.openweathermap_conditions import OpenWeatherMapWeatherCondition
+from cli.backend.openweathermap.openweathermap_forecast import OpenWeatherMapForecast
+from cli.local.settings import OPEN_WEATHER_MAP_API_KEY
+from cli.backend.openweathermap.openweathermap_condition import OpenWeatherMapWeatherCondition
 from cli.backend.weather_data import WeatherData
 from core import WindData
 
@@ -9,10 +12,14 @@ from core import WindData
 class OpenWeatherMap(WeatherData):
     def __init__(self, coordinates, metric):
         data = core.get_combined_data_formatted(
-            OPEN_WEATHER_MAP_API_URL, OPEN_WEATHER_MAP_API_KEY, coordinates, metric
+            "https://api.openweathermap.org/data/2.5/",
+            OPEN_WEATHER_MAP_API_KEY,
+            coordinates,
+            metric,
         )
         super().__init__(
             status=data.weather.cod,
+            time=datetime.now,
             temperature=data.weather.main.temp,
             min_temp=data.weather.main.temp_min,
             max_temp=data.weather.main.temp_max,
@@ -20,7 +27,7 @@ class OpenWeatherMap(WeatherData):
             wind=WindData(data.weather.wind.speed, data.weather.wind.deg),
             raw_data=data.raw_data,
             aqi=data.air_quality.list[0].main["aqi"],
-            forecast=data.forecast.list,
+            forecast=[],
             country=data.weather.sys.country,
             cloud_cover=data.weather.clouds.all,
             conditions=[],
@@ -32,12 +39,7 @@ class OpenWeatherMap(WeatherData):
             self.conditions.append(OpenWeatherMapWeatherCondition(condition))
         self.condition_sentence = self.get_condition_sentence()
         self.forecast_sentence = self.get_forecast_sentence()
-
-    def get_condition_ids(self):
-        ids = []
-        for condition in self.conditions:
-            ids.append(condition.condition_id)
-        return ids
+        self.forecast = [OpenWeatherMapForecast(t) for t in data.forecast.list]
 
     def get_forecast_sentence(self):
         data = self.forecast.copy()

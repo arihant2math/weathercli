@@ -1,5 +1,18 @@
+import core
 from geopy import Bing, Nominatim
-from cli import settings, cache
+from cli.local import cache, settings
+
+
+def get_location(no_sys_loc):
+    if settings.CONSTANT_LOCATION:
+        attempt_cache = cache.get_key("current_location", "now")
+        if attempt_cache is None:
+            location = core.get_location(no_sys_loc)
+            cache.add_data("current_location", "now", ",".join(location))
+            return location
+        else:
+            return attempt_cache.split(",")
+    return core.get_location(no_sys_loc)
 
 
 def get_coordinates(location: str):

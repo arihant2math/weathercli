@@ -1,17 +1,12 @@
-"""Alternative Weather Backend"""
-import json
+"""Historical Weather Data"""
 import ssl
-
 import certifi
 import core
 import geopy
-from core import WindData
 from geopy import Nominatim
 
-from cli import WeatherData
 
-
-class NOAA(WeatherData):
+class NOAA:
     def __init__(self, loc):
         ctx = ssl.create_default_context(cafile=certifi.where())
         geopy.geocoders.options.default_ssl_context = ctx
@@ -23,19 +18,3 @@ class NOAA(WeatherData):
             "https://www.ncei.noaa.gov/cdo-web/api/v2/datasets"
         )
         print(get_point)
-        super().__init__(
-            status=status,
-            temperature=now["temperature"],
-            min_temp=0,
-            max_temp=0,
-            region=region,
-            wind=wind,
-            raw_data=forecast_json,
-            aqi=1,
-            forecast=[],
-            country=country,
-            cloud_cover=0,
-            conditions=[],
-            condition_sentence=now["detailedForecast"],
-            forecast_sentence="WIP",
-        )
