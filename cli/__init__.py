@@ -13,9 +13,12 @@ from cli.local.weather_file import WeatherFile
 def update_weather_codes():
     f = WeatherFile("weather_codes.json")
     file_hash = core.hash_file(str(f.path.absolute()))
-    web_hash = requests.get(
-        "https://arihant2math.github.io/weathercli/docs/index.json"
-    ).json()["weather-codes-hash"]
+    try:
+        web_hash = requests.get(
+            "https://arihant2math.github.io/weathercli/docs/index.json"
+        ).json()["weather-codes-hash"]
+    except:
+        web_hash = file_hash
     if (WEATHER_DATA_HASH != file_hash) or (web_hash != WEATHER_DATA_HASH):
         print(
             colorama.Fore.YELLOW

@@ -14,7 +14,7 @@ class NationalWeatherServiceCurrent(WeatherData):
             data["properties"]["windDirection"]["values"][0]["value"],
         )
         self.metric = metric
-        print(data["properties"]["updateTime"])
+        # print(data["properties"]["updateTime"])
         super().__init__(
             time=datetime.now,
             temperature=self.convert_temp(
