@@ -1,6 +1,6 @@
 import colorama
 
-from cli import WeatherData, default_layout
+from cli import default_layout
 from cli.local.weather_file import WeatherFile
 
 
@@ -96,8 +96,13 @@ class LayoutRow:
 
 class Layout:
     def __init__(self, file="default.json"):
-        f = WeatherFile("layouts/" + file)
-        layout = f.data
+        if file != "default.json":
+            f = WeatherFile("layouts/" + file)
+            layout = f.data
+        else:
+            layout = default_layout.layout
+        if "layout" not in layout:
+            layout = default_layout.layout
         if "variable_color" not in layout:
             self.variable_color = colorama.Fore.LIGHTGREEN_EX
         else:
@@ -110,14 +115,10 @@ class Layout:
             self.unit_color = colorama.Fore.MAGENTA
         else:
             self.unit_color = getattr(colorama.Fore, layout["unit_color"])
-        if "layout" not in layout:
-            f.data = default_layout.layout
-            f.write()
-            layout = f.data
         self.layout = layout["layout"]
         self._internal_layout = [LayoutRow(row) for row in self.layout]
 
-    def to_string(self, data: WeatherData, metric: bool):
+    def to_string(self, data, metric: bool):
         s = []
         for row in self._internal_layout:
             s.append(

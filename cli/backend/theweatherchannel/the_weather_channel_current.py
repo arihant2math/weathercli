@@ -1,31 +1,14 @@
 """Alternative Weather Backend weather.com, but has to be carefully scraped"""
 import math
-import ssl
 from datetime import datetime
 
-import certifi
-import core
-from bs4 import BeautifulSoup
 from core import WindData
 
-from cli import WeatherData
+from cli.backend.weather_data import WeatherData
 
 
-class TheWeatherChannel(WeatherData):
-    def __init__(self, loc):
-        location = self.get_location(loc)
-        country = location.raw["address"]["country"]
-        region = location.raw["address"]["city"]
-        r = core.networking.get_urls(
-            [
-                "https://weather.com/weather/today/l/" + loc[0] + "," + loc[1],
-                "https://weather.com/weather/hourbyhour/l/" + loc[0] + "," + loc[1],
-                "https://weather.com/forecast/air-quality/l/" + loc[0] + "," + loc[1],
-            ]
-        )
-        weather_soup = BeautifulSoup(r[0], "html.parser")
-        forecast_soup = BeautifulSoup(r[1], "html.parser")
-        air_quality_soup = BeautifulSoup(r[2], "html.parser")
+class TheWeatherChannelCurrent(WeatherData):
+    def __init__(self, weather_soup, forecast_soup, air_quality_soup):
         high, low = self.get_high_low(weather_soup)
         wind_data = forecast_soup.find("span", attrs={"data-testid": "Wind"}).getText()
         compass = {
@@ -48,21 +31,17 @@ class TheWeatherChannel(WeatherData):
                 speed += i
         wind = WindData(int(speed), heading)
         super().__init__(
-            status="200",
             time=datetime.now,
             temperature=self.get_temp(weather_soup),
             min_temp=low,
             max_temp=high,
-            region=region,
             wind=wind,
-            raw_data=r,
+            dewpoint=-1,
+            feels_like=-1,
             aqi=self.get_air_quality(air_quality_soup) // 20,
-            forecast=[],
-            country=country,
             cloud_cover=0,
             conditions=[],
             condition_sentence="WIP",
-            forecast_sentence="WIP",
         )
 
     def get_air_quality(self, soup):

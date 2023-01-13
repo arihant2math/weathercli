@@ -1,5 +1,6 @@
 import core
 from geopy import Bing, Nominatim
+
 from cli.local import cache, settings
 
 

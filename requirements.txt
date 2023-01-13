@@ -7,3 +7,5 @@ maturin
 beautifulsoup4
 certifi
 plotext
+rich
+requests

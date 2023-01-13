@@ -10,28 +10,30 @@ import plotext
 from click import group, option, pass_context, argument
 import core
 
-from cli import print_out
-from cli.backend.meteo import Meteo
+from cli import print_out, update_weather_codes
+from cli.backend.meteo.meteo_current import MeteoCurrent
+from cli.backend.meteo.meteo_forecast import MeteoForecast
+from cli.backend.nws.nws_forecast import NationalWeatherServiceForecast
+from cli.backend.openweathermap.openweathermap_forecast import OpenWeatherMapForecast
+from cli.backend.theweatherchannel.the_weather_channel_forecast import TheWeatherChannelForecast
 from cli.custom_multi_command import CustomMultiCommand
 from cli.getch import _Getch
 from cli.local import settings
 from cli.location import get_coordinates, get_location
-from cli.backend.nws import NationalWeatherService
-from cli.backend.openweathermap import OpenWeatherMap
 from cli.local.settings import store_key, get_key, METRIC_DEFAULT, DEFAULT_BACKEND
-from cli.backend.the_weather_channel import TheWeatherChannel
 from cli.local.weather_file import WeatherFile
 
 
 def get_data_from_datasource(datasource, location, true_metric):
+    update_weather_codes()
     if datasource == "NWS":
-        data = NationalWeatherService(location, true_metric)
+        data = NationalWeatherServiceForecast(location, true_metric)
     elif datasource == "THEWEATHERCHANNEL":
-        data = TheWeatherChannel(location)
+        data = TheWeatherChannelForecast(location)
     elif datasource == "OPENWEATHERMAP":
-        data = OpenWeatherMap(location, true_metric)
+        data = OpenWeatherMapForecast(location, true_metric)
     elif datasource == "METEO":
-        data = Meteo(location, true_metric)
+        data = MeteoForecast(location, true_metric)
     else:
         print(colorama.Fore.RED + "Invalid Data Source!")
         exit(1)
@@ -161,7 +163,7 @@ def clear_cache(ctx):
 @main.command("plot-temp", help="plots the temperature over time")
 @pass_context
 def plot_temp(ctx):
-    data = Meteo(core.get_location(False), False)
+    data = MeteoCurrent(core.get_location(False), False)
     plotext.plot(
         [i for i in range(0, len(data.raw_data["hourly"]["temperature_2m"]))],
         data.raw_data["hourly"]["temperature_2m"],

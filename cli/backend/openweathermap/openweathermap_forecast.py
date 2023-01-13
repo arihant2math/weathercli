@@ -1,38 +1,62 @@
-from datetime import datetime
+import core
 
-from cli import WeatherData
-from core import WindData
+from cli.backend.openweathermap.openweathermap_current import OpenWeatherMapCurrent
+from cli.backend.openweathermap.openweathermap_future import OpenWeatherMapFuture
+from cli.backend.weather_forecast import WeatherForecast
+from cli.local.settings import OPEN_WEATHER_MAP_API_KEY
 
-from cli.backend.openweathermap.openweathermap_condition import OpenWeatherMapWeatherCondition
 
-
-class OpenWeatherMapForecast(WeatherData):
-    def __init__(self, data):
-        d = datetime.fromtimestamp(data.dt)
-        super().__init__(
-            "200",
-            d,
-            data.main.temp,
-            data.main.temp_min,
-            data.main.temp_max,
-            "",
-            WindData(data.wind.speed, data.wind.deg),
-            data,
-            -1,
-            [],
-            "",
-            data.clouds,
-            [],
-            "",
-            "N/A",
+class OpenWeatherMapForecast(WeatherForecast):
+    def __init__(self, coordinates, metric):
+        data = core.get_combined_data_formatted(
+            "https://api.openweathermap.org/data/2.5/",
+            OPEN_WEATHER_MAP_API_KEY,
+            coordinates,
+            metric,
         )
-        self.condition_ids = self.get_condition_ids()
-        for condition in data.weather:
-            self.conditions.append(OpenWeatherMapWeatherCondition(condition))
-        self.condition_sentence = self.get_condition_sentence()
+        forecast = [OpenWeatherMapCurrent(data)]
+        for t in data.forecast.list:
+            forecast.append(OpenWeatherMapFuture(t))
+        super().__init__(
+            0, data.weather.name, data.weather.sys.country, forecast, "", data
+        )  # TODO: Add Proper status
+        self.forecast_sentence = self.get_forecast_sentence()
 
-    def get_condition_ids(self):
-        ids = []
-        for condition in self.conditions:
-            ids.append(condition.condition_id)
-        return ids
+    def get_forecast_sentence(self):
+        data = self.forecast.copy()
+        rain = []
+        snow = []
+        for period in data:
+            if period.conditions[0].condition_id // 100 == 5:
+                rain.append(True)
+                snow.append(False)
+            elif period.conditions[0].condition_id // 100 == 6:
+                snow.append(True)
+                rain.append(False)
+            else:
+                rain.append(False)
+                snow.append(False)
+        if data[0].conditions[0].condition_id // 100 == 5:
+            t = 0
+            for i in rain:
+                if not i:
+                    break
+                t += 1
+            return "It will continue raining for " + str(t * 3) + " hours."
+        elif data[0].conditions[0].condition_id // 100 == 6:
+            t = 0
+            for i in snow:
+                if not i:
+                    break
+                t += 1
+            return "It will continue snowing for " + str(t * 3) + " hours."
+        else:
+            combined = zip(rain, snow)
+            t = 0
+            for period in combined:
+                t += 1
+                if period[0]:
+                    return "It will rain in " + str(t * 3) + " hours"
+                elif period[1]:
+                    return "It will snow in " + str(t * 3) + " hours"
+        return "Conditions are predicted to be clear for the next 3 days."

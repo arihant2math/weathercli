@@ -19,13 +19,25 @@ def get_key(key: str, default=None) -> Any:
         return default
 
 
-OPEN_WEATHER_MAP_API_KEY = get_key("OPEN_WEATHER_MAP_API_KEY")
-BING_MAPS_API_KEY = get_key("BING_MAPS_API_KEY")
-NCDC_API_KEY = get_key("NCDC_API_KEY")
-METRIC_DEFAULT = get_key("METRIC", False)
-WEATHER_DATA_HASH = get_key("WEATHER_DATA_HASH")
-DEFAULT_BACKEND = get_key("DEFAULT_BACKEND", "METEO")
-CONSTANT_LOCATION = get_key("CONSTANT_LOCATION", False)
+def get_key_fast(data, key: str, default=None) -> Any:
+    if key in data:
+        return data[key]
+    else:
+        if default is not None:
+            store_key(key, default)
+        return default
+
+
+f = WeatherFile("settings.json")
+data = f.data
+OPEN_WEATHER_MAP_API_KEY = get_key_fast(data, "OPEN_WEATHER_MAP_API_KEY")
+BING_MAPS_API_KEY = get_key_fast(data, "BING_MAPS_API_KEY")
+NCDC_API_KEY = get_key_fast(data, "NCDC_API_KEY")
+METRIC_DEFAULT = get_key_fast(data, "METRIC", False)
+WEATHER_DATA_HASH = get_key_fast(data, "WEATHER_DATA_HASH")
+DEFAULT_BACKEND = get_key_fast(data, "DEFAULT_BACKEND", "METEO")
+CONSTANT_LOCATION = get_key_fast(data, "CONSTANT_LOCATION", False)
+DEFAULT_LAYOUT = get_key_fast(data, "DEFAULT_LAYOUT")
 if type(DEFAULT_BACKEND) != str:
     print("Invalid Default Backend, defaulting")
     DEFAULT_BACKEND = "METEO"

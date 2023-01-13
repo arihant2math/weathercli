@@ -1,6 +1,6 @@
+import datetime
 import json
 from typing import Any
-import datetime
 
 from cli.local.weather_file import WeatherFile
 
