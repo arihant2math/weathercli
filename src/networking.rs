@@ -1,21 +1,36 @@
-use std::collections::HashMap;
-use std::str::FromStr;
 use pyo3::prelude::PyModule;
 use pyo3::{pyfunction, wrap_pyfunction, PyResult, Python};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
+use std::collections::HashMap;
+use std::str::FromStr;
 
 #[pyfunction]
-fn get_url(url: String, user_agent: Option<String>, headers: Option<HashMap<String, String>>) -> String {
+fn get_url(
+    url: String,
+    user_agent: Option<String>,
+    headers: Option<HashMap<String, String>>,
+) -> String {
     let mut app_user_agent = "weathercli/1".to_string();
-    if let Some(user_agent) = user_agent { app_user_agent = user_agent }
+    if let Some(user_agent) = user_agent {
+        app_user_agent = user_agent
+    }
     let client_pre = reqwest::blocking::Client::builder().user_agent(app_user_agent);
     let mut header_map = HeaderMap::new();
     let mut heads = HashMap::new();
-    if let Some(h) = headers { heads = h }
-    for (k, v) in heads {header_map.insert(HeaderName::from_str(&k).expect(""), HeaderValue::from_str(&v).expect(""));}
+    if let Some(h) = headers {
+        heads = h
+    }
+    for (k, v) in heads {
+        header_map.insert(
+            HeaderName::from_str(&k).expect(""),
+            HeaderValue::from_str(&v).expect(""),
+        );
+    }
     let client = client_pre.default_headers(header_map).build().expect("");
-    client.get(url).send()
+    client
+        .get(url)
+        .send()
         .expect("Url Get failed")
         .text()
         .expect("text expected")

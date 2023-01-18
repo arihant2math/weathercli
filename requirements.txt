@@ -9,3 +9,4 @@ certifi
 plotext
 rich
 requests
+pytest

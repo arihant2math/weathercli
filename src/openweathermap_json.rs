@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
@@ -8,7 +8,7 @@ pub struct CoordinatesJson {
     #[pyo3(get)]
     lon: f64,
     #[pyo3(get)]
-    lat: f64
+    lat: f64,
 }
 
 #[pyclass]
@@ -21,7 +21,7 @@ pub struct ConditionJson {
     #[pyo3(get)]
     description: String,
     #[pyo3(get)]
-    icon: String
+    icon: String,
 }
 
 #[pyclass]
@@ -38,7 +38,7 @@ pub struct MainJson {
     #[pyo3(get)]
     pressure: i32,
     #[pyo3(get)]
-    humidity: i32
+    humidity: i32,
 }
 
 #[pyclass]
@@ -47,14 +47,14 @@ pub struct WindJson {
     #[pyo3(get)]
     speed: f64,
     #[pyo3(get)]
-    deg: i16
+    deg: i16,
 }
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
 pub struct CloudsJson {
     #[pyo3(get)]
-    all: i8
+    all: i8,
 }
 
 #[pyclass]
@@ -69,7 +69,7 @@ pub struct SysJson {
     #[pyo3(get)]
     sunrise: i64,
     #[pyo3(get)]
-    sunset: i64
+    sunset: i64,
 }
 
 #[pyclass]
@@ -98,7 +98,7 @@ pub struct OpenWeatherMapJson {
     #[pyo3(get)]
     name: String,
     #[pyo3(get)]
-    cod: i32
+    cod: i32,
 }
 
 #[pyclass]
@@ -109,7 +109,7 @@ pub struct AirQualityItemJson {
     #[pyo3(get)]
     components: HashMap<String, f64>,
     #[pyo3(get)]
-    dt: i64
+    dt: i64,
 }
 
 #[pyclass]
@@ -118,7 +118,7 @@ pub struct AirQualityJson {
     #[pyo3(get)]
     coord: CoordinatesJson,
     #[pyo3(get)]
-    list: Vec<AirQualityItemJson>
+    list: Vec<AirQualityItemJson>,
 }
 
 #[pyclass]
@@ -152,14 +152,14 @@ pub struct ForecastWindJson {
     #[pyo3(get)]
     deg: i16,
     #[pyo3(get)]
-    gust: f64
+    gust: f64,
 }
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
 pub struct ForecastSysJson {
     #[pyo3(get)]
-    pod: String
+    pod: String,
 }
 
 #[pyclass]
@@ -182,7 +182,7 @@ pub struct ForecastItemJson {
     #[pyo3(get)]
     sys: ForecastSysJson,
     #[pyo3(get)]
-    dt_txt: String
+    dt_txt: String,
 }
 
 #[pyclass]
@@ -195,5 +195,5 @@ pub struct ForecastJson {
     #[pyo3(get)]
     cnt: i64,
     #[pyo3(get)]
-    list: Vec<ForecastItemJson>
+    list: Vec<ForecastItemJson>,
 }

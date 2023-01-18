@@ -4,24 +4,24 @@ from cli.local.weather_file import WeatherFile
 
 
 def store_key(key_name: str, value):
-    f = WeatherFile("settings.json")
-    f.data[key_name] = value
-    f.write()
+    settings_file = WeatherFile("settings.json")
+    settings_file.data[key_name] = value
+    settings_file.write()
 
 
 def get_key(key: str, default=None) -> Any:
-    f = WeatherFile("settings.json")
-    if key in f.data:
-        return f.data[key]
+    settings_file = WeatherFile("settings.json")
+    if key in settings_file.data:
+        return settings_file.data[key]
     else:
         if default is not None:
             store_key(key, default)
         return default
 
 
-def get_key_fast(data, key: str, default=None) -> Any:
-    if key in data:
-        return data[key]
+def get_key_fast(settings_file_data, key: str, default=None) -> Any:
+    if key in settings_file_data:
+        return settings_file_data[key]
     else:
         if default is not None:
             store_key(key, default)
@@ -43,3 +43,6 @@ if type(DEFAULT_BACKEND) != str:
     DEFAULT_BACKEND = "METEO"
 else:
     DEFAULT_BACKEND = DEFAULT_BACKEND.upper()
+LAYOUT_FILE = get_key_fast(data, "LAYOUT_FILE", "none")
+if str(LAYOUT_FILE).lower() == "none":
+    LAYOUT_FILE = None

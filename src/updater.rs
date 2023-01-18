@@ -5,16 +5,16 @@ use std::io::Write;
 
 #[pyfunction]
 fn get_latest_version() -> String {
-    let data =
-        reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json").expect("");
+    let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
+        .expect("");
     let json = data.json::<HashMap<String, String>>().expect("");
     json.get("version").expect("").to_string()
 }
 
 #[pyfunction]
 fn get_latest_updater_version() -> String {
-    let data =
-        reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json").expect("");
+    let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
+        .expect("");
     let json = data.json::<HashMap<String, String>>().expect("");
     json.get("updater-version").expect("").to_string()
 }
@@ -22,10 +22,11 @@ fn get_latest_updater_version() -> String {
 #[pyfunction]
 fn get_updater(path: String) {
     if cfg!(windows) {
-        let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/updater.exe")
-            .expect("url expected")
-            .bytes()
-            .expect("bytes expected");
+        let data =
+            reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/updater.exe")
+                .expect("url expected")
+                .bytes()
+                .expect("bytes expected");
         let mut file = OpenOptions::new()
             .create_new(true)
             .write(true)

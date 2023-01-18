@@ -1,28 +1,23 @@
+use crate::openweathermap_json::{AirQualityJson, ForecastJson, OpenWeatherMapJson};
 use pyo3::prelude::*;
 use sha256::try_digest;
 use std::path::Path;
-use crate::openweathermap_json::{AirQualityJson, ForecastJson, OpenWeatherMapJson};
 
 mod location;
 mod networking;
+mod openweathermap_json;
 mod updater;
 mod weather_data;
 mod wind_data;
-mod openweathermap_json;
 
 fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: bool) -> Vec<String> {
     // Gets the urls from the server
     let longitude = location.get(1).expect("");
     let latitude = location.get(0).expect("");
-    let mut weather_string = format!(
-        "{url}weather?lat={latitude}&lon={longitude}&appid={api_key}"
-    );
-    let mut air_quality = format!(
-        "{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}"
-    );
-    let mut forecast = format!(
-        "{url}forecast?lat={latitude}&lon={longitude}&appid={api_key}"
-    );
+    let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
+    let mut air_quality =
+        format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}");
+    let mut forecast = format!("{url}forecast?lat={latitude}&lon={longitude}&appid={api_key}");
     if metric {
         weather_string += "&units=metric";
         air_quality += "&units=metric";
@@ -45,9 +40,8 @@ struct FormattedData {
     #[pyo3(get)]
     forecast: ForecastJson,
     #[pyo3(get)]
-    raw_data: Vec<String>
+    raw_data: Vec<String>,
 }
-
 
 #[pyfunction]
 fn get_combined_data_formatted(
@@ -66,10 +60,13 @@ fn get_combined_data_formatted(
     let r1: OpenWeatherMapJson = serde_json::from_str(n.get(0).expect("")).expect("");
     let r2: AirQualityJson = serde_json::from_str(n.get(1).expect("")).expect("");
     let r3: ForecastJson = serde_json::from_str(n.get(2).expect("")).expect("");
-    FormattedData {weather: r1, air_quality: r2, forecast: r3, raw_data: n}
+    FormattedData {
+        weather: r1,
+        air_quality: r2,
+        forecast: r3,
+        raw_data: n,
+    }
 }
-
-
 
 #[pyfunction]
 fn hash_file(filename: String) -> String {
@@ -79,13 +76,13 @@ fn hash_file(filename: String) -> String {
 
 /// core module implemented in Rust.
 #[pymodule]
-fn core(py: Python, m: &PyModule) -> PyResult<()> {
-    m.add_function(wrap_pyfunction!(location::get_location, m)?)?;
-    m.add_function(wrap_pyfunction!(get_combined_data_formatted, m)?)?;
-    m.add_function(wrap_pyfunction!(hash_file, m)?)?;
-    m.add_class::<wind_data::WindData>()?;
-    m.add_class::<weather_data::WeatherData>()?;
-    networking::register_networking_module(py, m)?;
-    updater::register_updater_module(py, m)?;
+fn core(py: Python, module: &PyModule) -> PyResult<()> {
+    module.add_function(wrap_pyfunction!(location::get_location, module)?)?;
+    module.add_function(wrap_pyfunction!(get_combined_data_formatted, module)?)?;
+    module.add_function(wrap_pyfunction!(hash_file, module)?)?;
+    module.add_class::<wind_data::WindData>()?;
+    module.add_class::<weather_data::WeatherData>()?;
+    networking::register_networking_module(py, module)?;
+    updater::register_updater_module(py, module)?;
     Ok(())
 }

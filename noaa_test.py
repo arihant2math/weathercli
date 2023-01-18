@@ -1,7 +1,7 @@
 """Historical Weather Data"""
 import ssl
 import certifi
-import core
+from core import networking
 import geopy
 from geopy import Nominatim
 
@@ -14,7 +14,7 @@ class NOAA:
         location = geolocator.reverse(loc[0] + ", " + loc[1])
         country = location.raw["address"]["country"]
         region = location.raw["address"]["city"]
-        get_point = core.networking.get_url(
+        get_point = networking.get_url(
             "https://www.ncei.noaa.gov/cdo-web/api/v2/datasets"
         )
         print(get_point)

@@ -24,9 +24,7 @@ def add_data(store: str, key: str, value: str):
         store_values[key] = value_data
     if store not in data:
         data[store] = store_values
-    # Serializing json
     json_object = json.dumps(data, indent=4)
-    # Writing to sample.json
     with open(f.path, "w") as f:
         f.write(json_object)
 

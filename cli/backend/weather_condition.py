@@ -8,6 +8,6 @@ class WeatherCondition:
 
     def get_sentence(self):
         f = WeatherFile("weather_codes.json")
-        if str(self.condition_id) in f.data:
-            return f.data[str(self.condition_id)][3]
-        return "Unknown Conditions, condition id=" + str(self.condition_id)
+        if str(self.condition_id.id) in f.data:
+            return f.data[str(self.condition_id.id)][3]
+        return "Unknown Conditions, condition id=" + str(self.condition_id.id)

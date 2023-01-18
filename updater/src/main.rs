@@ -31,7 +31,6 @@ async fn main() -> Result<(), String> {
         .content_length()
         .ok_or(format!("Failed to get content length from '{}'", &url))?;
 
-    // Indicatif setup
     let pb = ProgressBar::new(total_size);
     pb.set_style(ProgressStyle::default_bar()
         .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})").expect("Failed due to Indicatif progress bar")
@@ -53,5 +52,5 @@ async fn main() -> Result<(), String> {
     }
 
     pb.finish_with_message("Downloaded ".to_string() + url + " to " + path);
-    return Ok(());
+    Ok(())
 }
