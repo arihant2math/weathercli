@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 use std::collections::HashMap;
 use windows::Devices::Geolocation::Geolocator;
 
+#[cfg(target_os = "windows")]
 fn get_location_windows() -> Result<Vec<String>, windows::core::Error> {
     let geolocator = Geolocator::new()?;
     let geolocation = geolocator.GetGeopositionAsync()?;
