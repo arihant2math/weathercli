@@ -51,8 +51,7 @@ jobs:
         cache: "pip"
     - name: Install dependencies
       run: |
-        sudo apt install mesa-opencl-icd ocl-icd-opencl-dev gcc git bzr jq pkg-config curl clang build-essential hwloc libhwloc-dev wget -y
-        sudo apt upgrade -y
+        sudo apt install
         python3 -m pip install --upgrade pip
         python3 -m pip install --upgrade wheel
         pip install -r requirements.txt
