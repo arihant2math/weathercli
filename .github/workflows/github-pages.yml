@@ -35,6 +35,7 @@ jobs:
       - name: Build
         run: |
           chmod 555 ./jc
+          chmod 555 ./minify
           make docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
