@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 use std::collections::HashMap;
+#[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 
 #[cfg(target_os = "windows")]
