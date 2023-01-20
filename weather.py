@@ -14,7 +14,7 @@ from cli.backend.theweatherchannel.the_weather_channel_forecast import (
 from cli.commands.util import update, clear_cache, setup, config
 from cli.custom_multi_command import CustomMultiCommand
 from cli.location import get_coordinates, get_location
-from cli.local.settings import store_key, get_key, METRIC_DEFAULT, DEFAULT_BACKEND
+from cli.local.settings import METRIC_DEFAULT, DEFAULT_BACKEND
 
 
 def get_data_from_datasource(datasource, location, true_metric):
@@ -62,11 +62,7 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
         true_metric = False
 
     if ctx.invoked_subcommand is None:
-        sys.stdout.flush()
         location = get_location(no_sys_loc)
-        sys.stdout.flush()
-        sys.stdout.write("\u001b[1000D")  # Move left
-        sys.stdout.write("\u001b[1A")  # Move up
         data = get_data_from_datasource(datasource, location, true_metric)
         print_out(data, json, true_metric)
     else:

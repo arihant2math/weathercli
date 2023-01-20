@@ -41,20 +41,21 @@ class MeteoCurrent(WeatherData):
             self.conditions.append(WeatherCondition(803))
         else:
             self.conditions.append(WeatherCondition(804))
-        if (0 < forecast_json["hourly"]["rain"][self.now] < 0.098 and not metric) or (
-            0 < forecast_json["hourly"]["rain"][self.now] < 2.5 and metric
-        ):
-            self.conditions.append(WeatherCondition(500))
-        elif (forecast_json["hourly"]["rain"][self.now] < 0.39 and not metric) or (
-            forecast_json["hourly"]["rain"][self.now] < 10 and metric
-        ):
-            self.conditions.append(WeatherCondition(501))
-        elif (forecast_json["hourly"]["rain"][self.now] < 2 and not metric) or (
-            forecast_json["hourly"]["rain"][self.now] < 50 and metric
-        ):
-            self.conditions.append(WeatherCondition(502))
-        else:
-            self.conditions.append(WeatherCondition(503))
+        if forecast_json["hourly"]["rain"][self.now] != 0:
+            if (0 < forecast_json["hourly"]["rain"][self.now] < 0.098 and not metric) or (
+                0 < forecast_json["hourly"]["rain"][self.now] < 2.5 and metric
+            ):
+                self.conditions.append(WeatherCondition(500))
+            elif (forecast_json["hourly"]["rain"][self.now] < 0.39 and not metric) or (
+                forecast_json["hourly"]["rain"][self.now] < 10 and metric
+            ):
+                self.conditions.append(WeatherCondition(501))
+            elif (forecast_json["hourly"]["rain"][self.now] < 2 and not metric) or (
+                forecast_json["hourly"]["rain"][self.now] < 50 and metric
+            ):
+                self.conditions.append(WeatherCondition(502))
+            elif forecast_json["hourly"]["rain"][self.now] != 0:
+                self.conditions.append(WeatherCondition(503))
         if forecast_json["hourly"]["snowfall"][self.now] != 0:
             self.conditions.append(WeatherCondition(601))
         self.condition_ids = self.get_condition_ids()

@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% block head %}
     <title>Weather CLI</title>
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <style>
 
         .card-title {
@@ -24,15 +23,6 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-        }
-
-        a {
-            outline: none;
-            text-decoration: none;
-        }
-
-        .left-margin {
-            margin-left: 20px;
         }
 
         .page-view {
@@ -68,14 +58,13 @@
     </style>
 {% endblock %}
 {% block body %}
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <div class="hero-image">
         <div class="hero-text">
             <h1 style="font-size: 50px">Weather CLI</h1>
             <div class="text-typing">
                 <p>A blazing fast CLI written in python and rust</p>
             </div>
-            <div class="btn-group" role="group" aria-label="Hero Download">
+            <div class="btn-group" role="group" aria-label="Hero Download" data-aos="flip-down">
                 <button type="button" class="btn btn-primary btn-lg" onclick="download()"><i class="bi bi-download"></i> Download</button>
                 <button type="button" class="btn btn-primary btn-lg dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
                 <ul class="dropdown-menu">
@@ -87,7 +76,7 @@
     </div>
     <div class="page-view">
         <h1 data-aos="fade-left">Why Weathercli</h1>
-        <div class="row left-margin">
+        <div class="row default-margin">
             <div class="col-sm-3">
                 <div class="card" style="width: 18rem;" data-aos="fade-right">
                     <div class="card-body">
@@ -124,11 +113,10 @@
         </div>
     </div>
     <div class="page-view">
-        <h1 data-aos="fade-up">Install</h1>
-        <p class="left-margin" data-aos="fade-up">Download the executable and place it in an empty directory that in on your path.</p>
+        <h1 data-aos="fade-right">Install</h1>
+        <p class="default-margin" data-aos="fade-up">Download the executable and place it in an empty directory that in on your path.</p>
     </div>
     <script>
         {% include 'index.js' %}
     </script>
-    {% include 'footer.html' %}
 {% endblock %}

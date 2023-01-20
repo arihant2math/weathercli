@@ -40,13 +40,13 @@ def main(gh_token):
     with open("./tmp/weather.exe.zip", "wb") as f:
         f.write(windows_download.content)
     print("Extracting Zips ...")
-    with ZipFile('./tmp/weather.exe.zip') as exezip:
-        with exezip.open('weather.exe') as exe:
-            with open('./docs_templates/weather.exe', 'wb') as out:
+    with ZipFile("./tmp/weather.exe.zip") as exezip:
+        with exezip.open("weather.exe") as exe:
+            with open("./docs_templates/weather.exe", "wb") as out:
                 out.write(exe.read())
-    with ZipFile('./tmp/weather.zip') as unixzip:
-        with unixzip.open('weather') as exe:
-            with open('./docs_templates/weather', 'wb') as out:
+    with ZipFile("./tmp/weather.zip") as unixzip:
+        with unixzip.open("weather") as exe:
+            with open("./docs_templates/weather", "wb") as out:
                 out.write(exe.read())
 
 
