@@ -27,17 +27,6 @@ fn get_location_web() -> Result<Vec<String>, reqwest::Error> {
     Ok(location_vec)
 }
 
-fn get_location_web() -> Result<Vec<String>, reqwest::Error> {
-    let resp = reqwest::blocking::get("https://ipinfo.io")?
-        .json::<HashMap<String, String>>()?;
-    let location = resp.get("loc").expect("No loc section").split(',');
-    let mut location_vec: Vec<String> = vec![];
-    for s in location {
-        location_vec.push(s.to_string());
-    }
-    Ok(location_vec)
-}
-
 #[pyfunction]
 #[cfg(target_os = "windows")]
 pub fn get_location(no_sys_loc: bool) -> Vec<String> {
