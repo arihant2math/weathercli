@@ -2,19 +2,13 @@ build: .
 	pyinstaller -F weather.py
 docs: docs_templates/
 	touch docs/index.html
-	touch ./docs/index.html.tmp
-	./jc index.html "./docs/index.html.tmp" --template-dir "./docs_templates"
-	./minify --output ./docs/index.html --keep-closing-tags --minify-css ./docs/index.html.tmp
-	rm ./docs/index.html.tmp
+	./jc index.html "./docs/index.html" --template-dir "./docs_templates"
 
 	touch docs/config.html
-	touch ./docs/config.html.tmp
-	./jc config.html "./docs/config.html.tmp" --template-dir "./docs_templates"
-	./minify --output ./docs/config.html --keep-closing-tags --minify-css ./docs/config.html.tmp
-	rm ./docs/config.html.tmp
+	./jc config.html "./docs/config.html" --template-dir "./docs_templates"
 
 	touch docs/index.json
-	./jc index.json "./docs/index.json" --template-dir "./docs_templates"
+	./jc index.json "./docs/index.json" --template-dir "./docs_templates" --no-minify
 	cp docs_templates/hero.png docs/hero.png
 	cp docs_templates/logo.png docs/logo.png
 	cp docs_templates/weather.exe docs/weather.exe
@@ -25,3 +19,7 @@ docs: docs_templates/
 clean:
 	rm -rf docs
 	mkdir docs
+	rm -rf build
+	rm -rf dist
+	rm -rf target
+	rm -rf updater/target
