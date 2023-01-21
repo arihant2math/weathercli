@@ -7,6 +7,6 @@ maturin
 beautifulsoup4
 certifi
 plotext
-rich
+rich==13.2.0
 requests
 pytest
