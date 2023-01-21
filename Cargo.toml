@@ -16,7 +16,7 @@ name = "core"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-pyo3 = { version = "0.17.3", features = ["extension-module"] }
+pyo3 = { version = "0.18.0", features = ["extension-module"] }
 reqwest = { version = "0.11.13", features = ["blocking", "json"] }
 rayon = "1.6.1"
 serde = { version = "1.0.151", features = ["derive"] }
