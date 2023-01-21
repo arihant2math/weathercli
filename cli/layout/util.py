@@ -2,16 +2,20 @@ import colorama
 
 
 class Util:
-    def rainbow(self, text):
+    @staticmethod
+    def rainbow(text):
         return text
 
-    def to_list(self, super_list, attribute):
+    @staticmethod
+    def to_list(super_list, attribute):
         return [getattr(item, attribute) for item in super_list]
 
-    def pretty_list(self, li, delimiter=","):
+    @staticmethod
+    def pretty_list(li, delimiter=","):
         return delimiter.join(li)
 
-    def color_aqi(self, aqi):
+    @staticmethod
+    def color_aqi(aqi):
         if aqi < 3:
             return colorama.Fore.LIGHTGREEN_EX + aqi + colorama.Fore.RESET
         elif aqi < 5:
