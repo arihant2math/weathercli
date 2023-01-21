@@ -31,11 +31,11 @@ async fn main() -> Result<(), String> {
         .content_length()
         .ok_or(format!("Failed to get content length from '{}'", &url))?;
 
-    let pb = ProgressBar::new(total_size);
-    pb.set_style(ProgressStyle::default_bar()
+    let progress_bar = ProgressBar::new(total_size);
+    progress_bar.set_style(ProgressStyle::default_bar()
         .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})").expect("Failed due to Indicatif progress bar")
         .progress_chars("#>-"));
-    pb.set_message("Downloading ".to_string() + url);
+    progress_bar.set_message("Downloading ".to_string() + url);
 
     // download chunks
     let mut file = File::create(path).or(Err(format!("Failed to create file '{}'", path)))?;
@@ -43,14 +43,13 @@ async fn main() -> Result<(), String> {
     let mut stream = res.bytes_stream();
 
     while let Some(item) = stream.next().await {
-        let chunk = item.or(Err(format!("Error while downloading file")))?;
-        file.write_all(&chunk)
-            .or(Err(format!("Error while writing to file")))?;
+        let chunk = item.or(Err("Error while downloading file".to_string()))?;
+        file.write_all(&chunk).map_err(|_| "Error while writing to file".to_string())?;
         let new = min(downloaded + (chunk.len() as u64), total_size);
         downloaded = new;
-        pb.set_position(new);
+        progress_bar.set_position(new);
     }
 
-    pb.finish_with_message("Downloaded ".to_string() + url + " to " + path);
+    progress_bar.finish_with_message("Downloaded ".to_string() + url + " to " + path);
     Ok(())
 }
