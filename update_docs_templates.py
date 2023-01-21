@@ -1,3 +1,5 @@
+import os
+import shutil
 from zipfile import ZipFile
 
 import click
@@ -7,6 +9,8 @@ import requests
 @click.command()
 @click.argument("gh_token")
 def main(gh_token):
+    if not os.path.exists("./tmp"):
+        os.makedirs("./tmp")
     s = requests.Session()
     s.auth = ("token", gh_token)
     get_run_id = s.get(
@@ -14,19 +18,21 @@ def main(gh_token):
     )
     runs = get_run_id.json()["workflow_runs"]
     ci = [run for run in runs if (run["path"] == ".github/workflows/build.yml")]
-    highest_ci = ci[0]
-    r2 = s.get(
+    latest_run_id = ci[0]["id"]
+    artifact_request = s.get(
         "https://api.github.com/repos/arihant2math/weathercli/actions/runs/"
-        + str(highest_ci["id"])
+        + str(latest_run_id)
         + "/artifacts"
     )
-    artifacts = r2.json()["artifacts"]
-    unix = [a for a in artifacts if a["name"] == "weather (Unix)"][0]["id"]
-    windows = [a for a in artifacts if a["name"] == "weather (Windows)"][0]["id"]
+    artifacts = artifact_request.json()["artifacts"]
+    unix_artifact_id = [a for a in artifacts if a["name"] == "weather (Unix)"][0]["id"]
+    windows_artifact_id = [a for a in artifacts if a["name"] == "weather (Windows)"][0][
+        "id"
+    ]
     print("Starting Unix Download")
     unix_download = s.get(
         "https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/"
-        + str(unix)
+        + str(unix_artifact_id)
         + "/zip"
     )
     with open("./tmp/weather.zip", "wb") as f:
@@ -34,7 +40,7 @@ def main(gh_token):
     print("Starting Windows Download")
     windows_download = s.get(
         "https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/"
-        + str(windows)
+        + str(windows_artifact_id)
         + "/zip"
     )
     with open("./tmp/weather.exe.zip", "wb") as f:
@@ -48,6 +54,7 @@ def main(gh_token):
         with unixzip.open("weather") as exe:
             with open("./docs_templates/weather", "wb") as out:
                 out.write(exe.read())
+    shutil.rmtree("./tmp")
 
 
 if __name__ == "__main__":
