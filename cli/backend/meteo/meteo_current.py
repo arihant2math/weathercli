@@ -42,9 +42,9 @@ class MeteoCurrent(WeatherData):
         else:
             self.conditions.append(WeatherCondition(804))
         if forecast_json["hourly"]["rain"][self.now] != 0:
-            if (0 < forecast_json["hourly"]["rain"][self.now] < 0.098 and not metric) or (
-                0 < forecast_json["hourly"]["rain"][self.now] < 2.5 and metric
-            ):
+            if (
+                0 < forecast_json["hourly"]["rain"][self.now] < 0.098 and not metric
+            ) or (0 < forecast_json["hourly"]["rain"][self.now] < 2.5 and metric):
                 self.conditions.append(WeatherCondition(500))
             elif (forecast_json["hourly"]["rain"][self.now] < 0.39 and not metric) or (
                 forecast_json["hourly"]["rain"][self.now] < 10 and metric
