@@ -1,6 +1,8 @@
 """Historical Weather Data"""
 import ssl
 import certifi
+
+import core
 from core import networking
 import geopy
 from geopy import Nominatim
@@ -18,3 +20,6 @@ class NOAA:
             "https://www.ncei.noaa.gov/cdo-web/api/v2/datasets"
         )
         print(get_point)
+
+
+noaa = NOAA(core.get_location(False))
