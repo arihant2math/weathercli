@@ -32,7 +32,8 @@ class WeatherForecast:
         self.forecast_sentence = forecast_sentence
         self.raw_data = raw_data
 
-    def get_location(self, loc):
+    @staticmethod
+    def get_location(loc):
         ctx = ssl.create_default_context(cafile=certifi.where())
         geopy.geocoders.options.default_ssl_context = ctx
         geolocator = Nominatim(user_agent="weathercli/0", scheme="http")
