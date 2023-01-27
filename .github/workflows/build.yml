@@ -10,8 +10,33 @@ permissions:
   contents: read
 
 jobs:
-  windows-build:
+  test:
+    runs-on: ubuntu-latest
 
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade wheel
+          pip install -r requirements.txt
+          maturin build -r
+          for file in target/wheels/*.whl
+          do
+            name=${file##*/}
+            pip install "$file"
+          done
+      - name: Test
+        run: pytest .
+
+
+  windows-build:
+    needs: test
     runs-on: windows-latest
 
     steps:
@@ -32,8 +57,7 @@ jobs:
             pip install $f.FullName
         }
     - name: Build with pyinstaller
-      run: |
-        pyinstaller -F weather.py -i ./icon/icon.png
+      run: pyinstaller -F weather.py -i ./icon/icon.png
     - uses: actions/upload-artifact@v3
       with:
         name: weather (Windows)
@@ -61,8 +85,7 @@ jobs:
           pip install "$file"
         done
     - name: Build with pyinstaller
-      run: |
-        pyinstaller -F weather.py
+      run: pyinstaller -F weather.py
     - uses: actions/upload-artifact@v3
       with:
         name: weather (Unix)
