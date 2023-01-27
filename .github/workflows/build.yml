@@ -62,8 +62,9 @@ jobs:
       with:
         name: weather (Windows)
         path: ./dist/weather.exe
-  unix-build:
 
+  unix-build:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
