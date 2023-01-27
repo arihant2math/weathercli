@@ -44,7 +44,6 @@ class LayoutVariable(LayoutItem):
                 + unit_color
                 + self.unit_color
                 + self.metric_unit
-                + colorama.Fore.RESET
             )
         else:
             return (
@@ -54,5 +53,4 @@ class LayoutVariable(LayoutItem):
                 + unit_color
                 + self.unit_color
                 + self.imperial_unit
-                + colorama.Fore.RESET
             )

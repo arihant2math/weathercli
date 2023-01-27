@@ -1,10 +1,10 @@
 """Historical Weather Data"""
 import ssl
-import certifi
 
+import certifi
 import core
-from core import networking
 import geopy
+from core import networking
 from geopy import Nominatim
 
 

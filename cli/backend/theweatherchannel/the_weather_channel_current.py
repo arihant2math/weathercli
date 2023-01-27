@@ -44,12 +44,14 @@ class TheWeatherChannelCurrent(WeatherData):
             condition_sentence="WIP",
         )
 
-    def get_air_quality(self, soup):
+    @staticmethod
+    def get_air_quality(soup):
         return int(
             soup.find("text", attrs={"data-testid": "DonutChartValue"}).getText()
         )
 
-    def get_temp(self, soup):
+    @staticmethod
+    def get_temp(soup):
         return int(
             soup.find("div", attrs={"data-testid": "CurrentConditionsContainer"})
             .find("span", attrs={"data-testid": "TemperatureValue"})
@@ -57,7 +59,8 @@ class TheWeatherChannelCurrent(WeatherData):
             .replace("°", "")
         )
 
-    def get_high_low(self, soup):
+    @staticmethod
+    def get_high_low(soup):
         data = soup.find("div", attrs={"data-testid": "wxData"}).text.replace("°", "")
         high_low = data.split("/")
         if high_low[0] == "--":

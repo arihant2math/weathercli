@@ -27,7 +27,7 @@ def get_coordinates(location: str):
             geolocator = Nominatim(user_agent="weathercli")
         coordinates = geolocator.geocode(location, timeout=10000)
         if coordinates is None:
-            raise LookupError("No such place")
+            raise LookupError("No such place exists")
         r_value = [str(coordinates.latitude), str(coordinates.longitude)]
         cache.add_data("location", location.lower().strip(), ",".join(r_value))
         return r_value

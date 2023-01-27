@@ -1,7 +1,6 @@
 import sys
 
 import colorama
-
 from click import group, option, pass_context, argument
 
 from cli import print_out, update_weather_codes
@@ -13,8 +12,8 @@ from cli.backend.theweatherchannel.the_weather_channel_forecast import (
 )
 from cli.commands.util import update, clear_cache, setup, config
 from cli.custom_multi_command import CustomMultiCommand
-from cli.location import get_coordinates, get_location
 from cli.local.settings import METRIC_DEFAULT, DEFAULT_BACKEND
+from cli.location import get_coordinates, get_location
 
 
 def get_data_from_datasource(datasource, location, true_metric):

@@ -12,4 +12,4 @@ class LayoutText(LayoutItem):
             self.color = ""
 
     def to_string(self, color):
-        return color + self.color + self.text + colorama.Fore.RESET
+        return color + self.color + self.text

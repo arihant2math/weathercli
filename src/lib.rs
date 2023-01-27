@@ -1,4 +1,4 @@
-use crate::openweathermap_json::{AirQualityJson, ForecastJson, OpenWeatherMapJson};
+use crate::openweathermap_json::{OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson};
 use pyo3::prelude::*;
 use sha256::try_digest;
 use std::path::Path;
@@ -36,9 +36,9 @@ struct FormattedData {
     #[pyo3(get)]
     weather: OpenWeatherMapJson,
     #[pyo3(get)]
-    air_quality: AirQualityJson,
+    air_quality: OpenWeatherMapAirQualityJson,
     #[pyo3(get)]
-    forecast: ForecastJson,
+    forecast: OpenWeatherMapForecastJson,
     #[pyo3(get)]
     raw_data: Vec<String>,
 }
@@ -58,8 +58,8 @@ fn get_combined_data_formatted(
     );
     let n = networking::get_urls(urls);
     let r1: OpenWeatherMapJson = serde_json::from_str(n.get(0).expect("")).expect("");
-    let r2: AirQualityJson = serde_json::from_str(n.get(1).expect("")).expect("");
-    let r3: ForecastJson = serde_json::from_str(n.get(2).expect("")).expect("");
+    let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(n.get(1).expect("")).expect("");
+    let r3: OpenWeatherMapForecastJson = serde_json::from_str(n.get(2).expect("")).expect("");
     FormattedData {
         weather: r1,
         air_quality: r2,

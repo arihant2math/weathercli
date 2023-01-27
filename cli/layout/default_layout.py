@@ -97,9 +97,17 @@ layout = {
         [
             {"type": "text", "data": {"text": "AQI: "}},
             {
-                "type": "variable",
-                "data": {"name": "current_weather.aqi"},
-            },
+                "type": "function",
+                "data": {
+                    "name": "color_aqi",
+                    "args": [
+                        {
+                            "type": "variable",
+                            "data": {"name": "current_weather.aqi"},
+                        }
+                    ]
+                }
+            }
         ],
     ],
 }

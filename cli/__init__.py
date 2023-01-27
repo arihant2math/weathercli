@@ -1,10 +1,9 @@
 import colorama
-from core import hash_file, networking
 import requests
 import rich
+from core import hash_file, networking
 
 from cli.backend.weather_forecast import WeatherForecast
-from cli.dummy_fore import DummyFore
 from cli.layout.layout import Layout
 from cli.local.settings import store_key, WEATHER_DATA_HASH, LAYOUT_FILE
 from cli.local.weather_file import WeatherFile

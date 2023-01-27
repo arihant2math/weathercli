@@ -16,9 +16,9 @@ class Util:
 
     @staticmethod
     def color_aqi(aqi):
-        if aqi < 3:
+        if int(aqi) < 3:
             return colorama.Fore.LIGHTGREEN_EX + aqi + colorama.Fore.RESET
-        elif aqi < 5:
+        elif int(aqi) < 5:
             return colorama.Fore.LIGHTYELLOW_EX + aqi + colorama.Fore.RESET
         else:
             return colorama.Fore.RED + aqi + colorama.Fore.RESET

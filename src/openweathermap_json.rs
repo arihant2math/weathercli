@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct CoordinatesJson {
+pub struct OpenWeatherMapCoordinatesJson {
     #[pyo3(get)]
     lon: f64,
     #[pyo3(get)]
@@ -13,7 +13,7 @@ pub struct CoordinatesJson {
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct ConditionJson {
+pub struct OpenWeatherMapConditionJson {
     #[pyo3(get)]
     id: i16,
     #[pyo3(get)]
@@ -26,7 +26,7 @@ pub struct ConditionJson {
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct MainJson {
+pub struct OpenWeatherMapMainJson {
     #[pyo3(get)]
     temp: f64,
     #[pyo3(get)]
@@ -43,7 +43,7 @@ pub struct MainJson {
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct WindJson {
+pub struct OpenWeatherMapWindJson {
     #[pyo3(get)]
     speed: f64,
     #[pyo3(get)]
@@ -52,14 +52,14 @@ pub struct WindJson {
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct CloudsJson {
+pub struct OpenWeatherMapCloudsJson {
     #[pyo3(get)]
     all: i8,
 }
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct SysJson {
+pub struct OpenWeatherMapSysJson {
     #[serde(rename = "type")]
     type_name: i64,
     #[pyo3(get)]
@@ -76,21 +76,21 @@ pub struct SysJson {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct OpenWeatherMapJson {
     #[pyo3(get)]
-    coord: CoordinatesJson,
+    coord: OpenWeatherMapCoordinatesJson,
     #[pyo3(get)]
-    weather: Vec<ConditionJson>,
+    weather: Vec<OpenWeatherMapConditionJson>,
     #[pyo3(get)]
     base: String,
     #[pyo3(get)]
-    main: MainJson,
+    main: OpenWeatherMapMainJson,
     #[pyo3(get)]
     visibility: i32,
     #[pyo3(get)]
-    wind: WindJson,
+    wind: OpenWeatherMapWindJson,
     #[pyo3(get)]
-    clouds: CloudsJson,
+    clouds: OpenWeatherMapCloudsJson,
     #[pyo3(get)]
-    sys: SysJson,
+    sys: OpenWeatherMapSysJson,
     #[pyo3(get)]
     timezone: i64,
     #[pyo3(get)]
@@ -103,7 +103,7 @@ pub struct OpenWeatherMapJson {
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct AirQualityItemJson {
+pub struct OpenWeatherMapAirQualityItemJson {
     #[pyo3(get)]
     main: HashMap<String, i8>,
     #[pyo3(get)]
@@ -114,16 +114,16 @@ pub struct AirQualityItemJson {
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct AirQualityJson {
+pub struct OpenWeatherMapAirQualityJson {
     #[pyo3(get)]
-    coord: CoordinatesJson,
+    coord: OpenWeatherMapCoordinatesJson,
     #[pyo3(get)]
-    list: Vec<AirQualityItemJson>,
+    list: Vec<OpenWeatherMapAirQualityItemJson>,
 }
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct ForecastMainJson {
+pub struct OpenWeatherMapForecastMainJson {
     #[pyo3(get)]
     temp: f64,
     #[pyo3(get)]
@@ -146,7 +146,7 @@ pub struct ForecastMainJson {
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct ForecastWindJson {
+pub struct OpenWeatherMapForecastWindJson {
     #[pyo3(get)]
     speed: f64,
     #[pyo3(get)]
@@ -157,37 +157,37 @@ pub struct ForecastWindJson {
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct ForecastSysJson {
+pub struct OpenWeatherMapForecastSysJson {
     #[pyo3(get)]
     pod: String,
 }
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct ForecastItemJson {
+pub struct OpenWeatherMapForecastItemJson {
     #[pyo3(get)]
     dt: i64,
     #[pyo3(get)]
-    main: ForecastMainJson,
+    main: OpenWeatherMapForecastMainJson,
     #[pyo3(get)]
-    weather: Vec<ConditionJson>,
+    weather: Vec<OpenWeatherMapConditionJson>,
     #[pyo3(get)]
-    clouds: CloudsJson,
+    clouds: OpenWeatherMapCloudsJson,
     #[pyo3(get)]
-    wind: ForecastWindJson,
+    wind: OpenWeatherMapForecastWindJson,
     #[pyo3(get)]
     visibility: i32,
     #[pyo3(get)]
     pop: f64,
     #[pyo3(get)]
-    sys: ForecastSysJson,
+    sys: OpenWeatherMapForecastSysJson,
     #[pyo3(get)]
     dt_txt: String,
 }
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
-pub struct ForecastJson {
+pub struct OpenWeatherMapForecastJson {
     #[pyo3(get)]
     cod: String,
     #[pyo3(get)]
@@ -195,5 +195,5 @@ pub struct ForecastJson {
     #[pyo3(get)]
     cnt: i64,
     #[pyo3(get)]
-    list: Vec<ForecastItemJson>,
+    list: Vec<OpenWeatherMapForecastItemJson>,
 }

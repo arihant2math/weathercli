@@ -1,8 +1,7 @@
+import core
 from bs4 import BeautifulSoup
 
 from cli import WeatherForecast
-import core
-
 from cli.backend.theweatherchannel.the_weather_channel_current import (
     TheWeatherChannelCurrent,
 )
