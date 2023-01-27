@@ -28,6 +28,12 @@ def get_key_fast(settings_file_data, key: str, default=None) -> Any:
         return default
 
 
+def delete_key(key: str):
+    settings_file = WeatherFile("settings.json")
+    if key in settings_file.data:
+        del settings_file.data[key]
+
+
 f = WeatherFile("settings.json")
 data = f.data
 OPEN_WEATHER_MAP_API_KEY = get_key_fast(data, "OPEN_WEATHER_MAP_API_KEY")
