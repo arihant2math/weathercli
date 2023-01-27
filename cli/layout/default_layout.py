@@ -105,9 +105,9 @@ layout = {
                             "type": "variable",
                             "data": {"name": "current_weather.aqi"},
                         }
-                    ]
-                }
-            }
+                    ],
+                },
+            },
         ],
     ],
 }
