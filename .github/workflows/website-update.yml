@@ -5,20 +5,21 @@ on:
   workflow_dispatch:
 
 jobs:
-    runs-on: ubuntu-latest
-    steps:
-      - env:
-          SUPER_SECRET: ${{secrets.GH_API_PAT}}
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install Requirements
-        run:
-          pip install requests
-          pip install click
-      - name: Update Executables
-        run:
-          python3 update_docs_templates.py "$GH_API_PAT"
-      - uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
-        with:
-          default_author: github_actions
-          message: 'Docs: Bumped Executables to latest version (Bot)'
+    update:
+      runs-on: ubuntu-latest
+      steps:
+        - env:
+            SUPER_SECRET: ${{secrets.GH_API_PAT}}
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Install Requirements
+          run:
+            pip install requests
+            pip install click
+        - name: Update Executables
+          run:
+            python3 update_docs_templates.py "$GH_API_PAT"
+        - uses: EndBug/add-and-commit@v9 # You can change this to use a specific version.
+          with:
+            default_author: github_actions
+            message: 'Docs: Bumped Executables to latest version (Bot)'
