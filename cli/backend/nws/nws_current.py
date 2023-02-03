@@ -45,31 +45,31 @@ class NationalWeatherServiceCurrent(WeatherData):
         else:
             self.conditions.append(WeatherCondition(804))
         if (
-                0
-                < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
-                < 0.098
-                and not metric
+            0
+            < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
+            < 0.098
+            and not metric
         ) or (
-                0
-                < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
-                < 2.5
-                and metric
+            0
+            < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
+            < 2.5
+            and metric
         ):
             self.conditions.append(WeatherCondition(500))
         elif (
-                data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 0.39
-                and not metric
+            data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 0.39
+            and not metric
         ) or (
-                data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 10
-                and metric
+            data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 10
+            and metric
         ):
             self.conditions.append(WeatherCondition(501))
         elif (
-                data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 2
-                and not metric
+            data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 2
+            and not metric
         ) or (
-                data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 50
-                and metric
+            data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 50
+            and metric
         ):
             self.conditions.append(WeatherCondition(502))
         else:
