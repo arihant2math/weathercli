@@ -1,4 +1,5 @@
 layout = {
+    "version": 0,
     "layout": [
         [
             {"type": "text", "data": {"text": "Weather for "}},

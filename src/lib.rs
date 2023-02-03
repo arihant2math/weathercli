@@ -15,8 +15,7 @@ fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: boo
     let longitude = location.get(1).expect("");
     let latitude = location.get(0).expect("");
     let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
-    let mut air_quality =
-        format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}");
+    let mut air_quality = format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}");
     let mut forecast = format!("{url}forecast?lat={latitude}&lon={longitude}&appid={api_key}");
     if metric {
         weather_string += "&units=metric";

@@ -1,4 +1,5 @@
 build: .
+	maturin develop
 	pyinstaller -F weather.py
 docs: docs_templates/
 	touch docs/index.html

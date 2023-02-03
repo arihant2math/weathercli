@@ -24,6 +24,14 @@ class WeatherForecast:
         forecast_sentence: str,
         raw_data,
     ):
+        """
+        :param status: 0 is success, 10 is invalid API key, 11 is invalid client request, 20 is server error,
+        :param region:
+        :param country:
+        :param forecast:
+        :param forecast_sentence:
+        :param raw_data:
+        """
         self.status = status
         self.region = region
         self.country = country

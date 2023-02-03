@@ -23,7 +23,7 @@ def test_get_url_custom_headers():
 
 
 def test_get_urls():
-    r = networking.get_urls(["https://httpbin.org/get", "https://httpbin.org/user-agent"])
-    j = json.loads(r[0])
-    ua = json.loads(r[1])
+    r = networking.get_urls(
+        ["https://httpbin.org/get", "https://httpbin.org/user-agent"]
+    )
     assert len(r) == 2

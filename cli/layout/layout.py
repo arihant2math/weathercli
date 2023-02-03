@@ -8,6 +8,8 @@ from cli.local.weather_file import WeatherFile
 
 
 class Layout:
+    version = 0
+
     def __init__(self, file=None, text=None):
         if file is not None:
             f = WeatherFile("layouts/" + file)
@@ -19,11 +21,23 @@ class Layout:
                 layout = json.loads(text)
         else:
             layout = default_layout.layout
-        if 'defaults' in layout:
-            global_settings = layout['defaults']
+        if "version" not in layout:
+            print("Invalid Layout, defaulting")
+            layout = default_layout.layout
+        else:
+            if layout["version"] > self.version:
+                print(
+                    "Version of layout file, "
+                    + str(layout["version"])
+                    + ", is greater than the highest supported version "
+                    + self.version
+                )
+        if "defaults" in layout:
+            global_settings = layout["defaults"]
         else:
             global_settings = {}
         if "layout" not in layout:
+            print("Invalid Layout, defaulting")
             layout = default_layout.layout
         if "variable_color" not in global_settings:
             self.variable_color = colorama.Fore.LIGHTGREEN_EX

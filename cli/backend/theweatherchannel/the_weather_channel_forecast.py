@@ -1,4 +1,4 @@
-import core
+import requests
 from bs4 import BeautifulSoup
 
 from cli import WeatherForecast
@@ -8,21 +8,28 @@ from cli.backend.theweatherchannel.the_weather_channel_current import (
 
 
 class TheWeatherChannelForecast(WeatherForecast):
-    def __init__(self, loc):
+    def __init__(self, loc, metric):
         location = self.get_location(loc)
         country = location.raw["address"]["country"]
         region = location.raw["address"]["city"]
-        r = core.networking.get_urls(
-            [
-                "https://weather.com/weather/today/l/" + loc[0] + "," + loc[1],
-                "https://weather.com/weather/hourbyhour/l/" + loc[0] + "," + loc[1],
-                "https://weather.com/forecast/air-quality/l/" + loc[0] + "," + loc[1],
-            ]
+        session = requests.session()
+        if not metric:
+            session.cookies.set("unitOfMeasurement", "e", domain="weather.com")
+        else:
+            session.cookies.set("unitOfMeasurement", "m", domain="weather.com")
+        r1 = session.get(
+            "https://weather.com/weather/today/l/" + loc[0] + "," + loc[1],
         )
-        weather_soup = BeautifulSoup(r[0], "html.parser")
-        forecast_soup = BeautifulSoup(r[1], "html.parser")
-        air_quality_soup = BeautifulSoup(r[2], "html.parser")
+        r2 = session.get(
+            "https://weather.com/weather/hourbyhour/l/" + loc[0] + "," + loc[1],
+        )
+        r3 = session.get(
+            "https://weather.com/forecast/air-quality/l/" + loc[0] + "," + loc[1],
+        )
+        weather_soup = BeautifulSoup(r1.text, "html.parser")
+        forecast_soup = BeautifulSoup(r2.text, "html.parser")
+        air_quality_soup = BeautifulSoup(r3.text, "html.parser")
         forecast = [
             TheWeatherChannelCurrent(weather_soup, forecast_soup, air_quality_soup)
         ]
-        super().__init__(0, region, country, forecast, "WIP", r)
+        super().__init__(0, region, country, forecast, "WIP", [r1, r2, r3])

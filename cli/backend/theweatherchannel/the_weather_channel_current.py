@@ -39,7 +39,7 @@ class TheWeatherChannelCurrent(WeatherData):
             dewpoint=-1,
             feels_like=-1,
             aqi=self.get_air_quality(air_quality_soup) // 20,
-            cloud_cover=0,
+            cloud_cover=-1,
             conditions=[],
             condition_sentence="WIP",
         )

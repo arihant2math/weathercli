@@ -21,7 +21,7 @@ def get_data_from_datasource(datasource, location, true_metric):
     if datasource == "NWS":
         data = NationalWeatherServiceForecast(location, true_metric)
     elif datasource == "THEWEATHERCHANNEL":
-        data = TheWeatherChannelForecast(location)
+        data = TheWeatherChannelForecast(location, true_metric)
     elif datasource == "OPENWEATHERMAP":
         data = OpenWeatherMapForecast(location, true_metric)
     elif datasource == "METEO":

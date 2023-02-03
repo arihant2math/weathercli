@@ -9,11 +9,11 @@ from cli.backend.weather_data import WeatherData
 
 class NationalWeatherServiceCurrent(WeatherData):
     def __init__(self, data, metric):
+        self.metric = metric
         wind = WindData(
-            data["properties"]["windSpeed"]["values"][0]["value"],
+            self.convert_speed(data["properties"]["windSpeed"]["values"][0]["value"]),
             data["properties"]["windDirection"]["values"][0]["value"],
         )
-        self.metric = metric
         # print(data["properties"]["updateTime"])
         super().__init__(
             time=datetime.now,
@@ -45,31 +45,31 @@ class NationalWeatherServiceCurrent(WeatherData):
         else:
             self.conditions.append(WeatherCondition(804))
         if (
-            0
-            < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
-            < 0.098
-            and not metric
+                0
+                < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
+                < 0.098
+                and not metric
         ) or (
-            0
-            < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
-            < 2.5
-            and metric
+                0
+                < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
+                < 2.5
+                and metric
         ):
             self.conditions.append(WeatherCondition(500))
         elif (
-            data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 0.39
-            and not metric
+                data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 0.39
+                and not metric
         ) or (
-            data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 10
-            and metric
+                data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 10
+                and metric
         ):
             self.conditions.append(WeatherCondition(501))
         elif (
-            data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 2
-            and not metric
+                data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 2
+                and not metric
         ) or (
-            data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 50
-            and metric
+                data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 50
+                and metric
         ):
             self.conditions.append(WeatherCondition(502))
         else:
@@ -85,3 +85,9 @@ class NationalWeatherServiceCurrent(WeatherData):
             return value
         else:
             return value * 9 / 5 + 32
+
+    def convert_speed(self, value):
+        if self.metric:
+            return value
+        else:
+            return value / 1.609

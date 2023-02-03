@@ -12,13 +12,15 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        python: ["3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.11
         uses: actions/setup-python@v3
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python }}
           cache: "pip"
       - name: Install dependencies
         run: |
@@ -35,10 +37,12 @@ jobs:
         run: pytest .
 
 
-  windows-build:
+  build:
     needs: test
-    runs-on: windows-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.11
@@ -52,42 +56,23 @@ jobs:
         python -m pip install wheel
         pip install -r requirements.txt
         maturin build -r
-        $files = Get-ChildItem "target/wheels/"
-        foreach ($f in $files) {
-            pip install $f.FullName
-        }
+    - uses: knicknic/os-specific-run@v1
+      with:
+        linux: |
+          maturin build -r
+          for file in target/wheels/*.whl
+          do
+            name=${file##*/}
+            pip install "$file"
+          done
+        windows: |
+          $files = Get-ChildItem "target/wheels/"
+          foreach ($f in $files) {
+              pip install $f.FullName
+          }
     - name: Build with pyinstaller
       run: pyinstaller -F weather.py -i ./icon/icon.png
     - uses: actions/upload-artifact@v3
       with:
         name: weather (Windows)
         path: ./dist/weather.exe
-
-  unix-build:
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.11"
-        cache: "pip"
-    - name: Install dependencies
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install --upgrade wheel
-        pip install -r requirements.txt
-        maturin build -r
-        for file in target/wheels/*.whl
-        do
-          name=${file##*/}
-          pip install "$file"
-        done
-    - name: Build with pyinstaller
-      run: pyinstaller -F weather.py
-    - uses: actions/upload-artifact@v3
-      with:
-        name: weather (Unix)
-        path: ./dist/weather

@@ -39,13 +39,17 @@ class MeteoForecast(WeatherForecast):
                     "".format(loc[0], loc[1]),
                 ]
             )
+        if "error" in data[0] and data[0]["error"]:
+            status = 11
+        else:
+            status = 0
         forecast_json = json.loads(data[0])
         aqi_json = json.loads(data[1])
         raw_data = [forecast_json, aqi_json]
         forecast = [MeteoCurrent(forecast_json, aqi_json, metric)]
         for i in range(forecast[0].now + 1, len(forecast_json["hourly"]["rain"])):
             forecast.append(MeteoFuture(forecast_json, aqi_json, metric, i))
-        super().__init__(0, region, country, forecast, "", raw_data)
+        super().__init__(status, region, country, forecast, "", raw_data)
         self.forecast_sentence = self.get_forecast_sentence()
 
     def get_forecast_sentence(self):
