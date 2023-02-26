@@ -1,7 +1,8 @@
-use crate::wind_data::WindData;
 use pyo3::prelude::*;
 
-#[pyclass]
+use crate::wind_data::WindData;
+
+#[pyclass(subclass)]
 #[derive(Clone)]
 pub struct WeatherData {
     #[pyo3(get, set)]
