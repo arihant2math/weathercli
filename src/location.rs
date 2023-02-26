@@ -1,5 +1,6 @@
-use pyo3::prelude::*;
 use std::collections::HashMap;
+
+use pyo3::prelude::*;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 
@@ -8,12 +9,14 @@ fn get_location_windows() -> Result<[String; 2], windows::core::Error> {
     let geolocator = Geolocator::new()?;
     let geolocation = geolocator.GetGeopositionAsync()?;
     let coordinates = geolocation.get()?.Coordinate()?.Point()?.Position()?;
-    Ok([coordinates.Latitude.to_string(), coordinates.Longitude.to_string()])
+    Ok([
+        coordinates.Latitude.to_string(),
+        coordinates.Longitude.to_string(),
+    ])
 }
 
 fn get_location_web() -> Result<[String; 2], reqwest::Error> {
-    let resp = reqwest::blocking::get("https://ipinfo.io")?
-        .json::<HashMap<String, String>>()?;
+    let resp = reqwest::blocking::get("https://ipinfo.io")?.json::<HashMap<String, String>>()?;
     let location = resp.get("loc").expect("No loc section").split(',');
     let mut location_vec: Vec<String> = vec![];
     for s in location {

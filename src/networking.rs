@@ -1,9 +1,10 @@
-use pyo3::prelude::*;
-use pyo3::{pyfunction, pyclass, wrap_pyfunction, PyResult, Python};
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use std::collections::HashMap;
 use std::str::FromStr;
+
+use pyo3::{pyclass, pyfunction, PyResult, Python, wrap_pyfunction};
+use pyo3::prelude::*;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 
 #[pyfunction]
 fn get_url(

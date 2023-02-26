@@ -1,7 +1,11 @@
-use crate::openweathermap_json::{OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson};
+use std::path::Path;
+
 use pyo3::prelude::*;
 use sha256::try_digest;
-use std::path::Path;
+
+use crate::openweathermap_json::{
+    OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
+};
 
 mod location;
 mod networking;
@@ -15,7 +19,8 @@ fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: boo
     let longitude = location.get(1).expect("");
     let latitude = location.get(0).expect("");
     let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
-    let mut air_quality = format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}");
+    let mut air_quality =
+        format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}");
     let mut forecast = format!("{url}forecast?lat={latitude}&lon={longitude}&appid={api_key}");
     if metric {
         weather_string += "&units=metric";
@@ -43,7 +48,7 @@ struct FormattedData {
 }
 
 #[pyfunction]
-fn get_combined_data_formatted(
+fn open_weather_map_get_combined_data_formatted(
     open_weather_map_api_url: String,
     open_weather_map_api_key: String,
     coordinates: Vec<String>,
@@ -77,7 +82,7 @@ fn hash_file(filename: String) -> String {
 #[pymodule]
 fn core(py: Python, module: &PyModule) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(location::get_location, module)?)?;
-    module.add_function(wrap_pyfunction!(get_combined_data_formatted, module)?)?;
+    module.add_function(wrap_pyfunction!(open_weather_map_get_combined_data_formatted, module)?)?;
     module.add_function(wrap_pyfunction!(hash_file, module)?)?;
     module.add_class::<wind_data::WindData>()?;
     module.add_class::<weather_data::WeatherData>()?;
