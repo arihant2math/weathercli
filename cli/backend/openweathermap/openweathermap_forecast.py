@@ -8,7 +8,7 @@ from cli.local.settings import OPEN_WEATHER_MAP_API_KEY
 
 class OpenWeatherMapForecast(WeatherForecast):
     def __init__(self, coordinates, metric):
-        data = core.get_combined_data_formatted(
+        data = core.open_weather_map_get_combined_data_formatted(
             "https://api.openweathermap.org/data/2.5/",
             OPEN_WEATHER_MAP_API_KEY,
             coordinates,
