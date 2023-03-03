@@ -21,9 +21,14 @@ from cli.local.settings import get_key, store_key
 @option("--value", help="This sets the key")
 def config(key_name: str, value):
     value = str(value)
-    if value is None:
-        print(get_key(key_name.upper()))
+    if value is None or value == "" or value == "None":
+        v = get_key(key_name.upper())
+        if v is not None:
+            print(v)
+        else:
+            print("Key not found")
     else:
+        print("Writing ...")
         if value.isdigit():
             value = int(value)
         elif value.lower() in ["true", "t", "yes", "y"]:
@@ -62,7 +67,7 @@ def update():
 @command("clear-cache", help="clears every cache")
 def clear_cache():
     f = WeatherFile("cache.json")
-    f.data = {}
+    f.data = "{}"
     f.write()
 
 

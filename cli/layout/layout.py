@@ -1,10 +1,10 @@
 import json
 
 import colorama
+from core import WeatherFile
 
 from cli.layout import default_layout
 from cli.layout.layout_row import LayoutRow
-from cli.local.weather_file import WeatherFile
 
 
 class Layout:
@@ -13,7 +13,7 @@ class Layout:
     def __init__(self, file=None, text=None):
         if file is not None:
             f = WeatherFile("layouts/" + file)
-            layout = f.data
+            layout = json.loads(f.data)
         elif text is not None:
             if type(text) == dict:
                 layout = text
@@ -30,7 +30,7 @@ class Layout:
                     "Version of layout file, "
                     + str(layout["version"])
                     + ", is greater than the highest supported version "
-                    + self.version
+                    + str(self.version)
                 )
         if "defaults" in layout:
             global_settings = layout["defaults"]

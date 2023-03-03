@@ -1,22 +1,34 @@
+import json
+from json import JSONDecodeError
 from typing import Any
 
-from cli.local.weather_file import WeatherFile
+from core import WeatherFile
 
 
 def store_key(key_name: str, value):
     settings_file = WeatherFile("settings.json")
-    settings_file.data[key_name] = value
-    settings_file.write()
+    try:
+        d = json.loads(settings_file.data)
+        d[key_name] = value
+        settings_file.data = json.dumps(d)
+        settings_file.write()
+    except JSONDecodeError:
+        print("Write Failed: Corrupt File")
 
 
 def get_key(key: str, default=None) -> Any:
     settings_file = WeatherFile("settings.json")
-    if key in settings_file.data:
-        return settings_file.data[key]
-    else:
-        if default is not None:
-            store_key(key, default)
-        return default
+    print(settings_file.data)
+    try:
+        d = json.loads(settings_file.data)
+        if key in d:
+            return d[key]
+        else:
+            if default is not None:
+                store_key(key, default)
+            return default
+    except JSONDecodeError:
+        pass
 
 
 def get_key_fast(settings_file_data, key: str, default=None) -> Any:
@@ -30,12 +42,21 @@ def get_key_fast(settings_file_data, key: str, default=None) -> Any:
 
 def delete_key(key: str):
     settings_file = WeatherFile("settings.json")
-    if key in settings_file.data:
-        del settings_file.data[key]
+    try:
+        d = json.loads(f.data)
+        if key in d:
+            del d[key]
+        settings_file.data = json.dumps(d)
+        settings_file.write()
+    except JSONDecodeError:
+        print("Delete Failed: Corrupt File")
 
 
 f = WeatherFile("settings.json")
-data = f.data
+try:
+    data = json.loads(f.data)
+except JSONDecodeError:
+    data = {}
 OPEN_WEATHER_MAP_API_KEY = get_key_fast(data, "OPEN_WEATHER_MAP_API_KEY")
 BING_MAPS_API_KEY = get_key_fast(data, "BING_MAPS_API_KEY")
 NCDC_API_KEY = get_key_fast(data, "NCDC_API_KEY")
@@ -45,7 +66,7 @@ DEFAULT_BACKEND = get_key_fast(data, "DEFAULT_BACKEND", "METEO")
 CONSTANT_LOCATION = get_key_fast(data, "CONSTANT_LOCATION", False)
 DEFAULT_LAYOUT = get_key_fast(data, "DEFAULT_LAYOUT")
 if type(DEFAULT_BACKEND) != str:
-    print("Invalid Default Backend, defaulting")
+    print("Invalid Default Backend, defaulting to Meteo")
     DEFAULT_BACKEND = "METEO"
 else:
     DEFAULT_BACKEND = DEFAULT_BACKEND.upper()

@@ -1,13 +1,16 @@
 """Alternative Weather Backend weather.com, but has to be carefully scraped"""
 import math
+import time
 from datetime import datetime
 
-from core import WindData
-
-from cli.backend.weather_data import WeatherData
+from core.backend import WeatherData
+from core.backend import WindData
 
 
 class TheWeatherChannelCurrent(WeatherData):
+    def __new__(cls, *args, **kwargs):
+        return super().__new__(cls)
+
     def __init__(self, weather_soup, forecast_soup, air_quality_soup):
         high, low = self.get_high_low(weather_soup)
         wind_data = forecast_soup.find("span", attrs={"data-testid": "Wind"}).getText()
@@ -30,19 +33,17 @@ class TheWeatherChannelCurrent(WeatherData):
             if i.isdigit():
                 speed += i
         wind = WindData(int(speed), heading)
-        super().__init__(
-            time=datetime.now,
-            temperature=self.get_temp(weather_soup),
-            min_temp=low,
-            max_temp=high,
-            wind=wind,
-            dewpoint=-1,
-            feels_like=-1,
-            aqi=self.get_air_quality(air_quality_soup) // 20,
-            cloud_cover=-1,
-            conditions=[],
-            condition_sentence="WIP",
-        )
+        self.time = int(time.mktime(datetime.now().timetuple()))
+        self.temperature = self.get_temp(weather_soup)
+        self.min_temp = low
+        self.max_temp = high
+        self.wind = wind
+        self.dewpoint = 0
+        self.feels_like = 0
+        self.aqi = self.get_air_quality(air_quality_soup) // 20
+        self.cloud_cover = 0
+        self.conditions = []
+        self.condition_sentence = "WIP"
 
     @staticmethod
     def get_air_quality(soup):

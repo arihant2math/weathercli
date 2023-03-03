@@ -30,7 +30,10 @@ class LayoutVariable(LayoutItem):
             if split[0][0] == "[":  # list item
                 current = current[int(split[0][1 : len(split[0]) - 1])]
             else:  # normal variable
-                current = getattr(current, split[0])
+                if current is not None:
+                    current = getattr(current, split[0])
+                else:
+                    return None
             split.pop(0)
         return current
 

@@ -8,12 +8,16 @@ from cli.local.settings import OPEN_WEATHER_MAP_API_KEY
 
 class OpenWeatherMapForecast(WeatherForecast):
     def __init__(self, coordinates, metric):
-        data = core.open_weather_map_get_combined_data_formatted(
-            "https://api.openweathermap.org/data/2.5/",
-            OPEN_WEATHER_MAP_API_KEY,
-            coordinates,
-            metric,
-        )
+        if OPEN_WEATHER_MAP_API_KEY != None:
+            data = core.backend.open_weather_map_get_combined_data_formatted(
+                "https://api.openweathermap.org/data/2.5/",
+                OPEN_WEATHER_MAP_API_KEY,
+                coordinates,
+                metric,
+            )
+        else:
+            print("No open weather map api key")
+            exit(1)
         forecast = [OpenWeatherMapCurrent(data)]
         for t in data.forecast.list:
             forecast.append(OpenWeatherMapFuture(t))

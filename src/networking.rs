@@ -39,7 +39,9 @@ fn get_url(
 
 #[pyclass]
 #[derive(Clone)]
-struct Resp {
+pub struct Resp {
+    #[pyo3(get)]
+    url: String,
     #[pyo3(get)]
     status: u16,
     #[pyo3(get)]
@@ -71,11 +73,13 @@ fn get_url_enhanced(
     let client = client_pre.default_headers(header_map).build().expect("");
     let data = client.get(url).send().expect("Url Get failed");
     Resp {
+        url: data.url().to_string(),
         status: data.status().as_u16(),
         text: data.text().expect("Text Expected")
     }
 }
 
+/// Gets a list of urls and returns a list of strings with the body content
 #[pyfunction]
 pub fn get_urls(urls: Vec<String>) -> Vec<String> {
     let data: Vec<_> = urls
@@ -90,11 +94,28 @@ pub fn get_urls(urls: Vec<String>) -> Vec<String> {
     data
 }
 
+#[pyfunction]
+pub fn get_urls_enhanced(urls: Vec<String>) -> Vec<Resp> {
+    let data: Vec<_> = urls
+        .par_iter()
+        .map(|url| {
+            let data = reqwest::blocking::get(url).expect("Url Get failed");
+            Resp {
+                url: data.url().to_string(),
+                status: data.status().as_u16(),
+                text: data.text().expect("Text Expected")
+            }
+        })
+        .collect();
+    data
+}
+
 pub fn register_networking_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
     let child_module = PyModule::new(py, "networking")?;
     child_module.add_function(wrap_pyfunction!(get_url, child_module)?)?;
     child_module.add_function(wrap_pyfunction!(get_url_enhanced, child_module)?)?;
     child_module.add_function(wrap_pyfunction!(get_urls, child_module)?)?;
+    child_module.add_function(wrap_pyfunction!(get_urls_enhanced, child_module)?)?;
     parent_module.add_submodule(child_module)?;
     Ok(())
 }

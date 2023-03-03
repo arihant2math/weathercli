@@ -1,10 +1,10 @@
 import requests
 from bs4 import BeautifulSoup
 
-from cli import WeatherForecast
 from cli.backend.theweatherchannel.the_weather_channel_current import (
     TheWeatherChannelCurrent,
 )
+from cli.backend.weather_forecast import WeatherForecast
 
 
 class TheWeatherChannelForecast(WeatherForecast):

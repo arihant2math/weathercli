@@ -22,3 +22,7 @@ class Util:
             return colorama.Fore.LIGHTYELLOW_EX + aqi + colorama.Fore.RESET
         else:
             return colorama.Fore.RED + aqi + colorama.Fore.RESET
+
+    @staticmethod
+    def round(number, digits):
+        return round(number, digits)

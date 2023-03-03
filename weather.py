@@ -1,4 +1,5 @@
 import sys
+from threading import Thread
 
 import colorama
 from click import group, option, pass_context, argument
@@ -17,7 +18,8 @@ from cli.location import get_coordinates, get_location
 
 
 def get_data_from_datasource(datasource, location, true_metric):
-    update_weather_codes()
+    thread = Thread(target=update_weather_codes)
+    thread.start()
     if datasource == "NWS":
         data = NationalWeatherServiceForecast(location, true_metric)
     elif datasource == "THEWEATHERCHANNEL":
@@ -29,6 +31,7 @@ def get_data_from_datasource(datasource, location, true_metric):
     else:
         print(colorama.Fore.RED + "Invalid Data Source!")
         exit(1)
+    thread.join()
     sys.stdout.flush()
     return data
 
