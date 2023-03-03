@@ -79,3 +79,4 @@ Functions are retried from `cli/layout/util.py`
 * To nest list items try `[n].[i]` instead of `[n][i]`
 
 ## Pointing weathercli to the layout
+Set the `DEFAULT_LAYOUT` setting to the location of the layout relative to `~/.weathercli/layouts`
