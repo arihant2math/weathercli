@@ -1,6 +1,6 @@
 [package]
 name = "weather_core"
-version = "0.1.0"
+version = "2023.3.3"
 edition = "2021"
 
 [lib]
@@ -23,6 +23,8 @@ serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.93"
 sha256 = "1.1.1"
 dirs = "4.0.0"
+chrono = "0.4.23"
+auto-launch = "0.4.0"
 
 [target.'cfg(target_os = "windows")'.dependencies.windows]
 version = "0.44.0"
@@ -30,3 +32,7 @@ features = [
     "Foundation",
     "Devices_Geolocation"
 ]
+
+[[bin]]
+name = "weatherd"
+path = "bin/weatherd.rs"
