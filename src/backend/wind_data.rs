@@ -4,9 +4,9 @@ use pyo3::prelude::*;
 #[derive(Clone, Copy)]
 pub struct WindData {
     #[pyo3(get, set)]
-    speed: f64,
+    pub(crate) speed: f64,
     #[pyo3(get, set)]
-    heading: i16,
+    pub(crate) heading: i16,
 }
 
 #[pymethods]
