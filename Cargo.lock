@@ -1494,7 +1494,7 @@ checksum = "1c38c045535d93ec4f0b4defec448e4291638ee608530863b1e2ba115d4fff7f"
 
 [[package]]
 name = "weather_core"
-version = "2023.3.3"
+version = "2023.3.4"
 dependencies = [
  "auto-launch",
  "chrono",
