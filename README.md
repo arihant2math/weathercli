@@ -3,7 +3,7 @@
 [![CI](https://github.com/arihant2math/weathercli/actions/workflows/build.yml/badge.svg)](https://github.com/arihant2math/weathercli/actions/workflows/build.yml)
 ## Usage
 For the open weather map api to work you need to configure your API key.
-Get an API key and run `weather config OPEN_WEATHER_MAP_API_URL --value [your api key here]`
+Get an API key and run `weather config OPEN_WEATHER_MAP_API_KEY --value [your api key here]`
 If you want better geo-positioning, get a Bing Maps API Key and run `weather config BING_MAPS_API_KEY --value [your key here]`
 More config values can be found in the table below
 ## Config
