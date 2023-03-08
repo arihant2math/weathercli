@@ -1,10 +1,18 @@
 # Data Sources
 ## Comparison
-| Data Source       | Metric | Regional Availability | Min/Max | Cloud Data | Conditions Sentence | Special Conditions | Forecast Sentence | API Key Required | AQI | Forecast | Time (seconds) | Website                     |
-|-------------------|--------|-----------------------|---------|------------|---------------------|--------------------|-------------------|------------------|-----|----------|----------------|-----------------------------|
-| NWS               | Yes    | US only               | Yes     | Yes        | Full                | No†                | No†               | No               | No† | No       | 0.5            | https://www.weather.gov/    |
-| TheWeatherChannel | Yes    | Worldwide             | Yes     | No†        | No                  | No                 | No                | No               | Yes | No       | ?              | https://weather.com         |
-| Meteo             | Yes    | Worldwide             | Yes     | Yes        | Full                | No                 | Full              | No               | Yes | Yes      | 0.9            | https://open-meteo.com      |
-| OpenWeatherMap    | Yes    | Worldwide             | Yes     | Yes        | Full                | Yes                | Full              | Yes              | Yes | Yes      | 0.5            | https://openweathermap.org/ |
+
+|                       | NWS                 | TheWeatherChannel   | Meteo                   | OpenWeatherMap              |
+|-----------------------|---------------------|---------------------|-------------------------|-----------------------------|
+| Metric                | Yes                 | Yes                 | Yes                     | Yes                         |
+| Regional Availability | U.S. Only           | Worldwide           | Worldwide               | Worldwide                   |
+| Min/Max               | Yes                 | Partial             | Yes                     | Yes                         |
+| Cloud Data            | Yes                 | No                  | Yes                     | Yes                         |
+| Conditions Sentence   | Yes                 | No                  | Yes                     | Yes                         |
+| Special Conditions    | No†                 | No                  | No                      | Yes                         |
+| Forecast Sentence     | No                  | No                  | Yes                     | Yes                         |
+| API Key Required      | No                  | No                  | No                      | Yes                         |
+| AQI                   | No                  | Yes                 | Yes                     | Yes                         |
+| Forecast              | No                  | No                  | Yes                     | Yes                         |
+| Website               | https://weather.gov | https://weather.com | https://open-meteo.com/ | https://openweathermap.org/ |
 
 † Supported by service but not by weathercli
