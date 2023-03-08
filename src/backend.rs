@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 
 use crate::networking;
+use crate::networking::Resp;
 use crate::openweathermap_json::{OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson};
 
 pub mod weather_condition;
@@ -38,7 +39,7 @@ struct FormattedData {
     #[pyo3(get)]
     forecast: OpenWeatherMapForecastJson,
     #[pyo3(get)]
-    raw_data: Vec<String>,
+    raw_data: Vec<Resp>,
 }
 
 /// Gets the urls from the openweathermap api server and returns a FormattedData struct with the data
@@ -56,9 +57,9 @@ fn open_weather_map_get_combined_data_formatted(
         metric,
     );
     let n = networking::get_urls(urls);
-    let r1: OpenWeatherMapJson = serde_json::from_str(n.get(0).expect("")).expect("");
-    let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(n.get(1).expect("")).expect("");
-    let r3: OpenWeatherMapForecastJson = serde_json::from_str(n.get(2).expect("")).expect("");
+    let r1: OpenWeatherMapJson = serde_json::from_str(&n[0].text).expect("");
+    let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(&n[1].text).expect("");
+    let r3: OpenWeatherMapForecastJson = serde_json::from_str(&n[2].text).expect("");
     FormattedData {
         weather: r1,
         air_quality: r2,
@@ -73,7 +74,6 @@ pub fn register_backend_module(py: Python<'_>, parent_module: &PyModule) -> PyRe
         child_module
     )?)?;
     child_module.add_class::<FormattedData>()?;
-    child_module.add_function(wrap_pyfunction!(weather_condition::get_sentence, child_module)?)?;
     child_module.add_class::<wind_data::WindData>()?;
     child_module.add_class::<weather_data::WeatherData>()?;
     child_module.add_class::<weather_condition::WeatherCondition>()?;
