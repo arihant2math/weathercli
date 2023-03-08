@@ -20,7 +20,7 @@ from cli.layout.layout import Layout
 from cli.local.settings import store_key, WEATHER_DATA_HASH, LAYOUT_FILE, AUTO_UPDATE_INTERNET_RESOURCES
 
 
-def update_weather_codes():
+def update_web_resources():
     f = WeatherFile("weather_codes.json")
     file_hash = hash_file(f.path)
     try:
@@ -71,7 +71,7 @@ def print_out(data: WeatherForecast, print_json: bool, metric: bool):
 
 def get_data_from_datasource(datasource, location, true_metric):
     if AUTO_UPDATE_INTERNET_RESOURCES:
-        thread = Thread(target=update_weather_codes)
+        thread = Thread(target=update_web_resources)
         thread.start()
     if datasource == "NWS":
         data = NationalWeatherServiceForecast(location, true_metric)
