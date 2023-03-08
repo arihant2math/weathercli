@@ -1,113 +1,47 @@
 layout = {
-    "version": 0,
+    "version": 1,
     "layout": [
-        [
-            {"type": "text", "data": {"text": "Weather for "}},
-            {"type": "variable", "data": {"name": "region"}},
-            {"type": "text", "data": {"text": ", "}},
-            {"type": "variable", "data": {"name": "country"}},
-        ],
+        ["Weather for ", "@region", ", ", "@country"],
         [
             {
                 "type": "variable",
-                "data": {
-                    "name": "current_weather.condition_sentence",
-                    "color": "LIGHTMAGENTA_EX",
-                },
+                "value": "current_weather.condition_sentence",
+                "color": "LIGHTMAGENTA_EX",
             }
         ],
+        [{"type": "variable", "value": "forecast_sentence", "color": "LIGHTMAGENTA_EX"}],
         [
-            {
-                "type": "variable",
-                "data": {"name": "forecast_sentence", "color": "LIGHTMAGENTA_EX"},
-            }
+            "Temperature: ",
+            "@current_weather.temperature|° F|° C",
+            " with a low of ",
+            "@current_weather.min_temp|° F|° C",
+            " and a high of ",
+            "@current_weather.max_temp|° F|° C",
+            ", feels like ",
+            "@current_weather.feels_like|° F|° C"
         ],
         [
-            {"type": "text", "data": {"text": "Temperature: "}},
-            {
-                "type": "variable",
-                "data": {
-                    "name": "current_weather.temperature",
-                    "metric": "° C",
-                    "imperial": "° F",
-                },
-            },
-            {"type": "text", "data": {"text": " with a low of "}},
-            {
-                "type": "variable",
-                "data": {
-                    "name": "current_weather.min_temp",
-                    "metric": "° C",
-                    "imperial": "° F",
-                },
-            },
-            {"type": "text", "data": {"text": " and a high of "}},
-            {
-                "type": "variable",
-                "data": {
-                    "name": "current_weather.max_temp",
-                    "metric": "° C",
-                    "imperial": "° F",
-                },
-            },
-            {"type": "text", "data": {"text": ", feels like "}},
-            {
-                "type": "variable",
-                "data": {
-                    "name": "current_weather.feels_like",
-                    "metric": "° C",
-                    "imperial": "° F",
-                },
-            },
+            "Wind: ",
+            "@current_weather.wind.speed| mph| km/h",
+            " at ",
+            "@current_weather.wind.heading|°"
         ],
         [
-            {"type": "text", "data": {"text": "Wind: "}},
-            {
-                "type": "variable",
-                "data": {
-                    "name": "current_weather.wind.speed",
-                    "metric": " km/h",
-                    "imperial": " mph",
-                },
-            },
-            {"type": "text", "data": {"text": " at "}},
-            {
-                "type": "variable",
-                "data": {
-                    "name": "current_weather.wind.heading",
-                    "metric": "°",
-                    "imperial": "°",
-                },
-            },
+            "Cloud Cover: ",
+            "@current_weather.cloud_cover|%"
         ],
         [
-            {"type": "text", "data": {"text": "Cloud Cover: "}},
-            {
-                "type": "variable",
-                "data": {
-                    "name": "current_weather.cloud_cover",
-                    "metric": "%",
-                    "imperial": "%",
-                },
-            },
+            "Dew Point: ",
+            "@current_weather.dewpoint|° F|° C",
         ],
         [
-            {"type": "text", "data": {"text": "Dew Point: "}},
-            {"type": "variable", "data": {"name": "current_weather.dewpoint"}},
-        ],
-        [
-            {"type": "text", "data": {"text": "AQI: "}},
+            "AQI: ",
             {
                 "type": "function",
-                "data": {
-                    "name": "color_aqi",
-                    "args": [
-                        {
-                            "type": "variable",
-                            "data": {"name": "current_weather.aqi"},
-                        }
-                    ],
-                },
+                "value": "color_aqi",
+                "args": [
+                    "@current_weather.aqi"
+                ],
             },
         ],
     ],

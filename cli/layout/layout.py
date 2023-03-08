@@ -8,7 +8,7 @@ from cli.layout.layout_row import LayoutRow
 
 
 class Layout:
-    version = 0
+    version = 1
 
     def __init__(self, file=None, text=None):
         if file is not None:
@@ -32,6 +32,9 @@ class Layout:
                     + ", is greater than the highest supported version "
                     + str(self.version)
                 )
+            elif layout["version"] < 1:
+                print("Layout Version too old (version 0 is not supported)")
+                exit(0)
         if "defaults" in layout:
             global_settings = layout["defaults"]
         else:
