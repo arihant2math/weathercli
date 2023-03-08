@@ -35,7 +35,11 @@ def get_coordinates(l: str):
             )
         else:
             geolocator = Nominatim(user_agent="weathercli")
-        coordinates = geolocator.geocode(l, timeout=10000)
+        try:
+            coordinates = geolocator.geocode(l, timeout=10000)
+        except:
+            geolocator = Nominatim(user_agent="weathercli")
+            coordinates = geolocator.geocode(l, timeout=10000)
         if coordinates is None:
             raise LookupError("No such place exists")
         r_value = [str(coordinates.latitude), str(coordinates.longitude)]

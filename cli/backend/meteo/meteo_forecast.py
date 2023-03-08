@@ -10,9 +10,7 @@ from cli.backend.weather_forecast import WeatherForecast
 
 class MeteoForecast(WeatherForecast):
     def __init__(self, loc, metric):
-        location = self.get_location(loc)
-        country = location.raw["address"]["country"]
-        region = location.raw["address"]["city"]
+        country, region = self.get_location(loc)
         if not metric:
             data = core.networking.get_urls(
                 [
@@ -39,12 +37,12 @@ class MeteoForecast(WeatherForecast):
                     "".format(loc[0], loc[1]),
                 ]
             )
-        if "error" in data[0] and data[0]["error"]:
+        forecast_json = json.loads(data[0].text)
+        aqi_json = json.loads(data[1].text)
+        if "error" in data[0].text and forecast_json["error"]:
             status = 11
         else:
             status = 0
-        forecast_json = json.loads(data[0])
-        aqi_json = json.loads(data[1])
         raw_data = [forecast_json, aqi_json]
         forecast = [MeteoCurrent(forecast_json, aqi_json, metric)]
         for i in range(forecast[0].now + 1, len(forecast_json["hourly"]["rain"])):

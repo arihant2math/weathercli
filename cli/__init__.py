@@ -1,4 +1,6 @@
 import json
+import sys
+from threading import Thread
 
 import colorama
 import core
@@ -8,8 +10,14 @@ from core import WeatherFile
 from core import hash_file, networking
 from core.backend import WeatherForecast
 
+from cli.backend.meteo.meteo_forecast import MeteoForecast
+from cli.backend.nws.nws_forecast import NationalWeatherServiceForecast
+from cli.backend.openweathermap.openweathermap_forecast import OpenWeatherMapForecast
+from cli.backend.theweatherchannel.the_weather_channel_forecast import (
+    TheWeatherChannelForecast,
+)
 from cli.layout.layout import Layout
-from cli.local.settings import store_key, WEATHER_DATA_HASH, LAYOUT_FILE
+from cli.local.settings import store_key, WEATHER_DATA_HASH, LAYOUT_FILE, AUTO_UPDATE_INTERNET_RESOURCES
 
 
 def update_weather_codes():
@@ -22,14 +30,13 @@ def update_weather_codes():
     except Exception:
         web_hash = file_hash
     if (WEATHER_DATA_HASH != file_hash) or (web_hash != WEATHER_DATA_HASH):
-        print("Downloading weather_codes.json update")
+        print(colorama.Fore.YELLOW + "Downloading weather_codes.json update")
         data = networking.get_url(
             "https://arihant2math.github.io/weathercli/weather_codes.json"
-        )
+        ).text
         f.data = data
         f.write()
-        new_file_hash = hash_file(f.path)
-        store_key("WEATHER_DATA_HASH", new_file_hash)
+        store_key("WEATHER_DATA_HASH", hash_file(f.path))
 
 
 def print_out(data: WeatherForecast, print_json: bool, metric: bool):
@@ -38,7 +45,9 @@ def print_out(data: WeatherForecast, print_json: bool, metric: bool):
         try:
             if isinstance(data.raw_data, list):
                 for i in data.raw_data:
-                    print("============================================================")
+                    print(
+                        "============================================================"
+                    )
                     rich.print_json(json.dumps(i))
             elif isinstance(data.raw_data, str):
                 rich.print_json(data.raw_data)
@@ -58,3 +67,24 @@ def print_out(data: WeatherForecast, print_json: bool, metric: bool):
         print(out.to_string(data, metric))
     else:
         print(color.RED + data.raw_data["message"] + color.RESET, end="")
+
+
+def get_data_from_datasource(datasource, location, true_metric):
+    if AUTO_UPDATE_INTERNET_RESOURCES:
+        thread = Thread(target=update_weather_codes)
+        thread.start()
+    if datasource == "NWS":
+        data = NationalWeatherServiceForecast(location, true_metric)
+    elif datasource == "THEWEATHERCHANNEL":
+        data = TheWeatherChannelForecast(location, true_metric)
+    elif datasource == "OPENWEATHERMAP":
+        data = OpenWeatherMapForecast(location, true_metric)
+    elif datasource == "METEO":
+        data = MeteoForecast(location, true_metric)
+    else:
+        print(colorama.Fore.RED + "Invalid Data Source!")
+        exit(1)
+    if AUTO_UPDATE_INTERNET_RESOURCES:
+        thread.join()
+    sys.stdout.flush()
+    return data

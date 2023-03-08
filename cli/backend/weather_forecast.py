@@ -1,8 +1,4 @@
-import ssl
-
-import certifi
-import geopy
-from geopy import Nominatim
+from cli.location import reverse_location
 
 
 # TODO: Port to Rust
@@ -42,8 +38,13 @@ class WeatherForecast:
 
     @staticmethod
     def get_location(loc):
-        ctx = ssl.create_default_context(cafile=certifi.where())
-        geopy.geocoders.options.default_ssl_context = ctx
-        geolocator = Nominatim(user_agent="weathercli/0", scheme="http")
-        location = geolocator.reverse(loc[0] + ", " + loc[1])
-        return location
+        reversed_location = reverse_location(loc[0], loc[1])
+        country = reversed_location["address"]["country"]
+        if "city" in reversed_location["address"]:
+            region = reversed_location["address"]["city"]
+        elif "county" in reversed_location["address"]:
+            region = reversed_location["address"]["county"]
+        else:
+            region = ""
+        return region, country
+

@@ -1,42 +1,14 @@
-import sys
-from threading import Thread
-
 import colorama
 from click import group, option, pass_context, argument
 
-from cli import print_out, update_weather_codes
-from cli.backend.meteo.meteo_forecast import MeteoForecast
-from cli.backend.nws.nws_forecast import NationalWeatherServiceForecast
-from cli.backend.openweathermap.openweathermap_forecast import OpenWeatherMapForecast
-from cli.backend.theweatherchannel.the_weather_channel_forecast import (
-    TheWeatherChannelForecast,
-)
+from cli import print_out, get_data_from_datasource
 from cli.commands.util import update, clear_cache, setup, config
-from cli.custom_multi_command import CustomMultiCommand
+from cli.custom_click_group import CustomClickGroup
 from cli.local.settings import METRIC_DEFAULT, DEFAULT_BACKEND
 from cli.location import get_coordinates, get_location
 
 
-def get_data_from_datasource(datasource, location, true_metric):
-    thread = Thread(target=update_weather_codes)
-    thread.start()
-    if datasource == "NWS":
-        data = NationalWeatherServiceForecast(location, true_metric)
-    elif datasource == "THEWEATHERCHANNEL":
-        data = TheWeatherChannelForecast(location, true_metric)
-    elif datasource == "OPENWEATHERMAP":
-        data = OpenWeatherMapForecast(location, true_metric)
-    elif datasource == "METEO":
-        data = MeteoForecast(location, true_metric)
-    else:
-        print(colorama.Fore.RED + "Invalid Data Source!")
-        exit(1)
-    thread.join()
-    sys.stdout.flush()
-    return data
-
-
-@group(invoke_without_command=True, cls=CustomMultiCommand)
+@group(invoke_without_command=True, cls=CustomClickGroup)
 @option("-j", "--json", is_flag=True, help="If used the raw json will be printed out")
 @option(
     "--no-sys-loc",

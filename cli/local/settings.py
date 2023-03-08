@@ -18,7 +18,6 @@ def store_key(key_name: str, value):
 
 def get_key(key: str, default=None) -> Any:
     settings_file = WeatherFile("settings.json")
-    print(settings_file.data)
     try:
         d = json.loads(settings_file.data)
         if key in d:
@@ -65,6 +64,7 @@ WEATHER_DATA_HASH = get_key_fast(data, "WEATHER_DATA_HASH")
 DEFAULT_BACKEND = get_key_fast(data, "DEFAULT_BACKEND", "METEO")
 CONSTANT_LOCATION = get_key_fast(data, "CONSTANT_LOCATION", False)
 DEFAULT_LAYOUT = get_key_fast(data, "DEFAULT_LAYOUT")
+AUTO_UPDATE_INTERNET_RESOURCES = get_key_fast(data, "AUTO_UPDATE_INTERNET_RESOURCES", True)
 if type(DEFAULT_BACKEND) != str:
     print("Invalid Default Backend, defaulting to Meteo")
     DEFAULT_BACKEND = "METEO"

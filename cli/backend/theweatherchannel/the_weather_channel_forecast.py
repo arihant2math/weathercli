@@ -9,9 +9,7 @@ from cli.backend.weather_forecast import WeatherForecast
 
 class TheWeatherChannelForecast(WeatherForecast):
     def __init__(self, loc, metric):
-        location = self.get_location(loc)
-        country = location.raw["address"]["country"]
-        region = location.raw["address"]["city"]
+        region, country = self.get_location(loc)
         session = requests.session()
         if not metric:
             session.cookies.set("unitOfMeasurement", "e", domain="weather.com")

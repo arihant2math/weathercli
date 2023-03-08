@@ -8,7 +8,7 @@ from cli.local.settings import OPEN_WEATHER_MAP_API_KEY
 
 class OpenWeatherMapForecast(WeatherForecast):
     def __init__(self, coordinates, metric):
-        if OPEN_WEATHER_MAP_API_KEY != None:
+        if OPEN_WEATHER_MAP_API_KEY is not None:
             data = core.backend.open_weather_map_get_combined_data_formatted(
                 "https://api.openweathermap.org/data/2.5/",
                 OPEN_WEATHER_MAP_API_KEY,
@@ -31,23 +31,23 @@ class OpenWeatherMapForecast(WeatherForecast):
         rain = []
         snow = []
         for period in data:
-            if period.conditions[0].condition_id.id // 100 == 5:
+            if period.conditions[0].condition_id // 100 == 5:
                 rain.append(True)
                 snow.append(False)
-            elif period.conditions[0].condition_id.id // 100 == 6:
+            elif period.conditions[0].condition_id // 100 == 6:
                 snow.append(True)
                 rain.append(False)
             else:
                 rain.append(False)
                 snow.append(False)
-        if data[0].conditions[0].condition_id.id // 100 == 5:
+        if data[0].conditions[0].condition_id // 100 == 5:
             t = 0
             for i in rain:
                 if not i:
                     break
                 t += 1
             return "It will continue raining for " + str(t * 3) + " hours."
-        elif data[0].conditions[0].condition_id.id // 100 == 6:
+        elif data[0].conditions[0].condition_id // 100 == 6:
             t = 0
             for i in snow:
                 if not i:

@@ -18,7 +18,7 @@ class NOAA:
         region = location.raw["address"]["city"]
         get_point = networking.get_url(
             "https://www.ncei.noaa.gov/cdo-web/api/v2/datasets"
-        )
+        ).text
         print(get_point)
 
 
