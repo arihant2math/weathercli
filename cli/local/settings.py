@@ -64,7 +64,10 @@ WEATHER_DATA_HASH = get_key_fast(data, "WEATHER_DATA_HASH")
 DEFAULT_BACKEND = get_key_fast(data, "DEFAULT_BACKEND", "METEO")
 CONSTANT_LOCATION = get_key_fast(data, "CONSTANT_LOCATION", False)
 DEFAULT_LAYOUT = get_key_fast(data, "DEFAULT_LAYOUT")
-AUTO_UPDATE_INTERNET_RESOURCES = get_key_fast(data, "AUTO_UPDATE_INTERNET_RESOURCES", True)
+AUTO_UPDATE_INTERNET_RESOURCES = get_key_fast(
+    data, "AUTO_UPDATE_INTERNET_RESOURCES", True
+)
+DEBUG = get_key_fast(data, "DEBUG", False)
 if type(DEFAULT_BACKEND) != str:
     print("Invalid Default Backend, defaulting to Meteo")
     DEFAULT_BACKEND = "METEO"

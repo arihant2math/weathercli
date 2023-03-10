@@ -1,19 +1,25 @@
 import json
+from json import JSONDecodeError
 
 import colorama
 from core import WeatherFile
 
 from cli.layout import default_layout
 from cli.layout.layout_row import LayoutRow
+from cli.layout.util import LayoutException
 
 
 class Layout:
-    version = 1
+    version = 2
 
     def __init__(self, file=None, text=None):
         if file is not None:
             f = WeatherFile("layouts/" + file)
-            layout = json.loads(f.data)
+            try:
+                layout = json.loads(f.data)
+            except JSONDecodeError:
+                print("Invalid Layout, JSON parsing failed, defaulting")
+                layout = default_layout.layout
         elif text is not None:
             if type(text) == dict:
                 layout = text
@@ -22,7 +28,7 @@ class Layout:
         else:
             layout = default_layout.layout
         if "version" not in layout:
-            print("Invalid Layout, defaulting")
+            print("Invalid Layout, missing key 'version', defaulting")
             layout = default_layout.layout
         else:
             if layout["version"] > self.version:
@@ -33,14 +39,17 @@ class Layout:
                     + str(self.version)
                 )
             elif layout["version"] < 1:
-                print("Layout Version too old (version 0 is not supported)")
-                exit(0)
+                print("Layout Version too old (version 0 is not supported), defaulting")
+                layout = default_layout.layout
         if "defaults" in layout:
             global_settings = layout["defaults"]
         else:
             global_settings = {}
         if "layout" not in layout:
-            print("Invalid Layout, defaulting")
+            print("Invalid Layout, missing key 'layout', defaulting")
+            layout = default_layout.layout
+        if type(layout["layout"]) != list:
+            print("Invalid Layout, type of key 'layout' is not 'list', defaulting")
             layout = default_layout.layout
         if "variable_color" not in global_settings:
             self.variable_color = colorama.Fore.LIGHTGREEN_EX
@@ -54,15 +63,32 @@ class Layout:
             self.unit_color = colorama.Fore.MAGENTA
         else:
             self.unit_color = getattr(colorama.Fore, layout["unit_color"])
+        if "text_bg_color" not in global_settings:
+            self.text_bg_color = colorama.Back.RESET
+        else:
+            self.text_bg_color = getattr(colorama.Back, layout["text_bg_color"])
         self.layout = layout["layout"]
-        self._internal_layout = [LayoutRow(row) for row in self.layout]
+        self._internal_layout = []
+        for count, row in enumerate(self.layout):
+            try:
+                self._internal_layout.append(LayoutRow(row))
+            except LayoutException as e:
+                raise LayoutException(e.message, count, e.item)
 
     def to_string(self, data, metric: bool):
         s = []
-        for row in self._internal_layout:
-            s.append(
-                row.to_string(
-                    data, self.variable_color, self.text_color, self.unit_color, metric
+        for count, row in enumerate(self._internal_layout):
+            try:
+                s.append(
+                    row.to_string(
+                        data,
+                        self.variable_color,
+                        self.text_color,
+                        self.text_bg_color,
+                        self.unit_color,
+                        metric,
+                    )
                 )
-            )
+            except LayoutException as e:
+                raise LayoutException(e.message, count, e.item)
         return "\n".join(s)

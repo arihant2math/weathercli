@@ -47,4 +47,3 @@ class WeatherForecast:
         else:
             region = ""
         return region, country
-

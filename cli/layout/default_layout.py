@@ -1,5 +1,5 @@
 layout = {
-    "version": 1,
+    "version": 2,
     "layout": [
         ["Weather for ", "@region", ", ", "@country"],
         [
@@ -9,7 +9,13 @@ layout = {
                 "color": "LIGHTMAGENTA_EX",
             }
         ],
-        [{"type": "variable", "value": "forecast_sentence", "color": "LIGHTMAGENTA_EX"}],
+        [
+            {
+                "type": "variable",
+                "value": "forecast_sentence",
+                "color": "LIGHTMAGENTA_EX",
+            }
+        ],
         [
             "Temperature: ",
             "@current_weather.temperature|° F|° C",
@@ -18,31 +24,22 @@ layout = {
             " and a high of ",
             "@current_weather.max_temp|° F|° C",
             ", feels like ",
-            "@current_weather.feels_like|° F|° C"
+            "@current_weather.feels_like|° F|° C",
         ],
         [
             "Wind: ",
             "@current_weather.wind.speed| mph| km/h",
             " at ",
-            "@current_weather.wind.heading|°"
+            "@current_weather.wind.heading|°",
         ],
-        [
-            "Cloud Cover: ",
-            "@current_weather.cloud_cover|%"
-        ],
+        ["Cloud Cover: ", "@current_weather.cloud_cover|%"],
         [
             "Dew Point: ",
             "@current_weather.dewpoint|° F|° C",
         ],
         [
             "AQI: ",
-            {
-                "type": "function",
-                "value": "color_aqi",
-                "args": [
-                    "@current_weather.aqi"
-                ],
-            },
-        ],
-    ],
+            "#color_aqi|@current_weather.aqi"
+        ]
+    ]
 }

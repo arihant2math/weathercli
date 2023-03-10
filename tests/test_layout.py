@@ -3,11 +3,11 @@ from cli.layout.layout import Layout
 
 def test_text():
     layout_dict = {
-        "version": 0,
+        "version": 2,
         "layout": [
             [
-                {"type": "text", "data": {"text": "foo"}},
-                {"type": "text", "data": {"text": "bar"}},
+                {"type": "text", "value": "foo"},
+                "bar",
             ]
         ],
     }
@@ -18,8 +18,8 @@ def test_text():
 
 def test_variable():
     layout_dict = {
-        "version": 0,
-        "layout": [[{"type": "variable", "data": {"name": "[0].[1]"}}]],
+        "version": 2,
+        "layout": [[{"type": "variable", "value": "[0].[1]"}]],
     }
     layout = Layout(text=layout_dict)
     assert "foobar" in layout.to_string([["foo", "foobar"], "bar"], False)

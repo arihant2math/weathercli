@@ -17,26 +17,37 @@ from cli.backend.theweatherchannel.the_weather_channel_forecast import (
     TheWeatherChannelForecast,
 )
 from cli.layout.layout import Layout
-from cli.local.settings import store_key, WEATHER_DATA_HASH, LAYOUT_FILE, AUTO_UPDATE_INTERNET_RESOURCES
+from cli.local.settings import (
+    store_key,
+    WEATHER_DATA_HASH,
+    LAYOUT_FILE,
+    AUTO_UPDATE_INTERNET_RESOURCES,
+)
 
 
-def update_web_resources():
-    f = WeatherFile("weather_codes.json")
+def update_web_resource(local_path, web_path, name):
+    f = WeatherFile(local_path)
     file_hash = hash_file(f.path)
     try:
         web_hash = requests.get(
             "https://arihant2math.github.io/weathercli/docs/index.json"
-        ).json()["weather-codes-hash"]
+        ).json()[name]
     except Exception:
         web_hash = file_hash
     if (WEATHER_DATA_HASH != file_hash) or (web_hash != WEATHER_DATA_HASH):
         print(colorama.Fore.YELLOW + "Downloading weather_codes.json update")
-        data = networking.get_url(
-            "https://arihant2math.github.io/weathercli/weather_codes.json"
-        ).text
+        data = networking.get_url(web_path).text
         f.data = data
         f.write()
         store_key("WEATHER_DATA_HASH", hash_file(f.path))
+
+
+def update_web_resources():
+    update_web_resource(
+        "weather_codes.json",
+        "https://arihant2math.github.io/weathercli/docs/index.json",
+        "https://arihant2math.github.io/weathercli/weather_codes.json",
+    )
 
 
 def print_out(data: WeatherForecast, print_json: bool, metric: bool):
@@ -69,8 +80,9 @@ def print_out(data: WeatherForecast, print_json: bool, metric: bool):
         print(color.RED + data.raw_data["message"] + color.RESET, end="")
 
 
-def get_data_from_datasource(datasource, location, true_metric):
+def get_data_from_datasource(datasource, location, true_metric, logger):
     if AUTO_UPDATE_INTERNET_RESOURCES:
+        logger.info("Updating web resources")
         thread = Thread(target=update_web_resources)
         thread.start()
     if datasource == "NWS":

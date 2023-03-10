@@ -5,11 +5,12 @@ import colorama
 import requests
 
 from cli.layout.image_to_text import image_to_text
+from cli.layout.util import LayoutException
 
 
 def parse_string(data: str):
     if data[0] == "@":
-        data = data[1:len(data)]
+        data = data[1: len(data)]
         split = data.split("|")
         imperial = None
         metric = None
@@ -24,8 +25,23 @@ def parse_string(data: str):
         if metric is not None:
             out["imperial"] = imperial
         return LayoutItem(out)
+    if data[0] == "#":
+        data = data[1: len(data)]
+        split = data.split("|")
+        out = {"type": "function", "value": split.pop(0)}
+        args = []
+        kwargs: dict = {}
+        for item in split:
+            if "=" not in item:
+                args.append(item)
+            else:
+                s = item.split("=")
+                kwargs[s[0]] = kwargs[s[1]]
+        out["args"] = args
+        out["kwargs"] = kwargs
+        return LayoutItem(out)
     if "\\" == data[0]:
-        data = data[1:len(data)]
+        data = data[1: len(data)]
     return LayoutItem({"type": "text", "value": data})
 
 
@@ -33,7 +49,11 @@ def to_layout_item(data):
     if type(data) in [str]:
         return parse_string(data)
     elif type(data) in [int, float]:
-        return LayoutItem({"type": "text", "value": data})
+        return LayoutItem({"type": "text", "value": str(data)})
+    elif type(data) != dict:
+        raise LayoutException(
+            "Type of item is {} not dict, str, int, or float".format(type(data))
+        )
     return LayoutItem(data)
 
 
@@ -52,6 +72,10 @@ class LayoutItem:
             self.color = getattr(colorama.Fore, data["color"])
         else:
             self.color = ""
+        if "bgcolor" in data:
+            self.bgcolor = getattr(colorama.Back, data["bgcolor"])
+        else:
+            self.bgcolor = ""
         if "metric" in data:
             self.metric_unit = data["metric"]
         else:
@@ -65,8 +89,12 @@ class LayoutItem:
         else:
             self.unit_color = ""
         if "value" not in data:
-            print("WARNING: Value not found for " + str(data))
+            raise LayoutException("Key 'value' not found")
         self.value = data["value"]
+
+        if "type" not in data:
+            raise LayoutException("Key 'type' not found")
+
         if data["type"] == "text":
             self.item_type = 0
         elif data["type"] == "variable":
@@ -83,10 +111,6 @@ class LayoutItem:
                 self.kwargs = data["kwargs"]
                 for item in self.kwargs:
                     self.kwargs_items[item["arg_name"]] = to_layout_item(item)
-            if "color" in data:
-                self.color = getattr(colorama.Fore, data["color"])
-            else:
-                self.color = ""
         elif data["type"] == "image":
             self.item_type = 3
 
@@ -113,9 +137,7 @@ class LayoutItem:
             elif i.item_type == 1:
                 args_proper.append(i.get_value(**kwargs))
             elif i.item_type == 2:
-                args_proper.append(
-                    i.get_value(**kwargs)
-                )
+                args_proper.append(i.get_value(**kwargs))
         kwargs_proper = {}
         for i in self.kwargs_items:
             if self.kwargs_items[i].item_type == 0:
@@ -123,9 +145,7 @@ class LayoutItem:
             elif self.kwargs_items[i].item_type == 1:
                 kwargs_proper[i] = i.get_value(kwargs["data"], False, "", "")
             elif self.kwargs_items[i].item_type == 2:
-                kwargs_proper[i] = i.get_value(
-                    kwargs["data"], kwargs["function_class"]
-                )
+                kwargs_proper[i] = i.get_value(kwargs["data"], kwargs["function_class"])
         args_t = tuple(args_proper)
         return func(*args_t, **kwargs_proper)
 
@@ -138,13 +158,21 @@ class LayoutItem:
 
     def to_string(self, **kwargs):
         if self.item_type == 0:
-            return kwargs["text_color"] + self.color + self.value
+            return kwargs["text_color"] + kwargs["text_bg_color"] + self.color + self.bgcolor + self.value
         elif self.item_type == 1:
-            value = self.get_variable_value(kwargs["data"])
+            try:
+                value = self.get_variable_value(kwargs["data"])
+            except AttributeError as e:
+                raise LayoutException(
+                    "Could not get variable value {} in value string {}".format(
+                        e.name, self.value
+                    )
+                ) from e
             if kwargs["metric"]:
                 return (
                         kwargs["variable_color"]
                         + self.color
+                        + self.bgcolor
                         + str(value)
                         + kwargs["unit_color"]
                         + self.unit_color
@@ -154,13 +182,22 @@ class LayoutItem:
                 return (
                         kwargs["variable_color"]
                         + self.color
+                        + self.bgcolor
                         + str(value)
                         + kwargs["unit_color"]
                         + self.unit_color
                         + self.imperial_unit
                 )
         elif self.item_type == 2:
-            return self.color + self.get_function_value(**kwargs)
+            try:
+                value = self.get_function_value(**kwargs)
+            except AttributeError as e:
+                raise LayoutException(
+                    "Could not get function value {} in value string {}".format(
+                        e.name, self.value
+                    )
+                ) from e
+            return self.color + self.bgcolor + value
 
         elif self.item_type == 3:
             source = to_layout_item(self.value).get_value(data=kwargs["data"])
@@ -170,6 +207,9 @@ class LayoutItem:
                 f = open("temp.img", "bw")
                 f.write(response.content)
                 f.close()
-            data = image_to_text("temp.img", self.item_data["scale"])
+            try:
+                data = image_to_text("temp.img", self.item_data["scale"])
+            except Exception:
+                pass
             os.remove("temp.img")
             return data
