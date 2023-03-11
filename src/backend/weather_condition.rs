@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 use serde_json::Value;
 
-use crate::weather_file::WeatherFile;
+use crate::local::weather_file::WeatherFile;
 
 #[pyclass(subclass)]
 #[derive(Clone)]
