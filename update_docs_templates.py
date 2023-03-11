@@ -25,18 +25,26 @@ def main(gh_token):
         + "/artifacts"
     )
     artifacts = artifact_request.json()["artifacts"]
-    unix_artifact_id = [a for a in artifacts if a["name"] == "weather (Unix)"][0]["id"]
+    try:
+        unix_artifact_id = [a for a in artifacts if a["name"] == "weather (Unix)"][0]["id"]
+    except IndexError:
+        unix_artifact_id = None
     windows_artifact_id = [a for a in artifacts if a["name"] == "weather (Windows)"][0][
         "id"
     ]
     print("Starting Unix Download")
-    unix_download = s.get(
-        "https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/"
-        + str(unix_artifact_id)
-        + "/zip"
-    )
-    with open("./tmp/weather.zip", "wb") as f:
-        f.write(unix_download.content)
+    if unix_artifact_id is not None:
+        unix_download = s.get(
+            "https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/"
+            + str(unix_artifact_id)
+            + "/zip"
+        )
+        with open("./tmp/weather.zip", "wb") as f:
+            f.write(unix_download.content)
+        with ZipFile("./tmp/weather.zip") as unixzip:
+            with unixzip.open("weather") as exe:
+                with open("./docs_templates/weather", "wb") as out:
+                    out.write(exe.read())
     print("Starting Windows Download")
     windows_download = s.get(
         "https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/"
@@ -45,14 +53,9 @@ def main(gh_token):
     )
     with open("./tmp/weather.exe.zip", "wb") as f:
         f.write(windows_download.content)
-    print("Extracting Zips ...")
     with ZipFile("./tmp/weather.exe.zip") as exezip:
         with exezip.open("weather.exe") as exe:
             with open("./docs_templates/weather.exe", "wb") as out:
-                out.write(exe.read())
-    with ZipFile("./tmp/weather.zip") as unixzip:
-        with unixzip.open("weather") as exe:
-            with open("./docs_templates/weather", "wb") as out:
                 out.write(exe.read())
     shutil.rmtree("./tmp")
 
