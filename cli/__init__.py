@@ -1,6 +1,8 @@
 import json
+import os.path
 import sys
 from logging import Logger
+from pathlib import Path
 from threading import Thread
 
 import colorama
@@ -95,6 +97,9 @@ def print_out(data: WeatherForecast, print_json: bool, metric: bool, logger: Log
 
 
 def get_data_from_datasource(datasource, location, true_metric, logger: Logger):
+    if not os.path.exists(Path(os.path.expanduser("~/.weathercli/weather_codes.json")) or
+                          Path(os.path.expanduser("~/.weathercli/weather_ascii_images.json"))):
+        update_web_resources()
     if AUTO_UPDATE_INTERNET_RESOURCES:
         logger.info("Updating web resources")
         thread = Thread(target=update_web_resources)
