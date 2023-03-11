@@ -3,15 +3,15 @@ use std::path::Path;
 use pyo3::prelude::*;
 use sha256::try_digest;
 
-mod backend;
-mod local;
-pub mod cache;
-mod location;
+use crate::local::cache;
+
+pub mod backend;
+pub mod local;
+pub mod location;
 pub mod networking;
 mod openweathermap_json;
 mod updater;
-pub mod weather_file;
-mod status;
+pub mod status;
 
 
 /// returns the sha-256 of the file
@@ -26,7 +26,7 @@ fn hash_file(filename: String) -> String {
 fn core(py: Python, module: &PyModule) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(location::get_location, module)?)?;
     module.add_function(wrap_pyfunction!(hash_file, module)?)?;
-    module.add_class::<weather_file::WeatherFile>()?;
+    module.add_class::<local::weather_file::WeatherFile>()?;
     module.add_class::<status::Status>()?;
     backend::register_backend_module(py, module)?;
     cache::register_caching_module(py, module)?;
