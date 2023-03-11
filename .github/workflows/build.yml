@@ -75,3 +75,8 @@ jobs:
       with:
         name: weather (Windows)
         path: ./dist/weather.exe
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: weather (Unix)
+        path: ./dist/weather
