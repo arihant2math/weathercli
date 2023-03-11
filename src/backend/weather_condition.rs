@@ -26,10 +26,7 @@ impl WeatherCondition {
         let code = data[condition_id.to_string()].as_array_mut().unwrap();
         let sentence = code[3].clone().as_str().expect("String expected").to_string();
         let image_url = "https://openweathermap.org/img/wn/".to_string() + code[2].clone().as_str().expect("String expected") + "@4x.png";
-        let mut image_ascii = "".to_string();
-        if code.len() > 4 {
-            image_ascii = code[4].clone().as_str().unwrap().to_string();
-        }
+        let image_ascii = code[4].clone().as_str().unwrap().to_string();
         WeatherCondition {
             condition_id,
             image_url,
