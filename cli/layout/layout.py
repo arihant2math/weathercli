@@ -1,5 +1,6 @@
 import json
 from json import JSONDecodeError
+from logging import Logger
 
 import colorama
 from core import WeatherFile
@@ -12,13 +13,14 @@ from cli.layout.util import LayoutException
 class Layout:
     version = 2
 
-    def __init__(self, file=None, text=None):
+    def __init__(self, file=None, text=None, logger: Logger = None):
         if file is not None:
             f = WeatherFile("layouts/" + file)
             try:
                 layout = json.loads(f.data)
-            except JSONDecodeError:
+            except JSONDecodeError as e:
                 print("Invalid Layout, JSON parsing failed, defaulting")
+                logger.critical("Invalid Layout, JSON parsing failed, defaulting, error=" + e.msg)
                 layout = default_layout.layout
         elif text is not None:
             if type(text) == dict:
@@ -29,6 +31,8 @@ class Layout:
             layout = default_layout.layout
         if "version" not in layout:
             print("Invalid Layout, missing key 'version', defaulting")
+            logger.critical("Invalid Layout, missing Key 'version', add it like this {\n\t... // Your json "
+                            "here\n\t\"version\": " + str(self.version) + "\n}")
             layout = default_layout.layout
         else:
             if layout["version"] > self.version:

@@ -41,7 +41,10 @@ def get_log_file():
 @pass_context
 def main(ctx, json, no_sys_loc, metric, imperial, datasource):
     FORMAT = "[%(levelname)s] %(message)s"
-    logging.basicConfig(filename=get_log_file(), filemode="w", format=FORMAT, level=logging.DEBUG)
+    if not DEBUG:
+        logging.basicConfig(format=FORMAT, level=logging.CRITICAL)
+    else:
+        logging.basicConfig(filename=get_log_file(), filemode="w", format=FORMAT, level=logging.DEBUG)
     d = {"component": "main"}
     logger = logging.getLogger("weathercli")
     if datasource is None:
@@ -53,15 +56,16 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
         true_metric = True
     elif imperial:
         true_metric = False
-    logger.debug("datasource=" + datasource, extra=d)
-    logger.debug("true_metric=" + str(true_metric), extra=d)
     if ctx.invoked_subcommand is None:
         location = get_location(no_sys_loc)
-        logger.debug("location=" + str(location), extra=d)
+        logger.debug("datasource=" + datasource, extra=d)
+        logger.info("location=" + str(location), extra=d)
+        logger.debug("metric=" + str(true_metric), extra=d)
         data = get_data_from_datasource(datasource, location, true_metric, logger)
-        print_out(data, json, true_metric)
+        print_out(data, json, true_metric, logger)
     else:
         ctx.ensure_object(dict)
+        ctx.obj["d"] = d
         ctx.obj["JSON"] = json
         ctx.obj["METRIC"] = true_metric
         ctx.obj["LOGGER"] = logger
@@ -80,6 +84,7 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
 @pass_context
 def place(ctx, location, json, metric, imperial, datasource):
     logger = ctx.obj["LOGGER"]
+    d = ctx.obj["d"]
     if datasource is None:
         datasource = DEFAULT_BACKEND
     else:
@@ -91,12 +96,15 @@ def place(ctx, location, json, metric, imperial, datasource):
         true_metric = False
     try:
         location = get_coordinates(location)
-        logger.debug("location=" + str(location), extra=d)
     except LookupError:
         print(colorama.Fore.RED + "Place not Found")
+        logger.critical("Place not Found")
         exit()
+    logger.debug("datasource=" + datasource, extra=d)
+    logger.info("location=" + str(location), extra=d)
+    logger.debug("metric=" + str(true_metric), extra=d)
     data = get_data_from_datasource(datasource, location, true_metric, logger)
-    print_out(data, ctx.obj["JSON"] or json, true_metric)
+    print_out(data, ctx.obj["JSON"] or json, true_metric, logger)
 
 
 if __name__ == "__main__":
