@@ -48,6 +48,7 @@ def update():
     if getattr(sys, "frozen", False):
         application_path = Path(sys.executable)
         print("Latest Version: " + latest_version)
+        print("Current Version: " + version.__version__)
         if latest_version != version.__version__:
             print("Updating weather.exe at " + str(application_path))
             if platform.system() == "Windows":
