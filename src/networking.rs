@@ -16,7 +16,7 @@ pub struct Resp {
     #[pyo3(get)]
     status: u16,
     #[pyo3(get)]
-    pub(crate) text: String
+    pub(crate) text: String,
 }
 
 #[pyfunction]
@@ -24,7 +24,7 @@ fn get_url(
     url: String,
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
-    cookies: Option<Vec<String>>
+    cookies: Option<Vec<String>>,
 ) -> Resp {
     let jar = Jar::default();
     if let Some(cookies) = cookies {
@@ -48,19 +48,25 @@ fn get_url(
             HeaderValue::from_str(&v).expect(""),
         );
     }
-    let client = client_pre.default_headers(header_map).cookie_store(true).build().unwrap();
+    let client = client_pre
+        .default_headers(header_map)
+        .cookie_store(true)
+        .build()
+        .unwrap();
     let data = client.get(url).send().expect("Url Get failed");
     Resp {
         url: data.url().to_string(),
         status: data.status().as_u16(),
-        text: data.text().expect("Text Expected")
+        text: data.text().expect("Text Expected"),
     }
 }
 
-
 #[pyfunction]
 pub fn get_urls(urls: Vec<String>) -> Vec<Resp> {
-    let client = reqwest::blocking::Client::builder().cookie_store(true).build().unwrap();
+    let client = reqwest::blocking::Client::builder()
+        .cookie_store(true)
+        .build()
+        .unwrap();
     let data: Vec<_> = urls
         .par_iter()
         .map(|url| {
@@ -68,7 +74,7 @@ pub fn get_urls(urls: Vec<String>) -> Vec<Resp> {
             Resp {
                 url: data.url().to_string(),
                 status: data.status().as_u16(),
-                text: data.text().expect("Text Expected")
+                text: data.text().expect("Text Expected"),
             }
         })
         .collect();

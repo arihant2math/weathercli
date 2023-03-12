@@ -1,19 +1,18 @@
+use core::local::weather_file::WeatherFile;
 use std::{thread, time};
 use std::env::current_exe;
 
 use auto_launch::AutoLaunchBuilder;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-use core::local::weather_file::WeatherFile;
-
 fn register() {
     let path = current_exe().unwrap().display().to_string();
     let auto = AutoLaunchBuilder::new()
-    .set_app_name("weatherd")
-    .set_app_path(&path)
-    .set_use_launch_agent(true)
-    .build()
-    .unwrap();
+        .set_app_name("weatherd")
+        .set_app_path(&path)
+        .set_use_launch_agent(true)
+        .build()
+        .unwrap();
     if !auto.is_enabled().unwrap() {
         auto.enable().unwrap();
     }
@@ -31,11 +30,14 @@ fn main() {
             .par_iter()
             .map(|url| {
                 reqwest::blocking::get(url.to_string())
-                    .expect("Url Get failed").text().unwrap()
+                    .expect("Url Get failed")
+                    .text()
+                    .unwrap()
             })
             .collect();
         let mut out = WeatherFile::new("d.cache".to_string());
-        let joined = core::local::cache::get_date_string() + "\n\n\n\n\n"+ &*data.join("\n\n\n\n\n");
+        let joined =
+            core::local::cache::get_date_string() + "\n\n\n\n\n" + &*data.join("\n\n\n\n\n");
         out.data = joined;
         thread::sleep(sleep_duration);
     }

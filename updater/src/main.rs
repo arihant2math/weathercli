@@ -21,18 +21,18 @@ fn hash_file(filename: &str) -> String {
 
 #[derive(Clone, Parser)]
 struct Cli {
-   #[arg(long, short, default_value_t = String::from("all"))]
+    #[arg(long, short, default_value_t = String::from("all"))]
     component: String,
-   #[clap(long, short, action)]
+    #[clap(long, short, action)]
     quiet: bool,
-   #[clap(long, short, action)]
-    version: bool
+    #[clap(long, short, action)]
+    version: bool,
 }
 
 #[derive(Eq, PartialEq, Clone, Copy)]
 enum Component {
     Main,
-    Daemon
+    Daemon,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -57,10 +57,15 @@ struct IndexStruct {
     #[serde(rename = "weatherd-exe-hash-windows")]
     weatherd_exe_hash_windows: String,
     #[serde(rename = "weatherd-exe-hash-unix")]
-    weatherd_exe_hash_unix: String
+    weatherd_exe_hash_unix: String,
 }
 
-async fn update_component(url: &str, path: &str, progress_msg: String, finish_msg: String) -> Result<(), String> {
+async fn update_component(
+    url: &str,
+    path: &str,
+    progress_msg: String,
+    finish_msg: String,
+) -> Result<(), String> {
     let client = Client::new();
     // Reqwest setup
     let res = client
@@ -71,7 +76,6 @@ async fn update_component(url: &str, path: &str, progress_msg: String, finish_ms
     let total_size = res
         .content_length()
         .ok_or(format!("Failed to get content length from '{}'", &url))?;
-
 
     let mut file_expect = File::create(path);
     let retries = 0;
@@ -97,7 +101,8 @@ async fn update_component(url: &str, path: &str, progress_msg: String, finish_ms
 
     while let Some(item) = stream.next().await {
         let chunk = item.or(Err("Error while downloading file".to_string()))?;
-        file.write_all(&chunk).map_err(|_| "Error while writing to file".to_string())?;
+        file.write_all(&chunk)
+            .map_err(|_| "Error while writing to file".to_string())?;
         let new = min(downloaded + (chunk.len() as u64), total_size);
         downloaded = new;
         progress_bar.set_position(new);
@@ -114,8 +119,7 @@ fn update_needed_check(file: &str, web_hash: String) -> Result<bool, String> {
     if Path::new(&file).exists() {
         let file_hash = hash_file(file);
         Ok(file_hash != web_hash)
-    }
-    else {
+    } else {
         Ok(true)
     }
 }
@@ -123,32 +127,26 @@ fn update_needed_check(file: &str, web_hash: String) -> Result<bool, String> {
 async fn update_needed(index: IndexStruct, component: Component) -> Result<bool, String> {
     if component == Component::Main {
         if cfg!(windows) {
-            return update_needed_check("weather.exe",
-                                          index.weather_exe_hash_windows);
+            return update_needed_check("weather.exe", index.weather_exe_hash_windows);
+        } else if cfg!(unix) {
+            return update_needed_check("weather", index.weather_exe_hash_unix);
         }
-        else if cfg!(unix) {
-            return update_needed_check("weather",
-                                          index.weather_exe_hash_unix);
-        }
-    }
-    else if component == Component::Daemon {
+    } else if component == Component::Daemon {
         if cfg!(windows) {
-            return update_needed_check("weatherd.exe",
-                                          index.weatherd_exe_hash_windows);
-        }
-        else if cfg!(unix) {
-            return update_needed_check("weatherd",
-                                          index.weatherd_exe_hash_unix);
+            return update_needed_check("weatherd.exe", index.weatherd_exe_hash_windows);
+        } else if cfg!(unix) {
+            return update_needed_check("weatherd", index.weatherd_exe_hash_unix);
         }
     }
     Ok(true)
 }
 
-
 #[tokio::main]
 async fn main() -> Result<(), String> {
     let args = Cli::parse();
-    let resp = reqwest::get("https://arihant2math.github.io/weathercli/docs/index.json").await.unwrap();
+    let resp = reqwest::get("https://arihant2math.github.io/weathercli/docs/index.json")
+        .await
+        .unwrap();
     let json: IndexStruct = serde_json::from_str(&resp.text().await.unwrap()).unwrap();
     if args.version {
         println!("3.11.2023");
@@ -181,17 +179,20 @@ async fn main() -> Result<(), String> {
         if cfg!(windows) {
             url = "https://arihant2math.github.io/weathercli/docs/weather.exe";
             path = "weather.exe";
-        }
-        else if cfg!(unix) {
+        } else if cfg!(unix) {
             url = "https://arihant2math.github.io/weathercli/docs/weather";
             path = "weather";
-        }
-        else {
+        } else {
             return Err("OS unsupported".to_string());
         }
 
-        let r = update_component(url, path, "Downloading weathercli update from ".to_string(),
-                         "Updated weathercli".to_string()).await;
+        let r = update_component(
+            url,
+            path,
+            "Downloading weathercli update from ".to_string(),
+            "Updated weathercli".to_string(),
+        )
+        .await;
         r?;
     }
     if to_update.contains(&Component::Daemon) {
@@ -200,16 +201,19 @@ async fn main() -> Result<(), String> {
         if cfg!(windows) {
             url = "https://arihant2math.github.io/weathercli/docs/weatherd.exe";
             path = "daemon.exe";
-        }
-        else if cfg!(unix) {
+        } else if cfg!(unix) {
             url = "https://arihant2math.github.io/weathercli/docs/weatherd";
             path = "daemon";
-        }
-        else {
+        } else {
             return Err("OS unsupported".to_string());
         }
-        let r = update_component(url, path, "Downloading daemon update from ".to_string(),
-                         "Updated daemon".to_string()).await;
+        let r = update_component(
+            url,
+            path,
+            "Downloading daemon update from ".to_string(),
+            "Updated daemon".to_string(),
+        )
+        .await;
         r?;
     }
     Ok(())

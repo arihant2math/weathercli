@@ -19,7 +19,7 @@ pub struct WeatherForecast {
     #[pyo3(get, set)]
     forecast_sentence: String,
     #[pyo3(get, set)]
-    raw_data: Option<Vec<String>>
+    raw_data: Option<Vec<String>>,
 }
 
 #[pymethods]
@@ -33,7 +33,7 @@ impl WeatherForecast {
             forecast: Vec::new(),
             current_weather: WeatherData::new(),
             forecast_sentence: "".to_string(),
-            raw_data: None
+            raw_data: None,
         }
     }
     #[setter]

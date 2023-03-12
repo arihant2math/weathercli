@@ -2,12 +2,14 @@ use pyo3::prelude::*;
 
 use crate::networking;
 use crate::networking::Resp;
-use crate::openweathermap_json::{OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson};
+use crate::openweathermap_json::{
+    OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
+};
 
 pub mod weather_condition;
 pub mod weather_data;
-pub mod wind_data;
 pub mod weather_forecast;
+pub mod wind_data;
 
 /// Gets the urls from the openweathermap api server
 fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: bool) -> Vec<String> {
@@ -70,7 +72,8 @@ fn open_weather_map_get_combined_data_formatted(
 
 pub fn register_backend_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
     let child_module = PyModule::new(py, "backend")?;
-    child_module.add_function(wrap_pyfunction!(open_weather_map_get_combined_data_formatted,
+    child_module.add_function(wrap_pyfunction!(
+        open_weather_map_get_combined_data_formatted,
         child_module
     )?)?;
     child_module.add_class::<FormattedData>()?;

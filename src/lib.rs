@@ -10,9 +10,8 @@ pub mod local;
 pub mod location;
 pub mod networking;
 mod openweathermap_json;
-mod updater;
 pub mod status;
-
+mod updater;
 
 /// returns the sha-256 of the file
 #[pyfunction]
@@ -32,11 +31,15 @@ fn core(py: Python, module: &PyModule) -> PyResult<()> {
     cache::register_caching_module(py, module)?;
     networking::register_networking_module(py, module)?;
     updater::register_updater_module(py, module)?;
-    py.run("\
+    py.run(
+        "\
     import sys\
     ;sys.modules['core.backend'] = backend\
     ;sys.modules['core.caching'] = caching\
     ;sys.modules['core.networking'] = networking\
-    ;sys.modules['core.updater'] = updater", None, Some(module.dict()))?;
+    ;sys.modules['core.updater'] = updater",
+        None,
+        Some(module.dict()),
+    )?;
     Ok(())
 }

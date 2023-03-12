@@ -41,7 +41,10 @@ impl WeatherData {
             temperature: 0.0,
             min_temp: 0.0,
             max_temp: 0.0,
-            wind: WindData {speed: 0.0, heading: 0},
+            wind: WindData {
+                speed: 0.0,
+                heading: 0,
+            },
             raw_data: String::new(),
             dewpoint: 0.0,
             feels_like: 0.0,
@@ -61,7 +64,11 @@ impl WeatherData {
     }
     pub fn get_conditions_sentence(&self) -> String {
         let mut data = self.conditions.clone();
-        let conditions_match = data.get(0).expect("0th element expected").sentence.to_string();
+        let conditions_match = data
+            .get(0)
+            .expect("0th element expected")
+            .sentence
+            .to_string();
         let mut out = conditions_match;
         data.remove(0);
         for condition in data {
