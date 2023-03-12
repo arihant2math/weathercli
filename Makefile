@@ -18,7 +18,7 @@ docs: docs_templates/
 	cp docs_templates/updater docs/updater
 	cp docs_templates/weatherd.exe docs/weatherd.exe
 	cp docs_templates/weatherd docs/weatherd
-	cp docs_templates/theme.js docs/theme.j
+	cp docs_templates/theme.js docs/theme.js
 clean:
 	rm -rf docs
 	mkdir docs
