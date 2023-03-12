@@ -5,6 +5,10 @@ venv/*
 target/*
 updater/target/*
 .idea/*
+.vs/*
+*.pyc
+.pytest_cache/*
 weather.exe
+daemon.exe
 weather.spec
 test.http
