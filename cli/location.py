@@ -17,7 +17,9 @@ def get_location(no_sys_loc):
             core.caching.write("current_location", ",".join(location))
             return location
         else:
-            t = threading.Thread(target=core.caching.update_hits, args=["current_location"])
+            t = threading.Thread(
+                target=core.caching.update_hits, args=["current_location"]
+            )
             t.start()
             return attempt_cache.split(",")
     return core.get_location(no_sys_loc)
