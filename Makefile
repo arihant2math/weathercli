@@ -2,6 +2,7 @@ build: .
 	maturin develop
 	pyinstaller -F weather.py
 docs: docs_templates/
+	[ -d docs ] || mkdir docs
 	touch docs/index.html
 	./jc index.html "./docs/index.html" --template-dir "./docs_templates"
 
