@@ -42,14 +42,15 @@ def config(key_name: str, value):
     "update",
     help="updates the cli (standalone executable install only)",
 )
-def update():
+@option("force", is_flag=True, help="If true, application will force update")
+def update(force):
     print("Checking for updates ...")
     latest_version = core.updater.get_latest_version()
     if getattr(sys, "frozen", False):
         application_path = Path(sys.executable)
         print("Latest Version: " + latest_version)
         print("Current Version: " + version.__version__)
-        if latest_version != version.__version__:
+        if latest_version != version.__version__ or force:
             print("Updating weather.exe at " + str(application_path))
             if platform.system() == "Windows":
                 updater_location = application_path.parent / "updater.exe"
