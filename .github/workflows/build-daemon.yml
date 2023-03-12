@@ -1,10 +1,10 @@
-name: Updater build
+name: Daemon build
 
 on:
   push:
     branches: [ "main" ]
     paths:
-      - 'updater/**'
+      - 'bin/**'
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:
@@ -21,12 +21,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build
         run: |
-          cd updater
           cargo build -r
       - uses: actions/upload-artifact@v3
         with:
-          name: updater (Windows)
-          path: ./updater/target/release/updater.exe
+          name: weatherd (Windows)
+          path: ./target/release/weatherd.exe
 
   unix-build:
 
@@ -36,9 +35,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build
         run: |
-          cd updater
           cargo build -r
       - uses: actions/upload-artifact@v3
         with:
-          name: updater (Unix)
-          path: ./updater/target/release/updater
+          name: weatherd (Unix)
+          path: ./target/release/weatherd
