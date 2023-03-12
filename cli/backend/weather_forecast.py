@@ -38,12 +38,4 @@ class WeatherForecast:
 
     @staticmethod
     def get_location(loc):
-        reversed_location = reverse_location(loc[0], loc[1])
-        country = reversed_location["address"]["country"]
-        if "city" in reversed_location["address"]:
-            region = reversed_location["address"]["city"]
-        elif "county" in reversed_location["address"]:
-            region = reversed_location["address"]["county"]
-        else:
-            region = ""
-        return region, country
+        return reverse_location(loc[0], loc[1])
