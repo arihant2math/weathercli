@@ -3,6 +3,8 @@ name: Updater build
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'updater/**'
   pull_request:
     branches: [ "main" ]
 
