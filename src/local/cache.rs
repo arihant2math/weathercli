@@ -106,19 +106,21 @@ fn read(key: String) -> Option<String> {
 fn update_cache(rows: Vec<Row>) -> Vec<u8> {
     let mut response: Vec<u8> = vec![];
     for row in rows {
-        response.push(28);
-        response.append(&mut row.key.into_bytes());
-        response.push(29);
-        response.append(&mut row.value.into_bytes());
-        response.push(30);
-        response.append(&mut row.date.into_bytes());
-        response.push(31);
-        let mut count_now = row.hits;
-        while count_now > u8::MAX as i32 {
-            response.push(u8::MAX);
-            count_now -= u8::MAX as i32;
+        if !row.key.is_empty() {
+            response.push(28);
+            response.append(&mut row.key.into_bytes());
+            response.push(29);
+            response.append(&mut row.value.into_bytes());
+            response.push(30);
+            response.append(&mut row.date.into_bytes());
+            response.push(31);
+            let mut count_now = row.hits;
+            while count_now > u8::MAX as i32 {
+                response.push(u8::MAX);
+                count_now -= u8::MAX as i32;
+            }
+            response.push(count_now as u8)
         }
-        response.push(count_now as u8)
     }
     response.push(28);
     response
