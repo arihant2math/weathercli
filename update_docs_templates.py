@@ -1,9 +1,35 @@
+import datetime
+import json
 import os
 import shutil
 from zipfile import ZipFile
 
 import click
 import requests
+
+
+def get_artifact_urls(s, run_id):
+    artifact_request = s.get(
+        "https://api.github.com/repos/arihant2math/weathercli/actions/runs/"
+        + str(run_id)
+        + "/artifacts"
+    )
+    return artifact_request.json()["artifacts"]
+
+
+def download_artifact(s, artifact_list, name, file):
+    artifact_id = [a for a in artifact_list if a["name"] == name][0]["id"]
+    download = s.get(
+        "https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/"
+        + str(artifact_id)
+        + "/zip"
+    )
+    with open("./tmp/" + file + ".zip", "wb") as f:
+        f.write(download.content)
+    with ZipFile("./tmp/" + file + " .zip") as z:
+        with z.open(file) as exe:
+            with open("./docs_templates/" + file, "wb") as out:
+                out.write(exe.read())
 
 
 @click.command()
@@ -18,46 +44,26 @@ def main(gh_token):
     )
     runs = get_run_id.json()["workflow_runs"]
     ci = [run for run in runs if (run["path"] == ".github/workflows/build.yml")]
+    updater_ci = [run for run in runs if (run["path"] == ".github/workflows/build-updater.yml")]
     latest_run_id = ci[0]["id"]
-    artifact_request = s.get(
-        "https://api.github.com/repos/arihant2math/weathercli/actions/runs/"
-        + str(latest_run_id)
-        + "/artifacts"
-    )
-    artifacts = artifact_request.json()["artifacts"]
-    try:
-        unix_artifact_id = [a for a in artifacts if a["name"] == "weather (Unix)"][0]["id"]
-    except IndexError:
-        unix_artifact_id = None
-    windows_artifact_id = [a for a in artifacts if a["name"] == "weather (Windows)"][0][
-        "id"
-    ]
+    latest_updater_run_id = updater_ci[0]["id"]
+    artifacts = get_artifact_urls(s, latest_run_id)
+    updater_artifacts = get_artifact_urls(s, latest_updater_run_id)
     print("Starting Unix Download")
-    if unix_artifact_id is not None:
-        unix_download = s.get(
-            "https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/"
-            + str(unix_artifact_id)
-            + "/zip"
-        )
-        with open("./tmp/weather.zip", "wb") as f:
-            f.write(unix_download.content)
-        with ZipFile("./tmp/weather.zip") as unixzip:
-            with unixzip.open("weather") as exe:
-                with open("./docs_templates/weather", "wb") as out:
-                    out.write(exe.read())
+    download_artifact(s, artifacts, "weather (Unix)", "weather")
     print("Starting Windows Download")
-    windows_download = s.get(
-        "https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/"
-        + str(windows_artifact_id)
-        + "/zip"
-    )
-    with open("./tmp/weather.exe.zip", "wb") as f:
-        f.write(windows_download.content)
-    with ZipFile("./tmp/weather.exe.zip") as exezip:
-        with exezip.open("weather.exe") as exe:
-            with open("./docs_templates/weather.exe", "wb") as out:
-                out.write(exe.read())
+    download_artifact(s, artifacts, "weather (Windows)", "weather.exe")
+    print("Starting Unix Download (Updater)")
+    download_artifact(s, updater_artifacts, "updater (Unix)", "weather")
+    print("Starting Windows Download (Updater)")
+    download_artifact(s, updater_artifacts, "updater (Windows)", "weather.exe")
     shutil.rmtree("./tmp")
+    d = json.load(open("./docs_templates/index.json"))
+    now = datetime.datetime.now()
+    s = "{}.{}.{}".format(now.year, now.month, now.day)
+    d["version"] = s
+    d["updater-version"] = s
+    json.dump(d, open("./docs_templates/index.json"))
 
 
 if __name__ == "__main__":
