@@ -108,7 +108,7 @@ async fn update_component(
         progress_bar.set_position(new);
     }
     progress_bar.set_style(ProgressStyle::default_bar()
-        .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
+        .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec})")
         .expect("Failed due to progress bar error")
         .progress_chars("—> "));
     progress_bar.finish_with_message(finish_msg);
