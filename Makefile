@@ -2,7 +2,6 @@ build: .
 	maturin develop
 	pyinstaller -F weather.py
 docs: docs_templates/
-	python3 update_index_hashes.py
 	[ -d docs ] || mkdir docs
 	touch docs/index.html
 	./jc index.html "./docs/index.html" --template-dir "./docs_templates"
