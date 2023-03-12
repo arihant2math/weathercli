@@ -27,6 +27,8 @@ struct Cli {
     quiet: bool,
     #[clap(long, short, action)]
     version: bool,
+    #[clap(long, short, action)]
+    force: bool
 }
 
 #[derive(Eq, PartialEq, Clone, Copy)]
