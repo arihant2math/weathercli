@@ -9,7 +9,7 @@ import core
 import plotext
 from click import argument, option, command
 
-from cli import WeatherFile
+from cli import WeatherFile, version
 from cli.backend.meteo.meteo_forecast import MeteoForecast
 from cli.getch import _Getch
 from cli.local import settings
@@ -48,7 +48,7 @@ def update():
     if getattr(sys, "frozen", False):
         application_path = Path(sys.executable)
         print("Latest Version: " + latest_version)
-        if latest_version != "3.11.2023":
+        if latest_version != version.__version__:
             print("Updating weather.exe at " + str(application_path))
             if platform.system() == "Windows":
                 updater_location = application_path.parent / "updater.exe"
