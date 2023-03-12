@@ -167,7 +167,7 @@ async fn main() -> Result<(), String> {
         update_requests.push(Component::Main);
     }
     for component in update_requests {
-        if update_needed(json.clone(), component).await? {
+        if args.force || update_needed(json.clone(), component).await? {
             to_update.push(component)
         }
     }
