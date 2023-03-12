@@ -1,6 +1,7 @@
 use std::cmp::min;
 use std::fs::File;
 use std::io::Write;
+use std::path::Path;
 use std::thread;
 use std::time::Duration;
 
@@ -8,6 +9,15 @@ use clap::Parser;
 use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::Client;
+use serde::Deserialize;
+use serde::Serialize;
+use sha256::try_digest;
+
+fn hash_file(filename: &str) -> String {
+    // let path = "./".to_string() + filename;
+    let input = Path::new(filename);
+    try_digest(input).unwrap()
+}
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -17,6 +27,37 @@ struct Cli {
     quiet: bool,
    #[clap(long, short, action)]
     version: bool
+}
+
+#[derive(Eq, PartialEq, Clone, Copy)]
+enum Component {
+    Main,
+    Daemon
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+struct IndexStruct {
+    version: String,
+    #[serde(rename = "updater-version")]
+    updater_version: String,
+    #[serde(rename = "weather-codes-hash")]
+    weather_codes_hash: String,
+    #[serde(rename = "weather-ascii-images-hash")]
+    weather_ascii_images_hash: String,
+    #[serde(rename = "daemon-version")]
+    daemon_version: String,
+    #[serde(rename = "weather-exe-hash-windows")]
+    weather_exe_hash_windows: String,
+    #[serde(rename = "weather-exe-hash-unix")]
+    weather_exe_hash_unix: String,
+    #[serde(rename = "updater-exe-hash-windows")]
+    updater_exe_hash_windows: String,
+    #[serde(rename = "updater-exe-hash-unix")]
+    updater_exe_hash_unix: String,
+    #[serde(rename = "weatherd-exe-hash-windows")]
+    weatherd_exe_hash_windows: String,
+    #[serde(rename = "weatherd-exe-hash-unix")]
+    weatherd_exe_hash_unix: String
 }
 
 async fn update_component(url: &str, path: &str, progress_msg: String, finish_msg: String) -> Result<(), String> {
@@ -48,7 +89,7 @@ async fn update_component(url: &str, path: &str, progress_msg: String, finish_ms
         .template("{msg}\n[{elapsed}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
         .expect("Failed due to progress bar error")
         .progress_chars("—> "));
-    progress_bar.set_message(progress_msg + &*url);
+    progress_bar.set_message(progress_msg + url);
 
     // download chunks
     let mut downloaded: u64 = 0;
@@ -69,26 +110,72 @@ async fn update_component(url: &str, path: &str, progress_msg: String, finish_ms
     Ok(())
 }
 
+fn update_needed_check(file: &str, web_hash: String) -> Result<bool, String> {
+    if Path::new(&file).exists() {
+        let file_hash = hash_file(file);
+        Ok(file_hash != web_hash)
+    }
+    else {
+        Ok(true)
+    }
+}
+
+async fn update_needed(index: IndexStruct, component: Component) -> Result<bool, String> {
+    if component == Component::Main {
+        if cfg!(windows) {
+            return update_needed_check("weather.exe",
+                                          index.weather_exe_hash_windows);
+        }
+        else if cfg!(unix) {
+            return update_needed_check("weather",
+                                          index.weather_exe_hash_unix);
+        }
+    }
+    else if component == Component::Daemon {
+        if cfg!(windows) {
+            return update_needed_check("weatherd.exe",
+                                          index.weatherd_exe_hash_windows);
+        }
+        else if cfg!(unix) {
+            return update_needed_check("weatherd",
+                                          index.weatherd_exe_hash_unix);
+        }
+    }
+    Ok(true)
+}
+
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
     let args = Cli::parse();
+    let resp = reqwest::get("https://arihant2math.github.io/weathercli/docs/index.json").await.unwrap();
+    let json: IndexStruct = serde_json::from_str(&resp.text().await.unwrap()).unwrap();
     if args.version {
         println!("3.11.2023");
         return Ok(());
     }
-    let mut to_update: Vec<String> = Vec::new();
+    let mut to_update: Vec<Component> = Vec::new();
+    let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {
-        to_update.push("main".to_string());
-        to_update.push("daemon".to_string());
+        update_requests.push(Component::Main);
+        update_requests.push(Component::Daemon);
     }
     if args.component == "daemon" {
-        to_update.push("daemon".to_string());
+        update_requests.push(Component::Daemon);
     }
     if args.component == "main" {
-        to_update.push("main".to_string());
+        update_requests.push(Component::Main);
     }
-    if to_update.contains(&"main".to_string()) {
+    for component in update_requests {
+        if update_needed(json.clone(), component).await? {
+            to_update.push(component)
+        }
+    }
+    if to_update.is_empty() {
+        println!("Nothing to Update!");
+        return Ok(());
+    }
+    if to_update.contains(&Component::Main) {
         let url;
         let path;
         if cfg!(windows) {
@@ -107,7 +194,7 @@ async fn main() -> Result<(), String> {
                          "Updated weathercli".to_string()).await;
         r?;
     }
-    if to_update.contains(&String::from("daemon")) {
+    if to_update.contains(&Component::Daemon) {
         let url;
         let path;
         if cfg!(windows) {
