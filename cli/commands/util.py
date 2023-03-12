@@ -48,7 +48,7 @@ def update():
     if getattr(sys, "frozen", False):
         application_path = Path(sys.executable)
         print("Latest Version: " + latest_version)
-        if latest_version != "0":
+        if latest_version != "3.11.2023":
             print("Updating weather.exe at " + str(application_path))
             if platform.system() == "Windows":
                 updater_location = application_path.parent / "updater.exe"
@@ -66,8 +66,8 @@ def update():
 
 @command("clear-cache", help="clears every cache")
 def clear_cache():
-    f = WeatherFile("cache.json")
-    f.data = "{}"
+    f = WeatherFile("d.cache")
+    f.data = ""
     f.write()
 
 
