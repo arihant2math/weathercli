@@ -47,7 +47,7 @@ def update_web_resource(local_path, web_path, name, dev=False):
             store_key(name, hash_file(f.path))
     else:
         f = WeatherFile(local_path)
-        f.data = open("./"+local_path).read()
+        f.data = open("./" + local_path).read()
         f.write()
 
 
@@ -56,13 +56,13 @@ def update_web_resources():
         "weather_codes.json",
         "https://arihant2math.github.io/weathercli/weather_codes.json",
         "weather-codes-hash",
-        settings.DEVELOPMENT
+        settings.DEVELOPMENT,
     )
     update_web_resource(
         "weather_ascii_images.json",
         "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
         "weather-ascii-images-hash",
-        settings.DEVELOPMENT
+        settings.DEVELOPMENT,
     )
 
 
@@ -97,8 +97,10 @@ def print_out(data: WeatherForecast, print_json: bool, metric: bool, logger: Log
 
 
 def get_data_from_datasource(datasource, location, true_metric, logger: Logger):
-    if not os.path.exists(Path(os.path.expanduser("~/.weathercli/weather_codes.json")) or
-                          Path(os.path.expanduser("~/.weathercli/weather_ascii_images.json"))):
+    if not os.path.exists(
+        Path(os.path.expanduser("~/.weathercli/weather_codes.json"))
+        or Path(os.path.expanduser("~/.weathercli/weather_ascii_images.json"))
+    ):
         update_web_resources()
     if AUTO_UPDATE_INTERNET_RESOURCES:
         logger.info("Updating web resources")

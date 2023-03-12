@@ -44,7 +44,9 @@ def main(gh_token):
     )
     runs = get_run_id.json()["workflow_runs"]
     ci = [run for run in runs if (run["path"] == ".github/workflows/build.yml")]
-    updater_ci = [run for run in runs if (run["path"] == ".github/workflows/build-updater.yml")]
+    updater_ci = [
+        run for run in runs if (run["path"] == ".github/workflows/build-updater.yml")
+    ]
     latest_run_id = ci[0]["id"]
     latest_updater_run_id = updater_ci[0]["id"]
     artifacts = get_artifact_urls(s, latest_run_id)

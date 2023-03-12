@@ -44,7 +44,9 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
     if not DEBUG:
         logging.basicConfig(format=FORMAT, level=logging.CRITICAL)
     else:
-        logging.basicConfig(filename=get_log_file(), filemode="w", format=FORMAT, level=logging.DEBUG)
+        logging.basicConfig(
+            filename=get_log_file(), filemode="w", format=FORMAT, level=logging.DEBUG
+        )
     d = {"component": "main"}
     logger = logging.getLogger("weathercli")
     if datasource is None:
@@ -109,6 +111,7 @@ def place(ctx, location, json, metric, imperial, datasource):
 
 if __name__ == "__main__":
     if not DEBUG:
+
         def exception_handler(exception_type, exception, traceback):
             # No traceback
             print(colorama.Fore.RED + "%s: %s" % (exception_type.__name__, exception))

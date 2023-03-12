@@ -20,7 +20,9 @@ class Layout:
                 layout = json.loads(f.data)
             except JSONDecodeError as e:
                 print("Invalid Layout, JSON parsing failed, defaulting")
-                logger.critical("Invalid Layout, JSON parsing failed, defaulting, error=" + e.msg)
+                logger.critical(
+                    "Invalid Layout, JSON parsing failed, defaulting, error=" + e.msg
+                )
                 layout = default_layout.layout
         elif text is not None:
             if type(text) == dict:
@@ -31,8 +33,10 @@ class Layout:
             layout = default_layout.layout
         if "version" not in layout:
             print("Invalid Layout, missing key 'version', defaulting")
-            logger.critical("Invalid Layout, missing Key 'version', add it like this {\n\t... // Your json "
-                            "here\n\t\"version\": " + str(self.version) + "\n}")
+            logger.critical(
+                "Invalid Layout, missing Key 'version', add it like this {\n\t... // Your json "
+                'here\n\t"version": ' + str(self.version) + "\n}"
+            )
             layout = default_layout.layout
         else:
             if layout["version"] > self.version:

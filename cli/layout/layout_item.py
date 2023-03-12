@@ -10,7 +10,7 @@ from cli.layout.util import LayoutException
 
 def parse_string(data: str):
     if data[0] == "@":
-        data = data[1: len(data)]
+        data = data[1 : len(data)]
         split = data.split("|")
         imperial = None
         metric = None
@@ -26,7 +26,7 @@ def parse_string(data: str):
             out["imperial"] = imperial
         return LayoutItem(out)
     if data[0] == "#":
-        data = data[1: len(data)]
+        data = data[1 : len(data)]
         split = data.split("|")
         out = {"type": "function", "value": split.pop(0)}
         args = []
@@ -41,7 +41,7 @@ def parse_string(data: str):
         out["kwargs"] = kwargs
         return LayoutItem(out)
     if "\\" == data[0]:
-        data = data[1: len(data)]
+        data = data[1 : len(data)]
     return LayoutItem({"type": "text", "value": data})
 
 
@@ -119,7 +119,7 @@ class LayoutItem:
         current = data
         while len(split) != 0:
             if split[0][0] == "[":  # list item
-                current = current[int(split[0][1: len(split[0]) - 1])]
+                current = current[int(split[0][1 : len(split[0]) - 1])]
             else:  # normal variable
                 if current is not None:
                     current = getattr(current, split[0])
@@ -158,7 +158,13 @@ class LayoutItem:
 
     def to_string(self, **kwargs):
         if self.item_type == 0:
-            return kwargs["text_color"] + kwargs["text_bg_color"] + self.color + self.bgcolor + self.value
+            return (
+                kwargs["text_color"]
+                + kwargs["text_bg_color"]
+                + self.color
+                + self.bgcolor
+                + self.value
+            )
         elif self.item_type == 1:
             try:
                 value = self.get_variable_value(kwargs["data"])
@@ -170,23 +176,23 @@ class LayoutItem:
                 ) from e
             if kwargs["metric"]:
                 return (
-                        kwargs["variable_color"]
-                        + self.color
-                        + self.bgcolor
-                        + str(value)
-                        + kwargs["unit_color"]
-                        + self.unit_color
-                        + self.metric_unit
+                    kwargs["variable_color"]
+                    + self.color
+                    + self.bgcolor
+                    + str(value)
+                    + kwargs["unit_color"]
+                    + self.unit_color
+                    + self.metric_unit
                 )
             else:
                 return (
-                        kwargs["variable_color"]
-                        + self.color
-                        + self.bgcolor
-                        + str(value)
-                        + kwargs["unit_color"]
-                        + self.unit_color
-                        + self.imperial_unit
+                    kwargs["variable_color"]
+                    + self.color
+                    + self.bgcolor
+                    + str(value)
+                    + kwargs["unit_color"]
+                    + self.unit_color
+                    + self.imperial_unit
                 )
         elif self.item_type == 2:
             try:

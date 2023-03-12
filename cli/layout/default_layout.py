@@ -37,9 +37,6 @@ layout = {
             "Dew Point: ",
             "@current_weather.dewpoint|° F|° C",
         ],
-        [
-            "AQI: ",
-            "#color_aqi|@current_weather.aqi"
-        ]
-    ]
+        ["AQI: ", "#color_aqi|@current_weather.aqi"],
+    ],
 }

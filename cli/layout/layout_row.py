@@ -13,7 +13,9 @@ class LayoutRow:
             except LayoutException as e:
                 raise LayoutException(e.message, item=count + 1)
 
-    def to_string(self, data, variable_color, text_color, text_bg_color, unit_color, metric):
+    def to_string(
+        self, data, variable_color, text_color, text_bg_color, unit_color, metric
+    ):
         s = ""
         kwargs = {
             "text_color": text_color,
