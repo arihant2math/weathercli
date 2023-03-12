@@ -7,6 +7,8 @@ from zipfile import ZipFile
 import click
 import requests
 
+from update_index_hashes import update_hash
+
 
 def get_artifact_urls(s, run_id):
     artifact_request = s.get(
@@ -86,6 +88,12 @@ def main(gh_token):
     d["updater-version"] = s
     d["daemon-version"] = s
     json.dump(d, open("./docs_templates/index.json", "w"))
+    update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")
+    update_hash("./docs_templates/weather", "weather-exe-hash-unix")
+    update_hash("./docs_templates/updater.exe", "updater-exe-hash-windows")
+    update_hash("./docs_templates/updater", "updater-exe-hash-unix")
+    update_hash("./docs_templates/weatherd.exe", "weatherd-exe-hash-windows")
+    update_hash("./docs_templates/weatherd", "weatherd-exe-hash-unix")
 
 
 if __name__ == "__main__":
