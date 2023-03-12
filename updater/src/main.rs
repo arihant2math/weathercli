@@ -45,8 +45,9 @@ async fn update_component(url: &str, path: &str, progress_msg: String, finish_ms
 
     let progress_bar = ProgressBar::new(total_size);
     progress_bar.set_style(ProgressStyle::default_bar()
-        .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})").expect("Failed due to progress bar error")
-        .progress_chars("#>-"));
+        .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
+        .expect("Failed due to progress bar error")
+        .progress_chars("—> "));
     progress_bar.set_message(progress_msg + &*url);
 
     // download chunks
@@ -99,23 +100,27 @@ async fn main() -> Result<(), String> {
             return Err("OS unsupported".to_string());
         }
 
-        update_component(url, path, "Downloading weathercli update from ".to_string(), "Updated weathercli".to_string()).await?;
+        let r = update_component(url, path, "Downloading weathercli update from ".to_string(),
+                         "Updated weathercli".to_string()).await;
+        r?;
     }
-    else if to_update.contains(&String::from("daemon")) {
+    if to_update.contains(&String::from("daemon")) {
         let url;
         let path;
         if cfg!(windows) {
-            url = "https://arihant2math.github.io/weathercli/docs/daemon.exe";
+            url = "https://arihant2math.github.io/weathercli/docs/weatherd.exe";
             path = "daemon.exe";
         }
         else if cfg!(unix) {
-            url = "https://arihant2math.github.io/weathercli/docs/daemon";
+            url = "https://arihant2math.github.io/weathercli/docs/weatherd";
             path = "daemon";
         }
         else {
             return Err("OS unsupported".to_string());
         }
-        update_component(url, path, "Downloading daemon update from ".to_string(), "Updated daemon".to_string()).await?;
+        let r = update_component(url, path, "Downloading daemon update from ".to_string(),
+                         "Updated daemon".to_string()).await;
+        r?;
     }
     Ok(())
 }
