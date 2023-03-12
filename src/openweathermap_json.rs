@@ -1,6 +1,7 @@
+use std::collections::HashMap;
+
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[pyclass]
 #[derive(Serialize, Deserialize, Clone)]
@@ -61,6 +62,7 @@ pub struct OpenWeatherMapCloudsJson {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct OpenWeatherMapSysJson {
     #[serde(rename = "type")]
+    #[pyo3(get)]
     type_name: i64,
     #[pyo3(get)]
     id: i64,
