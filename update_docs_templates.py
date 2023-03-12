@@ -26,7 +26,7 @@ def download_artifact(s, artifact_list, name, file):
     )
     with open("./tmp/" + file + ".zip", "wb") as f:
         f.write(download.content)
-    with ZipFile("./tmp/" + file + " .zip") as z:
+    with ZipFile("./tmp/" + file + ".zip") as z:
         with z.open(file) as exe:
             with open("./docs_templates/" + file, "wb") as out:
                 out.write(exe.read())
@@ -54,16 +54,16 @@ def main(gh_token):
     print("Starting Windows Download")
     download_artifact(s, artifacts, "weather (Windows)", "weather.exe")
     print("Starting Unix Download (Updater)")
-    download_artifact(s, updater_artifacts, "updater (Unix)", "weather")
+    download_artifact(s, updater_artifacts, "updater (Unix)", "updater")
     print("Starting Windows Download (Updater)")
-    download_artifact(s, updater_artifacts, "updater (Windows)", "weather.exe")
+    download_artifact(s, updater_artifacts, "updater (Windows)", "updater.exe")
     shutil.rmtree("./tmp")
     d = json.load(open("./docs_templates/index.json"))
     now = datetime.datetime.now()
     s = "{}.{}.{}".format(now.year, now.month, now.day)
     d["version"] = s
     d["updater-version"] = s
-    json.dump(d, open("./docs_templates/index.json"))
+    json.dump(d, open("./docs_templates/index.json", "w"))
 
 
 if __name__ == "__main__":
