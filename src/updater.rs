@@ -1,7 +1,8 @@
-use pyo3::prelude::*;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+
+use pyo3::prelude::*;
 
 #[pyfunction]
 fn get_latest_version() -> String {
@@ -28,8 +29,9 @@ fn get_updater(path: String) {
                 .bytes()
                 .expect("bytes expected");
         let mut file = OpenOptions::new()
-            .create_new(true)
+            .create(true)
             .write(true)
+            .truncate(true)
             .open(path)
             .unwrap();
         file.write_all(&data)
