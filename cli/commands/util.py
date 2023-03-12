@@ -42,7 +42,7 @@ def config(key_name: str, value):
     "update",
     help="updates the cli (standalone executable install only)",
 )
-@option("force", is_flag=True, help="If true, application will force update")
+@option("--force", is_flag=True, help="If true, application will force update")
 def update(force):
     print("Checking for updates ...")
     latest_version = core.updater.get_latest_version()
