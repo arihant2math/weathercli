@@ -45,7 +45,7 @@ async fn update_component(url: &str, path: &str, progress_msg: String, finish_ms
 
     let progress_bar = ProgressBar::new(total_size);
     progress_bar.set_style(ProgressStyle::default_bar()
-        .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
+        .template("{msg}\n[{elapsed}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
         .expect("Failed due to progress bar error")
         .progress_chars("—> "));
     progress_bar.set_message(progress_msg + &*url);
@@ -61,7 +61,10 @@ async fn update_component(url: &str, path: &str, progress_msg: String, finish_ms
         downloaded = new;
         progress_bar.set_position(new);
     }
-
+    progress_bar.set_style(ProgressStyle::default_bar()
+        .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
+        .expect("Failed due to progress bar error")
+        .progress_chars("—> "));
     progress_bar.finish_with_message(finish_msg);
     Ok(())
 }
