@@ -63,7 +63,6 @@ jobs:
     - name: Install corelib (unix)
       if: startsWith(matrix.os, 'ubuntu')
       run: |
-        maturin build -r
         for file in target/wheels/*.whl
         do
           name=${file##*/}
