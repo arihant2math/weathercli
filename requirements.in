@@ -1,6 +1,4 @@
-black
 click
-pyinstaller
 Pillow
 geopy
 colorama
@@ -10,5 +8,3 @@ certifi
 plotext
 rich
 requests
-pip-tools
-pytest

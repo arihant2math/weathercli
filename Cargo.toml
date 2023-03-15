@@ -1,37 +1,50 @@
+bin = [
+    { name = "weatherd", path = "bin/weatherd.rs" },
+]
+
 [package]
 name = "weather_core"
-version = "2023.3.4"
+version = "2023.3.14"
 edition = "2021"
 
 [lib]
-# The name of the native library. This is the name which will be used in Python to import the
-# library (i.e. `import core`). If you change this, you must also change the name of the
-# `#[pymodule]` in `src/lib.rs`.
 name = "core"
-# "cdylib" is necessary to produce a shared library for Python to import from.
-#
-# Downstream Rust code (including code in `bin/`, `examples/`, and `tests/`) will not be able
-# to `use core;` unless the "rlib" or "lib" crate type is also included
-crate-type = ["cdylib", "rlib"]
+crate-type = [
+    "cdylib",
+    "rlib",
+]
 
 [dependencies]
-pyo3 = { version = "0.18.1", features = ["extension-module"] }
-reqwest = { version = "0.11.14", features = ["blocking", "json", "cookies"] }
 rayon = "1.7.0"
-serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 sha256 = "1.1.2"
 dirs = "4.0.0"
 chrono = "0.4.23"
 auto-launch = "0.4.0"
 
-[target.'cfg(target_os = "windows")'.dependencies.windows]
+[dependencies.pyo3]
+version = "0.18.1"
+features = [
+    "extension-module",
+]
+
+[dependencies.reqwest]
+version = "0.11.14"
+features = [
+    "blocking",
+    "json",
+    "cookies",
+]
+
+[dependencies.serde]
+version = "1.0"
+features = [
+    "derive",
+]
+
+[target."cfg(target_os = \"windows\")".dependencies.windows]
 version = "0.44.0"
 features = [
     "Foundation",
-    "Devices_Geolocation"
+    "Devices_Geolocation",
 ]
-
-[[bin]]
-name = "weatherd"
-path = "bin/weatherd.rs"

@@ -1,0 +1,6 @@
+-r requirements.in
+black
+pyinstaller
+pip-tools
+pytest
+tomli-w

@@ -22,10 +22,6 @@ struct Row {
     hits: i32,
 }
 
-pub fn wrap_to_u64(x: i64) -> u64 {
-    x as u64
-}
-
 pub fn get_date_string() -> String {
     let date_now = chrono::offset::Local::now();
     let year = date_now.year();
@@ -133,6 +129,7 @@ fn get_cache_path() -> PathBuf {
     path
 }
 
+/// writes the key to the cache, overwriting it if it already exists
 #[pyfunction]
 fn write(key: String, value: String) {
     let path = get_cache_path();
@@ -153,7 +150,7 @@ fn write(key: String, value: String) {
     rows.push(new_row);
     let len = rows.len();
     if key_index != -1 {
-        rows.swap(wrap_to_u64(key_index) as usize, len - 1);
+        rows.swap(key_index as usize, len - 1);
         rows.pop();
     }
     let new_bytes = update_cache(rows);
@@ -211,6 +208,7 @@ fn to_rows(bytes: Vec<u8>) -> Vec<Row> {
     rows
 }
 
+/// Bumps the number of hits to the row, makes it so that the row is less likely to be deleted
 #[pyfunction]
 fn update_hits(key: String) {
     let path = get_cache_path();
@@ -225,7 +223,7 @@ fn update_hits(key: String) {
     if key_index == -1 {
         return;
     }
-    let key_index_usize = wrap_to_u64(key_index) as usize;
+    let key_index_usize = key_index as usize;
     let row = rows.get(key_index_usize).expect("row not found");
     rows.push(Row {
         key: row.key.to_string(),

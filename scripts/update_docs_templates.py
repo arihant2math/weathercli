@@ -49,9 +49,9 @@ def main(gh_token):
         "https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=100&status=completed"
     )
     runs = get_run_id.json()["workflow_runs"]
-    ci = filter_by_file(runs, ".github/workflows/build.yml")
-    updater_ci = filter_by_file(runs, ".github/workflows/build-updater.yml")
-    daemon_ci = filter_by_file(runs, ".github/workflows/build-daemon.yml")
+    ci = filter_by_file(runs, "../.github/workflows/build.yml")
+    updater_ci = filter_by_file(runs, "../.github/workflows/build-updater.yml")
+    daemon_ci = filter_by_file(runs, "../.github/workflows/build-daemon.yml")
     artifacts = None
     updater_artifacts = None
     daemon_artifacts = None
@@ -72,7 +72,7 @@ def main(gh_token):
         download_artifact(s, artifacts, "weather (Windows)", "weather.exe")
     if updater_artifacts is not None:
         print("Starting Unix Download (Updater)")
-        download_artifact(s, updater_artifacts, "updater (Unix)", "updater")
+        download_artifact(s, updater_artifacts, "updater (Unix)", "../updater")
         print("Starting Windows Download (Updater)")
         download_artifact(s, updater_artifacts, "updater (Windows)", "updater.exe")
     if daemon_artifacts is not None:
@@ -81,19 +81,19 @@ def main(gh_token):
         print("Starting Windows Download (Daemon)")
         download_artifact(s, daemon_artifacts, "weatherd (Windows)", "weatherd.exe")
     shutil.rmtree("./tmp")
-    d = json.load(open("./docs_templates/index.json"))
+    d = json.load(open("../docs_templates/index.json"))
     now = datetime.datetime.now()
     s = "{}.{}.{}".format(now.year, now.month, now.day)
     d["version"] = s
     d["updater-version"] = s
     d["daemon-version"] = s
-    json.dump(d, open("./docs_templates/index.json", "w"))
-    update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")
-    update_hash("./docs_templates/weather", "weather-exe-hash-unix")
-    update_hash("./docs_templates/updater.exe", "updater-exe-hash-windows")
-    update_hash("./docs_templates/updater", "updater-exe-hash-unix")
-    update_hash("./docs_templates/weatherd.exe", "weatherd-exe-hash-windows")
-    update_hash("./docs_templates/weatherd", "weatherd-exe-hash-unix")
+    json.dump(d, open("../docs_templates/index.json", "w"))
+    update_hash("../docs_templates/weather.exe", "weather-exe-hash-windows")
+    update_hash("../docs_templates/weather", "weather-exe-hash-unix")
+    update_hash("../docs_templates/updater.exe", "updater-exe-hash-windows")
+    update_hash("../docs_templates/updater", "updater-exe-hash-unix")
+    update_hash("../docs_templates/weatherd.exe", "weatherd-exe-hash-windows")
+    update_hash("../docs_templates/weatherd", "weatherd-exe-hash-unix")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 use core::local::weather_file::WeatherFile;
-use std::{thread, time};
 use std::env::current_exe;
+use std::{thread, time};
 
 use auto_launch::AutoLaunchBuilder;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};

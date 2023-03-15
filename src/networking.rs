@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use pyo3::{pyclass, pyfunction, PyResult, Python, wrap_pyfunction};
 use pyo3::prelude::*;
+use pyo3::{pyclass, pyfunction, wrap_pyfunction, PyResult, Python};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use reqwest::cookie::Jar;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
@@ -19,8 +19,12 @@ pub struct Resp {
     pub(crate) text: String,
 }
 
+/// :param url: the url to retrieve
+/// :param user_agent: the user agent to use, weathercli/1 by default
+/// :param headers: optional dictionary with headers in it
+/// :param cookies: optional list of cookies
 #[pyfunction]
-fn get_url(
+pub fn get_url(
     url: String,
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
@@ -61,6 +65,8 @@ fn get_url(
     }
 }
 
+/// Async retrival of multiple urls
+/// :param urls: the urls to retrieve
 #[pyfunction]
 pub fn get_urls(urls: Vec<String>) -> Vec<Resp> {
     let client = reqwest::blocking::Client::builder()

@@ -28,6 +28,8 @@ fn get_location_web() -> Result<[String; 2], reqwest::Error> {
     Ok(location_list)
 }
 
+/// :param no_sys_loc: if true the location will not be retrieved with the OS location api,
+/// by default the location is retrieved with the OS api whenever possible
 #[pyfunction]
 #[cfg(target_os = "windows")]
 pub fn get_location(no_sys_loc: bool) -> [String; 2] {
@@ -38,8 +40,10 @@ pub fn get_location(no_sys_loc: bool) -> [String; 2] {
     get_location_web().expect("web location not found")
 }
 
+/// :param no_sys_loc: if true the location will not be retrieved with the OS location api,
+/// by default the location is retrieved with the OS api whenever possible
 #[pyfunction]
 #[cfg(not(target_os = "windows"))]
-pub fn get_location(no_sys_loc: bool) -> [String; 2] {
+pub fn get_location(_no_sys_loc: bool) -> [String; 2] {
     get_location_web().expect("web location not found")
 }

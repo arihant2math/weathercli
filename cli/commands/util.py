@@ -7,18 +7,21 @@ from pathlib import Path
 import colorama
 import core
 import plotext
+import requests
 from click import argument, option, command
 
-from cli import WeatherFile, version
+from core import WeatherFile
+
+from cli import version
 from cli.backend.meteo.meteo_forecast import MeteoForecast
-from cli.getch import _Getch
 from cli.local import settings
 from cli.local.settings import get_key, store_key
+from cli.prompt import multi_choice, yes_no
 
 
 @command("config", help="prints or changes the settings")
 @argument("key_name")
-@option("--value", help="This sets the key")
+@argument("value", required=False)
 def config(key_name: str, value):
     value = str(value)
     if value is None or value == "" or value == "None":
@@ -59,8 +62,22 @@ def update(force):
             if not updater_location.exists():
                 print("Updater not found, downloading updater")
                 core.updater.get_updater(str(updater_location))
+            resp = requests.get(
+                "https://arihant2math.github.io/weathercli/docs/index.json"
+            ).json()
+            if platform.system() == "Windows":
+                web_hash = resp["updater-exe-hash-windows"]
+            else:
+                web_hash = resp["updater-exe-hash-unix"]
+            if core.hash_file(updater_location.absolute()) != web_hash:
+                core.updater.get_updater(str(updater_location))
             print("Starting updater and exiting")
-            subprocess.Popen([updater_location], cwd=str(application_path.parent))
+            if force:
+                subprocess.Popen(
+                    [updater_location, "--force"], cwd=str(application_path.parent)
+                )
+            else:
+                subprocess.Popen([updater_location], cwd=str(application_path.parent))
             sys.exit(0)
     else:
         print("Not implemented for non executable installs")
@@ -86,88 +103,49 @@ def plot_temp():
 
 @command("setup", help="setup prompt")
 def setup():
-    print(colorama.Fore.GREEN + "=== Weather CLI Setup ===")
-    print(colorama.Fore.BLUE + "Choose the default weather backend: ")
+    print(colorama.Fore.CYAN + "=== Weather CLI Setup ===")
+    core.updater.update_web_resources(settings.DEVELOPMENT)
+    print(
+        colorama.Fore.GREEN
+        + "Choose the default weather backend: "
+        + colorama.Fore.BLUE
+    )
     options = [
         "Meteo",
         "Open Weather Map",
         "National Weather Service",
         "The Weather Channel",
     ]
-    current = 0
-    cursor_move = False
-    for i in range(0, 4):
-        if current != i:
-            print("  " + options[i])
-        else:
-            print("> " + options[i])
-    while True:
-        g = _Getch().__call__()
-        if cursor_move:
-            if (g == b"M") or (g == b"P"):
-                if current != 3:
-                    current += 1
-            elif (g == b"K") or (g == b"H"):
-                if current != 0:
-                    current -= 1
-            cursor_move = False
-        else:
-            if g == b"\x03":
-                exit(0)
-            elif g == g == b"\r":
-                break
-            elif (g == b"a") or (g == b"1"):
-                current = 0
-            elif g == b"b" or (g == b"2"):
-                current = 1
-            elif g == b"c" or (g == b"3"):
-                current = 2
-            elif g == b"d" or (g == b"4"):
-                current = 3
-            elif g == b"\xe0":
-                cursor_move = True
-        sys.stdout.write("\u001b[1000D")  # Move left
-        sys.stdout.write("\u001b[" + str(4) + "A")  # Move up
-        for i in range(0, 4):
-            if current != i:
-                print("  " + options[i])
-            else:
-                print("> " + options[i])
-        sys.stdout.flush()
-    weather_backend_setting = ["meteo", "openweathermap", "nws", "theweatherchannel"][
+    default = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"].index(
+        settings.DEFAULT_BACKEND
+    )
+    current = multi_choice(options, default)
+    weather_backend_setting = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"][
         current
     ]
     settings.store_key("DEFAULT_BACKEND", weather_backend_setting)
     time.sleep(0.1)
-    print("Is your location constant? yes (no)", end="")
-    sys.stdout.flush()
-    cursor_move = False
-    current = 1
-    while True:
-        g = _Getch().__call__()
-        if cursor_move:
-            if (g == b"M") or (g == b"P"):
-                current = 1
-            elif (g == b"K") or (g == b"H"):
-                current = 0
-            cursor_move = False
-        else:
-            if g == b"\x03":
-                exit(0)
-            elif g == g == b"\r":
-                break
-            elif (g == b"a") or (g == b"1"):
-                current = 0
-            elif g == b"b" or (g == b"2"):
-                current = 1
-            elif g == b"\xe0":
-                cursor_move = True
-        sys.stdout.write("\u001b[1000D")  # Move left
-        if current == 0:
-            print("Is your location constant? (yes) no", end="")
-        else:
-            print("Is your location constant? yes (no)", end="")
-        sys.stdout.flush()
-    constant_location_setting = [True, False][current]
+    s = (
+        colorama.Fore.GREEN
+        + "Is your location constant (i.e. is this computer stationary at all times)?"
+        + colorama.Fore.BLUE
+    )
+    if settings.CONSTANT_LOCATION:
+        default = 0
+    else:
+        default = 1
+    constant_location_setting = yes_no(s, default)
     settings.store_key("CONSTANT_LOCATION", constant_location_setting)
     time.sleep(0.1)
+    print()
+    s = (
+        colorama.Fore.GREEN
+        + "Should static resources (ascii art, weather code sentences, etc.) be auto-updated?"
+        + colorama.Fore.BLUE
+    )
+    if settings.AUTO_UPDATE_INTERNET_RESOURCES:
+        default = 0
+    else:
+        default = 1
+    auto_update_setting = yes_no(s, default)
+    settings.store_key("AUTO_UPDATE_INTERNET_RESOURCES", auto_update_setting)

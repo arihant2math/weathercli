@@ -82,11 +82,11 @@ async fn update_component(
     let mut file_expect = File::create(path);
     let retries = 0;
     while file_expect.is_err() {
-        if retries > 3 {
+        if retries > 30 {
             return Err(format!("Failed to create/open file '{}'", path));
         }
         file_expect = File::create(path);
-        thread::sleep(Duration::from_millis(1000));
+        thread::sleep(Duration::from_millis(100));
     }
     let mut file = file_expect.unwrap();
 

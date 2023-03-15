@@ -4,7 +4,6 @@ use pyo3::prelude::*;
 use sha256::try_digest;
 
 use crate::local::cache;
-
 pub mod backend;
 pub mod local;
 pub mod location;

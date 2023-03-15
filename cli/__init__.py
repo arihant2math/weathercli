@@ -7,10 +7,7 @@ from threading import Thread
 
 import colorama
 import core
-import requests
 import rich
-from core import WeatherFile
-from core import hash_file, networking
 from core.backend import WeatherForecast
 
 from cli.backend.meteo.meteo_forecast import MeteoForecast
@@ -23,47 +20,9 @@ from cli.layout.layout import Layout
 from cli.local import settings
 from cli.local.settings import (
     store_key,
-    WEATHER_DATA_HASH,
     LAYOUT_FILE,
     AUTO_UPDATE_INTERNET_RESOURCES,
 )
-
-
-def update_web_resource(local_path, web_path, name, dev=False):
-    if not dev:
-        f = WeatherFile(local_path)
-        file_hash = hash_file(f.path)
-        try:
-            web_hash = requests.get(
-                "https://arihant2math.github.io/weathercli/docs/index.json"
-            ).json()[name]
-        except Exception:
-            web_hash = file_hash
-        if (WEATHER_DATA_HASH != file_hash) or (web_hash != WEATHER_DATA_HASH):
-            print(colorama.Fore.YELLOW + "Downloading " + name + " update")
-            data = networking.get_url(web_path).text
-            f.data = data
-            f.write()
-            store_key(name, hash_file(f.path))
-    else:
-        f = WeatherFile(local_path)
-        f.data = open("./" + local_path).read()
-        f.write()
-
-
-def update_web_resources():
-    update_web_resource(
-        "weather_codes.json",
-        "https://arihant2math.github.io/weathercli/weather_codes.json",
-        "weather-codes-hash",
-        settings.DEVELOPMENT,
-    )
-    update_web_resource(
-        "weather_ascii_images.json",
-        "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
-        "weather-ascii-images-hash",
-        settings.DEVELOPMENT,
-    )
 
 
 def print_out(data: WeatherForecast, print_json: bool, metric: bool, logger: Logger):
@@ -101,10 +60,12 @@ def get_data_from_datasource(datasource, location, true_metric, logger: Logger):
         Path(os.path.expanduser("~/.weathercli/weather_codes.json"))
         or Path(os.path.expanduser("~/.weathercli/weather_ascii_images.json"))
     ):
-        update_web_resources()
+        core.updater.update_web_resources(settings.DEVELOPMENT)
     if AUTO_UPDATE_INTERNET_RESOURCES:
         logger.info("Updating web resources")
-        thread = Thread(target=update_web_resources)
+        thread = Thread(
+            target=core.updater.update_web_resources, args=[settings.DEVELOPMENT]
+        )
         thread.start()
     if datasource == "NWS":
         data = NationalWeatherServiceForecast(location, true_metric)

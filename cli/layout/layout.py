@@ -1,6 +1,7 @@
 import json
 from json import JSONDecodeError
 from logging import Logger
+from typing import Optional
 
 import colorama
 from core import WeatherFile
@@ -13,7 +14,12 @@ from cli.layout.util import LayoutException
 class Layout:
     version = 2
 
-    def __init__(self, file=None, text=None, logger: Logger = None):
+    def __init__(
+        self,
+        file: Optional[str] = None,
+        text: Optional[str] = None,
+        logger: Logger = None,
+    ):
         if file is not None:
             f = WeatherFile("layouts/" + file)
             try:
@@ -83,7 +89,7 @@ class Layout:
             except LayoutException as e:
                 raise LayoutException(e.message, count, e.item)
 
-    def to_string(self, data, metric: bool):
+    def to_string(self, data, metric: bool) -> str:
         s = []
         for count, row in enumerate(self._internal_layout):
             try:
