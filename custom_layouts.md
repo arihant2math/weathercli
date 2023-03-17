@@ -7,7 +7,7 @@ There are two major sections in the root of the json file, `defaults` and `layou
 Your json file should look like this:
 ```json
 {
-    "version": 0,
+    "version": 3,
     "defaults": {
         
     },
@@ -62,17 +62,24 @@ Each row contains `LayoutItems`, which are of the following format.
 
 The type can be either `text`, `variable`, or `function`
 
+#### Shorthand notation
+Simply use this in a string the place of a layout item
+* Text: `text here`
+* Variable: `@current_weather.wind.speed|mph|km/h` or `@region`
+* Function: `#bar` or `#color_aqi|5` or even `#color_aqi|@current_weather.aqi` or `#color_aqi|aqi=@current_weather.aqi`
 #### Text
 
 The data section should have a key `text` with the text you want to display.
 
 #### Variable
 
-The data section should have a key named `name` with the name of the variable you want to retrieve.
+The data section should have a key named `name` with the name of the variable you want to retrieve, variables are retrieved from a `WeatherData` class.
+
+
 
 #### Function
 
-Functions are retried from `cli/layout/util.py`
+Functions are gotten from `cli/layout/util.py`
 
 ## Things to note
 
