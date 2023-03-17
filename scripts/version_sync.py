@@ -4,7 +4,7 @@ import tomllib
 
 import tomli_w
 
-from scripts.path_helper import weathercli_dir
+from path_helper import weathercli_dir
 
 corelib_cargo_toml = weathercli_dir / "Cargo.toml"
 updater_cargo_toml = weathercli_dir / "updater" / "Cargo.toml"
