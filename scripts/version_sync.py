@@ -1,15 +1,14 @@
 import ast
 import datetime
-import os
 import tomllib
-from pathlib import Path
 
 import tomli_w
 
-weathercli_dir = Path(os.getcwd())
-corelib_cargo_toml = (weathercli_dir / "Cargo.toml")
-updater_cargo_toml = (weathercli_dir / "updater" / "Cargo.toml")
-cli_version = (weathercli_dir / "cli" / "version.py")
+from scripts.path_helper import weathercli_dir
+
+corelib_cargo_toml = weathercli_dir / "Cargo.toml"
+updater_cargo_toml = weathercli_dir / "updater" / "Cargo.toml"
+cli_version = weathercli_dir / "cli" / "version.py"
 now = datetime.datetime.now()
 version_string = "{}.{}.{}".format(now.year, now.month, now.day)
 t = tomllib.load(corelib_cargo_toml.open("rb"))

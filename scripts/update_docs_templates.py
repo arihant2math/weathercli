@@ -7,6 +7,7 @@ from zipfile import ZipFile
 import click
 import requests
 
+from path_helper import weathercli_dir
 from update_index_hashes import update_hash
 
 
@@ -26,11 +27,12 @@ def download_artifact(s, artifact_list, name, file):
         + str(artifact_id)
         + "/zip"
     )
-    with open("./tmp/" + file + ".zip", "wb") as f:
+    tmp_zip_file = weathercli_dir / ("tmp" + file + ".zip")
+    with tmp_zip_file.open("wb") as f:
         f.write(download.content)
-    with ZipFile("./tmp/" + file + ".zip") as z:
+    with ZipFile(str(tmp_zip_file)) as z:
         with z.open(file) as exe:
-            with open("./docs_templates/" + file, "wb") as out:
+            with (weathercli_dir / ("docs_templates" + file)).open("wb") as out:
                 out.write(exe.read())
 
 
@@ -81,19 +83,20 @@ def main(gh_token):
         print("Starting Windows Download (Daemon)")
         download_artifact(s, daemon_artifacts, "weatherd (Windows)", "weatherd.exe")
     shutil.rmtree("./tmp")
-    d = json.load(open("../docs_templates/index.json"))
+    d = json.load((weathercli_dir / "docs_templates" / "index.json").open())
     now = datetime.datetime.now()
     s = "{}.{}.{}".format(now.year, now.month, now.day)
     d["version"] = s
     d["updater-version"] = s
     d["daemon-version"] = s
-    json.dump(d, open("../docs_templates/index.json", "w"))
-    update_hash("../docs_templates/weather.exe", "weather-exe-hash-windows")
-    update_hash("../docs_templates/weather", "weather-exe-hash-unix")
-    update_hash("../docs_templates/updater.exe", "updater-exe-hash-windows")
-    update_hash("../docs_templates/updater", "updater-exe-hash-unix")
-    update_hash("../docs_templates/weatherd.exe", "weatherd-exe-hash-windows")
-    update_hash("../docs_templates/weatherd", "weatherd-exe-hash-unix")
+    json.dump(d, (weathercli_dir / "docs_templates" / "index.json").open("w"))
+    docs_templates_dir = weathercli_dir / "docs_templates"
+    update_hash(docs_templates_dir / "weather.exe", "weather-exe-hash-windows")
+    update_hash(docs_templates_dir / "weather", "weather-exe-hash-unix")
+    update_hash(docs_templates_dir / "updater.exe", "updater-exe-hash-windows")
+    update_hash(docs_templates_dir / "updater", "updater-exe-hash-unix")
+    update_hash(docs_templates_dir / "weatherd.exe", "weatherd-exe-hash-windows")
+    update_hash(docs_templates_dir / "weatherd", "weatherd-exe-hash-unix")
 
 
 if __name__ == "__main__":
