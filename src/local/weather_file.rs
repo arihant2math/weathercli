@@ -30,16 +30,17 @@ impl WeatherFile {
         }
         let file = File::open(path.display().to_string()).expect("File Open Failed");
         let mut buf_reader = BufReader::new(file);
-        let mut contents = String::new();
+        let mut data = String::new();
         buf_reader
-            .read_to_string(&mut contents)
+            .read_to_string(&mut data)
             .expect("Read failed");
         WeatherFile {
             path,
-            data: contents,
+            data,
         }
     }
 
+    /// Writes self.data to the file at self.path
     pub fn write(&self) {
         let f = File::options()
             .write(true)

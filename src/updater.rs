@@ -1,14 +1,14 @@
 use std::collections::HashMap;
+use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
 
 use pyo3::prelude::*;
-
-use crate::local::weather_file::WeatherFile;
-use crate::{hash_file, networking};
 use pyo3::pyfunction;
 use serde_json::Value;
-use std::fs;
+
+use crate::{hash_file, networking};
+use crate::local::weather_file::WeatherFile;
 
 /// Updates the web resource at $weathercli_dir/$local_path if the hash of the local file does not match with
 /// the hash at index.json of the index name, if the hashes do not match it download a copy and replaces the existing file
@@ -76,6 +76,7 @@ fn get_latest_updater_version() -> String {
     json.get("updater-version").expect("").to_string()
 }
 
+/// Downloads the OS specific updater
 #[pyfunction]
 fn get_updater(path: String) {
     if cfg!(windows) {
