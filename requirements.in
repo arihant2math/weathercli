@@ -1,10 +1,8 @@
 click
 Pillow
-geopy
 colorama
 maturin
 beautifulsoup4
-certifi
 plotext
 rich
 requests
