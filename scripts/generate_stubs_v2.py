@@ -31,20 +31,23 @@ class Function(Component):
         super().__init__(obj.__name__, obj.__doc__)
         try:
             self.signature = inspect.signature(obj)
-        except:
+        except ValueError as e:
+            print("WARNING: " + str(e))
             self.signature = inspect.signature(blank)
 
     def get_ast(self):
         arg = []
+        defaults = []
         for s in self.signature.parameters:
             if self.signature.parameters[s].default != Ellipsis:
                 arg.append(ast.arg(s))
             else:
                 arg.append(ast.arg(s))
+                defaults.append(ast.Constant(value=None))
         args = ast.arguments(
             posonlyargs=[],
             args=arg,
-            defaults=[],
+            defaults=defaults,
             kwonlyargs=[],
         )
         body = []
