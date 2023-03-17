@@ -1,5 +1,5 @@
-import requests
 from bs4 import BeautifulSoup
+from core import networking
 
 from cli.backend.theweatherchannel.the_weather_channel_current import (
     TheWeatherChannelCurrent,
@@ -10,19 +10,21 @@ from cli.backend.weather_forecast import WeatherForecast
 class TheWeatherChannelForecast(WeatherForecast):
     def __init__(self, loc, metric):
         region, country = self.get_location(loc)
-        session = requests.session()
         if not metric:
-            session.cookies.set("unitOfMeasurement", "e", domain="weather.com")
+            cookies = {"unitOfMeasurement": "e"}
         else:
-            session.cookies.set("unitOfMeasurement", "m", domain="weather.com")
-        r1 = session.get(
+            cookies = {"unitOfMeasurement", "m"}
+        r1 = networking.get_url(
             "https://weather.com/weather/today/l/" + loc[0] + "," + loc[1],
+            cookies=cookies,
         )
-        r2 = session.get(
+        r2 = networking.get_url(
             "https://weather.com/weather/hourbyhour/l/" + loc[0] + "," + loc[1],
+            cookies=cookies,
         )
-        r3 = session.get(
+        r3 = networking.get_url(
             "https://weather.com/forecast/air-quality/l/" + loc[0] + "," + loc[1],
+            cookies=cookies,
         )
         weather_soup = BeautifulSoup(r1.text, "html.parser")
         forecast_soup = BeautifulSoup(r2.text, "html.parser")

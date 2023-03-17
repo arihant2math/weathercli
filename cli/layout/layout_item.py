@@ -2,7 +2,7 @@ import os
 from urllib.parse import urlparse
 
 import colorama
-import requests
+import core
 
 from cli.layout.image_to_text import image_to_text
 from cli.layout.util import LayoutException
@@ -209,13 +209,13 @@ class LayoutItem:
             source = to_layout_item(self.value).get_value(data=kwargs["data"])
             is_uri = uri_validator(source)
             if is_uri:
-                response = requests.get(source)
+                response = core.networking.get_url(source)
                 f = open("temp.img", "bw")
-                f.write(response.content)
+                f.write(bytes(response.bytes))
                 f.close()
             try:
                 data = image_to_text("temp.img", self.item_data["scale"])
-            except Exception:
-                pass
+            except Exception as e:
+                print("Image to text failed: " + str(e))
             os.remove("temp.img")
             return data

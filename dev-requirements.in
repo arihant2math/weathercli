@@ -4,3 +4,4 @@ pyinstaller
 pip-tools
 pytest
 tomli-w
+requests

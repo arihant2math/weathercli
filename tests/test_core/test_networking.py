@@ -27,3 +27,8 @@ def test_get_urls():
         ["https://httpbin.org/get", "https://httpbin.org/user-agent"]
     )
     assert len(r) == 2
+
+
+def test_cookies():
+    r = networking.get_url("https://httpbin.org/cookies", cookies={"foo": "bar"})
+    assert json.loads(r.text) == {"cookies": {"foo": "bar"}}

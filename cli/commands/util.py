@@ -1,3 +1,4 @@
+import json
 import platform
 import subprocess
 import sys
@@ -7,7 +8,6 @@ from pathlib import Path
 import colorama
 import core
 import plotext
-import requests
 from click import argument, option, command
 from core import WeatherFile
 
@@ -61,9 +61,11 @@ def update(force):
             if not updater_location.exists():
                 print("Updater not found, downloading updater")
                 core.updater.get_updater(str(updater_location))
-            resp = requests.get(
-                "https://arihant2math.github.io/weathercli/docs/index.json"
-            ).json()
+            resp = json.loads(
+                core.networking.get_url(
+                    "https://arihant2math.github.io/weathercli/docs/index.json"
+                ).text
+            )
             if platform.system() == "Windows":
                 web_hash = resp["updater-exe-hash-windows"]
             else:

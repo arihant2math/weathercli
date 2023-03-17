@@ -2,6 +2,7 @@
 import math
 import time
 from datetime import datetime
+from typing import Union
 
 from core.backend import WeatherData
 from core.backend import WindData
@@ -47,13 +48,13 @@ class TheWeatherChannelCurrent(WeatherData):
 
     @staticmethod
     def get_air_quality(soup):
-        return int(
+        return TheWeatherChannelCurrent.strip_number(
             soup.find("text", attrs={"data-testid": "DonutChartValue"}).getText()
         )
 
     @staticmethod
     def get_temp(soup):
-        return int(
+        return TheWeatherChannelCurrent.strip_number(
             soup.find("div", attrs={"data-testid": "CurrentConditionsContainer"})
             .find("span", attrs={"data-testid": "TemperatureValue"})
             .getText()
@@ -68,4 +69,20 @@ class TheWeatherChannelCurrent(WeatherData):
             high_low[0] = math.nan
         if high_low[1] == "--":
             high_low[1] = math.nan
-        return float(high_low[0]), float(high_low[1])
+        return float(TheWeatherChannelCurrent.strip_number(high_low[0])), float(
+            TheWeatherChannelCurrent.strip_number(high_low[1])
+        )
+
+    @staticmethod
+    def strip_number(string: str) -> Union[int, float]:
+        string = str(string)
+        new_string = ""
+        if "." not in string:
+            for i in string:
+                if i.isdigit():
+                    new_string += i
+            if new_string == "":
+                return math.nan
+            return int(new_string)
+        else:
+            raise NotImplementedError("floats implementation TBD")

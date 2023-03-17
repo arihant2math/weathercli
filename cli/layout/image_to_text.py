@@ -17,11 +17,14 @@ def image_to_text(path: str, scale: float, super_scale=False):
         for y in range(0, image.width):
             colors = image.getpixel((y, x))
             out += rgb(colors[0], colors[1], colors[2])
-            if colors[3] > 0.7:
-                out += "█"
-            elif colors[3] > 0.2:
-                out += "#"
+            if len(colors) > 3:
+                if colors[3] > 0.7:
+                    out += "█"
+                elif colors[3] > 0.2:
+                    out += "#"
+                else:
+                    out += "."
             else:
-                out += "."
+                out += "█"
         out += "\n"
     return out

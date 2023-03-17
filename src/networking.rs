@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::str::FromStr;
+use std::sync::Arc;
 
 use pyo3::{pyclass, pyfunction, PyResult, Python, wrap_pyfunction};
 use pyo3::prelude::*;
@@ -30,11 +31,15 @@ pub fn get_url(
     url: String,
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
-    cookies: Option<Vec<String>>,
+    cookies: Option<HashMap<String, String>>,
 ) -> Resp {
-    let jar = Jar::default();
+    let jar: Jar = Jar::default();
     if let Some(cookies) = cookies {
-        for cookie in cookies {
+        let mut formatted_cookies: Vec<String> = Vec::new();
+        for (key, value) in cookies {
+            formatted_cookies.push(key + "=" + &value);
+        }
+        for cookie in formatted_cookies {
             jar.add_cookie_str(&cookie, &url.parse::<Url>().unwrap());
         }
     }
@@ -57,6 +62,7 @@ pub fn get_url(
     let client = client_pre
         .default_headers(header_map)
         .cookie_store(true)
+        .cookie_provider::<Jar>(Arc::new(jar))
         .build()
         .unwrap();
     let data = client.get(url).send().expect("Url Get failed");
@@ -78,9 +84,18 @@ pub fn get_url(
 /// Async retrival of multiple urls
 /// :param urls: the urls to retrieve
 #[pyfunction]
-pub fn get_urls(urls: Vec<String>) -> Vec<Resp> {
+pub fn get_urls(urls: Vec<String>, cookies: Option<Vec<String>>) -> Vec<Resp> {
+    let jar: Jar = Jar::default();
+    if let Some(cookies) = cookies {
+        for cookie in cookies {
+            for url in urls.clone() {
+                jar.add_cookie_str(&cookie, &url.parse::<Url>().unwrap());
+            }
+        }
+    }
     let client = reqwest::blocking::Client::builder()
         .cookie_store(true)
+        .cookie_provider::<Jar>(Arc::new(jar))
         .build()
         .unwrap();
     let data: Vec<_> = urls
