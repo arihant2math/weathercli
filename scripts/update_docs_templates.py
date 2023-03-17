@@ -37,8 +37,6 @@ def download_artifact(s, artifact_list, name, file):
 
 
 def filter_by_file(runs, file):
-    for run in runs:
-        print(run["path"])
     return [run for run in runs if (run["path"] == file)]
 
 
