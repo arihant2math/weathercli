@@ -165,12 +165,8 @@ def write(out_dir: Path, files):
     "out",
     # help="Name of the Python stub file to write to"
 )
-@click.option("--black", is_flag=True, help="Formats the generated stubs using Black")
-def main(module_name, out, black):
+def main(module_name, out):
     ast_gen: list[list] = Module(importlib.import_module(module_name)).get_ast()
-    if black:
-        pass
-        # stub_contents = [format_with_black(stub_content) for stub.text in stub_contents]
     write(Path(out), ast_gen)
 
 
