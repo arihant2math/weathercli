@@ -114,7 +114,13 @@ if __name__ == "__main__":
 
         def exception_handler(exception_type, exception, traceback):
             # No traceback
-            print(colorama.Fore.RED + "%s: %s" % (exception_type.__name__, exception))
+            print(
+                colorama.Fore.RED
+                + "Internal WeatherCli Error\nSomething went wrong\nDetails:\n%s: %s\nSet DEBUG "
+                "to true for a traceback by running weather config DEBUG true or manually "
+                "editing the settings file at ~/.weathercli/settings.json and setting the key "
+                "'DEBUG' to true." % (exception_type.__name__, exception)
+            )
 
         sys.excepthook = exception_handler
     main.add_command(config)
