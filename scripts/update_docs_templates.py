@@ -27,12 +27,12 @@ def download_artifact(s, artifact_list, name, file):
         + str(artifact_id)
         + "/zip"
     )
-    tmp_zip_file = weathercli_dir / ("tmp" + file + ".zip")
+    tmp_zip_file = weathercli_dir / "tmp" / (file + ".zip")
     with tmp_zip_file.open("wb") as f:
         f.write(download.content)
     with ZipFile(str(tmp_zip_file)) as z:
         with z.open(file) as exe:
-            with (weathercli_dir / ("docs_templates" + file)).open("wb") as out:
+            with (weathercli_dir / "docs_templates" / file).open("wb") as out:
                 out.write(exe.read())
 
 
@@ -74,7 +74,7 @@ def main(gh_token):
         download_artifact(s, artifacts, "weather (Windows)", "weather.exe")
     if updater_artifacts is not None:
         print("Starting Unix Download (Updater)")
-        download_artifact(s, updater_artifacts, "updater (Unix)", "../updater")
+        download_artifact(s, updater_artifacts, "updater (Unix)", "updater")
         print("Starting Windows Download (Updater)")
         download_artifact(s, updater_artifacts, "updater (Windows)", "updater.exe")
     if daemon_artifacts is not None:
