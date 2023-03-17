@@ -1,6 +1,6 @@
 [package]
 name = "updater"
-version = "2023.3.14"
+version = "2023.3.16"
 edition = "2021"
 
 [dependencies]
