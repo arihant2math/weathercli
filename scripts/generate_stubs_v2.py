@@ -1,7 +1,6 @@
 import ast
 import importlib
 import inspect
-import subprocess
 from pathlib import Path
 from typing import Union
 
@@ -85,9 +84,13 @@ class Cls(Component):
         for fn in self.functions:
             ast_def.body.append(fn.get_ast())
         for v in self.variables:
-            ast_def.body.append(ast.Assign(targets=[ast.Name(id=v.__name__, ctx=ast.Store())],
-                                           value=ast.Constant(value=Ellipsis),
-                                           lineno=0))
+            ast_def.body.append(
+                ast.Assign(
+                    targets=[ast.Name(id=v.__name__, ctx=ast.Store())],
+                    value=ast.Constant(value=Ellipsis),
+                    lineno=0,
+                )
+            )
         if len(ast_def.body) == 0:
             ast_def.body.append(ast.Expr(value=ast.Constant(value=Ellipsis)))
         return ast_def
@@ -135,13 +138,9 @@ def get_attributes(module) -> list[Component]:
 
 
 def format_with_black(code: str) -> str:
-    result = subprocess.run(
-        ["python", "-m", "black", "-t", "py38", "--pyi", "-"],
-        input=code.encode(),
-        capture_output=True,
-    )
-    result.check_returncode()
-    return result.stdout.decode()
+    from black import format_str, FileMode
+    result = format_str(code, mode=FileMode())
+    return result
 
 
 def write(out_dir: Path, files):

@@ -1,10 +1,8 @@
-import argparse
 import ast
 import importlib
 import inspect
 import logging
 import re
-import subprocess
 from typing import Set, List, Mapping, Any, Tuple, Union, Optional, Dict
 
 import click
@@ -456,13 +454,9 @@ def build_doc_comment(doc: str) -> ast.Expr:
 
 
 def format_with_black(code: str) -> str:
-    result = subprocess.run(
-        ["python", "-m", "black", "-t", "py37", "--pyi", "-"],
-        input=code.encode(),
-        capture_output=True,
-    )
-    result.check_returncode()
-    return result.stdout.decode()
+    from black import format_str, FileMode
+    result = format_str(code, mode=FileMode())
+    return result
 
 
 @click.command()
@@ -477,9 +471,6 @@ def format_with_black(code: str) -> str:
 @click.option("--black", is_flag=True, help="Formats the generated stubs using Black")
 def main(module_name, out, black):
     stub_content = ast.unparse(module_stubs(importlib.import_module(module_name)))
-    # stub_content = stub_content.replace(
-    #     ", /", ""
-    # )  # TODO: remove when targeting Python 3.8+
     if black:
         stub_content = format_with_black(stub_content)
     f = open(out, "w")
