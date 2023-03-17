@@ -14,7 +14,6 @@ use serde::Serialize;
 use sha256::try_digest;
 
 fn hash_file(filename: &str) -> String {
-    // let path = "./".to_string() + filename;
     let input = Path::new(filename);
     try_digest(input).unwrap()
 }
@@ -117,7 +116,7 @@ async fn update_component(
     Ok(())
 }
 
-fn update_needed_check(file: &str, web_hash: String) -> Result<bool, String> {
+fn is_update_needed_platform(file: &str, web_hash: String) -> Result<bool, String> {
     if Path::new(&file).exists() {
         let file_hash = hash_file(file);
         Ok(file_hash != web_hash)
@@ -126,18 +125,18 @@ fn update_needed_check(file: &str, web_hash: String) -> Result<bool, String> {
     }
 }
 
-async fn update_needed(index: IndexStruct, component: Component) -> Result<bool, String> {
+async fn is_update_needed(index: IndexStruct, component: Component) -> Result<bool, String> {
     if component == Component::Main {
         if cfg!(windows) {
-            return update_needed_check("weather.exe", index.weather_exe_hash_windows);
+            return is_update_needed_platform("weather.exe", index.weather_exe_hash_windows);
         } else if cfg!(unix) {
-            return update_needed_check("weather", index.weather_exe_hash_unix);
+            return is_update_needed_platform("weather", index.weather_exe_hash_unix);
         }
     } else if component == Component::Daemon {
         if cfg!(windows) {
-            return update_needed_check("weatherd.exe", index.weatherd_exe_hash_windows);
+            return is_update_needed_platform("weatherd.exe", index.weatherd_exe_hash_windows);
         } else if cfg!(unix) {
-            return update_needed_check("weatherd", index.weatherd_exe_hash_unix);
+            return is_update_needed_platform("weatherd", index.weatherd_exe_hash_unix);
         }
     }
     Ok(true)
@@ -167,7 +166,7 @@ async fn main() -> Result<(), String> {
         update_requests.push(Component::Main);
     }
     for component in update_requests {
-        if args.force || update_needed(json.clone(), component).await? {
+        if args.force || is_update_needed(json.clone(), component).await? {
             to_update.push(component)
         }
     }
@@ -202,10 +201,10 @@ async fn main() -> Result<(), String> {
         let path;
         if cfg!(windows) {
             url = "https://arihant2math.github.io/weathercli/docs/weatherd.exe";
-            path = "daemon.exe";
+            path = "weatherd.exe";
         } else if cfg!(unix) {
             url = "https://arihant2math.github.io/weathercli/docs/weatherd";
-            path = "daemon";
+            path = "weatherd";
         } else {
             return Err("OS unsupported".to_string());
         }
