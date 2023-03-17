@@ -9,7 +9,6 @@ import core
 import plotext
 import requests
 from click import argument, option, command
-
 from core import WeatherFile
 
 from cli import version
@@ -74,10 +73,10 @@ def update(force):
             print("Starting updater and exiting")
             if force:
                 subprocess.Popen(
-                    [updater_location, "--force"], cwd=str(application_path.parent)
+                    [str(updater_location), "--force"], cwd=str(application_path.parent)
                 )
             else:
-                subprocess.Popen([updater_location], cwd=str(application_path.parent))
+                subprocess.Popen([str(updater_location)], cwd=str(application_path.parent))
             sys.exit(0)
     else:
         print("Not implemented for non executable installs")
