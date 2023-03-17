@@ -1,7 +1,7 @@
 import json
 from json import JSONDecodeError
 from logging import Logger
-from typing import Optional
+from typing import Optional, Union
 
 import colorama
 from core import WeatherFile
@@ -17,7 +17,7 @@ class Layout:
     def __init__(
         self,
         file: Optional[str] = None,
-        text: Optional[str] = None,
+        text: Optional[Union[str, dict]] = None,
         logger: Logger = None,
     ):
         if file is not None:
