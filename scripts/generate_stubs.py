@@ -455,6 +455,7 @@ def build_doc_comment(doc: str) -> ast.Expr:
 
 def format_with_black(code: str) -> str:
     from black import format_str, FileMode
+
     result = format_str(code, mode=FileMode())
     return result
 

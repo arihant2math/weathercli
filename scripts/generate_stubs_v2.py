@@ -139,6 +139,7 @@ def get_attributes(module) -> list[Component]:
 
 def format_with_black(code: str) -> str:
     from black import format_str, FileMode
+
     result = format_str(code, mode=FileMode())
     return result
 
