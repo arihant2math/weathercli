@@ -26,9 +26,6 @@ def test_variable():
 
 
 def test_variable_shorthand():
-    layout_dict = {
-        "version": 3,
-        "layout": [["@[0].[0]"]]
-    }
+    layout_dict = {"version": 3, "layout": [["@[0].[0]"]]}
     layout = Layout(text=layout_dict)
     assert "foo" in layout.to_string([["foo", "buzz"], "bar"], False)

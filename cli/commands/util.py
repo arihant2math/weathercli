@@ -76,7 +76,9 @@ def update(force):
                     [str(updater_location), "--force"], cwd=str(application_path.parent)
                 )
             else:
-                subprocess.Popen([str(updater_location)], cwd=str(application_path.parent))
+                subprocess.Popen(
+                    [str(updater_location)], cwd=str(application_path.parent)
+                )
             sys.exit(0)
     else:
         print("Not implemented for non executable installs")
