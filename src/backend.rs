@@ -58,7 +58,7 @@ fn open_weather_map_get_combined_data_formatted(
         coordinates,
         metric,
     );
-    let n = networking::get_urls(urls);
+    let n = networking::get_urls(urls, None);
     let r1: OpenWeatherMapJson = serde_json::from_str(&n[0].text).expect("");
     let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(&n[1].text).expect("");
     let r3: OpenWeatherMapForecastJson = serde_json::from_str(&n[2].text).expect("");
