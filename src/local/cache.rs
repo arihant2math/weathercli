@@ -74,9 +74,9 @@ fn read(key: String) -> Option<String> {
             if current_key == key {
                 return Some(current_value.parse().unwrap());
             }
-            current_key = "".to_string();
-            current_value = "".to_string();
-            current_date = "".to_string();
+            current_key = String::from("");
+            current_value = String::from("");
+            current_date = String::from("");
             place = Place::Key;
         } else if b == 29 {
             place = Place::Value

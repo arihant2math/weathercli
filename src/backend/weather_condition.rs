@@ -28,7 +28,7 @@ impl WeatherCondition {
             .as_str()
             .expect("String expected")
             .to_string();
-        let image_url = "https://openweathermap.org/img/wn/".to_string()
+        let image_url = String::from("https://openweathermap.org/img/wn/")
             + code[2].clone().as_str().expect("String expected")
             + "@4x.png";
         let image_ascii = code[4].clone().as_str().unwrap().to_string();

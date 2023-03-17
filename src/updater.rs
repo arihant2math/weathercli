@@ -47,9 +47,9 @@ fn update_web_resource(local_path: String, web_path: String, name: String, dev: 
 #[pyfunction]
 fn update_web_resources(dev: bool) {
     update_web_resource(
-        "weather_codes.json".to_string(),
-        "https://arihant2math.github.io/weathercli/weather_codes.json".to_string(),
-        "weather-codes-hash".to_string(),
+        String::from("weather_codes.json"),
+        String::from("https://arihant2math.github.io/weathercli/weather_codes.json"),
+        String::from("weather-codes-hash"),
         dev,
     );
     update_web_resource(

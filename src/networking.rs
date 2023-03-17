@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use pyo3::{pyclass, pyfunction, PyResult, Python, wrap_pyfunction};
 use pyo3::prelude::*;
-use pyo3::{pyclass, pyfunction, wrap_pyfunction, PyResult, Python};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use reqwest::cookie::Jar;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
@@ -12,11 +12,13 @@ use reqwest::Url;
 #[derive(Clone)]
 pub struct Resp {
     #[pyo3(get)]
-    url: String,
+    pub url: String,
     #[pyo3(get)]
-    status: u16,
+    pub status: u16,
     #[pyo3(get)]
-    pub(crate) text: String,
+    pub text: String,
+    #[pyo3(get)]
+    pub bytes: Vec<u8>,
 }
 
 /// :param url: the url to retrieve
@@ -58,10 +60,18 @@ pub fn get_url(
         .build()
         .unwrap();
     let data = client.get(url).send().expect("Url Get failed");
+    let url = data.url().to_string();
+    let status = data.status().as_u16();
+    let bytes = data.bytes().unwrap().to_vec();
+    let mut text = String::from("");
+    for byte in bytes.clone() {
+        text += &(byte as char).to_string();
+    }
     Resp {
-        url: data.url().to_string(),
-        status: data.status().as_u16(),
-        text: data.text().expect("Text Expected"),
+        url,
+        status,
+        text,
+        bytes,
     }
 }
 
@@ -77,10 +87,18 @@ pub fn get_urls(urls: Vec<String>) -> Vec<Resp> {
         .par_iter()
         .map(|url| {
             let data = client.get(url).send().unwrap();
+            let url = data.url().to_string();
+            let status = data.status().as_u16();
+            let bytes = data.bytes().unwrap().to_vec();
+            let mut text = String::from("");
+            for byte in bytes.clone() {
+                text += &(byte as char).to_string();
+            }
             Resp {
-                url: data.url().to_string(),
-                status: data.status().as_u16(),
-                text: data.text().expect("Text Expected"),
+                url,
+                status,
+                text,
+                bytes,
             }
         })
         .collect();

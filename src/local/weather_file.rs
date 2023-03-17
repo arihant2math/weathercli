@@ -31,13 +31,8 @@ impl WeatherFile {
         let file = File::open(path.display().to_string()).expect("File Open Failed");
         let mut buf_reader = BufReader::new(file);
         let mut data = String::new();
-        buf_reader
-            .read_to_string(&mut data)
-            .expect("Read failed");
-        WeatherFile {
-            path,
-            data,
-        }
+        buf_reader.read_to_string(&mut data).expect("Read failed");
+        WeatherFile { path, data }
     }
 
     /// Writes self.data to the file at self.path
