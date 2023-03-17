@@ -1,6 +1,6 @@
 use core::local::weather_file::WeatherFile;
-use std::env::current_exe;
 use std::{thread, time};
+use std::env::current_exe;
 
 use auto_launch::AutoLaunchBuilder;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -23,7 +23,7 @@ fn main() {
     let sleep_duration = time::Duration::from_secs(60);
     loop {
         println!("Updating Data ...");
-        let w = WeatherFile::new("downloader_urls.txt".to_string());
+        let w = WeatherFile::new("downloader_urls.list".to_string());
         let urls_split = w.data.split('\n');
         let urls = urls_split.collect::<Vec<&str>>();
         let data: Vec<_> = urls
@@ -39,6 +39,7 @@ fn main() {
         let joined =
             core::local::cache::get_date_string() + "\n\n\n\n\n" + &*data.join("\n\n\n\n\n");
         out.data = joined;
+        out.write();
         thread::sleep(sleep_duration);
     }
 }
