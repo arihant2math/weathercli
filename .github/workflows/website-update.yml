@@ -15,6 +15,7 @@ jobs:
             pip install requests
             pip install click
         - name: Install corelib
+          run: |
             maturin build -r
             for file in target/wheels/*.whl
             do
