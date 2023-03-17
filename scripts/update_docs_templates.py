@@ -37,6 +37,8 @@ def download_artifact(s, artifact_list, name, file):
 
 
 def filter_by_file(runs, file):
+    for run in runs:
+        print(run["path"])
     return [run for run in runs if (run["path"] == file)]
 
 
@@ -51,9 +53,9 @@ def main(gh_token):
         "https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=100&status=completed"
     )
     runs = get_run_id.json()["workflow_runs"]
-    ci = filter_by_file(runs, "../.github/workflows/build.yml")
-    updater_ci = filter_by_file(runs, "../.github/workflows/build-updater.yml")
-    daemon_ci = filter_by_file(runs, "../.github/workflows/build-daemon.yml")
+    ci = filter_by_file(runs, ".github/workflows/build.yml")
+    updater_ci = filter_by_file(runs, ".github/workflows/build-updater.yml")
+    daemon_ci = filter_by_file(runs, ".github/workflows/build-daemon.yml")
     artifacts = None
     updater_artifacts = None
     daemon_artifacts = None
