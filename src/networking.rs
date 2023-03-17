@@ -22,6 +22,22 @@ pub struct Resp {
     pub bytes: Vec<u8>,
 }
 
+
+fn get_header_map(headers: Option<HashMap<String, String>>) -> HeaderMap {
+    let mut header_map = HeaderMap::new();
+    let mut heads = HashMap::new();
+    if let Some(h) = headers {
+        heads = h
+    }
+    for (k, v) in heads {
+        header_map.insert(
+            HeaderName::from_str(&k).expect(""),
+            HeaderValue::from_str(&v).expect(""),
+        );
+    }
+    header_map
+}
+
 /// :param url: the url to retrieve
 /// :param user_agent: the user agent to use, weathercli/1 by default
 /// :param headers: optional dictionary with headers in it
@@ -48,17 +64,7 @@ pub fn get_url(
         app_user_agent = user_agent
     }
     let client_pre = reqwest::blocking::Client::builder().user_agent(app_user_agent);
-    let mut header_map = HeaderMap::new();
-    let mut heads = HashMap::new();
-    if let Some(h) = headers {
-        heads = h
-    }
-    for (k, v) in heads {
-        header_map.insert(
-            HeaderName::from_str(&k).expect(""),
-            HeaderValue::from_str(&v).expect(""),
-        );
-    }
+    let header_map = get_header_map(headers);
     let client = client_pre
         .default_headers(header_map)
         .cookie_store(true)
@@ -83,17 +89,33 @@ pub fn get_url(
 
 /// Async retrival of multiple urls
 /// :param urls: the urls to retrieve
+/// :param user_agent: the user agent to use, weathercli/1 by default
+/// :param headers: optional dictionary with headers in it
+/// :param cookies: optional list of cookies
 #[pyfunction]
-pub fn get_urls(urls: Vec<String>, cookies: Option<Vec<String>>) -> Vec<Resp> {
+pub fn get_urls(urls: Vec<String>, user_agent: Option<String>,
+    headers: Option<HashMap<String, String>>,
+    cookies: Option<HashMap<String, String>>) -> Vec<Resp> {
     let jar: Jar = Jar::default();
     if let Some(cookies) = cookies {
-        for cookie in cookies {
+        let mut formatted_cookies: Vec<String> = Vec::new();
+        for (key, value) in cookies {
+            formatted_cookies.push(key + "=" + &value);
+        }
+        for cookie in formatted_cookies {
             for url in urls.clone() {
                 jar.add_cookie_str(&cookie, &url.parse::<Url>().unwrap());
             }
         }
     }
+    let mut app_user_agent = "weathercli/1".to_string();
+    if let Some(user_agent) = user_agent {
+        app_user_agent = user_agent
+    }
+    let header_map = get_header_map(headers);
     let client = reqwest::blocking::Client::builder()
+        .default_headers(header_map)
+        .user_agent(app_user_agent)
         .cookie_store(true)
         .cookie_provider::<Jar>(Arc::new(jar))
         .build()
