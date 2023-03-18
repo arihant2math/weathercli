@@ -14,13 +14,8 @@ jobs:
           run:
             pip install -r requirements.txt
         - name: Install corelib
-          run: |
-            maturin build -r
-            for file in target/wheels/*.whl
-            do
-              name=${file##*/}
-              pip install "$file"
-            end
+          run:
+            maturin develop -r
         - name: Update Executables
           run:
             python3 update_docs_templates.py "$GH_API_PAT"
