@@ -1,10 +1,12 @@
 import ast
 import importlib
 import inspect
+from difflib import context_diff
 from pathlib import Path
 from typing import Union
 
 import click
+import colorama
 
 
 class PyModule:
@@ -27,12 +29,13 @@ def blank():
 
 
 class Function(Component):
-    def __init__(self, obj):
+    def __init__(self, obj, supress_warnings):
         super().__init__(obj.__name__, obj.__doc__)
         try:
             self.signature = inspect.signature(obj)
         except ValueError as e:
-            print("WARNING: " + str(e))
+            if not supress_warnings:
+                print(colorama.Fore.YELLOW + "WARNING: " + str(e))
             self.signature = inspect.signature(blank)
 
     def get_ast(self):
@@ -64,11 +67,11 @@ class Function(Component):
 
 
 class Cls(Component):
-    def __init__(self, obj):
+    def __init__(self, obj, supress_warnings):
         super().__init__(obj.__name__, obj.__doc__)
         self.attributes = dir(obj)
         self.functions = [
-            Function(getattr(obj, a))
+            Function(getattr(obj, a), supress_warnings)
             for a in self.attributes
             if (inspect.isroutine(getattr(obj, a))) or (obj in ["__new__"])
         ]
@@ -100,9 +103,10 @@ class Cls(Component):
 
 
 class Module(Component):
-    def __init__(self, obj):
+    def __init__(self, obj, supress_warnings):
         super().__init__(obj.__name__, obj.__doc__)
-        self.children = get_attributes(obj)
+        self.children = get_attributes(obj, supress_warnings)
+        self.supress_warnings = supress_warnings
 
     def __str__(self):
         return str(self.children)
@@ -123,7 +127,7 @@ class Module(Component):
         return aux
 
 
-def get_attributes(module) -> list[Component]:
+def get_attributes(module, supress_warnings) -> list[Component]:
     all_components = dir(module)
     real_components = []
     for component in all_components:
@@ -132,11 +136,11 @@ def get_attributes(module) -> list[Component]:
         # hasattr(real_component, "__all__"), inspect.isclass(real_component))
         if component != "sys" and component != module.__name__:
             if inspect.ismodule(real_component):
-                real_components.append(Module(real_component))
+                real_components.append(Module(real_component, supress_warnings))
             elif inspect.isclass(real_component):
-                real_components.append(Cls(real_component))
+                real_components.append(Cls(real_component, supress_warnings))
             elif inspect.isroutine(real_component):
-                real_components.append(Function(real_component))
+                real_components.append(Function(real_component, supress_warnings))
     return real_components
 
 
@@ -147,11 +151,26 @@ def format_with_black(code: str) -> str:
     return result
 
 
-def write(out_dir: Path, files):
+def write(out_dir: Path, files, print_diff_files=True, print_file_diffs=False):
     out_dir.mkdir(exist_ok=True)
     for file in files:
         if isinstance(file[1], ast.Module):
-            (out_dir / (file[0] + ".pyi")).open("w").write(ast.unparse(file[1]))
+            out_file = (out_dir / (file[0] + ".pyi"))
+            if out_file.exists():
+                original = out_file.open("r").read()
+                new = ast.unparse(file[1])
+                if new != original:
+                    if print_diff_files:
+                        print(colorama.Fore.BLUE + "Updated " + str(out_file))
+                    if print_file_diffs:
+                        diff = context_diff(original.split("\n"), new.split("\n"), lineterm='\n')
+                        for d in diff:
+                            print(colorama.Fore.RESET + d)
+                out_file.open("w").write(new)
+            else:
+                if print_diff_files:
+                    print(colorama.Fore.GREEN + "Created " + str(out_file))
+                out_file.open("w").write(ast.unparse(file[1]))
         else:
             write(out_dir / file[0], file[1])
 
@@ -165,9 +184,12 @@ def write(out_dir: Path, files):
     "out",
     # help="Name of the Python stub file to write to"
 )
-def main(module_name, out):
-    ast_gen: list[list] = Module(importlib.import_module(module_name)).get_ast()
-    write(Path(out), ast_gen)
+@click.option("--supress-warnings", is_flag=True, help="Don't show the files that have changed")
+@click.option("--no-file-diff", is_flag=True, help="Don't show the files that have changed")
+@click.option("--show-diff", is_flag=True, help="Show the diff of the files")
+def main(module_name, out, supress_warnings, no_file_diff, show_diff):
+    ast_gen: list[list] = Module(importlib.import_module(module_name), supress_warnings).get_ast()
+    write(Path(out), ast_gen, not no_file_diff, show_diff)
 
 
 if __name__ == "__main__":
