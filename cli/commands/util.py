@@ -70,7 +70,7 @@ def update(force):
                 web_hash = resp["updater-exe-hash-windows"]
             else:
                 web_hash = resp["updater-exe-hash-unix"]
-            if core.hash_file(updater_location.absolute()) != web_hash:
+            if core.hash_file(str(updater_location.absolute())) != web_hash:
                 core.updater.get_updater(str(updater_location))
             print("Starting updater and exiting")
             if force:
