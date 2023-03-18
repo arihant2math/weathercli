@@ -33,7 +33,7 @@ def parse_row_string(row_string: str) -> LayoutRow:
 
 
 class LayoutFile:
-    version = 2
+    version = 3
 
     def __init__(
         self,

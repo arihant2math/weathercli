@@ -1,5 +1,5 @@
 layout = {
-    "version": 2,
+    "version": 3,
     "layout": [
         ["Weather for ", "@region", ", ", "@country"],
         [
