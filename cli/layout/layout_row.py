@@ -1,9 +1,11 @@
+import json
+
 from cli.layout.layout_item import to_layout_item
 from cli.layout.util import Util, LayoutException
 
 
 class LayoutRow:
-    def __init__(self, row_data):
+    def __init__(self, row_data: list):
         if type(row_data) != list:
             raise LayoutException("Type of row_data is not list")
         self.items = []
@@ -32,3 +34,7 @@ class LayoutRow:
             except LayoutException as e:
                 raise LayoutException(e.message, item=count + 1)
         return s
+
+    def __str__(self):
+        s = [item.item_data for item in self.items]
+        return json.dumps(s)

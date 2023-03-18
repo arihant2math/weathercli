@@ -8,7 +8,7 @@ from cli.layout.image_to_text import image_to_text
 from cli.layout.util import LayoutException
 
 
-def parse_string(data: str):
+def parse_item_string(data: str):
     if data[0] == "@":
         data = data[1 : len(data)]
         split = data.split("|")
@@ -47,7 +47,7 @@ def parse_string(data: str):
 
 def to_layout_item(data):
     if type(data) in [str]:
-        return parse_string(data)
+        return parse_item_string(data)
     elif type(data) in [int, float]:
         return LayoutItem({"type": "text", "value": str(data)})
     elif type(data) != dict:
@@ -219,3 +219,6 @@ class LayoutItem:
                 print("Image to text failed: " + str(e))
             os.remove("temp.img")
             return data
+
+    def __str__(self):
+        return str(self.item_data)

@@ -16,7 +16,7 @@ from cli.backend.openweathermap.openweathermap_forecast import OpenWeatherMapFor
 from cli.backend.theweatherchannel.the_weather_channel_forecast import (
     TheWeatherChannelForecast,
 )
-from cli.layout.layout import Layout
+from cli.layout.layout_file import LayoutFile
 from cli.local import settings
 from cli.local.settings import (
     store_key,
@@ -49,7 +49,7 @@ def print_out(data: WeatherForecast, print_json: bool, metric: bool, logger: Log
             print(e)
             print(data.raw_data)
     elif data.status == 0:
-        out = Layout(LAYOUT_FILE, logger=logger)
+        out = LayoutFile(LAYOUT_FILE, logger=logger)
         print(out.to_string(data, metric))
     else:
         print(color.RED + data.raw_data["message"] + color.RESET, end="")
@@ -84,3 +84,11 @@ def get_data_from_datasource(datasource, location, true_metric, logger: Logger):
         thread.join()
     sys.stdout.flush()
     return data
+
+
+def get_alerts(location):
+    r = core.networking.get_url(
+        "https://api.weather.gov/alerts/active?status=actual&point={}%2C{}&limit=500"
+        "".format(location[0], location[1])
+    )
+    return r

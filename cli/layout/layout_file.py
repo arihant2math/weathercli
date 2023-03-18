@@ -11,7 +11,28 @@ from cli.layout.layout_row import LayoutRow
 from cli.layout.util import LayoutException
 
 
-class Layout:
+def parse_row_string(row_string: str) -> LayoutRow:
+    item_list = []
+    previous_char = ""
+    current = ""
+    for c in row_string:
+        if c == "{" and previous_char != "\\":
+            item_list.append(current)
+            current = ""
+            previous_char = ""
+        elif c == "}" and previous_char != "\\":
+            item_list.append(current)
+            current = ""
+            previous_char = ""
+        else:
+            current += c
+            previous_char = c
+    if current != "":
+        item_list.append(current)
+    return LayoutRow(item_list)
+
+
+class LayoutFile:
     version = 2
 
     def __init__(
@@ -85,7 +106,12 @@ class Layout:
         self._internal_layout = []
         for count, row in enumerate(self.layout):
             try:
-                self._internal_layout.append(LayoutRow(row))
+                if row == list:
+                    self._internal_layout.append(LayoutRow(row))
+                elif row == str:
+                    self._internal_layout.append(parse_row_string(row))
+                else:
+                    raise LayoutException("Type of row is not a list or string")
             except LayoutException as e:
                 raise LayoutException(e.message, count, e.item)
 

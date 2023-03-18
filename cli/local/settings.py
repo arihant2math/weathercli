@@ -68,6 +68,7 @@ AUTO_UPDATE_INTERNET_RESOURCES = get_key_fast(
 )
 DEBUG = get_key_fast(data, "DEBUG", False)
 DEVELOPMENT = get_key_fast(data, "DEVELOPMENT", False)
+SHOW_ALERTS = get_key_fast(data, "SHOW_ALERTS", False)
 if type(DEFAULT_BACKEND) != str:
     print("Invalid Default Backend, defaulting to Meteo")
     DEFAULT_BACKEND = "METEO"

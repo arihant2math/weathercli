@@ -8,7 +8,7 @@
 | Min/Max               | Yes                 | Partial             | Yes                     | Yes                         |
 | Cloud Data            | Yes                 | No                  | Yes                     | Yes                         |
 | Conditions Sentence   | Yes                 | No                  | Yes                     | Yes                         |
-| Special Conditions    | No†                 | No                  | No                      | Yes                         |
+| Special Conditions    | No†                 | No                  | No                      | Partial†                    |
 | Forecast Sentence     | No                  | No                  | Yes                     | Yes                         |
 | API Key Required      | No                  | No                  | No                      | Yes                         |
 | AQI                   | No                  | Yes                 | Yes                     | Yes                         |

@@ -75,24 +75,41 @@ def main(gh_token):
     wd = None
     if artifacts is not None:
         print("Starting Unix Download")
-        u = threading.Thread(target=download_artifact, args=(s, artifacts, "weather (Unix)", "weather"))
+        u = threading.Thread(
+            target=download_artifact, args=(s, artifacts, "weather (Unix)", "weather")
+        )
         u.start()
         print("Starting Windows Download")
-        w = threading.Thread(target=download_artifact, args=(s, artifacts, "weather (Windows)", "weather.exe"))
+        w = threading.Thread(
+            target=download_artifact,
+            args=(s, artifacts, "weather (Windows)", "weather.exe"),
+        )
         w.start()
     if updater_artifacts is not None:
         print("Starting Unix Download (Updater)")
-        uu = threading.Thread(target=download_artifact, args=(s, updater_artifacts, "updater (Unix)", "updater"))
+        uu = threading.Thread(
+            target=download_artifact,
+            args=(s, updater_artifacts, "updater (Unix)", "updater"),
+        )
         uu.start()
         print("Starting Windows Download (Updater)")
-        wu = threading.Thread(target=download_artifact, args=(s, updater_artifacts, "updater (Windows)", "updater.exe"))
+        wu = threading.Thread(
+            target=download_artifact,
+            args=(s, updater_artifacts, "updater (Windows)", "updater.exe"),
+        )
         wu.start()
     if daemon_artifacts is not None:
         print("Starting Unix Download (Daemon)")
-        ud = threading.Thread(target=download_artifact, args=(s, daemon_artifacts, "weatherd (Unix)", "weatherd"))
+        ud = threading.Thread(
+            target=download_artifact,
+            args=(s, daemon_artifacts, "weatherd (Unix)", "weatherd"),
+        )
         ud.start()
         print("Starting Windows Download (Daemon)")
-        wd = threading.Thread(target=download_artifact, args=(s, daemon_artifacts, "weatherd (Windows)", "weatherd.exe"))
+        wd = threading.Thread(
+            target=download_artifact,
+            args=(s, daemon_artifacts, "weatherd (Windows)", "weatherd.exe"),
+        )
         wd.start()
     if u is not None:
         u.join()

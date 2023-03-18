@@ -155,7 +155,7 @@ def write(out_dir: Path, files, print_diff_files=True, print_file_diffs=False):
     out_dir.mkdir(exist_ok=True)
     for file in files:
         if isinstance(file[1], ast.Module):
-            out_file = (out_dir / (file[0] + ".pyi"))
+            out_file = out_dir / (file[0] + ".pyi")
             if out_file.exists():
                 original = out_file.open("r").read()
                 new = ast.unparse(file[1])
@@ -163,7 +163,9 @@ def write(out_dir: Path, files, print_diff_files=True, print_file_diffs=False):
                     if print_diff_files:
                         print(colorama.Fore.BLUE + "Updated " + str(out_file))
                     if print_file_diffs:
-                        diff = context_diff(original.split("\n"), new.split("\n"), lineterm='\n')
+                        diff = context_diff(
+                            original.split("\n"), new.split("\n"), lineterm="\n"
+                        )
                         for d in diff:
                             print(colorama.Fore.RESET + d)
                 out_file.open("w").write(new)
@@ -184,11 +186,17 @@ def write(out_dir: Path, files, print_diff_files=True, print_file_diffs=False):
     "out",
     # help="Name of the Python stub file to write to"
 )
-@click.option("--supress-warnings", is_flag=True, help="Don't show the files that have changed")
-@click.option("--no-file-diff", is_flag=True, help="Don't show the files that have changed")
+@click.option(
+    "--supress-warnings", is_flag=True, help="Don't show the files that have changed"
+)
+@click.option(
+    "--no-file-diff", is_flag=True, help="Don't show the files that have changed"
+)
 @click.option("--show-diff", is_flag=True, help="Show the diff of the files")
 def main(module_name, out, supress_warnings, no_file_diff, show_diff):
-    ast_gen: list[list] = Module(importlib.import_module(module_name), supress_warnings).get_ast()
+    ast_gen: list[list] = Module(
+        importlib.import_module(module_name), supress_warnings
+    ).get_ast()
     write(Path(out), ast_gen, not no_file_diff, show_diff)
 
 
