@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import shutil
+import threading
 from zipfile import ZipFile
 
 import click
@@ -66,22 +67,45 @@ def main(gh_token):
     if len(daemon_ci) > 0:
         latest_daemon_run_id = daemon_ci[0]["id"]
         daemon_artifacts = get_artifact_urls(s, latest_daemon_run_id)
-
+    u = None
+    w = None
+    uu = None
+    wu = None
+    ud = None
+    wd = None
     if artifacts is not None:
         print("Starting Unix Download")
-        download_artifact(s, artifacts, "weather (Unix)", "weather")
+        u = threading.Thread(target=download_artifact, args=(s, artifacts, "weather (Unix)", "weather"))
+        u.start()
         print("Starting Windows Download")
-        download_artifact(s, artifacts, "weather (Windows)", "weather.exe")
+        w = threading.Thread(target=download_artifact, args=(s, artifacts, "weather (Windows)", "weather.exe"))
+        w.start()
     if updater_artifacts is not None:
         print("Starting Unix Download (Updater)")
-        download_artifact(s, updater_artifacts, "updater (Unix)", "updater")
+        uu = threading.Thread(target=download_artifact, args=(s, updater_artifacts, "updater (Unix)", "updater"))
+        uu.start()
         print("Starting Windows Download (Updater)")
-        download_artifact(s, updater_artifacts, "updater (Windows)", "updater.exe")
+        wu = threading.Thread(target=download_artifact, args=(s, updater_artifacts, "updater (Windows)", "updater.exe"))
+        wu.start()
     if daemon_artifacts is not None:
         print("Starting Unix Download (Daemon)")
-        download_artifact(s, daemon_artifacts, "weatherd (Unix)", "weatherd")
+        ud = threading.Thread(target=download_artifact, args=(s, daemon_artifacts, "weatherd (Unix)", "weatherd"))
+        ud.start()
         print("Starting Windows Download (Daemon)")
-        download_artifact(s, daemon_artifacts, "weatherd (Windows)", "weatherd.exe")
+        wd = threading.Thread(target=download_artifact, args=(s, daemon_artifacts, "weatherd (Windows)", "weatherd.exe"))
+        wd.start()
+    if u is not None:
+        u.join()
+    if w is not None:
+        w.join()
+    if uu is not None:
+        uu.join()
+    if wu is not None:
+        wu.join()
+    if ud is not None:
+        ud.join()
+    if wd is not None:
+        wd.join()
     shutil.rmtree("./tmp")
     d = json.load((weathercli_dir / "docs_templates" / "index.json").open())
     now = datetime.datetime.now()
