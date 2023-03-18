@@ -1,7 +1,7 @@
 -r requirements.in
 black
-pyinstaller
 pip-tools
+pyinstaller
 pytest
-tomli-w
 requests
+tomli-w
