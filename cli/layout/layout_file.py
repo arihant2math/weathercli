@@ -106,9 +106,9 @@ class LayoutFile:
         self._internal_layout = []
         for count, row in enumerate(self.layout):
             try:
-                if row == list:
+                if type(row) == list:
                     self._internal_layout.append(LayoutRow(row))
-                elif row == str:
+                elif type(row) == str:
                     self._internal_layout.append(parse_row_string(row))
                 else:
                     raise LayoutException("Type of row is not a list or string")
