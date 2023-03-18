@@ -4,8 +4,9 @@ import subprocess
 from pathlib import Path
 
 import click
+import colorama
 
-from scripts.generate_stubs_v2 import Module, write
+from generate_stubs_v2 import Module, write
 
 
 @click.group()
@@ -62,21 +63,23 @@ def docs():
     shutil.copyfile("./docs_templates/weatherd.exe", "./docs/weatherd.exe")
     shutil.copyfile("./docs_templates/weatherd", "./docs/weatherd")
     shutil.copyfile("./docs_templates/theme.js", "./docs/theme.js")
-    print("Done!")
+    print(colorama.Fore.GREEN + "Done!")
 
 
 @main.command("stubs")
-@click.argument("out")
-def stubs(out):
-    ast_gen: list[list] = Module(importlib.import_module("core")).get_ast()
-    write(Path(out), ast_gen)
-    print("Done!")
+def stubs():
+    ast_gen: list[list] = Module(importlib.import_module("core"), False).get_ast()
+    write(Path("./venv/Lib/site-packages/core/"), ast_gen, True, False)
+    print(colorama.Fore.GREEN + "Done!")
 
 
-@main.command("build")
+@main.command("rust")
 def rust():
     subprocess.Popen(["maturin", "develop" "-r"])
+    ast_gen: list[list] = Module(importlib.import_module("core"), True).get_ast()
+    write(Path("./venv/Lib/site-packages/core/"), ast_gen, True, False)
     subprocess.Popen(["pyinstaller", "-F", "weather.py", "-i", "./icon/icon.png"])
+    print(colorama.Fore.GREEN + "Done!")
 
 
 if __name__ == "__main__":
