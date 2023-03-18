@@ -20,6 +20,7 @@ jobs:
             do
               name=${file##*/}
               pip install "$file"
+            end
         - name: Update Executables
           run:
             python3 update_docs_templates.py "$GH_API_PAT"
