@@ -3,5 +3,4 @@ black
 pip-tools
 pyinstaller
 pytest
-requests
 tomli-w

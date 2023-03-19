@@ -6,7 +6,7 @@ import threading
 from zipfile import ZipFile
 
 import click
-import requests
+import core.networking
 
 from path_helper import weathercli_dir
 from update_index_hashes import update_hash
@@ -18,7 +18,7 @@ def get_artifact_urls(s, run_id):
         + str(run_id)
         + "/artifacts"
     )
-    return artifact_request.json()["artifacts"]
+    return json.loads(artifact_request.text)["artifacts"]
 
 
 def download_artifact(s, artifact_list, name, file):
@@ -30,7 +30,7 @@ def download_artifact(s, artifact_list, name, file):
     )
     tmp_zip_file = weathercli_dir / "tmp" / (file + ".zip")
     with tmp_zip_file.open("wb") as f:
-        f.write(download.content)
+        f.write(bytes(download.bytes))
     with ZipFile(str(tmp_zip_file)) as z:
         with z.open(file) as exe:
             with (weathercli_dir / "docs_templates" / file).open("wb") as out:
@@ -46,12 +46,12 @@ def filter_by_file(runs, file):
 def main(gh_token):
     if not os.path.exists("./tmp"):
         os.makedirs("./tmp")
-    s = requests.Session()
-    s.auth = ("token", gh_token)
+    headers = {"Authorization": "Bearer " + gh_token}
+    s = core.networking.Session(headers=headers)
     get_run_id = s.get(
         "https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=100&status=completed"
     )
-    runs = get_run_id.json()["workflow_runs"]
+    runs = json.loads(get_run_id.text)["workflow_runs"]
     ci = filter_by_file(runs, ".github/workflows/build.yml")
     updater_ci = filter_by_file(runs, ".github/workflows/build-updater.yml")
     daemon_ci = filter_by_file(runs, ".github/workflows/build-daemon.yml")
