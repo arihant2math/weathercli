@@ -32,26 +32,34 @@ class Function(Component):
     def __init__(self, obj, supress_warnings):
         super().__init__(obj.__name__, obj.__doc__)
         try:
-            self.signature = inspect.signature(obj)
-        except ValueError as e:
+            self.signature = inspect.getfullargspec(obj)
+        except TypeError as e:
             if not supress_warnings:
                 print(colorama.Fore.YELLOW + "WARNING: " + str(e))
-            self.signature = inspect.signature(blank)
+            self.signature = inspect.getfullargspec(blank)
 
     def get_ast(self):
         arg = []
-        defaults = []
-        for s in self.signature.parameters:
-            if self.signature.parameters[s].default != Ellipsis:
+        for s in self.signature.args:
+            if s not in (self.signature.varargs, self.signature.varkw):
                 arg.append(ast.arg(s))
-            else:
-                arg.append(ast.arg(s))
-                defaults.append(ast.Constant(value=None))
+        if self.signature.defaults is not None:
+            defaults = [None for d in self.signature.defaults]
+        else:
+            defaults = []
+        varargs = None
+        if self.signature.varargs is not None:
+            varargs = ast.arg(self.signature.varargs)
+        varkw = None
+        if self.signature.varkw is not None:
+            varkw = ast.arg(self.signature.varkw)
         args = ast.arguments(
             posonlyargs=[],
             args=arg,
             defaults=defaults,
             kwonlyargs=[],
+            vararg=varargs,
+            kwarg=varkw
         )
         body = []
         if self.doc is not None:
