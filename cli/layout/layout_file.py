@@ -58,6 +58,7 @@ class LayoutFile:
                 layout = json.loads(text)
         else:
             layout = default_layout.layout
+        self.layout = layout
         if "version" not in layout:
             print("Invalid Layout, missing key 'version', defaulting")
             logger.critical(
@@ -132,3 +133,9 @@ class LayoutFile:
             except LayoutException as e:
                 raise LayoutException(e.message, count, e.item)
         return "\n".join(s)
+
+    def compile(self):
+        original = self.layout
+        new_rows = [r.get_source() for r in self._internal_layout]
+        original["layout"] = new_rows
+        return original

@@ -222,3 +222,6 @@ class LayoutItem:
 
     def __str__(self):
         return str(self.item_data)
+
+    def get_source(self):
+        return self.item_data

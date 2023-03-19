@@ -38,3 +38,7 @@ class LayoutRow:
     def __str__(self):
         s = [item.item_data for item in self.items]
         return json.dumps(s)
+
+    def get_source(self):
+        s = [item.get_source() for item in self.items]
+        return json.dumps(s)
