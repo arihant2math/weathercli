@@ -69,13 +69,13 @@ impl WeatherData {
             .expect("0th element expected")
             .sentence
             .to_string();
-        let mut out = conditions_match;
+        let mut conditions_sentences = conditions_match;
         data.remove(0);
         for condition in data {
-            out += ". Also, ";
-            out += &*condition.sentence.to_lowercase();
-            out += ".";
+            conditions_sentences += ". Also, ";
+            conditions_sentences += &*condition.sentence.to_lowercase();
+            conditions_sentences += ".";
         }
-        out
+        conditions_sentences
     }
 }
