@@ -7,7 +7,7 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 use serde_json::Value;
 
-use crate::{hash_file, networking};
+use crate::hash_file;
 use crate::local::weather_file::WeatherFile;
 
 /// Updates the web resource at $weathercli_dir/$local_path if the hash of the local file does not match with
@@ -18,18 +18,17 @@ fn update_web_resource(local_path: String, web_path: String, name: String, dev: 
     if !dev {
         let mut f = WeatherFile::new(local_path);
         let file_hash = hash_file(f.path.display().to_string());
-        let web_text =
-            reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
-                .expect("")
-                .text()
-                .unwrap();
-        let web_json: Value = serde_json::from_str(&web_text).expect("");
-        let web_hash: String = web_json[&name].as_str().unwrap().to_string();
-        if web_hash != file_hash {
-            println!("\x1b[33mDownloading {} update", &name);
-            let data = networking::get_url(web_path, None, None, None).text;
-            f.data = data;
-            f.write();
+        let resp = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json").expect("");
+        if resp.status().as_u16() == 200 {
+            let web_text = resp.text().unwrap();
+            let web_json: Value = serde_json::from_str(&web_text).expect("");
+            let web_hash: String = web_json[&name].as_str().unwrap().to_string();
+            if web_hash != file_hash {
+                println!("\x1b[33mDownloading {} update", &name);
+                let data = reqwest::blocking::get(web_path).unwrap().text().unwrap();
+                f.data = data;
+                f.write();
+            }
         }
     } else {
         let mut f = WeatherFile::new(local_path);
