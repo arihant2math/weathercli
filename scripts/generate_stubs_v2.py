@@ -59,7 +59,7 @@ class Function(Component):
             defaults=defaults,
             kwonlyargs=[],
             vararg=varargs,
-            kwarg=varkw
+            kwarg=varkw,
         )
         body = []
         if self.doc is not None:
