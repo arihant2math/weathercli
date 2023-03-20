@@ -5,13 +5,12 @@ from os.path import expanduser
 from pathlib import Path
 
 import colorama
+import core
 from click import group, option, pass_context, argument
 
 from cli import print_out, get_data_from_datasource
 from cli.commands.util import update, clear_cache, setup, config
 from cli.custom_click_group import CustomClickGroup
-from cli.local.settings import METRIC_DEFAULT, DEFAULT_BACKEND, DEBUG
-from cli.location import get_coordinates, get_location
 
 
 def get_log_file():
@@ -40,8 +39,10 @@ def get_log_file():
 )
 @pass_context
 def main(ctx, json, no_sys_loc, metric, imperial, datasource):
+    settings_s = core.Settings()
+    settings = settings_s.internal
     FORMAT = "[%(levelname)s] %(message)s"
-    if not DEBUG:
+    if not settings.DEBUG:
         logging.basicConfig(format=FORMAT, level=logging.CRITICAL)
     else:
         logging.basicConfig(
@@ -50,21 +51,23 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
     d = {"component": "main"}
     logger = logging.getLogger("weathercli")
     if datasource is None:
-        datasource = DEFAULT_BACKEND
+        datasource = settings.DEFAULT_BACKEND
     else:
         datasource = datasource.upper()
-    true_metric = METRIC_DEFAULT
+    true_metric = settings.METRIC_DEFAULT
     if metric:
         true_metric = True
     elif imperial:
         true_metric = False
     if ctx.invoked_subcommand is None:
-        location = get_location(no_sys_loc)
+        location = core.location.get_location(no_sys_loc, settings.CONSTANT_LOCATION)
         logger.debug("datasource=" + datasource, extra=d)
         logger.info("location=" + str(location), extra=d)
         logger.debug("metric=" + str(true_metric), extra=d)
-        data = get_data_from_datasource(datasource, location, true_metric, logger)
-        print_out(data, json, true_metric, logger)
+        data = get_data_from_datasource(
+            datasource, location, true_metric, settings, logger
+        )
+        print_out(settings.LAYOUT_FILE, data, json, true_metric, logger)
     else:
         ctx.ensure_object(dict)
         ctx.obj["d"] = d
@@ -85,10 +88,12 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
 )
 @pass_context
 def place(ctx, location, json, metric, imperial, datasource):
+    settings_s = core.Settings()
+    settings = settings_s.internal
     logger = ctx.obj["LOGGER"]
     d = ctx.obj["d"]
     if datasource is None:
-        datasource = DEFAULT_BACKEND
+        datasource = settings.DEFAULT_BACKEND
     else:
         datasource = datasource.upper()
     true_metric = ctx.obj["METRIC"]
@@ -97,7 +102,7 @@ def place(ctx, location, json, metric, imperial, datasource):
     elif imperial:
         true_metric = False
     try:
-        location = get_coordinates(location)
+        location = core.location.get_coordinates(location, settings.BING_MAPS_API_KEY)
     except LookupError:
         print(colorama.Fore.RED + "Place not Found")
         logger.critical("Place not Found")
@@ -105,12 +110,14 @@ def place(ctx, location, json, metric, imperial, datasource):
     logger.debug("datasource=" + datasource, extra=d)
     logger.info("location=" + str(location), extra=d)
     logger.debug("metric=" + str(true_metric), extra=d)
-    data = get_data_from_datasource(datasource, location, true_metric, logger)
-    print_out(data, ctx.obj["JSON"] or json, true_metric, logger)
+    data = get_data_from_datasource(datasource, location, true_metric, settings, logger)
+    print_out(settings.LAYOUT_FILE, data, ctx.obj["JSON"] or json, true_metric, logger)
 
 
 if __name__ == "__main__":
-    if not DEBUG:
+    settings_s = core.Settings()
+    settings = settings_s.internal
+    if not settings.DEBUG:
 
         def exception_handler(exception_type, exception, traceback):
             # No traceback

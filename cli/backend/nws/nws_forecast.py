@@ -7,7 +7,7 @@ from cli.backend.weather_forecast import WeatherForecast
 
 
 class NationalWeatherServiceForecast(WeatherForecast):
-    def __init__(self, loc, metric):
+    def __init__(self, loc, metric, settings):
         region, country = self.get_location(loc)
         get_point = core.networking.get_url(
             "https://api.weather.gov/points/" + loc[0] + "," + loc[1]

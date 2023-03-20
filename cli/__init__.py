@@ -17,15 +17,11 @@ from cli.backend.theweatherchannel.the_weather_channel_forecast import (
     TheWeatherChannelForecast,
 )
 from cli.layout.layout_file import LayoutFile
-from cli.local import settings
-from cli.local.settings import (
-    store_key,
-    LAYOUT_FILE,
-    AUTO_UPDATE_INTERNET_RESOURCES,
-)
 
 
-def print_out(data: WeatherForecast, print_json: bool, metric: bool, logger: Logger):
+def print_out(
+    layout_file, data: WeatherForecast, print_json: bool, metric: bool, logger: Logger
+):
     color = colorama.Fore
     if print_json:
         try:
@@ -49,38 +45,40 @@ def print_out(data: WeatherForecast, print_json: bool, metric: bool, logger: Log
             print(e)
             print(data.raw_data)
     elif data.status == 0:
-        out = LayoutFile(LAYOUT_FILE, logger=logger)
+        out = LayoutFile(layout_file, logger=logger)
         print(out.to_string(data, metric))
     else:
         print(color.RED + data.raw_data["message"] + color.RESET, end="")
 
 
-def get_data_from_datasource(datasource, location, true_metric, logger: Logger):
+def get_data_from_datasource(
+    datasource, location, true_metric, settings, logger: Logger
+):
     if not os.path.exists(
         Path(os.path.expanduser("~/.weathercli/weather_codes.json"))
         or Path(os.path.expanduser("~/.weathercli/weather_ascii_images.json"))
     ):
         core.updater.update_web_resources(settings.DEVELOPMENT)
-    if AUTO_UPDATE_INTERNET_RESOURCES:
+    if settings.AUTO_UPDATE_INTERNET_RESOURCES:
         logger.info("Updating web resources")
         thread = Thread(
             target=core.updater.update_web_resources, args=[settings.DEVELOPMENT]
         )
         thread.start()
     if datasource == "NWS":
-        data = NationalWeatherServiceForecast(location, true_metric)
+        data = NationalWeatherServiceForecast(location, true_metric, settings)
     elif datasource == "THEWEATHERCHANNEL":
-        data = TheWeatherChannelForecast(location, true_metric)
+        data = TheWeatherChannelForecast(location, true_metric, settings)
     elif datasource == "OPENWEATHERMAP":
-        data = OpenWeatherMapForecast(location, true_metric)
+        data = OpenWeatherMapForecast(location, true_metric, settings)
     elif datasource == "METEO":
-        data = MeteoForecast(location, true_metric)
+        data = MeteoForecast(location, true_metric, settings)
     else:
         print(colorama.Fore.RED + "Invalid Data Source!")
         logger.critical("Invalid Data Source")
         exit(1)
     logger.info("Data Retrieved")
-    if AUTO_UPDATE_INTERNET_RESOURCES:
+    if settings.AUTO_UPDATE_INTERNET_RESOURCES:
         thread.join()
     sys.stdout.flush()
     return data

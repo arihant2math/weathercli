@@ -9,7 +9,7 @@ from cli.backend.weather_forecast import WeatherForecast
 
 
 class MeteoForecast(WeatherForecast):
-    def __init__(self, loc, metric):
+    def __init__(self, loc, metric, settings):
         country, region = self.get_location(loc)
         if not metric:
             data = core.networking.get_urls(

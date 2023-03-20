@@ -1,16 +1,20 @@
+#[macro_use]
+extern crate crossterm;
+
 use std::path::Path;
 
 use pyo3::prelude::*;
 use sha256::try_digest;
 
 use crate::local::cache;
+
 pub mod backend;
 pub mod local;
 pub mod location;
 pub mod networking;
-mod openweathermap_json;
-pub mod status;
+mod prompt;
 mod updater;
+mod layout;
 
 /// returns the sha-256 of the file
 #[pyfunction]
@@ -22,13 +26,14 @@ fn hash_file(filename: String) -> String {
 /// corelib module for weather cli, implemented in Rust.
 #[pymodule]
 fn core(py: Python, module: &PyModule) -> PyResult<()> {
-    module.add_function(wrap_pyfunction!(location::get_location, module)?)?;
     module.add_function(wrap_pyfunction!(hash_file, module)?)?;
+    module.add_function(wrap_pyfunction!(prompt::choice, module)?)?;
     module.add_class::<local::weather_file::WeatherFile>()?;
-    module.add_class::<status::Status>()?;
+    module.add_class::<local::settings::Settings>()?;
     backend::register_backend_module(py, module)?;
     cache::register_caching_module(py, module)?;
     networking::register_networking_module(py, module)?;
+    location::register_location_module(py, module)?;
     updater::register_updater_module(py, module)?;
     py.run(
         "\
@@ -36,6 +41,7 @@ fn core(py: Python, module: &PyModule) -> PyResult<()> {
     ;sys.modules['core.backend'] = backend\
     ;sys.modules['core.caching'] = caching\
     ;sys.modules['core.networking'] = networking\
+    ;sys.modules['core.location'] = location\
     ;sys.modules['core.updater'] = updater",
         None,
         Some(module.dict()),

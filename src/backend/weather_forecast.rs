@@ -1,7 +1,7 @@
 use pyo3::prelude::*;
 
+use crate::backend::status::Status;
 use crate::backend::weather_data::WeatherData;
-use crate::status::Status;
 
 #[pyclass(subclass)]
 #[derive(Clone)]

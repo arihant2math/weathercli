@@ -1,15 +1,17 @@
 use pyo3::prelude::*;
 
-use crate::networking;
-use crate::networking::Resp;
-use crate::openweathermap_json::{
+use crate::backend::openweathermap_json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
 };
+use crate::networking;
+use crate::networking::Resp;
 
+pub mod status;
 pub mod weather_condition;
 pub mod weather_data;
 pub mod weather_forecast;
 pub mod wind_data;
+pub mod openweathermap;
 
 /// Gets the urls from the openweathermap api server
 fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: bool) -> Vec<String> {
@@ -81,6 +83,7 @@ pub fn register_backend_module(py: Python<'_>, parent_module: &PyModule) -> PyRe
     child_module.add_class::<weather_data::WeatherData>()?;
     child_module.add_class::<weather_condition::WeatherCondition>()?;
     child_module.add_class::<weather_forecast::WeatherForecast>()?;
+    child_module.add_class::<status::Status>()?;
     parent_module.add_submodule(child_module)?;
     Ok(())
 }

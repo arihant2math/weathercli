@@ -4,7 +4,7 @@ bin = [
 
 [package]
 name = "weather_core"
-version = "2023.3.18"
+version = "2023.3.19"
 edition = "2021"
 
 [lib]
@@ -21,6 +21,7 @@ sha256 = "1.1.2"
 dirs = "4.0.0"
 chrono = "0.4.23"
 auto-launch = "0.4.0"
+crossterm = "0.26.1"
 
 [dependencies.pyo3]
 version = "0.18.1"

@@ -8,7 +8,7 @@ from cli.backend.weather_forecast import WeatherForecast
 
 
 class TheWeatherChannelForecast(WeatherForecast):
-    def __init__(self, loc, metric):
+    def __init__(self, loc, metric, settings):
         region, country = self.get_location(loc)
         if not metric:
             cookies = {"unitOfMeasurement": "e"}

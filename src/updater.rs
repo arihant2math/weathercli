@@ -14,17 +14,25 @@ use crate::local::weather_file::WeatherFile;
 /// the hash at index.json of the index name, if the hashes do not match it download a copy and replaces the existing file
 /// :param dev: if true the file at ./$local_path will be copied to the web resource location
 #[pyfunction]
-fn update_web_resource(local_path: String, web_path: String, name: String, dev: bool) {
+fn update_web_resource(
+    local_path: String,
+    web_path: String,
+    name: String,
+    out_name: String,
+    dev: bool,
+) {
     if !dev {
         let mut f = WeatherFile::new(local_path);
         let file_hash = hash_file(f.path.display().to_string());
-        let resp = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json").expect("");
+        let resp =
+            reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
+                .expect("");
         if resp.status().as_u16() == 200 {
             let web_text = resp.text().unwrap();
             let web_json: Value = serde_json::from_str(&web_text).expect("");
             let web_hash: String = web_json[&name].as_str().unwrap().to_string();
             if web_hash != file_hash {
-                println!("\x1b[33mDownloading {} update", &name);
+                println!("\x1b[33mDownloading {} update", &out_name);
                 let data = reqwest::blocking::get(web_path).unwrap().text().unwrap();
                 f.data = data;
                 f.write();
@@ -49,12 +57,14 @@ fn update_web_resources(dev: bool) {
         String::from("weather_codes.json"),
         String::from("https://arihant2math.github.io/weathercli/weather_codes.json"),
         String::from("weather-codes-hash"),
+        String::from("weather codes"),
         dev,
     );
     update_web_resource(
         "weather_ascii_images.json".to_string(),
         "https://arihant2math.github.io/weathercli/weather_ascii_images.json".to_string(),
         "weather-ascii-images-hash".to_string(),
+        "ascii images".to_string(),
         dev,
     );
 }

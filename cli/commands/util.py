@@ -13,18 +13,16 @@ from core import WeatherFile
 
 from cli import version
 from cli.backend.meteo.meteo_forecast import MeteoForecast
-from cli.local import settings
-from cli.local.settings import get_key, store_key
-from cli.prompt import multi_choice, yes_no
 
 
 @command("config", help="prints or changes the settings")
 @argument("key_name")
 @argument("value", required=False)
 def config(key_name: str, value):
+    settings_s = core.Settings()
     value = str(value)
     if value is None or value == "" or value == "None":
-        v = get_key(key_name.upper())
+        v = getattr(settings_s.internal, key_name.upper())
         if v is not None:
             print(v)
         else:
@@ -37,7 +35,7 @@ def config(key_name: str, value):
             value = True
         elif value.lower() in ["false", "f", "no", "n"]:
             value = False
-        store_key(key_name.upper(), value)
+        setattr(settings_s.internal, key_name.upper(), value)
 
 
 @command(
@@ -66,11 +64,17 @@ def update(force):
                     "https://arihant2math.github.io/weathercli/docs/index.json"
                 ).text
             )
+            web_force = False
+            if "force" in resp:
+                force = True
+                web_force = True
             if platform.system() == "Windows":
                 web_hash = resp["updater-exe-hash-windows"]
             else:
                 web_hash = resp["updater-exe-hash-unix"]
-            if core.hash_file(str(updater_location.absolute())) != web_hash:
+            if (
+                core.hash_file(str(updater_location.absolute())) != web_hash
+            ) or web_force:
                 core.updater.get_updater(str(updater_location))
             print("Starting updater and exiting")
             if force:
@@ -106,12 +110,13 @@ def plot_temp():
 
 @command("setup", help="setup prompt")
 def setup():
+    settings_s = core.Settings()
+    settings = settings_s.internal
     print(colorama.Fore.CYAN + "=== Weather CLI Setup ===")
     core.updater.update_web_resources(settings.DEVELOPMENT)
     print(
-        colorama.Fore.GREEN
+        colorama.Fore.RED
         + "Choose the default weather backend: "
-        + colorama.Fore.BLUE
     )
     options = [
         "Meteo",
@@ -122,33 +127,33 @@ def setup():
     default = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"].index(
         settings.DEFAULT_BACKEND
     )
-    current = multi_choice(options, default)
+    current = core.choice(options, default)
     weather_backend_setting = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"][
         current
     ]
-    settings.store_key("DEFAULT_BACKEND", weather_backend_setting)
+    settings_s.internal.DEFAULT_BACKEND = weather_backend_setting
+    settings_s.write()
     time.sleep(0.1)
-    s = (
-        colorama.Fore.GREEN
+    print(
+        colorama.Fore.RED
         + "Is your location constant (i.e. is this computer stationary at all times)?"
-        + colorama.Fore.BLUE
     )
     if settings.CONSTANT_LOCATION:
         default = 0
     else:
         default = 1
-    constant_location_setting = yes_no(s, default)
-    settings.store_key("CONSTANT_LOCATION", constant_location_setting)
+    constant_location_setting = [True, False][core.choice(["yes", "no"], default)]
+    settings_s.internal.CONSTANT_LOCATION = constant_location_setting
+    settings_s.write()
     time.sleep(0.1)
-    print()
-    s = (
-        colorama.Fore.GREEN
+    print(
+        colorama.Fore.RED
         + "Should static resources (ascii art, weather code sentences, etc.) be auto-updated?"
-        + colorama.Fore.BLUE
     )
     if settings.AUTO_UPDATE_INTERNET_RESOURCES:
         default = 0
     else:
         default = 1
-    auto_update_setting = yes_no(s, default)
-    settings.store_key("AUTO_UPDATE_INTERNET_RESOURCES", auto_update_setting)
+    auto_update_setting = [True, False][core.choice(["yes", "no"], default)]
+    settings_s.internal.AUTO_UPDATE_INTERNET_RESOURCES = auto_update_setting
+    settings_s.write()

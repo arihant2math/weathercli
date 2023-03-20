@@ -1,7 +1,5 @@
-from cli.location import reverse_location
-
-
 # TODO: Port to Rust
+import core
 
 
 class Status:
@@ -38,4 +36,4 @@ class WeatherForecast:
 
     @staticmethod
     def get_location(loc):
-        return reverse_location(loc[0], loc[1])
+        return core.location.reverse_location(float(loc[0]), float(loc[1]))

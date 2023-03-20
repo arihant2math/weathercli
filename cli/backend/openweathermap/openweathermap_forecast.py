@@ -3,15 +3,17 @@ import core
 from cli.backend.openweathermap.openweathermap_current import OpenWeatherMapCurrent
 from cli.backend.openweathermap.openweathermap_future import OpenWeatherMapFuture
 from cli.backend.weather_forecast import WeatherForecast
-from cli.local.settings import OPEN_WEATHER_MAP_API_KEY
 
 
 class OpenWeatherMapForecast(WeatherForecast):
-    def __init__(self, coordinates, metric):
-        if OPEN_WEATHER_MAP_API_KEY is not None:
+    def __init__(self, coordinates, metric, settings):
+        if (
+            settings.OPEN_WEATHER_MAP_API_KEY is not None
+            and settings.OPEN_WEATHER_MAP_API_KEY != ""
+        ):
             data = core.backend.open_weather_map_get_combined_data_formatted(
                 "https://api.openweathermap.org/data/2.5/",
-                OPEN_WEATHER_MAP_API_KEY,
+                settings.OPEN_WEATHER_MAP_API_KEY,
                 coordinates,
                 metric,
             )

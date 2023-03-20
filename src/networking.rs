@@ -25,7 +25,7 @@ pub struct Resp {
 #[pyclass]
 #[derive(Clone)]
 pub struct Session {
-    client: reqwest::blocking::Client
+    client: reqwest::blocking::Client,
 }
 
 #[pymethods]
@@ -42,9 +42,7 @@ impl Session {
             .cookie_provider::<Jar>(Arc::new(jar))
             .build()
             .unwrap();
-        Session {
-            client
-        }
+        Session { client }
     }
 
     pub fn get(&self, url: String) -> Resp {
@@ -140,9 +138,12 @@ pub fn get_url(
 /// :param headers: optional dictionary with headers in it
 /// :param cookies: optional list of cookies
 #[pyfunction]
-pub fn get_urls(urls: Vec<String>, user_agent: Option<String>,
+pub fn get_urls(
+    urls: Vec<String>,
+    user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
-    cookies: Option<HashMap<String, String>>) -> Vec<Resp> {
+    cookies: Option<HashMap<String, String>>,
+) -> Vec<Resp> {
     let jar: Jar = Jar::default();
     if let Some(cookies) = cookies {
         let mut formatted_cookies: Vec<String> = Vec::new();
