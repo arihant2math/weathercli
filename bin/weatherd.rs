@@ -1,9 +1,10 @@
-use core::local::weather_file::WeatherFile;
 use std::{thread, time};
 use std::env::current_exe;
 
 use auto_launch::AutoLaunchBuilder;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
+use core::local::weather_file::WeatherFile;
 
 fn register() {
     let path = current_exe().unwrap().display().to_string();
@@ -37,7 +38,7 @@ fn main() {
             .collect();
         let mut out = WeatherFile::new("d.cache".to_string());
         let joined =
-            core::local::cache::get_date_string() + "\n\n\n\n\n" + &*data.join("\n\n\n\n\n");
+            core::local::cache::get_date_string() + "EOF\n\n\n\n\nBEGIN" + &*data.join("EOF\n\n\n\n\nBEGIN");
         out.data = joined;
         out.write();
         thread::sleep(sleep_duration);

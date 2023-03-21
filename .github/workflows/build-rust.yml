@@ -1,0 +1,55 @@
+name: Rust Builds
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - 'scripts/**'
+      - 'icon/**'
+      - 'docs_templates/**'
+      - 'tests/**'
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build with cargo
+      run: cargo build -r
+
+    - uses: actions/upload-artifact@v3
+    - name: Upload updater (windows)
+      if: startsWith(matrix.os, 'windows')
+      with:
+        name: updater (Windows)
+        path: ./target/release/updater.exe
+
+    - uses: actions/upload-artifact@v3
+    - name: Upload updater (Unix)
+      if: startsWith(matrix.os, 'ubuntu')
+      with:
+        name: updater (Unix)
+        path: ./target/release/updater
+
+    - uses: actions/upload-artifact@v3
+    - name: Upload weatherd (windows)
+      if: startsWith(matrix.os, 'windows')
+      with:
+        name: weatherd (Windows)
+        path: ./target/release/weatherd.exe
+
+    - uses: actions/upload-artifact@v3
+    - name: Upload weatherd (Unix)
+      if: startsWith(matrix.os, 'ubuntu')
+      with:
+        name: weatherd (Unix)
+        path: ./target/release/weatherd

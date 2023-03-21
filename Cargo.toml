@@ -1,10 +1,14 @@
-bin = [
-    { name = "weatherd", path = "bin/weatherd.rs" },
-]
+[[bin]]
+name = "weatherd"
+path = "bin/weatherd.rs"
+
+[[bin]]
+name = "updater"
+path = "bin/updater.rs"
 
 [package]
 name = "weather_core"
-version = "2023.3.19"
+version = "2023.3.20"
 edition = "2021"
 
 [lib]
@@ -18,10 +22,24 @@ crate-type = [
 rayon = "1.7.0"
 serde_json = "1.0"
 sha256 = "1.1.2"
-dirs = "4.0.0"
+dirs = "5.0.0"
 chrono = "0.4.23"
 auto-launch = "0.4.0"
 crossterm = "0.26.1"
+futures-util = "0.3.27"
+indicatif = "0.17.3"
+
+[dependencies.tokio]
+version = "1.26.0"
+features = [
+    "full",
+]
+
+[dependencies.clap]
+version = "4.1.8"
+features = [
+    "derive",
+]
 
 [dependencies.pyo3]
 version = "0.18.1"
@@ -35,6 +53,7 @@ features = [
     "blocking",
     "json",
     "cookies",
+    "stream"
 ]
 
 [dependencies.serde]

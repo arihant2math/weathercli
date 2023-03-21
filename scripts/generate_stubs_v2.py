@@ -44,7 +44,7 @@ class Function(Component):
             if s not in (self.signature.varargs, self.signature.varkw):
                 arg.append(ast.arg(s))
         if self.signature.defaults is not None:
-            defaults = [None for d in self.signature.defaults]
+            defaults = [ast.Constant(value=None) for d in self.signature.defaults]
         else:
             defaults = []
         varargs = None

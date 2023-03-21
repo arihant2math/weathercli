@@ -4,9 +4,8 @@ on:
   push:
     branches: [ "main" ]
     paths-ignore:
-      - 'updater/**'
+      - 'scripts/**'
       - 'bin/**'
-      - '.github/**'
       - 'icon/**'
       - 'docs_templates/**'
   pull_request:

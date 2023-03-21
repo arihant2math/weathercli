@@ -53,20 +53,15 @@ def main(gh_token):
     )
     runs = json.loads(get_run_id.text)["workflow_runs"]
     ci = filter_by_file(runs, ".github/workflows/build.yml")
-    updater_ci = filter_by_file(runs, ".github/workflows/build-updater.yml")
-    daemon_ci = filter_by_file(runs, ".github/workflows/build-daemon.yml")
+    rust_ci = filter_by_file(runs, ".github/workflows/build-rust.yml")
     artifacts = None
-    updater_artifacts = None
-    daemon_artifacts = None
+    rust_artifacts = None
     if len(ci) > 0:
         latest_run_id = ci[0]["id"]
         artifacts = get_artifact_urls(s, latest_run_id)
-    if len(updater_ci) > 0:
-        latest_updater_run_id = updater_ci[0]["id"]
-        updater_artifacts = get_artifact_urls(s, latest_updater_run_id)
-    if len(daemon_ci) > 0:
-        latest_daemon_run_id = daemon_ci[0]["id"]
-        daemon_artifacts = get_artifact_urls(s, latest_daemon_run_id)
+    if len(rust_ci) > 0:
+        latest_updater_run_id = rust_ci[0]["id"]
+        rust_artifacts = get_artifact_urls(s, latest_updater_run_id)
     u = None
     w = None
     uu = None
@@ -85,30 +80,29 @@ def main(gh_token):
             args=(s, artifacts, "weather (Windows)", "weather.exe"),
         )
         w.start()
-    if updater_artifacts is not None:
+    if rust_artifacts is not None:
         print("Starting Unix Download (Updater)")
         uu = threading.Thread(
             target=download_artifact,
-            args=(s, updater_artifacts, "updater (Unix)", "updater"),
+            args=(s, rust_artifacts, "updater (Unix)", "updater"),
         )
         uu.start()
         print("Starting Windows Download (Updater)")
         wu = threading.Thread(
             target=download_artifact,
-            args=(s, updater_artifacts, "updater (Windows)", "updater.exe"),
+            args=(s, rust_artifacts, "updater (Windows)", "updater.exe"),
         )
         wu.start()
-    if daemon_artifacts is not None:
         print("Starting Unix Download (Daemon)")
         ud = threading.Thread(
             target=download_artifact,
-            args=(s, daemon_artifacts, "weatherd (Unix)", "weatherd"),
+            args=(s, rust_artifacts, "weatherd (Unix)", "weatherd"),
         )
         ud.start()
         print("Starting Windows Download (Daemon)")
         wd = threading.Thread(
             target=download_artifact,
-            args=(s, daemon_artifacts, "weatherd (Windows)", "weatherd.exe"),
+            args=(s, rust_artifacts, "weatherd (Windows)", "weatherd.exe"),
         )
         wd.start()
     if u is not None:

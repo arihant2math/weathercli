@@ -30,6 +30,8 @@ pub struct SettingsJson {
     SHOW_ALERTS: Option<bool>,
     #[pyo3(get, set)]
     LAYOUT_FILE: Option<String>,
+    #[pyo3(get, set)]
+    ENABLE_DAEMON: Option<bool>
 }
 
 #[pyclass]
@@ -96,6 +98,9 @@ impl Settings {
             && parsed.LAYOUT_FILE.clone().unwrap().to_lowercase() == "none"
         {
             parsed.LAYOUT_FILE = None;
+        }
+        if parsed.ENABLE_DAEMON.is_none() {
+            parsed.ENABLE_DAEMON = Some(true);
         }
         let internal = parsed;
         Settings { internal, file }
