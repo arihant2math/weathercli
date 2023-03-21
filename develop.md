@@ -1,7 +1,7 @@
 # Development
 ## Prerequisites
 * [Python](https://python.org) (3.9+)
-* Rust
+* [Rust](https://www.rust-lang.org/)
 ## Build for Development
 ```shell
 git clone https://github.com/arihant2math/weathercli.git
