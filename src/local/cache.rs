@@ -59,7 +59,7 @@ fn read_bytes_from_file() -> Vec<u8> {
 /// Reads the value of a key from the cache. This does not update the count value, use update_hits to do that
 /// Returns None if the key does not exist and returns a string otherwise
 #[pyfunction]
-pub(crate) fn read(key: String) -> Option<String> {
+pub fn read(key: String) -> Option<String> {
     let path = get_cache_path();
     if !path.exists() {
         return None;
@@ -131,7 +131,7 @@ fn get_cache_path() -> PathBuf {
 
 /// writes the key to the cache, overwriting it if it already exists
 #[pyfunction]
-pub(crate) fn write(key: String, value: String) {
+pub fn write(key: String, value: String) {
     let path = get_cache_path();
     let buffer = read_bytes_from_file();
     let mut key_index: i64 = -1;

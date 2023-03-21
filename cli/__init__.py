@@ -58,7 +58,9 @@ def get_data_from_datasource(
         Path(os.path.expanduser("~/.weathercli/weather_codes.json"))
         or Path(os.path.expanduser("~/.weathercli/weather_ascii_images.json"))
     ):  # Hacky way to check if the resources don't exist
-        core.updater.update_web_resources(settings.DEVELOPMENT)  # Force download them so that it doesn't fail
+        core.updater.update_web_resources(
+            settings.DEVELOPMENT
+        )  # Force download them so that it doesn't fail
     if settings.AUTO_UPDATE_INTERNET_RESOURCES:
         logger.info("Updating web resources")
         thread = Thread(

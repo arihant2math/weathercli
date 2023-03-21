@@ -1,14 +1,11 @@
-[[bin]]
-name = "weatherd"
-path = "bin/weatherd.rs"
-
-[[bin]]
-name = "updater"
-path = "bin/updater.rs"
+bin = [
+    { name = "weatherd", path = "bin/weatherd.rs" },
+    { name = "updater", path = "bin/updater.rs" },
+]
 
 [package]
 name = "weather_core"
-version = "2023.3.20"
+version = "2023.3.21"
 edition = "2021"
 
 [lib]
@@ -53,7 +50,7 @@ features = [
     "blocking",
     "json",
     "cookies",
-    "stream"
+    "stream",
 ]
 
 [dependencies.serde]

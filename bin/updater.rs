@@ -1,3 +1,4 @@
+use core::hash_file;
 use std::cmp::min;
 use std::fs::File;
 use std::io::Write;
@@ -11,12 +12,6 @@ use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::Client;
 use serde::Deserialize;
 use serde::Serialize;
-use sha256::try_digest;
-
-fn hash_file(filename: &str) -> String {
-    let input = Path::new(filename);
-    try_digest(input).unwrap()
-}
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -118,7 +113,7 @@ async fn update_component(
 
 fn is_update_needed_platform(file: &str, web_hash: String) -> Result<bool, String> {
     if Path::new(&file).exists() {
-        let file_hash = hash_file(file);
+        let file_hash = hash_file(file.to_string());
         Ok(file_hash != web_hash)
     } else {
         Ok(true)
@@ -147,8 +142,8 @@ async fn main() -> Result<(), String> {
     let args = Cli::parse();
     let resp = reqwest::get("https://arihant2math.github.io/weathercli/docs/index.json")
         .await
-        .unwrap();
-    let json: IndexStruct = serde_json::from_str(&resp.text().await.unwrap()).unwrap();
+        .expect("Index get failed");
+    let json: IndexStruct = serde_json::from_str(&resp.text().await.expect("Failed to receive text")).expect("JSON parsing failed");
     if args.version {
         println!("3.11.2023");
         return Ok(());

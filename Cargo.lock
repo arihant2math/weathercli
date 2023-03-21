@@ -1800,7 +1800,7 @@ dependencies = [
 
 [[package]]
 name = "weather_core"
-version = "2023.3.20"
+version = "2023.3.21"
 dependencies = [
  "auto-launch",
  "chrono",

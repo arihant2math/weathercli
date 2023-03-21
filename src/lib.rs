@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate crossterm;
-
 use std::path::Path;
 
 use pyo3::prelude::*;
@@ -18,7 +15,7 @@ mod layout;
 
 /// returns the sha-256 of the file
 #[pyfunction]
-fn hash_file(filename: String) -> String {
+pub fn hash_file(filename: String) -> String {
     let input = Path::new(&filename);
     try_digest(input).unwrap()
 }
