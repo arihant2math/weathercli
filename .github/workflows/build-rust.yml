@@ -28,24 +28,28 @@ jobs:
       run: cargo build -r
 
     - uses: actions/upload-artifact@v3
+      name: Upload Updater (Windows)
       if: startsWith(matrix.os, 'windows')
       with:
         name: updater (Windows)
         path: ./target/release/updater.exe
 
     - uses: actions/upload-artifact@v3
+      name: Upload Updater (Unix)
       if: startsWith(matrix.os, 'ubuntu')
       with:
         name: updater (Unix)
         path: ./target/release/updater
 
     - uses: actions/upload-artifact@v3
+      name: Upload Weatherd (Windows)
       if: startsWith(matrix.os, 'windows')
       with:
         name: weatherd (Windows)
         path: ./target/release/weatherd.exe
 
     - uses: actions/upload-artifact@v3
+      name: Upload Weatherd (Unix)
       if: startsWith(matrix.os, 'ubuntu')
       with:
         name: weatherd (Unix)
