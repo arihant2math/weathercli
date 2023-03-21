@@ -114,10 +114,7 @@ def setup():
     settings = settings_s.internal
     print(colorama.Fore.CYAN + "=== Weather CLI Setup ===")
     core.updater.update_web_resources(settings.DEVELOPMENT)
-    print(
-        colorama.Fore.RED
-        + "Choose the default weather backend: "
-    )
+    print(colorama.Fore.RED + "Choose the default weather backend: ")
     options = [
         "Meteo",
         "Open Weather Map",
