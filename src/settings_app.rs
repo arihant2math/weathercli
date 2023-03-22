@@ -1,5 +1,3 @@
-use futures_util::future::select;
-use futures_util::StreamExt;
 use iced::{Alignment, Element, Length, Sandbox, Settings};
 use iced::theme::Theme;
 use iced::widget::{button, column, container, radio, row, text, text_input, toggler};
@@ -83,10 +81,10 @@ impl Sandbox for App {
         let data_source = [DataSource::Meteo, DataSource::OpenWeatherMap, DataSource::NWS, DataSource::TheWeatherChannel]
                 .iter()
                 .fold(
-                    column![text("Choose a theme:")].spacing(10),
+                    column![text("Default Backend:")].spacing(10),
                     |column, data_source| {
                         column.push(radio(
-                            format!("{theme:?}"),
+                            format!("{data_source:?}"),
                             *data_source,
                             Some(match &*self.data.default_backend.clone().unwrap_or("meteo".to_string()) {
                                 "openweathermap" => DataSource::OpenWeatherMap,
