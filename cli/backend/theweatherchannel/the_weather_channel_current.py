@@ -4,8 +4,8 @@ import time
 from datetime import datetime
 from typing import Union
 
-from core.backend import WeatherData
-from core.backend import WindData
+from weather_core.backend import WeatherData
+from weather_core.backend import WindData
 
 
 class TheWeatherChannelCurrent(WeatherData):

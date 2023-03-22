@@ -76,8 +76,8 @@ def stubs():
 @main.command("rust")
 def rust():
     subprocess.Popen(["maturin", "develop" "-r"])
-    ast_gen: list[list] = Module(importlib.import_module("core"), True).get_ast()
-    write(Path("./venv/Lib/site-packages/core/"), ast_gen, True, False)
+    ast_gen: list[list] = Module(importlib.import_module("weather_core"), True).get_ast()
+    write(Path("./venv/Lib/site-packages/weather_core/"), ast_gen, True, False)
     # subprocess.Popen(["pyinstaller", "-F", "weather.py", "-i", "./icon/icon.png"])
     print(colorama.Fore.GREEN + "Done!")
 

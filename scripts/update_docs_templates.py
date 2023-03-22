@@ -6,7 +6,7 @@ import threading
 from zipfile import ZipFile
 
 import click
-import core.networking
+import weather_core.networking
 
 from path_helper import weathercli_dir
 from update_index_hashes import update_hash
@@ -47,7 +47,7 @@ def main(gh_token):
     if not os.path.exists("./tmp"):
         os.makedirs("./tmp")
     headers = {"Authorization": "Bearer " + gh_token}
-    s = core.networking.Session(headers=headers)
+    s = weather_core.networking.Session(headers=headers)
     get_run_id = s.get(
         "https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=100&status=completed"
     )

@@ -1,6 +1,6 @@
 import json
 
-from core import networking
+from weather_core import networking
 
 
 def test_get_url():

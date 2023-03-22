@@ -1,5 +1,4 @@
 # TODO: Port to Rust
-import core
 
 
 class Status:

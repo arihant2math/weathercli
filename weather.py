@@ -5,11 +5,11 @@ from os.path import expanduser
 from pathlib import Path
 
 import colorama
-import core
+import weather_core
 from click import group, option, pass_context, argument
 
 from cli import print_out, get_data_from_datasource
-from cli.commands.util import update, clear_cache, setup, config
+from cli.commands.util import update, clear_cache, setup, config, settings
 from cli.custom_click_group import CustomClickGroup
 
 
@@ -39,10 +39,10 @@ def get_log_file():
 )
 @pass_context
 def main(ctx, json, no_sys_loc, metric, imperial, datasource):
-    settings_s = core.Settings()
+    settings_s = weather_core.Settings()
     settings = settings_s.internal
     FORMAT = "[%(levelname)s] %(message)s"
-    if not settings.DEBUG:
+    if not settings.debug:
         logging.basicConfig(format=FORMAT, level=logging.CRITICAL)
     else:
         logging.basicConfig(
@@ -51,23 +51,23 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
     d = {"component": "main"}
     logger = logging.getLogger("weathercli")
     if datasource is None:
-        datasource = settings.DEFAULT_BACKEND
+        datasource = settings.default_backend
     else:
         datasource = datasource.upper()
-    true_metric = settings.METRIC_DEFAULT
+    true_metric = settings.metric_default
     if metric:
         true_metric = True
     elif imperial:
         true_metric = False
     if ctx.invoked_subcommand is None:
-        location = core.location.get_location(no_sys_loc, settings.CONSTANT_LOCATION)
+        location = weather_core.location.get_location(no_sys_loc, settings.constant_location)
         logger.debug("datasource=" + datasource, extra=d)
         logger.info("location=" + str(location), extra=d)
         logger.debug("metric=" + str(true_metric), extra=d)
         data = get_data_from_datasource(
             datasource, location, true_metric, settings, logger
         )
-        print_out(settings.LAYOUT_FILE, data, json, true_metric, logger)
+        print_out(settings.layout_file, data, json, true_metric, logger)
     else:
         ctx.ensure_object(dict)
         ctx.obj["d"] = d
@@ -88,12 +88,12 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
 )
 @pass_context
 def place(ctx, location, json, metric, imperial, datasource):
-    settings_s = core.Settings()
+    settings_s = weather_core.Settings()
     settings = settings_s.internal
     logger = ctx.obj["LOGGER"]
     d = ctx.obj["d"]
     if datasource is None:
-        datasource = settings.DEFAULT_BACKEND
+        datasource = settings.default_backend
     else:
         datasource = datasource.upper()
     true_metric = ctx.obj["METRIC"]
@@ -102,7 +102,7 @@ def place(ctx, location, json, metric, imperial, datasource):
     elif imperial:
         true_metric = False
     try:
-        location = core.location.get_coordinates(location, settings.BING_MAPS_API_KEY)
+        location = weather_core.location.get_coordinates(location, settings.bing_maps_api_key)
     except LookupError:
         print(colorama.Fore.RED + "Place not Found")
         logger.critical("Place not Found")
@@ -111,22 +111,21 @@ def place(ctx, location, json, metric, imperial, datasource):
     logger.info("location=" + str(location), extra=d)
     logger.debug("metric=" + str(true_metric), extra=d)
     data = get_data_from_datasource(datasource, location, true_metric, settings, logger)
-    print_out(settings.LAYOUT_FILE, data, ctx.obj["JSON"] or json, true_metric, logger)
+    print_out(settings.layout_file, data, ctx.obj["JSON"] or json, true_metric, logger)
 
 
 if __name__ == "__main__":
-    settings_s = core.Settings()
-    settings = settings_s.internal
-    if not settings.DEBUG:
+    settings_s = weather_core.Settings()
+    if not settings_s.internal.debug:
 
         def exception_handler(exception_type, exception, traceback):
             # No traceback
             print(
                 colorama.Fore.RED
-                + "Internal WeatherCli Error\nSomething went wrong\nDetails:\n%s: %s\nSet DEBUG "
-                "to true for a traceback by running weather config DEBUG true or manually "
+                + "Internal WeatherCli Error\nSomething went wrong\nDetails:\n%s: %s\nSet debug "
+                "to true for a traceback by running weather config debug true or manually "
                 "editing the settings file at ~/.weathercli/settings.json and setting the key "
-                "'DEBUG' to true." % (exception_type.__name__, exception)
+                "'debug' to true." % (exception_type.__name__, exception)
             )
 
         sys.excepthook = exception_handler
@@ -134,4 +133,5 @@ if __name__ == "__main__":
     main.add_command(update)
     main.add_command(clear_cache)
     main.add_command(setup)
+    main.add_command(settings)
     main(obj={})

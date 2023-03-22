@@ -1,4 +1,4 @@
-from core import WeatherData
+from weather_core import WeatherData
 
 
 class NationalWeatherServiceFuture(WeatherData):

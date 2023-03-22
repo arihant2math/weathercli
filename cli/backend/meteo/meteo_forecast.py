@@ -1,8 +1,6 @@
 import json
 import math
 
-import core
-
 from cli.backend.meteo.meteo_current import MeteoCurrent
 from cli.backend.meteo.meteo_future import MeteoFuture
 from cli.backend.weather_forecast import WeatherForecast

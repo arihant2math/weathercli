@@ -9,7 +9,7 @@ version = "2023.3.21"
 edition = "2021"
 
 [lib]
-name = "core"
+name = "weather_core"
 crate-type = [
     "cdylib",
     "rlib",
@@ -25,6 +25,7 @@ auto-launch = "0.4.0"
 crossterm = "0.26.1"
 futures-util = "0.3.27"
 indicatif = "0.17.3"
+iced = "0.8"
 
 [dependencies.tokio]
 version = "1.26.0"

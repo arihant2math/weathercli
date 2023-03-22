@@ -1,10 +1,12 @@
-use core::local::weather_file::WeatherFile;
 use std::{thread, time};
 use std::env::current_exe;
 
 use auto_launch::{AutoLaunchBuilder, Error};
 use clap::Parser;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
+use weather_core::local::settings::Settings;
+use weather_core::local::weather_file::WeatherFile;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -40,6 +42,7 @@ fn unregister() -> Result<(), Error> {
 }
 
 fn main() {
+    let settings = Settings::new();
     let args = Cli::parse();
     if args.action == "unregister" || args.action == "uninstall" {
         unregister().expect("Unregistering failed");
@@ -48,7 +51,7 @@ fn main() {
         register().expect("Registering failed");
     }
     if args.action == "start" {
-        let sleep_duration = time::Duration::from_secs(60);
+        let sleep_duration = time::Duration::from_secs(settings.internal.daemon_update_interval.unwrap() as u64);
         loop {
             println!("Updating Data ...");
             let w = WeatherFile::new("downloader_urls.list".to_string());
@@ -65,7 +68,7 @@ fn main() {
                 .collect();
             let mut out = WeatherFile::new("d.cache".to_string());
             let joined =
-                core::local::cache::get_date_string() + "EOF\n\n\n\n\nBEGIN" + &*data.join("EOF\n\n\n\n\nBEGIN");
+                weather_core::local::cache::get_date_string() + "EOF\n\n\n\n\nBEGIN" + &*data.join("EOF\n\n\n\n\nBEGIN");
             out.data = joined;
             out.write();
             thread::sleep(sleep_duration);

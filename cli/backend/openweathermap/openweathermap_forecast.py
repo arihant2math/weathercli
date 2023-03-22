@@ -1,4 +1,4 @@
-import core
+import weather_core
 
 from cli.backend.openweathermap.openweathermap_current import OpenWeatherMapCurrent
 from cli.backend.openweathermap.openweathermap_future import OpenWeatherMapFuture
@@ -8,12 +8,12 @@ from cli.backend.weather_forecast import WeatherForecast
 class OpenWeatherMapForecast(WeatherForecast):
     def __init__(self, coordinates, metric, settings):
         if (
-            settings.OPEN_WEATHER_MAP_API_KEY is not None
-            and settings.OPEN_WEATHER_MAP_API_KEY != ""
+            settings.open_weather_map_api_key is not None
+            and settings.open_weather_map_api_key != ""
         ):
-            data = core.backend.open_weather_map_get_combined_data_formatted(
+            data = weather_core.backend.open_weather_map_get_combined_data_formatted(
                 "https://api.openweathermap.org/data/2.5/",
-                settings.OPEN_WEATHER_MAP_API_KEY,
+                settings.open_weather_map_api_key,
                 coordinates,
                 metric,
             )

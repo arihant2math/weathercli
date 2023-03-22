@@ -2,7 +2,7 @@
 import time
 from datetime import datetime
 
-from core.backend import WindData, WeatherCondition, WeatherData
+from weather_core.backend import WindData, WeatherCondition, WeatherData
 
 
 class MeteoCurrent(WeatherData):

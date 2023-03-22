@@ -1,4 +1,3 @@
-use core::hash_file;
 use std::cmp::min;
 use std::fs::File;
 use std::io::Write;
@@ -12,6 +11,8 @@ use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::Client;
 use serde::Deserialize;
 use serde::Serialize;
+
+use weather_core::hash_file;
 
 #[derive(Clone, Parser)]
 struct Cli {

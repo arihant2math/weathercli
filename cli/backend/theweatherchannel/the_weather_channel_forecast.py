@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from core import networking
+from weather_core import networking
 
 from cli.backend.theweatherchannel.the_weather_channel_current import (
     TheWeatherChannelCurrent,

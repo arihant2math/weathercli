@@ -4,40 +4,43 @@ use serde::{Deserialize, Serialize};
 use crate::local::weather_file::WeatherFile;
 
 #[pyclass]
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Default)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct SettingsJson {
     #[pyo3(get, set)]
-    OPEN_WEATHER_MAP_API_KEY: Option<String>,
+    pub open_weather_map_api_key: Option<String>,
     #[pyo3(get, set)]
-    BING_MAPS_API_KEY: Option<String>,
+    pub bing_maps_api_key: Option<String>,
     #[pyo3(get, set)]
-    NCDC_API_KEY: Option<String>,
+    pub ncdc_api_key: Option<String>,
     #[pyo3(get, set)]
-    METRIC_DEFAULT: Option<bool>,
+    pub metric_default: Option<bool>,
     #[pyo3(get, set)]
-    DEFAULT_BACKEND: Option<String>,
+    pub default_backend: Option<String>,
     #[pyo3(get, set)]
-    CONSTANT_LOCATION: Option<bool>,
+    pub constant_location: Option<bool>,
     #[pyo3(get, set)]
-    DEFAULT_LAYOUT: Option<String>,
+    pub default_layout: Option<String>,
     #[pyo3(get, set)]
-    AUTO_UPDATE_INTERNET_RESOURCES: Option<bool>,
+    pub auto_update_internet_resources: Option<bool>,
     #[pyo3(get, set)]
-    DEBUG: Option<bool>,
+    pub debug: Option<bool>,
     #[pyo3(get, set)]
-    DEVELOPMENT: Option<bool>,
+    pub development: Option<bool>,
     #[pyo3(get, set)]
-    SHOW_ALERTS: Option<bool>,
+    pub show_alerts: Option<bool>,
     #[pyo3(get, set)]
-    LAYOUT_FILE: Option<String>,
+    pub layout_file: Option<String>,
     #[pyo3(get, set)]
-    ENABLE_DAEMON: Option<bool>
+    pub enable_daemon: Option<bool>,
+    #[pyo3(get, set)]
+    pub daemon_update_interval: Option<i64>
 }
 
 #[pyclass]
 pub struct Settings {
     #[pyo3(get)]
-    internal: SettingsJson,
+    pub internal: SettingsJson,
     file: WeatherFile,
 }
 
@@ -53,17 +56,17 @@ impl Settings {
     pub fn new() -> Self {
         let file = WeatherFile::new("settings.json".to_string());
         let mut parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");
-        if parsed.OPEN_WEATHER_MAP_API_KEY.is_none() {
-            parsed.OPEN_WEATHER_MAP_API_KEY = Some("".to_string());
+        if parsed.open_weather_map_api_key.is_none() {
+            parsed.open_weather_map_api_key = Some("".to_string());
         }
-        if parsed.BING_MAPS_API_KEY.is_none() {
-            parsed.BING_MAPS_API_KEY = Some("".to_string());
+        if parsed.bing_maps_api_key.is_none() {
+            parsed.bing_maps_api_key = Some("".to_string());
         }
-        if parsed.NCDC_API_KEY.is_none() {
-            parsed.NCDC_API_KEY = Some("".to_string());
+        if parsed.ncdc_api_key.is_none() {
+            parsed.ncdc_api_key = Some("".to_string());
         }
-        if parsed.METRIC_DEFAULT.is_none() {
-            parsed.METRIC_DEFAULT = Some(false);
+        if parsed.metric_default.is_none() {
+            parsed.metric_default = Some(false);
         }
         let valid_backends = vec![
             "OPENWEATHERMAP".to_string(),
@@ -71,42 +74,44 @@ impl Settings {
             "NWS".to_string(),
             "THEWEATHERCHANNEL".to_string(),
         ];
-        if parsed.DEFAULT_BACKEND.is_none()
-            || !valid_backends.contains(&parsed.DEFAULT_BACKEND.clone().unwrap())
+        if parsed.default_backend.is_none()
+            || !valid_backends.contains(&parsed.default_backend.clone().unwrap())
         {
-            parsed.DEFAULT_BACKEND = Some("METEO".to_string());
+            parsed.default_backend = Some("METEO".to_string());
         }
-        if parsed.CONSTANT_LOCATION.is_none() {
-            parsed.CONSTANT_LOCATION = Some(false);
+        if parsed.constant_location.is_none() {
+            parsed.constant_location = Some(false);
         }
-        if parsed.AUTO_UPDATE_INTERNET_RESOURCES.is_none() {
-            parsed.AUTO_UPDATE_INTERNET_RESOURCES = Some(true);
+        if parsed.auto_update_internet_resources.is_none() {
+            parsed.auto_update_internet_resources = Some(true);
         }
-        if parsed.DEBUG.is_none() {
-            parsed.DEBUG = Some(true);
+        if parsed.debug.is_none() {
+            parsed.debug = Some(true);
         }
-        if parsed.DEVELOPMENT.is_none() {
-            parsed.DEVELOPMENT = Some(true);
+        if parsed.development.is_none() {
+            parsed.development = Some(true);
         }
-        if parsed.SHOW_ALERTS.is_none() {
-            parsed.SHOW_ALERTS = Some(true);
+        if parsed.show_alerts.is_none() {
+            parsed.show_alerts = Some(true);
         }
-        if parsed.SHOW_ALERTS.is_none() {
-            parsed.SHOW_ALERTS = Some(true);
+        if parsed.show_alerts.is_none() {
+            parsed.show_alerts = Some(true);
         }
-        if parsed.LAYOUT_FILE.is_some()
-            && parsed.LAYOUT_FILE.clone().unwrap().to_lowercase() == "none"
+        if parsed.layout_file.is_some()
+            && parsed.layout_file.clone().unwrap().to_lowercase() == "none"
         {
-            parsed.LAYOUT_FILE = None;
+            parsed.layout_file = None;
         }
-        if parsed.ENABLE_DAEMON.is_none() {
-            parsed.ENABLE_DAEMON = Some(true);
+        if parsed.enable_daemon.is_none() {
+            parsed.enable_daemon = Some(true);
         }
-        let internal = parsed;
-        Settings { internal, file }
+        if parsed.daemon_update_interval.is_none() {
+            parsed.daemon_update_interval = Some(300);
+        }
+        Settings { internal: parsed, file }
     }
 
-    fn write(&mut self) {
+    pub fn write(&mut self) {
         self.file.data = serde_json::to_string(&self.internal).unwrap();
         self.file.write();
     }

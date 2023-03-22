@@ -2,9 +2,9 @@
 import time
 from datetime import datetime
 
-from core.backend import WeatherCondition
-from core.backend import WeatherData
-from core.backend import WindData
+from weather_core.backend import WeatherCondition
+from weather_core.backend import WeatherData
+from weather_core.backend import WindData
 
 
 class MeteoFuture(WeatherData):

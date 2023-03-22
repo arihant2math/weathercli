@@ -1,7 +1,5 @@
 import json
 
-import core
-
 from cli.backend.nws.nws_current import NationalWeatherServiceCurrent
 from cli.backend.weather_forecast import WeatherForecast
 

@@ -4,7 +4,7 @@ from logging import Logger
 from typing import Optional, Union
 
 import colorama
-from core import WeatherFile
+from weather_core import WeatherFile
 
 from cli.layout import default_layout
 from cli.layout.layout_row import LayoutRow

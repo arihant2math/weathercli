@@ -1,8 +1,6 @@
 import time
 
-from core.backend import WeatherCondition
-from core.backend import WeatherData
-from core.backend import WindData
+from weather_core.backend import WeatherCondition, WeatherData, WindData
 
 
 class OpenWeatherMapFuture(WeatherData):

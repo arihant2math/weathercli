@@ -2,7 +2,6 @@ import os
 from urllib.parse import urlparse
 
 import colorama
-import core
 
 from cli.layout.image_to_text import image_to_text
 from cli.layout.util import LayoutException

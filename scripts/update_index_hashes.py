@@ -1,7 +1,7 @@
 import json
 import os.path
 
-from core import hash_file
+from weather_core import hash_file
 
 from path_helper import weathercli_dir
 

@@ -6,9 +6,9 @@ from pathlib import Path
 from threading import Thread
 
 import colorama
-import core
 import rich
-from core.backend import WeatherForecast
+import weather_core
+from weather_core.backend import WeatherForecast
 
 from cli.backend.meteo.meteo_forecast import MeteoForecast
 from cli.backend.nws.nws_forecast import NationalWeatherServiceForecast
@@ -35,7 +35,7 @@ def print_out(
                 rich.print_json(data.raw_data)
             elif isinstance(data.raw_data, dict):
                 rich.print_json(json.dumps(data.raw_data))
-            elif isinstance(data.raw_data, core.FormattedData):
+            elif isinstance(data.raw_data, weather_core.FormattedData):
                 rich.print_json(data.raw_data.raw_data[0])
                 rich.print_json(data.raw_data.raw_data[1])
                 rich.print_json(data.raw_data.raw_data[2])
@@ -58,13 +58,13 @@ def get_data_from_datasource(
         Path(os.path.expanduser("~/.weathercli/weather_codes.json"))
         or Path(os.path.expanduser("~/.weathercli/weather_ascii_images.json"))
     ):  # Hacky way to check if the resources don't exist
-        core.updater.update_web_resources(
-            settings.DEVELOPMENT
+        weather_core.updater.update_web_resources(
+            settings.development
         )  # Force download them so that it doesn't fail
-    if settings.AUTO_UPDATE_INTERNET_RESOURCES:
+    if settings.auto_update_internet_resources:
         logger.info("Updating web resources")
         thread = Thread(
-            target=core.updater.update_web_resources, args=[settings.DEVELOPMENT]
+            target=weather_core.updater.update_web_resources, args=[settings.development]
         )
         thread.start()
     if datasource == "NWS":
@@ -80,14 +80,14 @@ def get_data_from_datasource(
         logger.critical("Invalid Data Source")
         exit(1)
     logger.info("Data Retrieved")
-    if settings.AUTO_UPDATE_INTERNET_RESOURCES:
+    if settings.auto_update_internet_resources:
         thread.join()
     sys.stdout.flush()
     return data
 
 
 def get_alerts(location):
-    r = core.networking.get_url(
+    r = weather_core.networking.get_url(
         "https://api.weather.gov/alerts/active?status=actual&point={}%2C{}&limit=500"
         "".format(location[0], location[1])
     )
