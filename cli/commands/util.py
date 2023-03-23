@@ -27,11 +27,8 @@ def config(key_name: str, value):
     settings_s = weather_core.Settings()
     value = str(value)
     if value is None or value == "" or value == "None":
-        v = getattr(settings_s.internal, key_name.upper())
-        if v is not None:
-            print(v)
-        else:
-            print("Key not found")
+        v = getattr(settings_s.internal, key_name.lower())
+        print(v)
     else:
         print("Writing ...")
         if value.isdigit():
@@ -40,7 +37,8 @@ def config(key_name: str, value):
             value = True
         elif value.lower() in ["false", "f", "no", "n"]:
             value = False
-        setattr(settings_s.internal, key_name.upper(), value)
+        print(value, key_name.lower())
+        settings_s.set(key_name.lower(), value)
 
 
 @command(
@@ -78,7 +76,7 @@ def update(force):
             else:
                 web_hash = resp["updater-exe-hash-unix"]
             if (
-                    weather_core.hash_file(str(updater_location.absolute())) != web_hash
+                weather_core.hash_file(str(updater_location.absolute())) != web_hash
             ) or web_force:
                 weather_core.updater.get_updater(str(updater_location))
             print("Starting updater and exiting")
@@ -104,7 +102,9 @@ def clear_cache():
 
 @command("plot-temp", help="plots the temperature over time")
 def plot_temp():
-    data = MeteoForecast(weather_core.get_location(False), False)
+    data = MeteoForecast(
+        weather_core.location.get_location(False), False, weather_core.Settings()
+    )
     plotext.plot(
         [i for i in range(0, len(data.raw_data["hourly"]["temperature_2m"]))],
         data.raw_data["hourly"]["temperature_2m"],
@@ -144,7 +144,9 @@ def setup():
         default = 0
     else:
         default = 1
-    constant_location_setting = [True, False][weather_core.choice(["yes", "no"], default)]
+    constant_location_setting = [True, False][
+        weather_core.choice(["yes", "no"], default)
+    ]
     settings_s.internal.constant_location = constant_location_setting
     settings_s.write()
     time.sleep(0.1)
