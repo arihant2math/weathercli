@@ -16,9 +16,9 @@ use crate::local::weather_file::WeatherFile;
 #[pyfunction]
 fn update_web_resource(
     local_path: String,
-    web_path: String,
-    name: String,
-    out_name: String,
+    web_path: &str,
+    name: &str,
+    out_name: &str,
     dev: bool,
 ) {
     if !dev {
@@ -30,9 +30,9 @@ fn update_web_resource(
         if resp.status().as_u16() == 200 {
             let web_text = resp.text().unwrap();
             let web_json: Value = serde_json::from_str(&web_text).expect("");
-            let web_hash: String = web_json[&name].as_str().unwrap().to_string();
+            let web_hash: String = web_json[name].as_str().unwrap().to_string();
             if web_hash != file_hash {
-                println!("\x1b[33mDownloading {} update", &out_name);
+                println!("\x1b[33mDownloading {} update", out_name);
                 let data = reqwest::blocking::get(web_path).unwrap().text().unwrap();
                 f.data = data;
                 f.write();
@@ -52,19 +52,19 @@ fn update_web_resource(
 /// Updates all the web resources, run on a thread as there is no return value
 /// :param dev: gets passed update_web_resource, if true update_web_resource will copy files from the working dir instead
 #[pyfunction]
-fn update_web_resources(dev: bool) {
+pub fn update_web_resources(dev: bool) {
     update_web_resource(
         String::from("weather_codes.json"),
-        String::from("https://arihant2math.github.io/weathercli/weather_codes.json"),
-        String::from("weather-codes-hash"),
-        String::from("weather codes"),
+        "https://arihant2math.github.io/weathercli/weather_codes.json",
+        "weather-codes-hash",
+        "weather codes",
         dev,
     );
     update_web_resource(
         "weather_ascii_images.json".to_string(),
-        "https://arihant2math.github.io/weathercli/weather_ascii_images.json".to_string(),
-        "weather-ascii-images-hash".to_string(),
-        "ascii images".to_string(),
+        "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
+        "weather-ascii-images-hash",
+        "ascii images",
         dev,
     );
 }

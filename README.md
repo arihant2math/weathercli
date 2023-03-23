@@ -1,3 +1,5 @@
+<img src="./icon/icon.svg" alt="Logo" height="100" width="100">
+
 # Weather CLI
 [![Website](https://github.com/arihant2math/weathercli/actions/workflows/pages/pages-build-deployment/badge.svg)]([https://github.com/arihant2math/weathercli/actions/workflows/pages/pages-build-deployment](https://arihant2math.github.io/weathercli/index.html))
 [![CI](https://github.com/arihant2math/weathercli/actions/workflows/build.yml/badge.svg)](https://github.com/arihant2math/weathercli/actions/workflows/build.yml)

@@ -5,7 +5,7 @@ bin = [
 
 [package]
 name = "weather_core"
-version = "2023.3.21"
+version = "2023.3.23"
 edition = "2021"
 
 [lib]
@@ -14,6 +14,9 @@ crate-type = [
     "cdylib",
     "rlib",
 ]
+
+[build-dependencies]
+winresource = "0.1"
 
 [dependencies]
 rayon = "1.7.0"
@@ -60,7 +63,7 @@ features = [
     "derive",
 ]
 
-[target."cfg(target_os = \"windows\")".dependencies.windows]
+[target."cfg(windows)".dependencies.windows]
 version = "0.46.0"
 features = [
     "Foundation",

@@ -137,7 +137,7 @@ fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
             let ca = attempt_cache.unwrap();
             let splt = ca.split(',');
             let split_vec: Vec<&str> = splt.into_iter().collect();
-            handle.join();
+            handle.join().expect("Update Hits Thread Failed");
             [split_vec[0].to_string(), split_vec[1].to_string()]
         };
     }
@@ -148,7 +148,7 @@ fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
 fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option<[String; 2]> {
     let attempt_cache = cache::read("location".to_string() + &location_string);
     return if attempt_cache.is_none() {
-        let mut coordinates: Option<Vec<String>> = None;
+        let mut coordinates: Option<Vec<String>>;
         if bing_maps_api_key != *"" {
             coordinates = bing_maps_location_query(&location_string, bing_maps_api_key);
             if coordinates.is_none() {
@@ -175,7 +175,7 @@ fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option
         });
         let real_cache = attempt_cache.unwrap();
         let vec_collect: Vec<&str> = real_cache.split(",").collect();
-        handle.join();
+        handle.join().expect("Update Hits Thread Failed");
         Some([vec_collect[0].to_string(), vec_collect[1].to_string()])
     };
 }
@@ -206,7 +206,7 @@ fn reverse_location(latitude: f64, longitude: f64) -> [String; 2] {
         });
         let real_cache = attempt_cache.unwrap();
         let vec_collect: Vec<&str> = real_cache.split(",?`|").collect();
-        handle.join();
+        handle.join().expect("Update Hits Thread Failed");
         [vec_collect[0].to_string(), vec_collect[1].to_string()]
     }
 }

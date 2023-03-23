@@ -149,6 +149,7 @@ async fn main() -> Result<(), String> {
         println!("3.11.2023");
         return Ok(());
     }
+    weather_core::updater::update_web_resources(false);
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {

@@ -10,7 +10,7 @@ pub mod local;
 pub mod location;
 pub mod networking;
 mod prompt;
-mod updater;
+pub mod updater;
 mod layout;
 mod settings_app;
 

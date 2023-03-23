@@ -72,7 +72,7 @@ pub fn read(key: String) -> Option<String> {
     for b in buffer {
         if b == 28 {
             if current_key == key {
-                return Some(current_value.parse().unwrap());
+                return Some(current_value.to_string());
             }
             current_key = String::from("");
             current_value = String::from("");
@@ -94,7 +94,7 @@ pub fn read(key: String) -> Option<String> {
         }
     }
     if current_key != *"" && current_key == key {
-        return Some(current_value.parse().unwrap());
+        return Some(current_value.to_string());
     }
     None
 }
