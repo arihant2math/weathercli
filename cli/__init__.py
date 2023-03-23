@@ -64,7 +64,8 @@ def get_data_from_datasource(
     if settings.auto_update_internet_resources:
         logger.info("Updating web resources")
         thread = Thread(
-            target=weather_core.updater.update_web_resources, args=[settings.development]
+            target=weather_core.updater.update_web_resources,
+            args=[settings.development],
         )
         thread.start()
     if datasource == "NWS":

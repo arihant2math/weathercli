@@ -60,7 +60,9 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
     elif imperial:
         true_metric = False
     if ctx.invoked_subcommand is None:
-        location = weather_core.location.get_location(no_sys_loc, settings.constant_location)
+        location = weather_core.location.get_location(
+            no_sys_loc, settings.constant_location
+        )
         logger.debug("datasource=" + datasource, extra=d)
         logger.info("location=" + str(location), extra=d)
         logger.debug("metric=" + str(true_metric), extra=d)
@@ -102,7 +104,9 @@ def place(ctx, location, json, metric, imperial, datasource):
     elif imperial:
         true_metric = False
     try:
-        location = weather_core.location.get_coordinates(location, settings.bing_maps_api_key)
+        location = weather_core.location.get_coordinates(
+            location, settings.bing_maps_api_key
+        )
     except LookupError:
         print(colorama.Fore.RED + "Place not Found")
         logger.critical("Place not Found")
@@ -122,7 +126,7 @@ if __name__ == "__main__":
             # No traceback
             print(
                 colorama.Fore.RED
-                + "Internal WeatherCli Error\nSomething went wrong\nDetails:\n%s: %s\nSet debug "
+                + "Internal Weather CLI Error\nSomething went wrong\nDetails:\n%s: %s\nSet debug "
                 "to true for a traceback by running weather config debug true or manually "
                 "editing the settings file at ~/.weathercli/settings.json and setting the key "
                 "'debug' to true." % (exception_type.__name__, exception)

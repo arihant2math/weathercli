@@ -81,7 +81,7 @@ class Cls(Component):
         self.functions = [
             Function(getattr(obj, a), supress_warnings)
             for a in self.attributes
-            if (inspect.isroutine(getattr(obj, a))) or (obj in ["__new__"])
+            if (inspect.isroutine(getattr(obj, a))) or (obj in ["__new__", "__str__"])
         ]
         self.variables = []
         for v in self.attributes:
