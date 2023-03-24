@@ -1,12 +1,12 @@
 bin = [
     { name = "weatherd", path = "bin/weatherd.rs" },
     { name = "updater", path = "bin/updater.rs" },
-    { name = "installer", path = "bin/installer.rs"}
+    { name = "installer", path = "bin/installer.rs" },
 ]
 
 [package]
 name = "weather_core"
-version = "2023.3.23"
+version = "2023.3.24"
 edition = "2021"
 
 [lib]
