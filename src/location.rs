@@ -185,7 +185,7 @@ fn reverse_location(latitude: f64, longitude: f64) -> [String; 2] {
     let k = latitude.to_string() + "," + &longitude.to_string();
     let attempt_cache = cache::read("coordinates".to_string() + &k);
     if let Some(..) = attempt_cache {
-        let data = nominatim_reverse_geocode(latitude.to_string(), longitude.to_string());
+        let data = nominatim_reverse_geocode(&latitude.to_string(), &longitude.to_string());
         let place: Value = serde_json::from_str(&data).unwrap();
         let country = place["address"]["country"].as_str().unwrap().to_string();
         let mut region = "";
