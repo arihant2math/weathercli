@@ -57,11 +57,12 @@ struct IndexStruct {
     weatherd_exe_hash_unix: String,
 }
 
-async fn update_component(
+pub async fn update_component(
     url: &str,
     path: &str,
     progress_msg: String,
     finish_msg: String,
+    quiet: bool
 ) -> Result<(), String> {
     let client = Client::new();
     // Reqwest setup
@@ -84,14 +85,15 @@ async fn update_component(
         thread::sleep(Duration::from_millis(100));
     }
     let mut file = file_expect.unwrap();
-
-    let progress_bar = ProgressBar::new(total_size);
-    progress_bar.set_style(ProgressStyle::default_bar()
-        .template("{msg}\n[{elapsed}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
-        .expect("Failed due to progress bar error")
-        .progress_chars("━ "));
-    progress_bar.set_message(progress_msg + url);
-
+    let mut progress_bar = ProgressBar::hidden();
+    if !quiet {
+        progress_bar = ProgressBar::new(total_size);
+        progress_bar.set_style(ProgressStyle::default_bar()
+            .template("{msg}\n[{elapsed}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
+            .expect("Failed due to progress bar error")
+            .progress_chars("━ "));
+        progress_bar.set_message(progress_msg + url);
+    }
     // download chunks
     let mut downloaded: u64 = 0;
     let mut stream = res.bytes_stream();
@@ -102,13 +104,17 @@ async fn update_component(
             .map_err(|_| "Error while writing to file".to_string())?;
         let new = min(downloaded + (chunk.len() as u64), total_size);
         downloaded = new;
-        progress_bar.set_position(new);
+        if !quiet {
+            progress_bar.set_position(new);
+        }
     }
-    progress_bar.set_style(ProgressStyle::default_bar()
-        .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec})")
-        .expect("Failed due to progress bar error")
-        .progress_chars("━ "));
-    progress_bar.finish_with_message(finish_msg);
+    if !quiet {
+        progress_bar.set_style(ProgressStyle::default_bar()
+            .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec})")
+            .expect("Failed due to progress bar error")
+            .progress_chars("━ "));
+        progress_bar.finish_with_message(finish_msg);
+    }
     Ok(())
 }
 
@@ -146,7 +152,7 @@ async fn main() -> Result<(), String> {
         .expect("Index get failed");
     let json: IndexStruct = serde_json::from_str(&resp.text().await.expect("Failed to receive text")).expect("JSON parsing failed");
     if args.version {
-        println!("3.11.2023");
+        println!("3.23.2023");
         return Ok(());
     }
     weather_core::updater::update_web_resources(false);
@@ -189,6 +195,7 @@ async fn main() -> Result<(), String> {
             path,
             "Downloading weathercli update from ".to_string(),
             "Updated weathercli".to_string(),
+            false
         )
         .await;
         r?;
@@ -210,6 +217,7 @@ async fn main() -> Result<(), String> {
             path,
             "Downloading daemon update from ".to_string(),
             "Updated daemon".to_string(),
+            false
         )
         .await;
         r?;
