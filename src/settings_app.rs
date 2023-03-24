@@ -36,16 +36,16 @@ fn save(data: SettingsJson) {
 enum DataSource {
     Meteo,
     OpenWeatherMap,
-    NWS,
+    Nws,
     TheWeatherChannel
 }
 
 impl ToString for DataSource {
     fn to_string(&self) -> String {
-        return match self {
+        match self {
             DataSource::Meteo => "meteo".to_string(),
             DataSource::OpenWeatherMap => "openweathermap".to_string(),
-            DataSource::NWS => "nws".to_string(),
+            DataSource::Nws => "nws".to_string(),
             DataSource::TheWeatherChannel => "theweatherchannel".to_string(),
         }
     }
@@ -73,12 +73,12 @@ impl Sandbox for App {
             Message::AutoUpdateInternetResources(value) => self.data.auto_update_internet_resources = Some(value),
             Message::EnableDaemon(value) => self.data.enable_daemon = Some(value),
             Message::OpenWeatherMapAPIKey(value) => self.data.open_weather_map_api_key = Some(value),
-            Message::DataSource(value) => self.data.default_backend = Some(value.to_string()),
+            Message::DataSource(value) => self.data.default_backend = Some(value.to_string().to_uppercase()),
         }
     }
 
     fn view(&self) -> Element<Message> {
-        let data_source = [DataSource::Meteo, DataSource::OpenWeatherMap, DataSource::NWS, DataSource::TheWeatherChannel]
+        let data_source = [DataSource::Meteo, DataSource::OpenWeatherMap, DataSource::Nws, DataSource::TheWeatherChannel]
                 .iter()
                 .fold(
                     column![text("Default Backend:")].spacing(10),
@@ -86,9 +86,9 @@ impl Sandbox for App {
                         column.push(radio(
                             format!("{data_source:?}"),
                             *data_source,
-                            Some(match &*self.data.default_backend.clone().unwrap_or("meteo".to_string()) {
+                            Some(match &*self.data.default_backend.clone().unwrap_or("meteo".to_string()).to_lowercase() {
                                 "openweathermap" => DataSource::OpenWeatherMap,
-                                "nws" => DataSource::NWS,
+                                "nws" => DataSource::Nws,
                                 "theweatherchannel" => DataSource::TheWeatherChannel,
                                 _ => DataSource::Meteo
                             }),
