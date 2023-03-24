@@ -152,10 +152,12 @@ async fn main() -> Result<(), String> {
         .expect("Index get failed");
     let json: IndexStruct = serde_json::from_str(&resp.text().await.expect("Failed to receive text")).expect("JSON parsing failed");
     if args.version {
-        println!("3.23.2023");
+        if !args.quiet {
+            println!("3.23.2023");
+        }
         return Ok(());
     }
-    weather_core::updater::update_web_resources(false);
+    weather_core::updater::update_web_resources(false, Some(args.quiet));
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {
@@ -195,7 +197,7 @@ async fn main() -> Result<(), String> {
             path,
             "Downloading weathercli update from ".to_string(),
             "Updated weathercli".to_string(),
-            false
+            args.quiet
         )
         .await;
         r?;
@@ -217,7 +219,7 @@ async fn main() -> Result<(), String> {
             path,
             "Downloading daemon update from ".to_string(),
             "Updated daemon".to_string(),
-            false
+            args.quiet
         )
         .await;
         r?;
