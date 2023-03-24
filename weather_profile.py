@@ -1,8 +1,9 @@
-from core.location import get_location
+import weather_core
+from weather_core.location import get_location
 
 from cli import LayoutFile
 from cli.backend.meteo.meteo_forecast import MeteoForecast
 
-data = MeteoForecast(get_location(True), False)
+data = MeteoForecast(get_location(True, False), False, weather_core.Settings())
 layout = LayoutFile()
 print(layout.to_string(data, False))
