@@ -1,6 +1,8 @@
 import json
 import math
 
+import weather_core
+
 from cli.backend.meteo.meteo_current import MeteoCurrent
 from cli.backend.meteo.meteo_future import MeteoFuture
 from cli.backend.weather_forecast import WeatherForecast
@@ -10,7 +12,7 @@ class MeteoForecast(WeatherForecast):
     def __init__(self, loc, metric, settings):
         country, region = self.get_location(loc)
         if not metric:
-            data = core.networking.get_urls(
+            data = weather_core.networking.get_urls(
                 [
                     "https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true"
                     "&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,"
@@ -23,7 +25,7 @@ class MeteoForecast(WeatherForecast):
                 ]
             )
         else:
-            data = core.networking.get_urls(
+            data = weather_core.networking.get_urls(
                 [
                     "https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true"
                     "&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,visibility"

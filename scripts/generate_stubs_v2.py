@@ -210,6 +210,6 @@ def main(module_name, out, supress_warnings, no_file_diff, show_diff):
 
 if __name__ == "__main__":
     main(obj={})
-    # m = Module(importlib.import_module("core")).get_ast()
+    # m = Module(importlib.import_module("weather_core")).get_ast()
     # print(m[4])
     # print(ast.dump(m[4][1], indent=4))
