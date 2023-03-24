@@ -1,6 +1,7 @@
 bin = [
     { name = "weatherd", path = "bin/weatherd.rs" },
     { name = "updater", path = "bin/updater.rs" },
+    { name = "installer", path = "bin/installer.rs"}
 ]
 
 [package]
