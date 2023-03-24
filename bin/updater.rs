@@ -119,8 +119,8 @@ pub async fn update_component(
 }
 
 fn is_update_needed_platform(file: &str, web_hash: String) -> Result<bool, String> {
-    if Path::new(&file).exists() {
-        let file_hash = hash_file(file.to_string());
+    if Path::new(file).exists() {
+        let file_hash = hash_file(file);
         Ok(file_hash != web_hash)
     } else {
         Ok(true)
@@ -157,7 +157,7 @@ async fn main() -> Result<(), String> {
         }
         return Ok(());
     }
-    weather_core::updater::update_web_resources(false, Some(args.quiet));
+    weather_core::component_updater::update_web_resources(false, Some(args.quiet));
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {
