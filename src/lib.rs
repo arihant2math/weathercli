@@ -10,14 +10,14 @@ pub mod local;
 pub mod location;
 pub mod networking;
 mod prompt;
-pub mod updater;
+pub mod component_updater;
 mod layout;
 mod settings_app;
 
 /// returns the sha-256 of the file
 #[pyfunction]
-pub fn hash_file(filename: String) -> String {
-    let input = Path::new(&filename);
+pub fn hash_file(filename: &str) -> String {
+    let input = Path::new(filename);
     try_digest(input).unwrap()
 }
 
@@ -38,7 +38,7 @@ fn weather_core(py: Python, module: &PyModule) -> PyResult<()> {
     cache::register_caching_module(py, module)?;
     networking::register_networking_module(py, module)?;
     location::register_location_module(py, module)?;
-    updater::register_updater_module(py, module)?;
+    component_updater::register_updater_module(py, module)?;
     py.run(
         "\
     import sys\

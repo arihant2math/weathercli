@@ -70,7 +70,7 @@ fn nominatim_geocode(query: &str) -> Option<Vec<String>> {
     Some(vec![lat, lon])
 }
 
-fn nominatim_reverse_geocode(lat: String, lon: String) -> String {
+fn nominatim_reverse_geocode(lat: &str, lon: &str) -> String {
     let client = reqwest::blocking::Client::builder()
         .user_agent("weathercli/1")
         .build()
@@ -123,7 +123,7 @@ pub fn get_location_core(_no_sys_loc: bool) -> [String; 2] {
 fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
     if constant_location {
         let attempt_cache = cache::read("current_location".to_string());
-        return if attempt_cache.is_none() {
+        return if let Some(..) = attempt_cache {
             let location = get_location_core(no_sys_loc);
             cache::write(
                 "current_location".to_string(),
@@ -147,7 +147,7 @@ fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
 #[pyfunction]
 fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option<[String; 2]> {
     let attempt_cache = cache::read("location".to_string() + &location_string);
-    return if attempt_cache.is_none() {
+    return if let Some(..) = attempt_cache {
         let mut coordinates: Option<Vec<String>>;
         if bing_maps_api_key != *"" {
             coordinates = bing_maps_location_query(&location_string, bing_maps_api_key);
@@ -174,7 +174,7 @@ fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option
             cache::update_hits(cache_string);
         });
         let real_cache = attempt_cache.unwrap();
-        let vec_collect: Vec<&str> = real_cache.split(",").collect();
+        let vec_collect: Vec<&str> = real_cache.split(',').collect();
         handle.join().expect("Update Hits Thread Failed");
         Some([vec_collect[0].to_string(), vec_collect[1].to_string()])
     };
@@ -184,7 +184,7 @@ fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option
 fn reverse_location(latitude: f64, longitude: f64) -> [String; 2] {
     let k = latitude.to_string() + "," + &longitude.to_string();
     let attempt_cache = cache::read("coordinates".to_string() + &k);
-    if attempt_cache.is_none() {
+    if let Some(..) = attempt_cache {
         let data = nominatim_reverse_geocode(latitude.to_string(), longitude.to_string());
         let place: Value = serde_json::from_str(&data).unwrap();
         let country = place["address"]["country"].as_str().unwrap().to_string();

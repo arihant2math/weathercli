@@ -24,7 +24,7 @@ fn update_web_resource(
 ) {
     if !dev {
         let mut f = WeatherFile::new(local_path);
-        let file_hash = hash_file(f.path.display().to_string());
+        let file_hash = hash_file(&f.path.display().to_string());
         let resp =
             reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
                 .expect("");

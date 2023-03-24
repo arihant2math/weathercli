@@ -35,7 +35,9 @@ pub struct SettingsJson {
     #[pyo3(get, set)]
     pub enable_daemon: Option<bool>,
     #[pyo3(get, set)]
-    pub daemon_update_interval: Option<i64>
+    pub daemon_update_interval: Option<i64>,
+    #[pyo3(get, set)]
+    pub installed_components: Option<Vec<String>>,
 }
 
 #[pyclass]
@@ -59,18 +61,10 @@ impl Settings {
         let file = WeatherFile::new("settings.json".to_string());
         let mut parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");
         let values: Value = serde_json::from_str(&file.data).expect("JSON read failed");
-        if parsed.open_weather_map_api_key.is_none() {
-            parsed.open_weather_map_api_key = Some("".to_string());
-        }
-        if parsed.bing_maps_api_key.is_none() {
-            parsed.bing_maps_api_key = Some("".to_string());
-        }
-        if parsed.ncdc_api_key.is_none() {
-            parsed.ncdc_api_key = Some("".to_string());
-        }
-        if parsed.metric_default.is_none() {
-            parsed.metric_default = Some(false);
-        }
+        parsed.open_weather_map_api_key = Some(parsed.open_weather_map_api_key.unwrap_or("".to_string()));
+        parsed.bing_maps_api_key = Some(parsed.bing_maps_api_key.unwrap_or("".to_string()));
+        parsed.ncdc_api_key = Some(parsed.ncdc_api_key.unwrap_or("".to_string()));
+        parsed.metric_default = Some(parsed.metric_default.unwrap_or(false));
         let valid_backends = vec![
             "OPENWEATHERMAP".to_string(),
             "METEO".to_string(),
@@ -82,35 +76,13 @@ impl Settings {
         {
             parsed.default_backend = Some("METEO".to_string());
         }
-        if parsed.constant_location.is_none() {
-            parsed.constant_location = Some(false);
-        }
-        if parsed.auto_update_internet_resources.is_none() {
-            parsed.auto_update_internet_resources = Some(true);
-        }
-        if parsed.debug.is_none() {
-            parsed.debug = Some(true);
-        }
-        if parsed.development.is_none() {
-            parsed.development = Some(true);
-        }
-        if parsed.show_alerts.is_none() {
-            parsed.show_alerts = Some(true);
-        }
-        if parsed.show_alerts.is_none() {
-            parsed.show_alerts = Some(true);
-        }
-        if parsed.layout_file.is_some()
-            && parsed.layout_file.clone().unwrap().to_lowercase() == "none"
-        {
-            parsed.layout_file = None;
-        }
-        if parsed.enable_daemon.is_none() {
-            parsed.enable_daemon = Some(true);
-        }
-        if parsed.daemon_update_interval.is_none() {
-            parsed.daemon_update_interval = Some(300);
-        }
+        parsed.constant_location = Some(parsed.constant_location.unwrap_or(false));
+        parsed.auto_update_internet_resources = Some(parsed.auto_update_internet_resources.unwrap_or(true));
+        parsed.debug = Some(parsed.debug.unwrap_or(false));
+        parsed.development = Some(parsed.development.unwrap_or(false));
+        parsed.show_alerts = Some(parsed.show_alerts.unwrap_or(true));
+        parsed.enable_daemon = Some(parsed.enable_daemon.unwrap_or(false));
+        parsed.daemon_update_interval = Some(parsed.daemon_update_interval.unwrap_or(300));
         Settings { internal: parsed, value_base: values, file }
     }
 
