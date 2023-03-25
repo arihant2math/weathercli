@@ -68,7 +68,9 @@ def docs():
 
 @main.command("stubs")
 def stubs():
-    ast_gen: list[list] = Module(importlib.import_module("weather_core"), False).get_ast()
+    ast_gen: list[list] = Module(
+        importlib.import_module("weather_core"), False
+    ).get_ast()
     write(Path("./venv/Lib/site-packages/weather_core/"), ast_gen, True, False)
     print(colorama.Fore.GREEN + "Done!")
 

@@ -64,15 +64,23 @@ def get_data_from_datasource(
         thread.start()
     if datasource == "NWS":
         from cli.backend.nws.nws_forecast import NationalWeatherServiceForecast
+
         data = NationalWeatherServiceForecast(location, true_metric, settings)
     elif datasource == "THEWEATHERCHANNEL":
-        from cli.backend.theweatherchannel.the_weather_channel_forecast import TheWeatherChannelForecast
+        from cli.backend.theweatherchannel.the_weather_channel_forecast import (
+            TheWeatherChannelForecast,
+        )
+
         data = TheWeatherChannelForecast(location, true_metric, settings)
     elif datasource == "OPENWEATHERMAP":
-        from cli.backend.openweathermap.openweathermap_forecast import OpenWeatherMapForecast
+        from cli.backend.openweathermap.openweathermap_forecast import (
+            OpenWeatherMapForecast,
+        )
+
         data = OpenWeatherMapForecast(location, true_metric, settings)
     elif datasource == "METEO":
         from cli.backend.meteo.meteo_forecast import MeteoForecast
+
         data = MeteoForecast(location, true_metric, settings)
     else:
         print(colorama.Fore.RED + "Invalid Data Source!")

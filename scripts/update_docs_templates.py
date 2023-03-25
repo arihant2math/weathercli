@@ -2,7 +2,7 @@ import datetime
 import json
 import os
 import shutil
-import threading
+from multiprocessing import Process
 from zipfile import ZipFile
 
 import click
@@ -62,61 +62,31 @@ def main(gh_token):
     if len(rust_ci) > 0:
         latest_updater_run_id = rust_ci[0]["id"]
         rust_artifacts = get_artifact_urls(s, latest_updater_run_id)
-    u = None
-    w = None
-    uu = None
-    wu = None
-    ud = None
-    wd = None
+    tasks = []
     if artifacts is not None:
         print("Starting Unix Download")
-        u = threading.Thread(
-            target=download_artifact, args=(s, artifacts, "weather (Unix)", "weather")
-        )
-        u.start()
+        tasks.append((s, artifacts, "weather (Unix)", "weather"))
         print("Starting Windows Download")
-        w = threading.Thread(
-            target=download_artifact,
-            args=(s, artifacts, "weather (Windows)", "weather.exe"),
-        )
-        w.start()
+        tasks.append((s, artifacts, "weather (Windows)", "weather.exe"))
     if rust_artifacts is not None:
         print("Starting Unix Download (Updater)")
-        uu = threading.Thread(
-            target=download_artifact,
-            args=(s, rust_artifacts, "updater (Unix)", "updater"),
+        tasks.append(
+            (s, rust_artifacts, "updater (Unix)", "updater"),
         )
-        uu.start()
         print("Starting Windows Download (Updater)")
-        wu = threading.Thread(
-            target=download_artifact,
-            args=(s, rust_artifacts, "updater (Windows)", "updater.exe"),
-        )
-        wu.start()
+        tasks.append((s, rust_artifacts, "updater (Windows)", "updater.exe"))
         print("Starting Unix Download (Daemon)")
-        ud = threading.Thread(
-            target=download_artifact,
-            args=(s, rust_artifacts, "weatherd (Unix)", "weatherd"),
-        )
-        ud.start()
+        tasks.append((s, rust_artifacts, "weatherd (Unix)", "weatherd"))
         print("Starting Windows Download (Daemon)")
-        wd = threading.Thread(
-            target=download_artifact,
-            args=(s, rust_artifacts, "weatherd (Windows)", "weatherd.exe"),
-        )
-        wd.start()
-    if u is not None:
-        u.join()
-    if w is not None:
-        w.join()
-    if uu is not None:
-        uu.join()
-    if wu is not None:
-        wu.join()
-    if ud is not None:
-        ud.join()
-    if wd is not None:
-        wd.join()
+        tasks.append((s, rust_artifacts, "weatherd (Windows)", "weatherd.exe"))
+    jobs = []
+    for task in tasks:
+        # print(task)
+        p = Process(target=download_artifact, args=task)
+        p.start()
+        jobs.append(p)
+    for job in jobs:
+        job.join()
     shutil.rmtree("./tmp")
     d = json.load((weathercli_dir / "docs_templates" / "index.json").open())
     now = datetime.datetime.now()
