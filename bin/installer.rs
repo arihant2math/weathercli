@@ -58,20 +58,13 @@ impl Sandbox for Installer {
             );
         }
 
-        let content: Element<_> = column![
-            steps.view().map(Message::StepMessage),
-            controls,
-        ]
-        .max_width(540)
-        .spacing(20)
-        .padding(20)
-        .into();
+        let content: Element<_> = column![steps.view().map(Message::StepMessage), controls,]
+            .max_width(540)
+            .spacing(20)
+            .padding(20)
+            .into();
 
-        let scrollable = scrollable(
-            container(content)
-            .width(Length::Fill)
-            .center_x(),
-        );
+        let scrollable = scrollable(container(content).width(Length::Fill).center_x());
 
         container(scrollable).height(Length::Fill).center_y().into()
     }
@@ -94,7 +87,10 @@ impl Steps {
         Steps {
             steps: vec![
                 Step::Welcome,
-                Step::Components { daemon_checked: false, updater_checked: true},
+                Step::Components {
+                    daemon_checked: false,
+                    updater_checked: true,
+                },
                 Step::Install { completed: false },
                 Step::End,
             ],
@@ -123,13 +119,11 @@ impl Steps {
     }
 
     fn can_revert(&self) -> bool {
-        self.current + 1 < self.steps.len()
-            && self.steps[self.current].can_revert()
+        self.current + 1 < self.steps.len() && self.steps[self.current].can_revert()
     }
 
     fn can_continue(&self) -> bool {
-        self.current + 1 < self.steps.len()
-            && self.steps[self.current].can_continue()
+        self.current + 1 < self.steps.len() && self.steps[self.current].can_continue()
     }
 
     fn title(&self) -> &str {
@@ -139,9 +133,14 @@ impl Steps {
 
 enum Step {
     Welcome,
-    Components {daemon_checked: bool, updater_checked: bool},
-    Install {completed: bool},
-    End
+    Components {
+        daemon_checked: bool,
+        updater_checked: bool,
+    },
+    Install {
+        completed: bool,
+    },
+    End,
 }
 
 #[derive(Debug, Clone)]
@@ -158,15 +157,17 @@ impl<'a> Step {
                 if let Step::Components { daemon_checked, .. } = self {
                     *daemon_checked = v;
                 }
-            },
+            }
             StepMessage::UpdaterChecked(v) => {
-                if let Step::Components { daemon_checked, updater_checked } = self {
+                if let Step::Components {
+                    daemon_checked,
+                    updater_checked,
+                } = self
+                {
                     *updater_checked = v;
                 }
             }
-            StepMessage::WeatherCliChecked(v) => {
-
-            }
+            StepMessage::WeatherCliChecked(v) => {}
         };
     }
 
@@ -195,7 +196,10 @@ impl<'a> Step {
     fn view(&self) -> Element<StepMessage> {
         match self {
             Step::Welcome => Self::welcome(),
-            Step::Components { daemon_checked, updater_checked } => Self::components(*daemon_checked, *updater_checked),
+            Step::Components {
+                daemon_checked,
+                updater_checked,
+            } => Self::components(*daemon_checked, *updater_checked),
             Step::Install { completed } => Self::install(*completed),
             Step::End => Self::end(),
         }
@@ -208,9 +212,7 @@ impl<'a> Step {
 
     fn welcome() -> Column<'a, StepMessage> {
         Self::container("WeatherCLI Installer")
-            .push(
-                "Welcome to the GUI weathercli installer, press Next to begin."
-            )
+            .push("Welcome to the GUI weathercli installer, press Next to begin.")
     }
 
     fn components(daemon_checked: bool, updater_checked: bool) -> Column<'a, StepMessage> {
@@ -232,17 +234,14 @@ impl<'a> Step {
     }
 
     fn end() -> Column<'a, StepMessage> {
-        Self::container("The installation has completed!")
-            .push("You may close this window.")
+        Self::container("The installation has completed!").push("You may close this window.")
     }
 }
 
 fn button<'a, Message: Clone>(label: &str) -> Button<'a, Message> {
-    iced::widget::button(
-        text(label).horizontal_alignment(alignment::Horizontal::Center),
-    )
-    .padding(12)
-    .width(100)
+    iced::widget::button(text(label).horizontal_alignment(alignment::Horizontal::Center))
+        .padding(12)
+        .width(100)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -260,7 +259,6 @@ pub enum Layout {
     Row,
     Column,
 }
-
 
 fn main() -> Result<(), String> {
     Installer::run(Settings::default()).expect("GUI Failed");

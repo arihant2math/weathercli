@@ -27,7 +27,7 @@ pub struct Resp {
 #[derive(Clone, Serialize, Deserialize)]
 struct SessionInternalSerialize {
     user_agent: String,
-    header_map: HashMap<String, String>
+    header_map: HashMap<String, String>,
 }
 
 #[pyclass(module = "weather_core.networking")]
@@ -51,9 +51,14 @@ impl Session {
             .cookie_provider::<Jar>(Arc::new(jar))
             .build()
             .unwrap();
-        Session { client, internal_serialize: SessionInternalSerialize { user_agent: app_user_agent, header_map: headers.unwrap_or(HashMap::new())  } }
+        Session {
+            client,
+            internal_serialize: SessionInternalSerialize {
+                user_agent: app_user_agent,
+                header_map: headers.unwrap_or(HashMap::new()),
+            },
+        }
     }
-
 
     pub fn __setstate__(&mut self, py: Python, state: PyObject) -> PyResult<()> {
         match state.extract::<&PyBytes>(py) {
@@ -63,7 +68,9 @@ impl Session {
                 let client = reqwest::blocking::Client::builder()
                     .user_agent(self.internal_serialize.user_agent.to_string())
                     .cookie_store(true)
-                    .default_headers(get_header_map(Some(self.internal_serialize.header_map.clone())))
+                    .default_headers(get_header_map(Some(
+                        self.internal_serialize.header_map.clone(),
+                    )))
                     .cookie_provider::<Jar>(Arc::new(jar))
                     .build()
                     .unwrap();

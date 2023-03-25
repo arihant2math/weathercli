@@ -23,7 +23,7 @@ struct Cli {
     #[clap(long, short, action)]
     version: bool,
     #[clap(long, short, action)]
-    force: bool
+    force: bool,
 }
 
 #[derive(Eq, PartialEq, Clone, Copy)]
@@ -62,7 +62,7 @@ pub async fn update_component(
     path: &str,
     progress_msg: String,
     finish_msg: String,
-    quiet: bool
+    quiet: bool,
 ) -> Result<(), String> {
     let client = Client::new();
     // Reqwest setup
@@ -150,7 +150,9 @@ async fn main() -> Result<(), String> {
     let resp = reqwest::get("https://arihant2math.github.io/weathercli/docs/index.json")
         .await
         .expect("Index get failed");
-    let json: IndexStruct = serde_json::from_str(&resp.text().await.expect("Failed to receive text")).expect("JSON parsing failed");
+    let json: IndexStruct =
+        serde_json::from_str(&resp.text().await.expect("Failed to receive text"))
+            .expect("JSON parsing failed");
     if args.version {
         if !args.quiet {
             println!("3.23.2023");
@@ -197,7 +199,7 @@ async fn main() -> Result<(), String> {
             path,
             "Downloading weathercli update from ".to_string(),
             "Updated weathercli".to_string(),
-            args.quiet
+            args.quiet,
         )
         .await;
         r?;
@@ -219,7 +221,7 @@ async fn main() -> Result<(), String> {
             path,
             "Downloading daemon update from ".to_string(),
             "Updated daemon".to_string(),
-            args.quiet
+            args.quiet,
         )
         .await;
         r?;

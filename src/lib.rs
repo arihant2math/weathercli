@@ -6,12 +6,12 @@ use sha256::try_digest;
 use crate::local::cache;
 
 pub mod backend;
+pub mod component_updater;
+mod layout;
 pub mod local;
 pub mod location;
 pub mod networking;
 mod prompt;
-pub mod component_updater;
-mod layout;
 mod settings_app;
 
 /// returns the sha-256 of the file

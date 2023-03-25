@@ -11,7 +11,7 @@ pub fn run_settings_app() -> iced::Result {
 #[derive(Default)]
 struct App {
     theme: Theme,
-    data: SettingsJson
+    data: SettingsJson,
 }
 
 #[derive(Debug, Clone)]
@@ -31,13 +31,12 @@ fn save(data: SettingsJson) {
     settings.write();
 }
 
-
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 enum DataSource {
     Meteo,
     OpenWeatherMap,
     Nws,
-    TheWeatherChannel
+    TheWeatherChannel,
 }
 
 impl ToString for DataSource {
@@ -70,36 +69,59 @@ impl Sandbox for App {
             Message::Save => save(self.data.clone()),
             Message::MetricDefault(value) => self.data.metric_default = Some(value),
             Message::ShowAlerts(value) => self.data.show_alerts = Some(value),
-            Message::AutoUpdateInternetResources(value) => self.data.auto_update_internet_resources = Some(value),
+            Message::AutoUpdateInternetResources(value) => {
+                self.data.auto_update_internet_resources = Some(value)
+            }
             Message::EnableDaemon(value) => self.data.enable_daemon = Some(value),
-            Message::OpenWeatherMapAPIKey(value) => self.data.open_weather_map_api_key = Some(value),
-            Message::DataSource(value) => self.data.default_backend = Some(value.to_string().to_uppercase()),
+            Message::OpenWeatherMapAPIKey(value) => {
+                self.data.open_weather_map_api_key = Some(value)
+            }
+            Message::DataSource(value) => {
+                self.data.default_backend = Some(value.to_string().to_uppercase())
+            }
         }
     }
 
     fn view(&self) -> Element<Message> {
-        let data_source = [DataSource::Meteo, DataSource::OpenWeatherMap, DataSource::Nws, DataSource::TheWeatherChannel]
-                .iter()
-                .fold(
-                    column![text("Default Backend:")].spacing(10),
-                    |column, data_source| {
-                        column.push(radio(
-                            format!("{data_source:?}"),
-                            *data_source,
-                            Some(match &*self.data.default_backend.clone().unwrap_or("meteo".to_string()).to_lowercase() {
-                                "openweathermap" => DataSource::OpenWeatherMap,
-                                "nws" => DataSource::Nws,
-                                "theweatherchannel" => DataSource::TheWeatherChannel,
-                                _ => DataSource::Meteo
-                            }),
-                            Message::DataSource,
-                        ))
-                    },
-                );
+        let data_source = [
+            DataSource::Meteo,
+            DataSource::OpenWeatherMap,
+            DataSource::Nws,
+            DataSource::TheWeatherChannel,
+        ]
+        .iter()
+        .fold(
+            column![text("Default Backend:")].spacing(10),
+            |column, data_source| {
+                column.push(radio(
+                    format!("{data_source:?}"),
+                    *data_source,
+                    Some(
+                        match &*self
+                            .data
+                            .default_backend
+                            .clone()
+                            .unwrap_or("meteo".to_string())
+                            .to_lowercase()
+                        {
+                            "openweathermap" => DataSource::OpenWeatherMap,
+                            "nws" => DataSource::Nws,
+                            "theweatherchannel" => DataSource::TheWeatherChannel,
+                            _ => DataSource::Meteo,
+                        },
+                    ),
+                    Message::DataSource,
+                ))
+            },
+        );
         let openweathermap_api_key_label = text("OpenWeatherMap API key: ");
         let openweathermap_api_key = text_input(
             "OpenWeatherMap API key",
-            &self.data.open_weather_map_api_key.clone().unwrap_or("".to_string()),
+            &self
+                .data
+                .open_weather_map_api_key
+                .clone()
+                .unwrap_or("".to_string()),
             Message::OpenWeatherMapAPIKey,
         )
         .padding(10)
@@ -133,20 +155,38 @@ impl Sandbox for App {
         .width(Length::Shrink)
         .spacing(10);
 
-
-        let button = button("Save")
-        .padding(10)
-        .on_press(Message::Save);
+        let button = button("Save").padding(10).on_press(Message::Save);
 
         let content = column![
-            row![data_source].spacing(10).height(200).align_items(Alignment::Center),
-            row![openweathermap_api_key_label, openweathermap_api_key].spacing(10).height(50).align_items(Alignment::Center),
-            row![metric_default].spacing(10).height(50).align_items(Alignment::Center),
-            row![show_alerts].spacing(10).height(50).align_items(Alignment::Center),
-            row![auto_update_internet_resources].spacing(10).height(50).align_items(Alignment::Center),
-            row![enable_daemon].spacing(10).height(50).align_items(Alignment::Center),
+            row![data_source]
+                .spacing(10)
+                .height(200)
+                .align_items(Alignment::Center),
+            row![openweathermap_api_key_label, openweathermap_api_key]
+                .spacing(10)
+                .height(50)
+                .align_items(Alignment::Center),
+            row![metric_default]
+                .spacing(10)
+                .height(50)
+                .align_items(Alignment::Center),
+            row![show_alerts]
+                .spacing(10)
+                .height(50)
+                .align_items(Alignment::Center),
+            row![auto_update_internet_resources]
+                .spacing(10)
+                .height(50)
+                .align_items(Alignment::Center),
+            row![enable_daemon]
+                .spacing(10)
+                .height(50)
+                .align_items(Alignment::Center),
             row![button].spacing(10).align_items(Alignment::Center),
-        ].spacing(20).padding(20).max_width(600);
+        ]
+        .spacing(20)
+        .padding(20)
+        .max_width(600);
 
         container(content)
             .width(Length::Fill)

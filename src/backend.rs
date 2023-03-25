@@ -2,12 +2,12 @@ use pyo3::prelude::*;
 
 use openweathermap::FormattedData;
 
+pub mod openweathermap;
 pub mod status;
 pub mod weather_condition;
 pub mod weather_data;
 pub mod weather_forecast;
 pub mod wind_data;
-pub mod openweathermap;
 
 pub fn register_backend_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
     let child_module = PyModule::new(py, "backend")?;

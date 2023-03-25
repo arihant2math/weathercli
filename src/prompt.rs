@@ -11,16 +11,14 @@ fn draw(options: &Vec<String>, choice: usize, multiline: bool) -> String {
     for (count, option) in options.iter().enumerate() {
         if count != choice {
             result += "\x1b[34m  ";
-        }
-        else {
+        } else {
             result += "\x1b[35m> \x1b[32m";
         }
         result += option;
         result += "\x1b[39m";
         if multiline {
             result += "\n"
-        }
-        else {
+        } else {
             result += " "
         }
     }
@@ -45,22 +43,37 @@ pub fn choice(options: Vec<String>, default: usize, multiline: Option<bool>) -> 
         print!("\x1b[1000D");
         if multiline_standard {
             print!("\x1b[{}A", options.len());
-        }
-        else {
+        } else {
             print!("\x1b[1A");
         }
         print!("{}", draw(&options, choice, multiline_standard));
         read().expect("Patching failed");
         // matching the key
         match read().unwrap() {
-            Event::Key(KeyEvent { code: KeyCode::Up, .. }) | Event::Key(KeyEvent { code: KeyCode::Left, .. })
-            => choice = choice.saturating_sub(1),
-            Event::Key(KeyEvent { code: KeyCode::Down, .. }) | Event::Key(KeyEvent { code: KeyCode::Right, .. })
-            => choice = choice.saturating_add(1),
-            Event::Key(KeyEvent { code: KeyCode::Char('c'), modifiers: KeyModifiers::CONTROL, .. })
-            => break,
-            Event::Key(KeyEvent { code: KeyCode::Enter, .. })
-            => break,
+            Event::Key(KeyEvent {
+                code: KeyCode::Up, ..
+            })
+            | Event::Key(KeyEvent {
+                code: KeyCode::Left,
+                ..
+            }) => choice = choice.saturating_sub(1),
+            Event::Key(KeyEvent {
+                code: KeyCode::Down,
+                ..
+            })
+            | Event::Key(KeyEvent {
+                code: KeyCode::Right,
+                ..
+            }) => choice = choice.saturating_add(1),
+            Event::Key(KeyEvent {
+                code: KeyCode::Char('c'),
+                modifiers: KeyModifiers::CONTROL,
+                ..
+            }) => break,
+            Event::Key(KeyEvent {
+                code: KeyCode::Enter,
+                ..
+            }) => break,
             _ => (),
         }
         if choice >= options.len() {

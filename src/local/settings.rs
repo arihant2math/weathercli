@@ -61,7 +61,8 @@ impl Settings {
         let file = WeatherFile::new("settings.json".to_string());
         let mut parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");
         let values: Value = serde_json::from_str(&file.data).expect("JSON read failed");
-        parsed.open_weather_map_api_key = Some(parsed.open_weather_map_api_key.unwrap_or("".to_string()));
+        parsed.open_weather_map_api_key =
+            Some(parsed.open_weather_map_api_key.unwrap_or("".to_string()));
         parsed.bing_maps_api_key = Some(parsed.bing_maps_api_key.unwrap_or("".to_string()));
         parsed.ncdc_api_key = Some(parsed.ncdc_api_key.unwrap_or("".to_string()));
         parsed.metric_default = Some(parsed.metric_default.unwrap_or(false));
@@ -77,13 +78,18 @@ impl Settings {
             parsed.default_backend = Some("METEO".to_string());
         }
         parsed.constant_location = Some(parsed.constant_location.unwrap_or(false));
-        parsed.auto_update_internet_resources = Some(parsed.auto_update_internet_resources.unwrap_or(true));
+        parsed.auto_update_internet_resources =
+            Some(parsed.auto_update_internet_resources.unwrap_or(true));
         parsed.debug = Some(parsed.debug.unwrap_or(false));
         parsed.development = Some(parsed.development.unwrap_or(false));
         parsed.show_alerts = Some(parsed.show_alerts.unwrap_or(true));
         parsed.enable_daemon = Some(parsed.enable_daemon.unwrap_or(false));
         parsed.daemon_update_interval = Some(parsed.daemon_update_interval.unwrap_or(300));
-        Settings { internal: parsed, value_base: values, file }
+        Settings {
+            internal: parsed,
+            value_base: values,
+            file,
+        }
     }
 
     pub fn write(&mut self) {
@@ -97,7 +103,5 @@ impl Settings {
         self.write();
     }
 
-    pub fn reload(&self) {
-
-    }
+    pub fn reload(&self) {}
 }

@@ -14,8 +14,7 @@ struct Cli {
     action: String,
 }
 
-
-fn register() -> Result<(), Error>  {
+fn register() -> Result<(), Error> {
     let path = current_exe()?.display().to_string();
     let auto = AutoLaunchBuilder::new()
         .set_app_name("weatherd")
@@ -51,7 +50,8 @@ fn main() {
         register().expect("Registering failed");
     }
     if args.action == "start" {
-        let sleep_duration = time::Duration::from_secs(settings.internal.daemon_update_interval.unwrap() as u64);
+        let sleep_duration =
+            time::Duration::from_secs(settings.internal.daemon_update_interval.unwrap() as u64);
         loop {
             println!("Updating Data ...");
             let w = WeatherFile::new("downloader_urls.list".to_string());
@@ -67,8 +67,9 @@ fn main() {
                 })
                 .collect();
             let mut out = WeatherFile::new("d.cache".to_string());
-            let joined =
-                weather_core::local::cache::get_date_string() + "EOF\n\n\n\n\nBEGIN" + &*data.join("EOF\n\n\n\n\nBEGIN");
+            let joined = weather_core::local::cache::get_date_string()
+                + "EOF\n\n\n\n\nBEGIN"
+                + &*data.join("EOF\n\n\n\n\nBEGIN");
             out.data = joined;
             out.write();
             thread::sleep(sleep_duration);

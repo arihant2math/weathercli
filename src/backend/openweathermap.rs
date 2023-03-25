@@ -1,6 +1,8 @@
 use pyo3::{pyclass, pyfunction};
 
-use crate::backend::openweathermap::openweathermap_json::{OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson};
+use crate::backend::openweathermap::openweathermap_json::{
+    OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
+};
 use crate::networking;
 use crate::networking::Resp;
 

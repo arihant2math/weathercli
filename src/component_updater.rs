@@ -63,7 +63,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
         "weather-codes-hash",
         "weather codes",
         dev,
-        real_quiet
+        real_quiet,
     );
     update_web_resource(
         "weather_ascii_images.json".to_string(),
@@ -71,7 +71,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
         "weather-ascii-images-hash",
         "ascii images",
         dev,
-        real_quiet
+        real_quiet,
     );
 }
 
