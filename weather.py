@@ -70,7 +70,7 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
         logger.info("location=" + str(location), extra=d)
         logger.debug("metric=" + str(true_metric), extra=d)
         data = get_data_from_datasource(
-            datasource, location, true_metric, settings, logger, datasource == settings.default_backend
+            datasource, location, true_metric, settings, logger, datasource.lower() == settings.default_backend.lower() == "openweathermap"
         )
         print_out(settings.layout_file, data, json, true_metric, logger)
     else:
