@@ -46,7 +46,7 @@ def print_out(
 
 
 def get_data_from_datasource(
-    datasource, location, true_metric, settings, logger: Logger
+    datasource, location, true_metric, settings, logger: Logger, can_use_cached
 ):
     if not os.path.exists(
         Path(os.path.expanduser("~/.weathercli/weather_codes.json"))
