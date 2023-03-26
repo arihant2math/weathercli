@@ -30,7 +30,12 @@ fn update_web_resource(
             println!("web: {} file: {}", web_hash, file_hash)
         }
         if !quiet {
-            println!("\x1b[33mDownloading {} update", out_name);
+            if f.exists {
+                println!("\x1b[33mDownloading {} update", out_name);
+            }
+            else {
+                println!("\x1b[33mDownloading {}", out_name);
+            }
         }
         let data = reqwest::blocking::get(web_path).unwrap().text().unwrap();
         f.data = data;
