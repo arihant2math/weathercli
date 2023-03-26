@@ -54,3 +54,31 @@ jobs:
       with:
         name: weatherd (Unix)
         path: ./target/release/weatherd
+
+    - uses: actions/upload-artifact@v3
+      name: Upload Installer (Windows)
+      if: startsWith(matrix.os, 'windows')
+      with:
+        name: installer (Windows)
+        path: ./target/release/installer.exe
+
+    - uses: actions/upload-artifact@v3
+      name: Upload Installer (Unix)
+      if: startsWith(matrix.os, 'ubuntu')
+      with:
+        name: installer (Unix)
+        path: ./target/release/installer
+
+    - uses: actions/upload-artifact@v3
+      name: Upload GUI Installer (Windows)
+      if: startsWith(matrix.os, 'windows')
+      with:
+        name: GUI installer (Windows)
+        path: ./target/release/gui-installer.exe
+
+    - uses: actions/upload-artifact@v3
+      name: Upload GUI Installer (Unix)
+      if: startsWith(matrix.os, 'ubuntu')
+      with:
+        name: GUI installer (Unix)
+        path: ./target/release/gui-installer
