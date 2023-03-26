@@ -12,6 +12,10 @@ struct Cli {
     quiet: bool,
 }
 
-fn main() {
+fn main() -> Result<(), String> {
     let args = Cli::parse();
+    if args.guided {
+        return Ok(());
+    }
+    Ok(())
 }
