@@ -1,6 +1,5 @@
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
 
 use crate::local::weather_file::WeatherFile;
 
@@ -44,7 +43,6 @@ pub struct SettingsJson {
 pub struct Settings {
     #[pyo3(get)]
     pub internal: SettingsJson,
-    value_base: Value,
     file: WeatherFile,
 }
 
@@ -60,7 +58,6 @@ impl Settings {
     pub fn new() -> Self {
         let file = WeatherFile::new("settings.json".to_string());
         let mut parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");
-        let values: Value = serde_json::from_str(&file.data).expect("JSON read failed");
         parsed.open_weather_map_api_key =
             Some(parsed.open_weather_map_api_key.unwrap_or("".to_string()));
         parsed.bing_maps_api_key = Some(parsed.bing_maps_api_key.unwrap_or("".to_string()));
@@ -87,7 +84,6 @@ impl Settings {
         parsed.daemon_update_interval = Some(parsed.daemon_update_interval.unwrap_or(300));
         Settings {
             internal: parsed,
-            value_base: values,
             file,
         }
     }
@@ -95,12 +91,6 @@ impl Settings {
     pub fn write(&mut self) {
         self.file.data = serde_json::to_string(&self.internal).unwrap();
         self.file.write();
-    }
-
-    pub fn set(&mut self, key: String, value: &str) {
-        let j = json!(value); // TODO: TECHDEBT
-        self.value_base[key] = j;
-        self.write();
     }
 
     pub fn reload(&self) {}

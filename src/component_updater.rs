@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fs;
 use std::fs::OpenOptions;
 use std::io::Write;
 
@@ -12,69 +11,64 @@ use crate::local::weather_file::WeatherFile;
 
 /// Updates the web resource at $weathercli_dir/$local_path if the hash of the local file does not match with
 /// the hash at index.json of the index name, if the hashes do not match it download a copy and replaces the existing file
-/// :param dev: if true the file at ./$local_path will be copied to the web resource location
-#[pyfunction]
+/// :param dev: if true the hashes will be printed if they do not match
 fn update_web_resource(
     local_path: String,
+    web_resp: Value,
     web_path: &str,
     name: &str,
     out_name: &str,
     dev: bool,
     quiet: bool,
 ) {
-    if !dev {
-        let mut f = WeatherFile::new(local_path);
-        let file_hash = hash_file(&f.path.display().to_string());
-        let resp =
-            reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
-                .expect("");
-        if resp.status().as_u16() == 200 {
-            let web_text = resp.text().unwrap();
-            let web_json: Value = serde_json::from_str(&web_text).expect("");
-            let web_hash: String = web_json[name].as_str().unwrap().to_string();
-            if web_hash != file_hash {
-                if !quiet {
-                    println!("\x1b[33mDownloading {} update", out_name);
-                }
-                let data = reqwest::blocking::get(web_path).unwrap().text().unwrap();
-                f.data = data;
-                f.write();
-            }
+    let mut f = WeatherFile::new(local_path);
+    let file_hash = hash_file(&f.path.display().to_string());
+    let web_json: Value = web_resp;
+    let web_hash: String = web_json[name].as_str().unwrap().to_string();
+    if web_hash != file_hash {
+        if dev {
+            println!("web: {} file: {}", web_hash, file_hash)
         }
-    } else {
-        let mut f = WeatherFile::new(local_path);
-        let d = fs::read_to_string(f.path.display().to_string())
-            .unwrap()
-            .parse()
-            .unwrap();
-        f.data = d;
+        if !quiet {
+            println!("\x1b[33mDownloading {} update", out_name);
+        }
+        let data = reqwest::blocking::get(web_path).unwrap().text().unwrap();
+        f.data = data;
         f.write();
     }
 }
 
-/// Updates all the web resources, run on a thread as there is no return value
-/// :param dev: gets passed update_web_resource, if true update_web_resource will copy files from the working dir instead
+/// Updates all the web resources, run on a separate thread as there is no return value
+/// :param dev: gets passed update_web_resource, if true update_web_resource will print the hashes if they don't match
 #[pyfunction]
 pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
     let real_quiet = quiet.unwrap_or(false);
-    update_web_resource(
-        String::from("weather_codes.json"),
-        "https://arihant2math.github.io/weathercli/weather_codes.json",
-        "weather-codes-hash",
-        "weather codes",
-        dev,
-        real_quiet,
-    );
-    update_web_resource(
-        "weather_ascii_images.json".to_string(),
-        "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
-        "weather-ascii-images-hash",
-        "ascii images",
-        dev,
-        real_quiet,
-    );
+    let resp =
+        reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
+            .expect("");
+    if resp.status().as_u16() == 200 {
+        let web_text = resp.text().unwrap();
+        let web_json: Value = serde_json::from_str(&web_text).expect("");
+        update_web_resource(
+            String::from("weather_codes.json"),
+            web_json.clone(),
+            "https://arihant2math.github.io/weathercli/weather_codes.json",
+            "weather-codes-hash",
+            "weather codes",
+            dev,
+            real_quiet,
+        );
+        update_web_resource(
+            "weather_ascii_images.json".to_string(),
+            web_json,
+            "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
+            "weather-ascii-images-hash",
+            "ascii images",
+            dev,
+            real_quiet,
+        );
+    }
 }
-
 #[pyfunction]
 fn get_latest_version() -> String {
     let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
@@ -131,7 +125,6 @@ pub fn register_updater_module(py: Python<'_>, parent_module: &PyModule) -> PyRe
     child_module.add_function(wrap_pyfunction!(get_latest_version, child_module)?)?;
     child_module.add_function(wrap_pyfunction!(get_latest_updater_version, child_module)?)?;
     child_module.add_function(wrap_pyfunction!(get_updater, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(update_web_resource, child_module)?)?;
     child_module.add_function(wrap_pyfunction!(update_web_resources, child_module)?)?;
     parent_module.add_submodule(child_module)?;
     Ok(())

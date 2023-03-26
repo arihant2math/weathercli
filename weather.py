@@ -64,7 +64,7 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
         location = weather_core.location.get_location(
             no_sys_loc, settings.constant_location
         )
-        if settings.daemon_enabled and not os.path.exists(os.path.expanduser("~/.weathercli/downloader_urls.list")):
+        if settings.enable_daemon and not os.path.exists(os.path.expanduser("~/.weathercli/downloader_urls.list")):
             print("daemon enabled, creating downloader list")
         logger.debug("datasource=" + datasource, extra=d)
         logger.info("location=" + str(location), extra=d)

@@ -30,15 +30,18 @@ def config(key_name: str, value):
         v = getattr(settings_s.internal, key_name.lower())
         print(v)
     else:
-        print("Writing ...")
         if value.isdigit():
             value = int(value)
         elif value.lower() in ["true", "t", "yes", "y"]:
             value = True
         elif value.lower() in ["false", "f", "no", "n"]:
             value = False
-        print(value, key_name.lower())
-        settings_s.set(key_name.lower(), value)
+        print("Writing " + key_name.lower() + "=" + str(value) + " ...")
+        f = WeatherFile("settings.json")
+        data = json.loads(f.data)
+        data[key_name.upper()] = value
+        f.data = json.dumps(data)
+        f.write()
 
 
 @command(
