@@ -34,8 +34,9 @@ jobs:
         uses: actions/configure-pages@v2
       - name: Build
         run: |
+          pip install click colorama
           chmod 555 ./jc
-          make docs
+          python ./scripts/dev_helper.py docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
