@@ -7,7 +7,7 @@ bin = [
 
 [package]
 name = "weather_core"
-version = "2023.3.25"
+version = "2023.3.26"
 edition = "2021"
 
 [lib]
