@@ -31,7 +31,7 @@ jobs:
           pip install click colorama
           chmod 555 ./jc
           python3 ./scripts/dev_helper.py docs
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v3
       with:
         name: page
         path: docs
@@ -45,11 +45,11 @@ jobs:
       url: ${{steps.deployment.outputs.page_url}}
 
     steps:
-    - uses: actions/download-artifact@master
+    - uses: actions/download-artifact@v3
       with:
         name: page
         path: .
-    - uses: actions/configure-pages@v1
+    - uses: actions/configure-pages@v2
     - uses: actions/upload-pages-artifact@v1
       with:
         path: .
