@@ -18,6 +18,7 @@ def main():
 @main.command("docs", help="Builds the docs")
 def docs():
     Path("./docs").mkdir(exist_ok=True)
+    Path("./docs/docs").mkdir(exist_ok=True) # for backwards compatibility
     if sys.platform == "win32":
         jc = str(Path("./jc.exe").absolute())
     else:
@@ -67,6 +68,14 @@ def docs():
     shutil.copyfile("./docs_templates/weatherd.exe", "./docs/weatherd.exe")
     shutil.copyfile("./docs_templates/weatherd", "./docs/weatherd")
     shutil.copyfile("./docs_templates/theme.js", "./docs/theme.js")
+    # Everything below is to not break the updater from old versions
+    shutil.copyfile("./docs_templates/weather.exe", "./docs/docs/weather.exe")
+    shutil.copyfile("./docs_templates/weather", "./docs/docs/weather")
+    shutil.copyfile("./docs_templates/updater.exe", "./docs/docs/updater.exe")
+    shutil.copyfile("./docs_templates/updater", "./docs/docs/updater")
+    shutil.copyfile("./docs_templates/weatherd.exe", "./docs/docs/weatherd.exe")
+    shutil.copyfile("./docs_templates/weatherd", "./docs/docs/weatherd")
+    shutil.copyfile("./docs_templates/index.json", "./docs/docs/index.json")
     print(colorama.Fore.GREEN + "Done!")
 
 
