@@ -1,10 +1,14 @@
-use clap::Parser;
 use std::fs;
 use std::path::Path;
+
+use clap::Parser;
+#[cfg(target_os = "windows")]
+use winreg::enums::*;
+#[cfg(target_os = "windows")]
+use winreg::RegKey;
+
 use weather_core::bin_common::update_component;
 use weather_core::component_updater::update_web_resources;
-use winreg::enums::*;
-use winreg::RegKey;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -16,6 +20,29 @@ struct Cli {
     guided: bool,
     #[clap(long, short, action)]
     quiet: bool,
+}
+
+#[cfg(target_os = "windows")]
+fn add_to_path(dir: String) {
+    println!("Adding to Path ...");
+    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let environment = hklm
+        .open_subkey(r#"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"#)
+        .expect("");
+    let mut path: String = environment.get_value("Path").expect("");
+    let append = fs::canonicalize(dir).unwrap().display().to_string();
+    if path.chars().last().unwrap_or(';') != ';' {
+        path += ";"
+    }
+    path += &append;
+    environment
+        .set_value("Path", &path)
+        .expect("RegEdit write failed");
+}
+
+#[cfg(not(target_os = "windows"))]
+fn add_to_path(dir: String) {
+    println!("Add to path is unsupported for your system")
 }
 
 #[tokio::main]
@@ -82,24 +109,7 @@ async fn main() -> Result<(), String> {
     )
     .await?;
     if args.add_to_path {
-        if cfg!(windows) {
-            println!("Adding to Path ...");
-            let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-            let environment = hklm
-                .open_subkey(r#"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"#)
-                .expect("");
-            let mut path: String = environment.get_value("Path").expect("");
-            let append = fs::canonicalize(dir_path).unwrap().display().to_string();
-            if path.chars().last().unwrap_or(';') != ';' {
-                path += ";"
-            }
-            path += &append;
-            environment
-                .set_value("Path", &path)
-                .expect("RegEdit write failed");
-        } else {
-            println!("Add to path is unsupported for your system")
-        }
+        add_to_path(dir_path.display().to_string());
     }
     update_web_resources(false, Some(false));
     Ok(())
