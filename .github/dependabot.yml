@@ -1,9 +1,5 @@
 version: 2
 updates:
-  - package-ecosystem: "pip" # See documentation for possible values
-    directory: "/requirements.in"
-    schedule:
-      interval: "daily"
   - package-ecosystem: "cargo"
     directory: "/cargo.toml"
     schedule:
