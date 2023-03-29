@@ -36,7 +36,12 @@ jobs:
         run: |
           pip install click colorama
           chmod 555 ./jc
-          python ./scripts/dev_helper.py docs
+          python3 ./scripts/dev_helper.py docs
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # Upload docs portion
+          path: './docs'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
