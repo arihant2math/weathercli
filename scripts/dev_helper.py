@@ -30,7 +30,6 @@ def docs():
             "./docs/index.html",
             "--template-dir",
             "./docs_templates",
-            "--no-minify",
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT,
@@ -42,23 +41,11 @@ def docs():
             "./docs/config.html",
             "--template-dir",
             "./docs_templates",
-            "--no-minify",
         ],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.STDOUT,
     )
-    subprocess.Popen(
-        [
-            jc,
-            "index.json",
-            "./docs/index.json",
-            "--template-dir",
-            "./docs_templates",
-            "--no-minify",
-        ],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.STDOUT,
-    )
+    shutil.copyfile("./docs_templates/index.json", "./docs/index.json")
     shutil.copyfile("./docs_templates/hero.png", "./docs/hero.png")
     shutil.copyfile("./docs_templates/logo.png", "./docs/logo.png")
     shutil.copyfile("./docs_templates/weather.exe", "./docs/weather.exe")
