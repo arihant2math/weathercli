@@ -76,11 +76,11 @@ jobs:
       if: startsWith(matrix.os, 'windows')
       with:
         name: GUI installer (Windows)
-        path: ./target/release/gui-installer.exe
+        path: ./target/release/gui_installer.exe
 
     - uses: actions/upload-artifact@v3
       name: Upload GUI Installer (Unix)
       if: startsWith(matrix.os, 'ubuntu')
       with:
         name: GUI installer (Unix)
-        path: ./target/release/gui-installer
+        path: ./target/release/gui_installer
