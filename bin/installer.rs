@@ -73,10 +73,10 @@ async fn main() -> Result<(), String> {
     let url;
     let path;
     if cfg!(windows) {
-        url = "https://arihant2math.github.io/weathercli/docs/weather.exe";
+        url = "https://arihant2math.github.io/weathercli/weather.exe";
         path = "weather.exe";
     } else if cfg!(unix) {
-        url = "https://arihant2math.github.io/weathercli/docs/weather";
+        url = "https://arihant2math.github.io/weathercli/weather";
         path = "weather";
     } else {
         return Err("OS unsupported".to_string());
@@ -92,10 +92,10 @@ async fn main() -> Result<(), String> {
     let url;
     let path;
     if cfg!(windows) {
-        url = "https://arihant2math.github.io/weathercli/docs/weatherd.exe";
+        url = "https://arihant2math.github.io/weathercli/weatherd.exe";
         path = "weatherd.exe";
     } else if cfg!(unix) {
-        url = "https://arihant2math.github.io/weathercli/docs/weatherd";
+        url = "https://arihant2math.github.io/weathercli/weatherd";
         path = "weatherd";
     } else {
         return Err("OS unsupported".to_string());

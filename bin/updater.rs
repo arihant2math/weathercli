@@ -1,7 +1,9 @@
+use std::path::Path;
+
 use clap::Parser;
 use serde::Deserialize;
 use serde::Serialize;
-use std::path::Path;
+
 use weather_core::bin_common::update_component;
 use weather_core::hash_file;
 
@@ -77,7 +79,7 @@ async fn is_update_needed(index: IndexStruct, component: Component) -> Result<bo
 #[tokio::main]
 async fn main() -> Result<(), String> {
     let args = Cli::parse();
-    let resp = reqwest::get("https://arihant2math.github.io/weathercli/docs/index.json")
+    let resp = reqwest::get("https://arihant2math.github.io/weathercli/index.json")
         .await
         .expect("Index get failed");
     let json: IndexStruct =
@@ -115,10 +117,10 @@ async fn main() -> Result<(), String> {
         let url;
         let path;
         if cfg!(windows) {
-            url = "https://arihant2math.github.io/weathercli/docs/weather.exe";
+            url = "https://arihant2math.github.io/weathercli/weather.exe";
             path = "weather.exe";
         } else if cfg!(unix) {
-            url = "https://arihant2math.github.io/weathercli/docs/weather";
+            url = "https://arihant2math.github.io/weathercli/weather";
             path = "weather";
         } else {
             return Err("OS unsupported".to_string());
@@ -136,10 +138,10 @@ async fn main() -> Result<(), String> {
         let url;
         let path;
         if cfg!(windows) {
-            url = "https://arihant2math.github.io/weathercli/docs/weatherd.exe";
+            url = "https://arihant2math.github.io/weathercli/weatherd.exe";
             path = "weatherd.exe";
         } else if cfg!(unix) {
-            url = "https://arihant2math.github.io/weathercli/docs/weatherd";
+            url = "https://arihant2math.github.io/weathercli/weatherd";
             path = "weatherd";
         } else {
             return Err("OS unsupported".to_string());

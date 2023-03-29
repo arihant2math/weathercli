@@ -1,9 +1,10 @@
-use pyo3::prelude::*;
-use pyo3::pyfunction;
-use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+
+use pyo3::prelude::*;
+use pyo3::pyfunction;
+use serde_json::Value;
 
 use crate::hash_file;
 use crate::local::weather_file::WeatherFile;
@@ -46,7 +47,7 @@ fn update_web_resource(
 #[pyfunction]
 pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
     let real_quiet = quiet.unwrap_or(false);
-    let resp = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
+    let resp = reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json")
         .expect("");
     if resp.status().as_u16() == 200 {
         let web_text = resp.text().unwrap();
@@ -73,7 +74,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
 }
 #[pyfunction]
 fn get_latest_version() -> String {
-    let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
+    let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json")
         .expect("");
     let json = data.json::<HashMap<String, String>>().expect("");
     json.get("version").expect("").to_string()
@@ -81,7 +82,7 @@ fn get_latest_version() -> String {
 
 #[pyfunction]
 fn get_latest_updater_version() -> String {
-    let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
+    let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json")
         .expect("");
     let json = data.json::<HashMap<String, String>>().expect("");
     json.get("updater-version").expect("").to_string()
@@ -92,7 +93,7 @@ fn get_latest_updater_version() -> String {
 fn get_updater(path: String) {
     if cfg!(windows) {
         let data =
-            reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/updater.exe")
+            reqwest::blocking::get("https://arihant2math.github.io/weathercli/updater.exe")
                 .expect("url expected")
                 .bytes()
                 .expect("bytes expected");
@@ -105,7 +106,7 @@ fn get_updater(path: String) {
         file.write_all(&data)
             .expect("Something went wrong opening the file");
     } else if cfg!(unix) {
-        let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/updater")
+        let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/updater")
             .expect("url expected")
             .bytes()
             .expect("bytes expected");

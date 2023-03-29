@@ -67,7 +67,7 @@ def update(force):
                 weather_core.updater.get_updater(str(updater_location))
             resp = json.loads(
                 weather_core.networking.get_url(
-                    "https://arihant2math.github.io/weathercli/docs/index.json"
+                    "https://arihant2math.github.io/weathercli/index.json"
                 ).text
             )
             web_force = False
