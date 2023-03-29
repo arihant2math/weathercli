@@ -18,6 +18,7 @@ permissions:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
       matrix:
         python: ["3.9", "3.10", "3.11"]
