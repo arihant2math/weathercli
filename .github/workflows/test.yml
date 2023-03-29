@@ -35,11 +35,20 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install --upgrade wheel
           pip install -r dev-requirements.txt
-          maturin build -r
+      - name: Install corelib (unix)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
           for file in target/wheels/*.whl
           do
             name=${file##*/}
             pip install "$file"
           done
+      - name: Install corelib (windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          $files = Get-ChildItem "target/wheels/"
+          foreach ($f in $files) {
+              pip install $f.FullName
+          }
       - name: Test
         run: pytest .
