@@ -1,10 +1,9 @@
-use std::collections::HashMap;
-use std::fs::OpenOptions;
-use std::io::Write;
-
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 use serde_json::Value;
+use std::collections::HashMap;
+use std::fs::OpenOptions;
+use std::io::Write;
 
 use crate::hash_file;
 use crate::local::weather_file::WeatherFile;
@@ -32,8 +31,7 @@ fn update_web_resource(
         if !quiet {
             if f.exists {
                 println!("\x1b[33mDownloading {} update", out_name);
-            }
-            else {
+            } else {
                 println!("\x1b[33mDownloading {}", out_name);
             }
         }
@@ -48,9 +46,8 @@ fn update_web_resource(
 #[pyfunction]
 pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
     let real_quiet = quiet.unwrap_or(false);
-    let resp =
-        reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
-            .expect("");
+    let resp = reqwest::blocking::get("https://arihant2math.github.io/weathercli/docs/index.json")
+        .expect("");
     if resp.status().as_u16() == 200 {
         let web_text = resp.text().unwrap();
         let web_json: Value = serde_json::from_str(&web_text).expect("");

@@ -1,8 +1,7 @@
-use std::collections::HashMap;
-use std::thread;
-
 use pyo3::prelude::*;
 use serde_json::Value;
+use std::collections::HashMap;
+use std::thread;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 
@@ -88,7 +87,7 @@ fn nominatim_reverse_geocode(lat: &str, lon: &str) -> String {
 /// :param no_sys_loc: if true the location will not be retrieved with the OS location api,
 /// by default the location is retrieved with the OS api whenever possible
 #[cfg(target_os = "windows")]
-pub fn get_location_core(no_sys_loc: bool) -> [String; 2] {
+fn get_location_core(no_sys_loc: bool) -> [String; 2] {
     // If no_sys_loc is true, the location will always be gotten from the web
     if !no_sys_loc {
         return get_location_windows().expect("windows location not found");
@@ -99,7 +98,7 @@ pub fn get_location_core(no_sys_loc: bool) -> [String; 2] {
 /// :param no_sys_loc: if true the location will not be retrieved with the OS location api,
 /// by default the location is retrieved with the OS api whenever possible
 #[cfg(not(target_os = "windows"))]
-pub fn get_location_core(_no_sys_loc: bool) -> [String; 2] {
+fn get_location_core(_no_sys_loc: bool) -> [String; 2] {
     get_location_web().expect("web location not found")
 }
 
@@ -120,7 +119,7 @@ pub fn get_location_core(_no_sys_loc: bool) -> [String; 2] {
 // }
 
 #[pyfunction]
-fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
+pub fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
     if constant_location {
         let attempt_cache = cache::read("current_location".to_string());
         return if let Some(..) = attempt_cache {
@@ -184,7 +183,7 @@ fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option
 fn reverse_location(latitude: f64, longitude: f64) -> [String; 2] {
     let k = latitude.to_string() + "," + &longitude.to_string();
     let attempt_cache = cache::read("coordinates".to_string() + &k);
-    if let Some(..) = attempt_cache {
+    if attempt_cache.is_none() {
         let data = nominatim_reverse_geocode(&latitude.to_string(), &longitude.to_string());
         let place: Value = serde_json::from_str(&data).unwrap();
         let country = place["address"]["country"].as_str().unwrap().to_string();

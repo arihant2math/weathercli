@@ -1,11 +1,11 @@
-use std::path::Path;
-
 use pyo3::prelude::*;
 use sha256::try_digest;
+use std::path::Path;
 
 use crate::local::cache;
 
 pub mod backend;
+pub mod bin_common;
 pub mod component_updater;
 mod layout;
 pub mod local;
@@ -13,7 +13,6 @@ pub mod location;
 pub mod networking;
 mod prompt;
 mod settings_app;
-pub mod bin_common;
 
 /// returns the sha-256 of the file
 #[pyfunction]

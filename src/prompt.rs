@@ -1,9 +1,8 @@
-use std::thread;
-use std::time::Duration;
-
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, read};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use pyo3::pyfunction;
+use std::thread;
+use std::time::Duration;
 
 fn draw(options: &Vec<String>, choice: usize, multiline: bool) -> String {
     assert!(options.len() > choice);

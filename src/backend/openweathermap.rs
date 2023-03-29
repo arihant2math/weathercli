@@ -1,4 +1,5 @@
 use pyo3::{pyclass, pyfunction};
+use serde::{Deserialize, Serialize};
 
 use crate::backend::openweathermap::openweathermap_json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
@@ -9,7 +10,13 @@ use crate::networking::Resp;
 pub mod openweathermap_json;
 
 /// Gets the urls from the openweathermap api server
-fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: bool) -> Vec<String> {
+#[pyfunction]
+pub fn open_weather_map_get_api_urls(
+    url: &str,
+    api_key: String,
+    location: Vec<String>,
+    metric: bool,
+) -> Vec<String> {
     let longitude = location.get(1).expect("");
     let latitude = location.get(0).expect("");
     let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
@@ -31,12 +38,12 @@ fn get_api_urls(url: String, api_key: String, location: Vec<String>, metric: boo
 /// Gets the urls from the openweathermap api server and returns a FormattedData struct with the data
 #[pyfunction]
 pub fn open_weather_map_get_combined_data_formatted(
-    open_weather_map_api_url: String,
+    open_weather_map_api_url: &str,
     open_weather_map_api_key: String,
     coordinates: Vec<String>,
     metric: bool,
 ) -> FormattedData {
-    let urls = get_api_urls(
+    let urls = open_weather_map_get_api_urls(
         open_weather_map_api_url,
         open_weather_map_api_key,
         coordinates,
@@ -55,7 +62,7 @@ pub fn open_weather_map_get_combined_data_formatted(
 }
 
 #[pyclass]
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct FormattedData {
     #[pyo3(get)]
     weather: OpenWeatherMapJson,

@@ -1,6 +1,7 @@
 import importlib
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import click
@@ -17,7 +18,10 @@ def main():
 @main.command("docs", help="Builds the docs")
 def docs():
     Path("./docs").mkdir(exist_ok=True)
-    jc = str(Path("./jc.exe").absolute())
+    if sys.platform == "win32":
+        jc = str(Path("./jc.exe").absolute())
+    else:
+        jc = str(Path("./jc").absolute())
     subprocess.Popen(
         [
             jc,

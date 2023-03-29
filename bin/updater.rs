@@ -1,17 +1,7 @@
-use std::cmp::min;
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
-use std::thread;
-use std::time::Duration;
-
 use clap::Parser;
-use futures_util::StreamExt;
-use indicatif::{ProgressBar, ProgressStyle};
-use reqwest::Client;
 use serde::Deserialize;
 use serde::Serialize;
-
+use std::path::Path;
 use weather_core::bin_common::update_component;
 use weather_core::hash_file;
 
@@ -139,7 +129,8 @@ async fn main() -> Result<(), String> {
             "Downloading weathercli update from ".to_string(),
             "Updated weathercli".to_string(),
             args.quiet,
-        ).await?;
+        )
+        .await?;
     }
     if to_update.contains(&Component::Daemon) {
         let url;
@@ -159,7 +150,8 @@ async fn main() -> Result<(), String> {
             "Downloading daemon update from ".to_string(),
             "Updated daemon".to_string(),
             args.quiet,
-        ).await?;
+        )
+        .await?;
     }
     Ok(())
 }

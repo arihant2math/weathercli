@@ -1,6 +1,5 @@
-use pyo3::prelude::*;
-
 use openweathermap::FormattedData;
+use pyo3::prelude::*;
 
 pub mod openweathermap;
 pub mod status;
@@ -13,6 +12,10 @@ pub fn register_backend_module(py: Python<'_>, parent_module: &PyModule) -> PyRe
     let child_module = PyModule::new(py, "backend")?;
     child_module.add_function(wrap_pyfunction!(
         openweathermap::open_weather_map_get_combined_data_formatted,
+        child_module
+    )?)?;
+    child_module.add_function(wrap_pyfunction!(
+        openweathermap::open_weather_map_get_api_urls,
         child_module
     )?)?;
     child_module.add_class::<FormattedData>()?;

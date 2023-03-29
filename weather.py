@@ -29,14 +29,14 @@ def get_log_file():
     "--no-sys-loc",
     is_flag=True,
     help="If used the location will be gotten from the web rather than the system"
-         "even if system location is available",
+    "even if system location is available",
 )
 @option("--metric", is_flag=True, help="This will switch the output to metric")
 @option("--imperial", is_flag=True, help="This will switch the output to imperial")
 @option(
     "--datasource",
     help="The data source to retrieve the data from, current options are openweathermap, "
-         "theweatherchannel, meteo, and nws",
+    "theweatherchannel, meteo, and nws",
 )
 @pass_context
 def main(ctx, json, no_sys_loc, metric, imperial, datasource):
@@ -60,17 +60,42 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
         true_metric = True
     elif imperial:
         true_metric = False
+    if (
+        settings.enable_daemon
+        and not os.path.exists(os.path.expanduser("~/.weathercli/downloader_urls.list"))
+        and (settings.default_backend.lower() == "openweathermap")
+    ):
+        print(
+            "daemon enabled and default source is open weather map, creating downloader list"
+        )
+        with open(os.path.expanduser("~/.weathercli/downloader_urls.list"), "w") as f:
+            f.write(
+                "\n".join(
+                    weather_core.backend.open_weather_map_get_api_urls(
+                        "https://api.openweathermap.org/data/2.5/",
+                        settings.open_weather_map_api_key,
+                        weather_core.location.get_location(
+                            no_sys_loc, settings.constant_location
+                        ),
+                        metric,
+                    )
+                )
+            )
+
     if ctx.invoked_subcommand is None:
         location = weather_core.location.get_location(
             no_sys_loc, settings.constant_location
         )
-        if settings.enable_daemon and not os.path.exists(os.path.expanduser("~/.weathercli/downloader_urls.list")):
-            print("daemon enabled, creating downloader list")
         logger.debug("datasource=" + datasource, extra=d)
         logger.info("location=" + str(location), extra=d)
         logger.debug("metric=" + str(true_metric), extra=d)
         data = get_data_from_datasource(
-            datasource, location, true_metric, settings, logger, datasource.lower() == settings.default_backend.lower() == "openweathermap"
+            datasource,
+            location,
+            true_metric,
+            settings,
+            logger,
+            datasource.lower() == settings.default_backend.lower() == "openweathermap",
         )
         print_out(settings.layout_file, data, json, true_metric, logger)
     else:
@@ -89,7 +114,7 @@ def main(ctx, json, no_sys_loc, metric, imperial, datasource):
 @option(
     "--datasource",
     help="The data source to retrieve the data from, current options are openweathermap, "
-         "theweatherchannel, meteo, and nws",
+    "theweatherchannel, meteo, and nws",
 )
 @pass_context
 def place(ctx, location, json, metric, imperial, datasource):
@@ -117,23 +142,25 @@ def place(ctx, location, json, metric, imperial, datasource):
     logger.debug("datasource=" + datasource, extra=d)
     logger.info("location=" + str(location), extra=d)
     logger.debug("metric=" + str(true_metric), extra=d)
-    data = get_data_from_datasource(datasource, location, true_metric, settings, logger, False)
+    data = get_data_from_datasource(
+        datasource, location, true_metric, settings, logger, False
+    )
     print_out(settings.layout_file, data, ctx.obj["JSON"] or json, true_metric, logger)
 
 
 if __name__ == "__main__":
     settings_s = weather_core.Settings()
     if not settings_s.internal.debug:
+
         def exception_handler(exception_type, exception, traceback):
             # No traceback
             print(
                 colorama.Fore.RED
                 + "Internal Weather CLI Error\nSomething went wrong\nDetails:\n%s: %s\nSet debug "
-                  "to true for a traceback by running weather config debug true or manually "
-                  "editing the settings file at ~/.weathercli/settings.json and setting the key "
-                  "'debug' to true." % (exception_type.__name__, exception)
+                "to true for a traceback by running weather config debug true or manually "
+                "editing the settings file at ~/.weathercli/settings.json and setting the key "
+                "'debug' to true." % (exception_type.__name__, exception)
             )
-
 
         sys.excepthook = exception_handler
     main.add_command(config)
