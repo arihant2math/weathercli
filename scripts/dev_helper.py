@@ -18,7 +18,9 @@ def main():
 @main.command("docs", help="Builds the docs")
 def docs():
     Path("./docs").mkdir(exist_ok=True)
-    Path("./docs/docs").mkdir(exist_ok=True) # for backwards compatibility
+    Path("./docs/docs").mkdir(exist_ok=True)  # for backwards compatibility
+    Path("./docs/index.html").touch(exist_ok=True)
+    Path("./docs/config.html").touch(exist_ok=True)
     if sys.platform == "win32":
         jc = str(Path("./jc.exe").absolute())
     else:
