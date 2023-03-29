@@ -1,0 +1,44 @@
+name: Test
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore:
+      - 'scripts/**'
+      - 'bin/**'
+      - 'icon/**'
+      - 'docs_templates/**'
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python: ["3.9", "3.10", "3.11"]
+        os: ["ubuntu-latest", "windows-latest"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python }}
+          cache: "pip"
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade wheel
+          pip install -r dev-requirements.txt
+          maturin build -r
+          for file in target/wheels/*.whl
+          do
+            name=${file##*/}
+            pip install "$file"
+          done
+      - name: Test
+        run: pytest .
