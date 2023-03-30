@@ -88,5 +88,10 @@ def rust():
     print(colorama.Fore.GREEN + "Done!")
 
 
+@main.command("build")
+def build():
+    subprocess.Popen(["pyinstaller", "-F", "weather.py", "-i", "./icon/icon.png"])
+
+
 if __name__ == "__main__":
     main(obj={})
