@@ -24,7 +24,7 @@ plotext==5.2.8
     # via -r requirements.in
 pygments==2.14.0
     # via rich
-rich==13.3.2
+rich==13.3.3
     # via -r requirements.in
 soupsieve==2.4
     # via beautifulsoup4

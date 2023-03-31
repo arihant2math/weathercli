@@ -1,6 +1,8 @@
-use pyo3::prelude::*;
-use sha256::try_digest;
+use std::fs;
 use std::path::Path;
+
+use pyo3::prelude::*;
+use sha2::Digest;
 
 use crate::local::cache;
 
@@ -13,12 +15,14 @@ pub mod location;
 pub mod networking;
 mod prompt;
 mod settings_app;
+pub mod autolaunch;
 
 /// returns the sha-256 of the file
 #[pyfunction]
 pub fn hash_file(filename: &str) -> String {
     let input = Path::new(filename);
-    try_digest(input).unwrap()
+    let bytes = fs::read(input).expect("File read failed");
+    hex::encode(sha2::Sha256::digest(bytes))
 }
 
 #[pyfunction]
@@ -41,12 +45,12 @@ fn weather_core(py: Python, module: &PyModule) -> PyResult<()> {
     component_updater::register_updater_module(py, module)?;
     py.run(
         "\
-    import sys\
-    ;sys.modules['weather_core.backend'] = backend\
-    ;sys.modules['weather_core.caching'] = caching\
-    ;sys.modules['weather_core.networking'] = networking\
-    ;sys.modules['weather_core.location'] = location\
-    ;sys.modules['weather_core.updater'] = updater",
+        import sys\
+        ;sys.modules['weather_core.backend'] = backend\
+        ;sys.modules['weather_core.caching'] = caching\
+        ;sys.modules['weather_core.networking'] = networking\
+        ;sys.modules['weather_core.location'] = location\
+        ;sys.modules['weather_core.updater'] = updater",
         None,
         Some(module.dict()),
     )?;

@@ -2,8 +2,9 @@ use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-use chrono::{Datelike, Timelike};
+use dirs::home_dir;
 use pyo3::prelude::*;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -23,14 +24,11 @@ struct Row {
 }
 
 pub fn get_date_string() -> String {
-    let date_now = chrono::offset::Local::now();
-    let year = date_now.year();
-    let month = date_now.month();
-    let day = date_now.day();
-    let hour = date_now.hour();
-    let minute = date_now.minute();
-    let second = date_now.second();
-    format!("{year}/{month}/{day} {hour}:{minute}:{second}")
+    let start = SystemTime::now();
+    let since_the_epoch = start
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards :( or there is an overflow error of some sort and stuff broke");
+    since_the_epoch.as_millis().to_string()
 }
 
 fn u8_to_string(i: u8) -> String {
@@ -38,7 +36,7 @@ fn u8_to_string(i: u8) -> String {
 }
 
 fn read_bytes_from_file() -> Vec<u8> {
-    let mut path = dirs::home_dir().expect("expect home dir");
+    let mut path = home_dir().expect("expect home dir");
     path.push(".weathercli");
     path.push("f.cache");
     if !path.exists() {
@@ -123,7 +121,7 @@ fn update_cache(rows: Vec<Row>) -> Vec<u8> {
 }
 
 fn get_cache_path() -> PathBuf {
-    let mut path = dirs::home_dir().expect("expect home dir");
+    let mut path = home_dir().expect("expect home dir");
     path.push(".weathercli");
     path.push("f.cache");
     path

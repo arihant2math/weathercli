@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::PathBuf;
 
+use dirs::home_dir;
 use pyo3::prelude::*;
 
 #[pyclass(subclass)]
@@ -19,7 +20,7 @@ pub struct WeatherFile {
 impl WeatherFile {
     #[new]
     pub fn new(file_name: String) -> Self {
-        let mut path = dirs::home_dir().expect("expect home dir");
+        let mut path = home_dir().expect("expect home dir");
         let mut exists = true;
         path.push(".weathercli");
         if !path.exists() {

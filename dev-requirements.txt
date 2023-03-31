@@ -10,7 +10,7 @@ attrs==22.2.0
     # via pytest
 beautifulsoup4==4.12.0
     # via -r requirements.in
-black==23.1.0
+black==23.3.0
     # via -r dev-requirements.in
 build==0.10.0
     # via pip-tools
@@ -66,11 +66,11 @@ pytest==7.2.2
     # via -r dev-requirements.in
 pywin32-ctypes==0.2.0
     # via pyinstaller
-rich==13.3.2
+rich==13.3.3
     # via -r requirements.in
 soupsieve==2.4
     # via beautifulsoup4
-tomli-w==1.0.0
+tomlkit==0.11.7
     # via -r dev-requirements.in
 wheel==0.40.0
     # via pip-tools

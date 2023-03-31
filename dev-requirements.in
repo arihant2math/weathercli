@@ -3,4 +3,4 @@ black
 pip-tools
 pyinstaller
 pytest
-tomli-w
+tomlkit

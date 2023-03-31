@@ -1,14 +1,18 @@
-bin = [
-    { name = "weatherd", path = "bin/weatherd.rs" },
-    { name = "updater", path = "bin/updater.rs" },
-    { name = "gui_installer", path = "bin/gui_installer.rs" },
-    { name = "installer", path = "bin/installer.rs" },
-]
+[[bin]]
+name = "weatherd"
+path = "bin/weatherd.rs"
 
-[package]
-name = "weather_core"
-version = "2023.3.29"
-edition = "2021"
+[[bin]]
+name = "updater"
+path = "bin/updater.rs"
+
+[[bin]]
+name = "gui_installer"
+path = "bin/gui_installer.rs"
+
+[[bin]]
+name = "installer"
+path = "bin/installer.rs"
 
 [lib]
 name = "weather_core"
@@ -17,62 +21,39 @@ crate-type = [
     "rlib",
 ]
 
+[package]
+name = "weather_core"
+version = "2023.3.30"
+edition = "2021"
+authors = ["Ashwin Naren"]
+rust-version = "1.67.0"
+description = "Rust portions of weathercli"
+readme = "https://github.com/arihant2math/weathercli/blob/main/README.md"
+homepage = "https://arihant2math.github.io/weathercli/"
+repository = "https://github.com/arihant2math/weathercli"
+
 [build-dependencies]
 winresource = "0.1"
 
 [dependencies]
-rayon = "1.7.0"
-serde_json = "1.0"
-sha256 = "1.1.2"
-dirs = "5.0.0"
-chrono = "0.4.23"
-auto-launch = "0.4.0"
-crossterm = "0.26.1"
-futures-util = "0.3.27"
-indicatif = "0.17.3"
+rayon = "1.7.*"
+serde_json = "1.0.*"
+sha2 = "0.10.*"
+dirs = "5.*"
+crossterm = "0.26.*"
+futures-util = "0.3.*"
+indicatif = "0.17.*"
 iced = "0.8"
-bincode = "1.3.3"
+bincode = "1.3.*"
+tokio = { version = "1.27.*", features = ["full"] }
+clap = { version = "4.2.*", features = ["derive"] }
+pyo3 = { version = "0.18.*", features = ["extension-module"] }
+serde = { version = "1.0.*", features = ["derive"] }
+reqwest = { version = "0.11.*", features = ["blocking", "json", "cookies", "stream"] }
+thiserror = "1"
+hex = "0.4.3"
 
-[dependencies.tokio]
-version = "1.26.0"
-features = [
-    "full",
-]
 
-[dependencies.clap]
-version = "4.1.8"
-features = [
-    "derive",
-]
-
-[dependencies.pyo3]
-version = "0.18.2"
-features = [
-    "extension-module",
-]
-
-[dependencies.reqwest]
-version = "0.11.14"
-features = [
-    "blocking",
-    "json",
-    "cookies",
-    "stream",
-]
-
-[dependencies.serde]
-version = "1.0"
-features = [
-    "derive",
-]
-
-[target.'cfg(windows)'.dependencies]
+[target."cfg(windows)".dependencies]
 winreg = "0.11"
-
-[target."cfg(windows)".dependencies.windows]
-version = "0.47.0"
-features = [
-    "Foundation",
-    "Devices_Geolocation",
-    "Win32_System_Registry",
-]
+windows = { version = "0.47.*", features = ["Foundation", "Devices_Geolocation"] }

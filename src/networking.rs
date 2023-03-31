@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+use std::str::FromStr;
+use std::sync::Arc;
+
 use bincode::{deserialize, serialize};
 use pyo3::{pyclass, pyfunction, PyResult, Python, wrap_pyfunction};
 use pyo3::prelude::*;
@@ -7,9 +11,6 @@ use reqwest::cookie::Jar;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::str::FromStr;
-use std::sync::Arc;
 
 #[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
@@ -89,7 +90,7 @@ impl Session {
         let url = data.url().to_string();
         let status = data.status().as_u16();
         let bytes = data.bytes().unwrap().to_vec();
-        let mut text = String::from("");
+        let mut text = String::new();
         for byte in bytes.clone() {
             text += &(byte as char).to_string();
         }

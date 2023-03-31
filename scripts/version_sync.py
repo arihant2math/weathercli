@@ -2,7 +2,7 @@ import ast
 import datetime
 import tomllib
 
-import tomli_w
+import tomlkit
 
 from path_helper import weathercli_dir
 
@@ -12,7 +12,7 @@ now = datetime.datetime.now()
 version_string = "{}.{}.{}".format(now.year, now.month, now.day)
 t = tomllib.load(corelib_cargo_toml.open("rb"))
 t["package"]["version"] = version_string
-tomli_w.dump(t, corelib_cargo_toml.open("wb"))
+tomlkit.dump(t, corelib_cargo_toml.open("wb"))
 a = ast.parse(cli_version.open().read())
 a.body.pop()
 a.body.append(
