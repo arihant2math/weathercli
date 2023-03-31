@@ -1,11 +1,11 @@
+use dirs::home_dir;
+use pyo3::prelude::*;
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
-use std::time::{SystemTime, UNIX_EPOCH};
 
-use dirs::home_dir;
-use pyo3::prelude::*;
+use crate::now;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 enum Place {
@@ -24,11 +24,7 @@ struct Row {
 }
 
 pub fn get_date_string() -> String {
-    let start = SystemTime::now();
-    let since_the_epoch = start
-        .duration_since(UNIX_EPOCH)
-        .expect("Time went backwards :( or there is an overflow error of some sort and stuff broke");
-    since_the_epoch.as_millis().to_string()
+    now().to_string()
 }
 
 fn u8_to_string(i: u8) -> String {

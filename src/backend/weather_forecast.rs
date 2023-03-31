@@ -1,7 +1,9 @@
 use pyo3::prelude::*;
+use std::rc::Rc;
 
 use crate::backend::status::Status;
-use crate::backend::weather_data::WeatherData;
+use crate::backend::weather_data::{WeatherData, WeatherDataRS};
+use crate::local::settings::Settings;
 
 #[pyclass(subclass)]
 #[derive(Clone)]
@@ -44,13 +46,13 @@ impl WeatherForecast {
     }
 }
 
-trait WeatherForecastRS {
-    const STATUS: Status;
-    const REGION: String;
-    const COUNTRY: String;
-    const FORECAST: Vec<WeatherData>;
-    const CURRENT_WEATHER: WeatherData;
-    const FORECAST_SENTENCE: String;
-    const RAW_DATA: Option<Vec<String>>;
+pub trait WeatherForecastRS {
+    fn new(coordinates: Vec<String>, settings: Settings) -> Self;
+    fn get_status(&self) -> Status;
+    fn get_region(&self) -> String;
+    fn get_country(&self) -> String;
+    fn get_forecast(&self) -> Vec<Rc<dyn WeatherDataRS>>;
+    fn get_current_weather(&self) -> Rc<dyn WeatherDataRS>;
+    fn get_forecast_sentence(&self) -> String;
+    fn get_raw_data(&self) -> Option<Vec<String>>;
 }
-

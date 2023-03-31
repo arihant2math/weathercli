@@ -79,3 +79,35 @@ impl WeatherData {
         conditions_sentences
     }
 }
+
+pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
+    let mut data = conditions;
+    let conditions_match = data
+        .get(0)
+        .expect("0th element expected")
+        .sentence
+        .to_string();
+    let mut conditions_sentences = conditions_match;
+    data.remove(0);
+    for condition in data {
+        conditions_sentences += ". Also, ";
+        conditions_sentences += &*condition.sentence.to_lowercase();
+        conditions_sentences += ".";
+    }
+    conditions_sentences
+}
+
+pub trait WeatherDataRS {
+    fn get_time(&self) -> i128;
+    fn get_temperature(&self) -> f32;
+    fn get_min_temp(&self) -> f32;
+    fn get_max_temp(&self) -> f32;
+    fn get_wind(&self) -> WindData;
+    fn get_raw_data(&self) -> String;
+    fn get_dewpoint(&self) -> f32;
+    fn get_feels_like(&self) -> f32;
+    fn get_aqi(&self) -> u8;
+    fn get_cloud_cover(&self) -> u8;
+    fn get_conditions(&self) -> Vec<WeatherCondition>;
+    fn get_condition_sentence(&self) -> String;
+}

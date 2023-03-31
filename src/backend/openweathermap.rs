@@ -7,6 +7,9 @@ use crate::backend::openweathermap::openweathermap_json::{
 use crate::networking;
 use crate::networking::Resp;
 
+mod openweathermap_current;
+mod openweathermap_forecast;
+mod openweathermap_future;
 pub mod openweathermap_json;
 
 /// Gets the urls from the openweathermap api server
@@ -42,7 +45,7 @@ pub fn open_weather_map_get_combined_data_formatted(
     open_weather_map_api_key: String,
     coordinates: Vec<String>,
     metric: bool,
-) -> FormattedData {
+) -> OpenWeatherMapFormattedData {
     let urls = open_weather_map_get_api_urls(
         open_weather_map_api_url,
         open_weather_map_api_key,
@@ -53,7 +56,7 @@ pub fn open_weather_map_get_combined_data_formatted(
     let r1: OpenWeatherMapJson = serde_json::from_str(&n[0].text).expect("");
     let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(&n[1].text).expect("");
     let r3: OpenWeatherMapForecastJson = serde_json::from_str(&n[2].text).expect("");
-    FormattedData {
+    OpenWeatherMapFormattedData {
         weather: r1,
         air_quality: r2,
         forecast: r3,
@@ -63,13 +66,13 @@ pub fn open_weather_map_get_combined_data_formatted(
 
 #[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
-pub struct FormattedData {
+pub struct OpenWeatherMapFormattedData {
     #[pyo3(get)]
-    weather: OpenWeatherMapJson,
+    pub weather: OpenWeatherMapJson,
     #[pyo3(get)]
-    air_quality: OpenWeatherMapAirQualityJson,
+    pub air_quality: OpenWeatherMapAirQualityJson,
     #[pyo3(get)]
-    forecast: OpenWeatherMapForecastJson,
+    pub forecast: OpenWeatherMapForecastJson,
     #[pyo3(get)]
-    raw_data: Vec<Resp>,
+    pub raw_data: Vec<Resp>,
 }

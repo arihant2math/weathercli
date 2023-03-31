@@ -1,11 +1,12 @@
-use std::fs;
-use std::path::Path;
-
 use pyo3::prelude::*;
 use sha2::Digest;
+use std::fs;
+use std::path::Path;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::local::cache;
 
+pub mod autolaunch;
 pub mod backend;
 pub mod bin_common;
 pub mod component_updater;
@@ -15,7 +16,14 @@ pub mod location;
 pub mod networking;
 mod prompt;
 mod settings_app;
-pub mod autolaunch;
+
+pub fn now() -> u128 {
+    let start = SystemTime::now();
+    let since_the_epoch = start.duration_since(UNIX_EPOCH).expect(
+        "Time went backwards :( or there is an overflow error of some sort and stuff broke",
+    );
+    since_the_epoch.as_millis()
+}
 
 /// returns the sha-256 of the file
 #[pyfunction]

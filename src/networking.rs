@@ -1,7 +1,3 @@
-use std::collections::HashMap;
-use std::str::FromStr;
-use std::sync::Arc;
-
 use bincode::{deserialize, serialize};
 use pyo3::{pyclass, pyfunction, PyResult, Python, wrap_pyfunction};
 use pyo3::prelude::*;
@@ -11,6 +7,9 @@ use reqwest::cookie::Jar;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::str::FromStr;
+use std::sync::Arc;
 
 #[pyclass]
 #[derive(Clone, Serialize, Deserialize)]

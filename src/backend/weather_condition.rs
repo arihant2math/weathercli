@@ -19,7 +19,7 @@ pub struct WeatherCondition {
 #[pymethods]
 impl WeatherCondition {
     #[new]
-    fn new(condition_id: u16) -> Self {
+    pub fn new(condition_id: u16) -> Self {
         let f = WeatherFile::new("weather_codes.json".to_string());
         let mut data: Value = serde_json::from_str(&f.data).expect("Json expected");
         let code = data[condition_id.to_string()].as_array_mut().unwrap();

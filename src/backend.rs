@@ -1,6 +1,7 @@
 use openweathermap::FormattedData;
 use pyo3::prelude::*;
 
+pub mod meteo;
 pub mod openweathermap;
 pub mod status;
 pub mod weather_condition;
