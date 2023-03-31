@@ -28,7 +28,7 @@ edition = "2021"
 authors = ["Ashwin Naren"]
 rust-version = "1.67.0"
 description = "Rust portions of weathercli"
-readme = "https://github.com/arihant2math/weathercli/blob/main/README.md"
+readme = "README.md"
 homepage = "https://arihant2math.github.io/weathercli/"
 repository = "https://github.com/arihant2math/weathercli"
 
