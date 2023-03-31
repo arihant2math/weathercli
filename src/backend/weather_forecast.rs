@@ -43,3 +43,14 @@ impl WeatherForecast {
         Ok(())
     }
 }
+
+trait WeatherForecastRS {
+    const STATUS: Status;
+    const REGION: String;
+    const COUNTRY: String;
+    const FORECAST: Vec<WeatherData>;
+    const CURRENT_WEATHER: WeatherData;
+    const FORECAST_SENTENCE: String;
+    const RAW_DATA: Option<Vec<String>>;
+}
+
