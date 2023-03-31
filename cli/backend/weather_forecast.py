@@ -2,21 +2,15 @@
 import weather_core
 
 
-class Status:
-    OK = 0
-    SERVER_ERROR = 1
-    INVALID_API_KEY = 2
-
-
 class WeatherForecast:
     def __init__(
-        self,
-        status: int,
-        region: str,
-        country,
-        forecast: list,
-        forecast_sentence: str,
-        raw_data,
+            self,
+            status: int,
+            region: str,
+            country,
+            forecast: list,
+            forecast_sentence: str,
+            raw_data,
     ):
         """
         :param status: 0 is success, 10 is invalid API key, 11 is invalid client request, 20 is server error,
