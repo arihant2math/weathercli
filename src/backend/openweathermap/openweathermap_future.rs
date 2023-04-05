@@ -1,7 +1,4 @@
-use crate::backend::openweathermap::openweathermap_json::{
-    OpenWeatherMapAirQualityJson, OpenWeatherMapForecastItemJson, OpenWeatherMapForecastJson,
-    OpenWeatherMapJson,
-};
+use crate::backend::openweathermap::openweathermap_json::OpenWeatherMapForecastItemJson;
 use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherDataRS};
 use crate::backend::wind_data::WindData;

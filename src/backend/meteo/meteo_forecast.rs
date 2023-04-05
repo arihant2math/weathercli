@@ -1,10 +1,9 @@
 use std::rc::Rc;
 
-use crate::backend;
 use crate::backend::meteo::meteo_current::MeteoCurrent;
 use crate::backend::meteo::meteo_future::MeteoFuture;
 use crate::backend::meteo::meteo_get_combined_data_formatted;
-use crate::backend::meteo::meteo_json::{MeteoCurrentWeatherJson, MeteoForecastJson};
+use crate::backend::meteo::meteo_json::MeteoForecastJson;
 use crate::backend::status::Status;
 use crate::backend::weather_data::WeatherDataRS;
 use crate::backend::weather_forecast::get_location;
@@ -22,10 +21,10 @@ struct MeteoForecast {
 fn get_forecast_sentence(data: Vec<Rc<dyn WeatherDataRS>>, raw_data: MeteoForecastJson, start: usize) -> String {
         let mut rain = raw_data.hourly.rain.iter().map(|x| x != &0.0).collect::<Vec<bool>>();
         let mut snow = raw_data.hourly.snowfall.iter().map(|x| x != &0.0).collect::<Vec<bool>>();
-        for i in 0 .. start {
+        for _i in 0 .. start {
             rain.remove(0);
             snow.remove(0);
-        }
+        } // TODO: Convert
         if data[0].clone().get_conditions().into_iter()
             .map(|condition| condition.condition_id / 100 == 5)
             .collect::<Vec<bool>>().contains(&true) {
@@ -51,8 +50,8 @@ fn get_forecast_sentence(data: Vec<Rc<dyn WeatherDataRS>>, raw_data: MeteoForeca
             return format!("It will continue snowing for {} hours.", t);
         }
         else {
-            let rain_start = rain.into_iter().position(|x| x == true);
-            let snow_start = snow.into_iter().position(|x| x == true);
+            let rain_start = rain.clone().into_iter().position(|x| x == true);
+            let snow_start = snow.clone().into_iter().position(|x| x == true);
             
             if rain_start.is_none() && snow_start.is_none() {
                 return "Conditions are predicted to be clear for the next 7 days.".to_string();

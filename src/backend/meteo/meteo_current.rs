@@ -13,7 +13,7 @@ pub struct MeteoCurrent {
 
 impl MeteoCurrent {
     pub fn new(data: MeteoForecastJson, aqi: MeteoAirQualityJson, metric: bool) -> Self {
-        let index = data.hourly.time.iter().position(|&r| r == data.current_weather.time).unwrap();
+        let index = data.hourly.time.iter().position(|r| *r == data.current_weather.time).unwrap();
         MeteoCurrent {
             data,
             aqi,

@@ -17,20 +17,12 @@ pub fn meteo_get_api_urls(
     let longitude = location.get(1).expect("");
     let latitude = location.get(0).expect("");
     return if !metric {
-        vec![format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true"
-            "&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,"
-            "pressure_msl,visibility,windspeed_10m,winddirection_10m"
-            "&daily=temperature_2m_max,temperature_2m_min"
-            "&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch"
-            "&timezone=auto", longitude, latitude),
-             format!("https://air-quality-api.open-meteo.com/v1/air-quality?latitude={}&longitude={}&hourly=european_aqi"
-            "", longitude, latitude),
+        vec![format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,pressure_msl,visibility,windspeed_10m,winddirection_10m&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=auto",
+                     longitude, latitude),
+             format!("https://air-quality-api.open-meteo.com/v1/air-quality?latitude={}&longitude={}&hourly=european_aqi", longitude, latitude),
         ]
     } else {
-        vec![format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true"
-            "&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,visibility"
-            ",windspeed_10m,winddirection_10m"
-            "&daily=temperature_2m_max,temperature_2m_min&timezone=auto", longitude, latitude),
+        vec![format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,visibility,windspeed_10m,winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto", longitude, latitude),
              format!("https://air-quality-api.open-meteo.com/v1/air-quality?latitude={}&longitude={}&hourly=european_aqi", longitude, latitude),
         ]
     }

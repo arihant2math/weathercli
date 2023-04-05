@@ -1,5 +1,6 @@
-use openweathermap::FormattedData;
 use pyo3::prelude::*;
+
+use openweathermap::OpenWeatherMapFormattedData;
 
 pub mod meteo;
 pub mod openweathermap;
@@ -19,7 +20,7 @@ pub fn register_backend_module(py: Python<'_>, parent_module: &PyModule) -> PyRe
         openweathermap::open_weather_map_get_api_urls,
         child_module
     )?)?;
-    child_module.add_class::<FormattedData>()?;
+    child_module.add_class::<OpenWeatherMapFormattedData>()?;
     child_module.add_class::<wind_data::WindData>()?;
     child_module.add_class::<weather_data::WeatherData>()?;
     child_module.add_class::<weather_condition::WeatherCondition>()?;
