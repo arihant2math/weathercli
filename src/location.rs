@@ -1,7 +1,8 @@
-use pyo3::prelude::*;
-use serde_json::Value;
 use std::collections::HashMap;
 use std::thread;
+
+use pyo3::prelude::*;
+use serde_json::Value;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 
@@ -144,7 +145,7 @@ pub fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
 }
 
 #[pyfunction]
-fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option<[String; 2]> {
+pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option<[String; 2]> {
     let attempt_cache = cache::read("location".to_string() + &location_string);
     return if let Some(..) = attempt_cache {
         let mut coordinates: Option<Vec<String>>;
@@ -180,11 +181,11 @@ fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option
 }
 
 #[pyfunction]
-fn reverse_location(latitude: f64, longitude: f64) -> [String; 2] {
-    let k = latitude.to_string() + "," + &longitude.to_string();
+pub fn reverse_location(latitude: &str, longitude: &str) -> [String; 2] {
+    let k = latitude.to_string() + "," + longitude;
     let attempt_cache = cache::read("coordinates".to_string() + &k);
     if attempt_cache.is_none() {
-        let data = nominatim_reverse_geocode(&latitude.to_string(), &longitude.to_string());
+        let data = nominatim_reverse_geocode(latitude, longitude);
         let place: Value = serde_json::from_str(&data).unwrap();
         let country = place["address"]["country"].as_str().unwrap().to_string();
         let mut region = "";

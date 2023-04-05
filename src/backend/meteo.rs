@@ -7,6 +7,7 @@ use crate::networking::Resp;
 mod meteo_forecast;
 mod meteo_json;
 mod meteo_current;
+mod meteo_future;
 
 /// Gets the urls from the openweathermap api server
 pub fn meteo_get_api_urls(

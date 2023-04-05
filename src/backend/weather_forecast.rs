@@ -1,9 +1,11 @@
-use pyo3::prelude::*;
 use std::rc::Rc;
+
+use pyo3::prelude::*;
 
 use crate::backend::status::Status;
 use crate::backend::weather_data::{WeatherData, WeatherDataRS};
 use crate::local::settings::Settings;
+use crate::location;
 
 #[pyclass(subclass)]
 #[derive(Clone)]
@@ -44,6 +46,10 @@ impl WeatherForecast {
         self.current_weather = self.forecast[0].clone();
         Ok(())
     }
+}
+
+pub fn get_location(loc: Vec<String>) -> [String; 2] {
+    location::reverse_location(&loc[0], &loc[1])
 }
 
 pub trait WeatherForecastRS {
