@@ -56,4 +56,4 @@ hex = "0.4.3"
 
 [target."cfg(windows)".dependencies]
 winreg = "0.11"
-windows = { version = "0.47.*", features = ["Foundation", "Devices_Geolocation"] }
+windows = { version = "0.48.*", features = ["Foundation", "Devices_Geolocation"] }
