@@ -44,7 +44,7 @@ pathspec==0.11.1
     # via black
 pefile==2023.2.7
     # via pyinstaller
-pillow==9.4.0
+pillow==9.5.0
     # via -r requirements.in
 pip-tools==6.12.3
     # via -r dev-requirements.in
