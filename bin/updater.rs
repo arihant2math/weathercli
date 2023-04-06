@@ -87,7 +87,7 @@ async fn main() -> Result<(), String> {
             .expect("JSON parsing failed");
     if args.version {
         if !args.quiet {
-            println!("3.23.2023");
+            println!("2023.4.6");
         }
         return Ok(());
     }
