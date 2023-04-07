@@ -22,6 +22,7 @@ enum Message {
     EnableDaemon(bool),
     OpenWeatherMapAPIKey(String),
     DataSource(DataSource),
+    Cancel,
     Save,
 }
 
@@ -67,6 +68,7 @@ impl Sandbox for App {
     fn update(&mut self, message: Message) {
         match message {
             Message::Save => save(self.data.clone()),
+            Message::Cancel => panic!("Implementation TBD"),
             Message::MetricDefault(value) => self.data.metric_default = Some(value),
             Message::ShowAlerts(value) => self.data.show_alerts = Some(value),
             Message::AutoUpdateInternetResources(value) => {
@@ -155,8 +157,8 @@ impl Sandbox for App {
         .width(Length::Shrink)
         .spacing(10);
 
-        let button = button("Save").padding(10).on_press(Message::Save);
-
+        let save = button("Save").padding(10).on_press(Message::Save);
+        let cancel = button("Cancel").padding(10).on_press(Message::Cancel);
         let content = column![
             row![data_source]
                 .spacing(10)
@@ -182,7 +184,7 @@ impl Sandbox for App {
                 .spacing(10)
                 .height(50)
                 .align_items(Alignment::Center),
-            row![button].spacing(10).align_items(Alignment::Center),
+            row![cancel, save].spacing(10).align_items(Alignment::Center),
         ]
         .spacing(20)
         .padding(20)

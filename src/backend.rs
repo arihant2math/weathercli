@@ -20,6 +20,7 @@ pub fn register_backend_module(py: Python<'_>, parent_module: &PyModule) -> PyRe
         openweathermap::open_weather_map_get_api_urls,
         child_module
     )?)?;
+    child_module.add_function(wrap_pyfunction!(meteo::meteo_get_combined_data_formatted, child_module)?)?;
     child_module.add_class::<OpenWeatherMapFormattedData>()?;
     child_module.add_class::<wind_data::WindData>()?;
     child_module.add_class::<weather_data::WeatherData>()?;

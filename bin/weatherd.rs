@@ -1,8 +1,10 @@
-use clap::Parser;
 use std::{thread, time};
 use std::env::current_exe;
 use std::fs;
 use std::io::Write;
+
+use clap::Parser;
+
 use weather_core::autolaunch::{AutoLaunchBuilder, Error};
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
@@ -49,7 +51,7 @@ fn main() {
     let settings = Settings::new();
     let args = Cli::parse();
     if args.version {
-        println!("2023.3.28");
+        println!("2023.4.6");
         return;
     }
     if args.action == "unregister" || args.action == "uninstall" {

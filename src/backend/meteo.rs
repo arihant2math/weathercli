@@ -1,3 +1,4 @@
+use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::backend::meteo::meteo_json::{MeteoAirQualityJson, MeteoForecastJson};
@@ -29,6 +30,7 @@ pub fn meteo_get_api_urls(
 }
 
 /// Gets the urls from the meteo api server and returns a FormattedData struct with the data
+#[pyfunction]
 pub fn meteo_get_combined_data_formatted(
     coordinates: Vec<String>,
     metric: bool,
@@ -47,6 +49,7 @@ pub fn meteo_get_combined_data_formatted(
     }
 }
 
+#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MeteoFormattedData {
     pub weather: MeteoForecastJson,
