@@ -30,4 +30,4 @@ class WeatherForecast:
 
     @staticmethod
     def get_location(loc):
-        return weather_core.location.reverse_location(float(loc[0]), float(loc[1]))
+        return weather_core.location.reverse_location(loc[0], loc[1])
