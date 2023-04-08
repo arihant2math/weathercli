@@ -2,7 +2,7 @@ use std::ffi::OsString;
 use std::path::PathBuf;
 
 #[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]
-use local::xdg_user_dirs;
+use crate::local::xdg_user_dirs;
 
 #[cfg(target_os = "redox")]
 pub use self::target_redox::home_dir;
@@ -35,7 +35,7 @@ mod target_unix_not_redox {
     use std::path::PathBuf;
     use std::ptr;
 
-    use super::libc;
+    use libc;
 
     // https://github.com/rust-lang/rust/blob/2682b88c526d493edeb2d3f2df358f44db69b73f/library/std/src/sys/unix/os.rs#L595
 pub fn home_dir() -> Option<PathBuf> {

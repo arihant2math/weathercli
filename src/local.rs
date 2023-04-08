@@ -3,4 +3,4 @@ pub mod settings;
 pub mod weather_file;
 #[cfg(target_os = "unix")]
 mod xdg_user_dirs;
-mod dirs;
+pub(crate) mod dirs;
