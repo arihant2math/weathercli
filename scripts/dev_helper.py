@@ -57,6 +57,8 @@ def docs():
     shutil.copyfile("./docs_templates/weatherd.exe", "./docs/weatherd.exe")
     shutil.copyfile("./docs_templates/weatherd", "./docs/weatherd")
     shutil.copyfile("./docs_templates/theme.js", "./docs/theme.js")
+    shutil.copyfile("./weather_codes.json", "./docs/weather_codes.json")
+    shutil.copyfile("./weather_ascii_images.json", "./docs/weather_ascii_images.json")
     # Everything below is to not break the updater from old versions
     shutil.copyfile("./docs_templates/weather.exe", "./docs/docs/weather.exe")
     shutil.copyfile("./docs_templates/weather", "./docs/docs/weather")
