@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-beautifulsoup4==4.12.0
+beautifulsoup4==4.12.2
     # via -r requirements.in
 click==8.1.3
     # via -r requirements.in
@@ -14,7 +14,7 @@ colorama==0.4.6
     #   click
 markdown-it-py==2.2.0
     # via rich
-maturin==0.14.16
+maturin==0.14.17
     # via -r requirements.in
 mdurl==0.1.2
     # via markdown-it-py
