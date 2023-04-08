@@ -56,7 +56,7 @@ impl Default for Settings {
 impl Settings {
     #[new]
     pub fn new() -> Self {
-        let file = WeatherFile::new("settings.json".to_string());
+        let file = WeatherFile::settings();
         let mut parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");
         parsed.open_weather_map_api_key =
             Some(parsed.open_weather_map_api_key.unwrap_or("".to_string()));

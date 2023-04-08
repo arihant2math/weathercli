@@ -1,5 +1,6 @@
 import time
 
+from weather_core import WeatherFile
 from weather_core.backend import WeatherCondition, WeatherData, WindData
 
 
@@ -21,7 +22,8 @@ class OpenWeatherMapCurrent(WeatherData):
         self.condition_sentence = ""
         self.condition_ids = self.get_condition_ids()
 
+        weather_codes = WeatherFile.weather_codes().data
         for condition in data.weather.weather:
-            conditions.append(WeatherCondition(condition.id))
+            conditions.append(WeatherCondition(condition.id, weather_codes))
         self.conditions = conditions
         self.condition_sentence = self.get_conditions_sentence()

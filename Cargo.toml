@@ -39,7 +39,6 @@ winresource = "0.1"
 rayon = "1.7.*"
 serde_json = "1.0.*"
 sha2 = "0.10.*"
-dirs = "5.*"
 crossterm = "0.26.*"
 futures-util = "0.3.*"
 indicatif = "0.17.*"
@@ -53,7 +52,18 @@ reqwest = { version = "0.11.*", features = ["blocking", "json", "cookies", "stre
 thiserror = "1"
 hex = "0.4.*"
 
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
 
-[target."cfg(windows)".dependencies]
+[target.'cfg(target_os = "redox")'.dependencies]
+redox_users = { version = "0.4", default-features = false }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.48.0", features = [
+    "Win32_UI_Shell",
+    "Win32_Foundation",
+    "Win32_Globalization",
+    "Win32_System_Com",
+] }
 winreg = "0.50.*"
 windows = { version = "0.48.*", features = ["Foundation", "Devices_Geolocation"] }

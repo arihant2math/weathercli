@@ -49,8 +49,8 @@ def get_data_from_datasource(
     datasource, location, true_metric, settings, logger: Logger, can_use_cached
 ):
     if not os.path.exists(
-        Path(os.path.expanduser("~/.weathercli/weather_codes.json"))
-        or Path(os.path.expanduser("~/.weathercli/weather_ascii_images.json"))
+        Path(os.path.expanduser("~/.weathercli/resources/weather_codes.json"))
+        or Path(os.path.expanduser("~/.weathercli/resources/weather_ascii_images.json"))
     ):  # Hacky way to check if the resources don't exist
         weather_core.updater.update_web_resources(
             settings.development

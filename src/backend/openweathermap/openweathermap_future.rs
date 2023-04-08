@@ -2,6 +2,7 @@ use crate::backend::openweathermap::openweathermap_json::OpenWeatherMapForecastI
 use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherDataRS};
 use crate::backend::wind_data::WindData;
+use crate::local::weather_file::WeatherFile;
 use crate::now;
 
 pub struct OpenWeatherMapFuture {
@@ -57,9 +58,10 @@ impl WeatherDataRS for OpenWeatherMapFuture {
     }
 
     fn get_conditions(&self) -> Vec<WeatherCondition> {
+        let weather_file = WeatherFile::weather_codes();
         let mut conditions: Vec<WeatherCondition> = Vec::new();
         for condition in self.data.weather.clone() {
-            conditions.push(WeatherCondition::new(condition.id as u16))
+            conditions.push(WeatherCondition::new(condition.id as u16, &weather_file.data))
         }
         conditions
     }

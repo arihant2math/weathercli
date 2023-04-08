@@ -1,9 +1,10 @@
-use pyo3::prelude::*;
-use pyo3::pyfunction;
-use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+
+use pyo3::prelude::*;
+use pyo3::pyfunction;
+use serde_json::Value;
 
 use crate::hash_file;
 use crate::local::weather_file::WeatherFile;
@@ -20,7 +21,7 @@ fn update_web_resource(
     dev: bool,
     quiet: bool,
 ) {
-    let mut f = WeatherFile::new(local_path);
+    let mut f = WeatherFile::new(&local_path);
     let file_hash = hash_file(&f.path.display().to_string());
     let web_json: Value = web_resp;
     let web_hash: String = web_json[name].as_str().unwrap().to_string();
@@ -52,7 +53,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
         let web_text = resp.text().unwrap();
         let web_json: Value = serde_json::from_str(&web_text).expect("");
         update_web_resource(
-            String::from("weather_codes.json"),
+            String::from("resources/weather_codes.json"),
             web_json.clone(),
             "https://arihant2math.github.io/weathercli/weather_codes.json",
             "weather-codes-hash",
@@ -61,7 +62,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
             real_quiet,
         );
         update_web_resource(
-            "weather_ascii_images.json".to_string(),
+            "resources/weather_ascii_images.json".to_string(),
             web_json,
             "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
             "weather-ascii-images-hash",

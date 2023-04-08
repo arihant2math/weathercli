@@ -1,8 +1,6 @@
 use pyo3::prelude::*;
 use serde_json::Value;
 
-use crate::local::weather_file::WeatherFile;
-
 #[pyclass(subclass)]
 #[derive(Clone)]
 pub struct WeatherCondition {
@@ -19,9 +17,8 @@ pub struct WeatherCondition {
 #[pymethods]
 impl WeatherCondition {
     #[new]
-    pub fn new(condition_id: u16) -> Self {
-        let f = WeatherFile::new("weather_codes.json".to_string());
-        let mut data: Value = serde_json::from_str(&f.data).expect("Json expected");
+    pub fn new(condition_id: u16, weather_codes: &str) -> Self {
+        let mut data: Value = serde_json::from_str(weather_codes).expect("Json expected");
         let code = data[condition_id.to_string()].as_array_mut().unwrap();
         let sentence = code[3]
             .clone()

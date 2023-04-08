@@ -675,26 +675,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dirs"
-version = "5.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dece029acd3353e3a58ac2e3eb3c8d6c35827a892edc6cc4138ef9c33df46ecd"
-dependencies = [
- "dirs-sys",
-]
-
-[[package]]
-name = "dirs-sys"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "04414300db88f70d74c5ff54e50f9e1d1737d9a5b90f53fcf2e95ca2a9ab554b"
-dependencies = [
- "libc",
- "redox_users",
- "windows-sys 0.45.0",
-]
-
-[[package]]
 name = "dispatch"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1060,9 +1040,9 @@ dependencies = [
 
 [[package]]
 name = "getrandom"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c05aeb6a22b8f62540c194aac980f2115af067bfe15a0734d7277a768d396b31"
+checksum = "c85e1d9ab2eadba7e5040d4e09cbd6d072b76a557ad64e797c2cb9d4da21d7e4"
 dependencies = [
  "cfg-if",
  "libc",
@@ -3294,13 +3274,14 @@ dependencies = [
  "bincode",
  "clap",
  "crossterm",
- "dirs",
  "futures-util",
  "hex",
  "iced",
  "indicatif",
+ "libc",
  "pyo3",
  "rayon",
+ "redox_users",
  "reqwest",
  "serde",
  "serde_json",
@@ -3308,6 +3289,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "windows",
+ "windows-sys 0.48.0",
  "winreg 0.50.0",
  "winresource",
 ]

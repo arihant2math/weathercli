@@ -1,11 +1,13 @@
-use dirs::home_dir;
-use pyo3::prelude::*;
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
 
-use crate::now;
+use pyo3::prelude::*;
+
+use local::dirs::home_dir;
+
+use crate::{local, now};
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 enum Place {
