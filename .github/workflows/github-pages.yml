@@ -31,7 +31,7 @@ jobs:
           pip install click colorama
           chmod 555 ./jc
           python3 ./scripts/dev_helper.py docs
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v2
       with:
         name: page
         path: docs
