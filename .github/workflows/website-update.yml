@@ -10,12 +10,17 @@ jobs:
       steps:
         - name: Checkout
           uses: actions/checkout@v3
-        - name: Install Requirements
-          run:
-            pip install -r requirements.txt
+        - name: Install dependencies
+          run: |
+            pip install -r dev-requirements.txt
+            maturin build -r
         - name: Install corelib
-          run:
-            maturin develop -r
+          run: |
+            for file in target/wheels/*.whl
+            do
+              name=${file##*/}
+              pip install "$file"
+            done
         - name: Update Executables
           run:
             python3 update_docs_templates.py "$GH_API_PAT"
