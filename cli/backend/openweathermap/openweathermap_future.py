@@ -1,5 +1,6 @@
 import time
 
+from weather_core import WeatherFile
 from weather_core.backend import WeatherCondition, WeatherData, WindData
 
 
@@ -19,7 +20,8 @@ class OpenWeatherMapFuture(WeatherData):
         self.cloud_cover = data.clouds.all
         conditions = []
         self.condition_sentence = ""
+        weather_codes = WeatherFile.weather_codes().data
         for condition in data.weather:
-            conditions.append(WeatherCondition(condition.id))
+            conditions.append(WeatherCondition(condition.id, weather_codes))
         self.conditions = conditions
         self.condition_sentence = self.get_conditions_sentence()

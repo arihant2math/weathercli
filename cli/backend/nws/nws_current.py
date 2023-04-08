@@ -2,6 +2,7 @@
 import time
 from datetime import datetime
 
+from weather_core import WeatherFile
 from weather_core.backend import WeatherCondition
 from weather_core.backend import WeatherData
 from weather_core.backend import WindData
@@ -37,16 +38,17 @@ class NationalWeatherServiceCurrent(WeatherData):
         self.dewpoint = data["properties"]["dewpoint"]["values"][0]["value"]
         self.cloud_cover = data["properties"]["skyCover"]["values"][0]["value"]
         conditions = []
+        weather_codes = WeatherFile.weather_codes().data
         if self.cloud_cover == 0:
-            conditions.append(WeatherCondition(800))
+            conditions.append(WeatherCondition(800, weather_codes))
         elif self.cloud_cover < 25:
-            conditions.append(WeatherCondition(801))
+            conditions.append(WeatherCondition(801, weather_codes))
         elif self.cloud_cover < 50:
-            conditions.append(WeatherCondition(802))
+            conditions.append(WeatherCondition(802, weather_codes))
         elif self.cloud_cover < 85:
-            conditions.append(WeatherCondition(803))
+            conditions.append(WeatherCondition(803, weather_codes))
         else:
-            conditions.append(WeatherCondition(804))
+            conditions.append(WeatherCondition(804, weather_codes))
         if (
             0
             < data["properties"]["quantitativePrecipitation"]["values"][0]["value"]
@@ -58,7 +60,7 @@ class NationalWeatherServiceCurrent(WeatherData):
             < 2.5
             and metric
         ):
-            conditions.append(WeatherCondition(500))
+            conditions.append(WeatherCondition(500, weather_codes))
         elif (
             data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 0.39
             and not metric
@@ -66,7 +68,7 @@ class NationalWeatherServiceCurrent(WeatherData):
             data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 10
             and metric
         ):
-            conditions.append(WeatherCondition(501))
+            conditions.append(WeatherCondition(501, weather_codes))
         elif (
             data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 2
             and not metric
@@ -74,12 +76,12 @@ class NationalWeatherServiceCurrent(WeatherData):
             data["properties"]["quantitativePrecipitation"]["values"][0]["value"] < 50
             and metric
         ):
-            conditions.append(WeatherCondition(502))
+            conditions.append(WeatherCondition(502, weather_codes))
         else:
             conditions.append(WeatherCondition(503))
         if len(data["properties"]["snowfallAmount"]["values"]) != 0:
             if data["properties"]["snowfallAmount"]["values"][0]["value"] != 0:
-                conditions.append(WeatherCondition(601))
+                conditions.append(WeatherCondition(601, weather_codes))
         self.conditions = conditions
         self.condition_ids = self.get_condition_ids()
         self.condition_sentence = self.get_conditions_sentence()
