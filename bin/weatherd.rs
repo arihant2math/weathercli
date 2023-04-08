@@ -51,7 +51,7 @@ fn main() {
     let settings = Settings::new();
     let args = Cli::parse();
     if args.version {
-        println!("2023.4.6");
+        println!(env!("CARGO_PKG_VERSION"));
         return;
     }
     if args.action == "unregister" || args.action == "uninstall" {
