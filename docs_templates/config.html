@@ -6,7 +6,8 @@
     <h1>Configuring Weathercli</h1>
     <p class="default-margin">The first time you run the app on your system a directory is created with the default
         configuration in it at ~/.weathercli/, the settings are stored in "settings.json"</p>
-    <p class="default-margin">settings.json is merely a table of settings, below is a list of all settings, and description and examples of the values</p>
+    <p class="default-margin">settings.json is merely a table of settings, below is a list of all settings,
+        and description and examples of the values. Use "weather settings" for a gui</p>
     <table class="table table-bordered table-hover" style="padding-left: 10px">
       <thead>
         <tr>
@@ -44,13 +45,26 @@
         <tr>
             <th scope="row">DEFAULT_BACKEND</th>
             <td>METEO, NWS, THEWEATHERCHANNEL, OPENWEATHERMAP</td>
-            <td>if true, the default units will be metric</td>
+            <td>Weather backend to retrieve data from</td>
             <td>METEO</td>
         </tr>
         <tr>
             <th scope="row">CONSTANT_LOCATION</th>
             <td>true, false</td>
             <td>if true, the users current location will be cached</td>
+            <td>false</td>
+        </tr>
+        <tr>
+            <th scope="row">ENABLE_DAEMON</th>
+            <td>true, false</td>
+            <td>if true, the daemon will be run, it is used to cache results and starts on os startup</td>
+            <td>false</td>
+        </tr>
+        <tr>
+            <th scope="row">AUTO_UPDATE_INTERNET_RESOURCES</th>
+            <td>true, false</td>
+            <td>if true, resources stored in .weathercli/resources get auto updated,
+                disable this if you patched any file in this directory</td>
             <td>false</td>
         </tr>
       </tbody>
