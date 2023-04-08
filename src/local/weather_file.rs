@@ -26,12 +26,11 @@ impl WeatherFile {
         let mut path = home_dir().expect("expect home dir");
         let mut exists = true;
         path.push(".weathercli");
-        if !path.exists() {
-            fs::create_dir_all(path.display().to_string()).expect("dir creation failed");
-        }
         path.push(file_name);
         if !path.exists() {
             exists = false;
+            let parent_dir = path.parent().unwrap();
+            fs::create_dir_all(parent_dir).unwrap();
             let mut file = File::create(path.display().to_string()).expect("file creation failed");
             file.write_all(b"{}")
                 .expect("Could not write to newly created file");
