@@ -27,7 +27,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Build with cargo
-      run: cargo build -r
+      run: cargo build -r --all-features
 
     - uses: actions/upload-artifact@v3
       name: Upload Updater (Windows)

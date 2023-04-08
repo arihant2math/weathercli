@@ -1,0 +1,6 @@
+[tool.maturin]
+features = ["gui"]
+no-default-features = true
+
+[build-system]
+requires = ["setuptools", "maturin"]

@@ -1,13 +1,16 @@
-use pyo3::prelude::*;
-use sha2::Digest;
 use std::fs;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use pyo3::prelude::*;
+use sha2::Digest;
+
 use crate::local::cache;
 
+#[cfg(feature = "support")]
 pub mod autolaunch;
 pub mod backend;
+#[cfg(feature = "support")]
 pub mod bin_common;
 pub mod component_updater;
 mod layout;
@@ -15,6 +18,7 @@ pub mod local;
 pub mod location;
 pub mod networking;
 mod prompt;
+#[cfg(feature = "gui")]
 mod settings_app;
 
 pub fn now() -> u128 {
@@ -34,8 +38,15 @@ pub fn hash_file(filename: &str) -> String {
 }
 
 #[pyfunction]
+#[cfg(feature = "gui")]
 pub fn open_settings_app() {
     settings_app::run_settings_app().unwrap();
+}
+
+#[pyfunction]
+#[cfg(not(feature = "gui"))]
+pub fn open_settings_app() {
+    println!("GUI support not enabled!");
 }
 
 /// corelib module for weather cli, implemented in Rust.
@@ -43,6 +54,7 @@ pub fn open_settings_app() {
 fn weather_core(py: Python, module: &PyModule) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(hash_file, module)?)?;
     module.add_function(wrap_pyfunction!(prompt::choice, module)?)?;
+    #[cfg(feature = "gui")]
     module.add_function(wrap_pyfunction!(open_settings_app, module)?)?;
     module.add_class::<local::weather_file::WeatherFile>()?;
     module.add_class::<local::settings::Settings>()?;

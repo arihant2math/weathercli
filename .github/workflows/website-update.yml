@@ -13,6 +13,7 @@ jobs:
         - name: Install dependencies
           run: |
             pip install -r dev-requirements.txt
+            cp minimal-pyproject.toml pyproject.toml
             maturin build -r
         - name: Install corelib
           run: |
