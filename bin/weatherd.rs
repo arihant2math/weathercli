@@ -80,7 +80,7 @@ fn main() {
                                         settings.internal.constant_location.unwrap()).to_vec(),
                                     settings.internal.metric_default.unwrap());
                 let bytes = bincode::serialize(&data).expect("Serialization Failed");
-                let out = WeatherFile::new("d.cache".to_string());
+                let out = WeatherFile::new("d.cache");
                 let path = out.path;
                 let mut file = fs::OpenOptions::new()
                     .write(true)
