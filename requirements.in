@@ -3,5 +3,4 @@ click
 colorama
 maturin
 Pillow
-plotext
 rich

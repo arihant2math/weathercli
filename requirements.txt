@@ -20,8 +20,6 @@ mdurl==0.1.2
     # via markdown-it-py
 pillow==9.5.0
     # via -r requirements.in
-plotext==5.2.8
-    # via -r requirements.in
 pygments==2.14.0
     # via rich
 rich==13.3.3

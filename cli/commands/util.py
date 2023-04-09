@@ -6,13 +6,11 @@ import time
 from pathlib import Path
 
 import colorama
-import plotext
 import weather_core
 from click import argument, option, command
 from weather_core import WeatherFile
 
 from cli import version
-from cli.backend.meteo.meteo_forecast import MeteoForecast
 
 
 @command("settings", help="opens a terminal gui for editing settings")
@@ -101,19 +99,6 @@ def clear_cache():
     f = WeatherFile("d.cache")
     f.data = ""
     f.write()
-
-
-@command("plot-temp", help="plots the temperature over time")
-def plot_temp():
-    data = MeteoForecast(
-        weather_core.location.get_location(False), False, weather_core.Settings()
-    )
-    plotext.plot(
-        [i for i in range(0, len(data.raw_data["hourly"]["temperature_2m"]))],
-        data.raw_data["hourly"]["temperature_2m"],
-    )
-    plotext.title("Temperature")
-    plotext.show()
 
 
 @command("setup", help="setup prompt")

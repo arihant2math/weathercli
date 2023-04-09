@@ -50,8 +50,8 @@ fn unregister() -> Result<(), Error> {
 fn main() {
     let settings = Settings::new();
     let args = Cli::parse();
-    if args.version {
-        println!(env!("CARGO_PKG_VERSION"));
+    if args.version && !args.quiet {
+            println!("{}", weather_core::version());
         return;
     }
     if args.action == "unregister" || args.action == "uninstall" {

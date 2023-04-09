@@ -3,4 +3,4 @@ features = []
 no-default-features = true
 
 [build-system]
-requires = ["setuptools", "maturin"]
+requires = ["setuptools", "maturin>=0.10,<1.0"]

@@ -13,6 +13,7 @@ pub mod backend;
 #[cfg(feature = "support")]
 pub mod bin_common;
 pub mod component_updater;
+#[cfg(feature = "python")]
 mod layout;
 pub mod local;
 pub mod location;
@@ -27,6 +28,11 @@ pub fn now() -> u128 {
         "Time went backwards :( or there is an overflow error of some sort and stuff broke",
     );
     since_the_epoch.as_millis()
+}
+
+#[pyfunction]
+pub fn version() -> String {
+    env!("CARGO_PKG_VERSION").to_string()
 }
 
 /// returns the sha-256 of the file
@@ -50,11 +56,12 @@ pub fn open_settings_app() {
 }
 
 /// corelib module for weather cli, implemented in Rust.
+#[cfg(feature = "python")]
 #[pymodule]
 fn weather_core(py: Python, module: &PyModule) -> PyResult<()> {
+    module.add_function(wrap_pyfunction!(version, module)?)?;
     module.add_function(wrap_pyfunction!(hash_file, module)?)?;
     module.add_function(wrap_pyfunction!(prompt::choice, module)?)?;
-    #[cfg(feature = "gui")]
     module.add_function(wrap_pyfunction!(open_settings_app, module)?)?;
     module.add_class::<local::weather_file::WeatherFile>()?;
     module.add_class::<local::settings::Settings>()?;

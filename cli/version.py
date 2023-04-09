@@ -1,1 +1,2 @@
-__version__ = "2023.4.7"
+import weather_core
+__version__ = weather_core.version()

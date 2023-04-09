@@ -85,10 +85,8 @@ async fn main() -> Result<(), String> {
     let json: IndexStruct =
         serde_json::from_str(&resp.text().await.expect("Failed to receive text"))
             .expect("JSON parsing failed");
-    if args.version {
-        if !args.quiet {
-            println!(env!("CARGO_PKG_VERSION"));
-        }
+    if args.version && !args.quiet {
+            println!("{}", weather_core::version());
         return Ok(());
     }
     weather_core::component_updater::update_web_resources(false, Some(args.quiet));

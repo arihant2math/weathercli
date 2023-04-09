@@ -35,7 +35,7 @@ class Function(Component):
             self.signature = inspect.getfullargspec(obj)
         except TypeError as e:
             if not supress_warnings:
-                print(colorama.Fore.YELLOW + "WARNING: " + str(e))
+                print(colorama.Fore.YELLOW + "WARNING: " + str(e) + " from " + str(obj))
             self.signature = inspect.getfullargspec(blank)
 
     def get_ast(self):

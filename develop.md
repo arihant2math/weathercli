@@ -1,7 +1,7 @@
 # Development
 ## Prerequisites
-* [Python](https://python.org) (3.9+)
-* [Rust](https://www.rust-lang.org/) (1.60+)
+* [Python](https://python.org) (3.9+, any supported python version is supported)
+* [Rust](https://www.rust-lang.org/) (1.60+, the earliest supported release is at worst 1 year old)
 ## Build for Development
 ```shell
 git clone https://github.com/arihant2math/weathercli.git
@@ -57,8 +57,11 @@ Scripts automate daily tasks
 ### Generate Stubs
 Many IDEs use stub files to detect functions and annotations, pyo3 does not automatically generate them, to generate them run the following command:
 ```shell
-python ./scripts/generate_stubs_v2.py core ./venv/Lib/core
+python ./scripts/generate_stubs_v2.py weather_core ./venv/Lib/weather_core
 ```
+
+Where ./venv/Lib/core is where weather_core is installed
+
 ### Update Docs Templates
 This script downloads the latest artifacts from GitHub Actions and replaces the executables in docs_templates/ with the new artifacts.
 A GitHub PAT is needed for the script to work.
@@ -70,13 +73,8 @@ Should be run after the docs templates are updated
 ```shell
 python scripts/update_index_hashes.py
 ```
-### Version Sync
-Updates the date everywhere
-```shell
-python scripts/version_sync.py
-```
 ### Docs
-Run `make docs`, or
+Run
 ```shell
 python scripts/dev_helper.py docs
 ```
