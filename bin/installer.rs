@@ -7,7 +7,7 @@ use winreg::enums::*;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
-use weather_core::bin_common::update_component;
+use weather_core::bin_common::{Config, update_component};
 use weather_core::component_updater::update_web_resources;
 
 #[derive(Clone, Parser)]
@@ -70,39 +70,26 @@ async fn main() -> Result<(), String> {
     if !is_empty {
         return Err("Directory is not empty".to_string());
     }
-    let url;
-    let path;
-    if cfg!(windows) {
-        url = "https://arihant2math.github.io/weathercli/weather.exe";
-        path = "weather.exe";
-    } else if cfg!(unix) {
-        url = "https://arihant2math.github.io/weathercli/weather";
-        path = "weather";
-    } else {
-        return Err("OS unsupported".to_string());
-    }
+    let url =
+        "https://arihant2math.github.io/weathercli".to_string() + &Config::new().WeatherFileName;
+    let mut path = dir_path.to_path_buf();
+    path.push(Config::new().WeatherFileName);
     update_component(
-        url,
-        path,
+        &url,
+        &path.display().to_string(),
         "Downloading weathercli from ".to_string(),
         "Installed weathercli".to_string(),
         args.quiet,
     )
     .await?;
-    let url;
-    let path;
-    if cfg!(windows) {
-        url = "https://arihant2math.github.io/weathercli/weatherd.exe";
-        path = "weatherd.exe";
-    } else if cfg!(unix) {
-        url = "https://arihant2math.github.io/weathercli/weatherd";
-        path = "weatherd";
-    } else {
-        return Err("OS unsupported".to_string());
-    }
+    let url =
+        "https://arihant2math.github.io/weathercli".to_string() + &Config::new().WeatherDFileName;
+    let mut path = dir_path.to_path_buf();
+    path.push("internal");
+    path.push(Config::new().WeatherDFileName);
     update_component(
-        url,
-        path,
+        &url,
+        &path.display().to_string(),
         "Downloading daemon from ".to_string(),
         "Installed daemon".to_string(),
         args.quiet,

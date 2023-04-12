@@ -56,7 +56,6 @@ pub fn open_settings_app() {
 }
 
 /// corelib module for weather cli, implemented in Rust.
-#[cfg(feature = "python")]
 #[pymodule]
 fn weather_core(py: Python, module: &PyModule) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(version, module)?)?;

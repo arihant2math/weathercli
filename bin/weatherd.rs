@@ -51,7 +51,7 @@ fn main() {
     let settings = Settings::new();
     let args = Cli::parse();
     if args.version && !args.quiet {
-            println!("{}", weather_core::version());
+        println!("{}", weather_core::version());
         return;
     }
     if args.action == "unregister" || args.action == "uninstall" {

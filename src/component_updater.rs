@@ -6,6 +6,7 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 use serde_json::Value;
 
+use crate::bin_common::Config;
 use crate::hash_file;
 use crate::local::weather_file::WeatherFile;
 
@@ -91,37 +92,22 @@ fn get_latest_updater_version() -> String {
 /// Downloads the OS specific updater
 #[pyfunction]
 fn get_updater(path: String) {
-    if cfg!(windows) {
-        let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/updater.exe")
-            .expect("url expected")
-            .bytes()
-            .expect("bytes expected");
-        let mut file = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(path)
-            .unwrap();
-        file.write_all(&data)
-            .expect("Something went wrong opening the file");
-    } else if cfg!(unix) {
-        let data = reqwest::blocking::get("https://arihant2math.github.io/weathercli/updater")
-            .expect("url expected")
-            .bytes()
-            .expect("bytes expected");
-        let mut file = OpenOptions::new()
-            .create(true)
-            .write(true)
-            .truncate(true)
-            .open(path)
-            .unwrap();
-        file.write_all(&data)
-            .expect("Something went wrong opening the file");
-    } else {
-        println!("OS unsupported");
-    }
+    let url = format!("https://arihant2math.github.io/weathercli/{}", Config::new().UpdaterFileName);{
+    let data = reqwest::blocking::get(url)
+        .expect("url expected")
+        .bytes()
+        .expect("bytes expected");
+    let mut file = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .truncate(true)
+        .open(path)
+        .unwrap();
+    file.write_all(&data)
+        .expect("Something went wrong opening the file");
 }
 
+#[cfg(feature = "python")]
 pub fn register_updater_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
     let child_module = PyModule::new(py, "updater")?;
     child_module.add_function(wrap_pyfunction!(get_latest_version, child_module)?)?;

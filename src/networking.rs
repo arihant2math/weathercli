@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+use std::str::FromStr;
+use std::sync::Arc;
+
 use bincode::{deserialize, serialize};
 use pyo3::{pyclass, pyfunction, PyResult, Python, wrap_pyfunction};
 use pyo3::prelude::*;
@@ -7,9 +11,6 @@ use reqwest::cookie::Jar;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::str::FromStr;
-use std::sync::Arc;
 
 #[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
@@ -226,6 +227,7 @@ pub fn get_urls(
     data
 }
 
+#[cfg(feature = "python")]
 pub fn register_networking_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
     let child_module = PyModule::new(py, "networking")?;
     child_module.add_class::<Session>()?;

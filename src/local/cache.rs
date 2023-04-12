@@ -239,6 +239,7 @@ pub(crate) fn update_hits(key: String) {
     file.write_all(&new_bytes).expect("Write Failed");
 }
 
+#[cfg(feature = "python")]
 pub fn register_caching_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
     let child_module = PyModule::new(py, "caching")?;
     child_module.add_function(wrap_pyfunction!(read, child_module)?)?;

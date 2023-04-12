@@ -211,6 +211,7 @@ pub fn reverse_location(latitude: &str, longitude: &str) -> [String; 2] {
     }
 }
 
+#[cfg(feature = "python")]
 pub fn register_location_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
     let child_module = PyModule::new(py, "location")?;
     child_module.add_function(wrap_pyfunction!(get_location, child_module)?)?;

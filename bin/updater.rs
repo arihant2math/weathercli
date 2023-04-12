@@ -1,10 +1,12 @@
+use std::fs;
 use std::path::Path;
 
 use clap::Parser;
 use serde::Deserialize;
 use serde::Serialize;
+use windows::w;
 
-use weather_core::bin_common::update_component;
+use weather_core::bin_common::{Config, update_component};
 use weather_core::hash_file;
 
 #[derive(Clone, Parser)]
@@ -86,8 +88,23 @@ async fn main() -> Result<(), String> {
         serde_json::from_str(&resp.text().await.expect("Failed to receive text"))
             .expect("JSON parsing failed");
     if args.version && !args.quiet {
-            println!("{}", weather_core::version());
+        println!("{}", weather_core::version());
         return Ok(());
+    }
+    let install_dir = std::env::current_dir().expect("Not running from directory");
+    let parent = install_dir.parent().unwrap_or(&*install_dir);
+    let install_type_folders = fs::read_dir(parent)
+        .expect("read parent dir failed")
+        .any(|f| {
+            f.expect("read failed").file_name().to_str().unwrap_or("")
+                == Config::new().WeatherFileName
+        });
+    let d_install_path = install_dir.clone();
+    let w_install_path;
+    if install_type_folders {
+        w_install_path = parent.to_path_buf();
+    } else {
+        w_install_path = install_dir;
     }
     weather_core::component_updater::update_web_resources(false, Some(args.quiet));
     let mut to_update: Vec<Component> = Vec::new();
@@ -112,20 +129,13 @@ async fn main() -> Result<(), String> {
         return Ok(());
     }
     if to_update.contains(&Component::Main) {
-        let url;
-        let path;
-        if cfg!(windows) {
-            url = "https://arihant2math.github.io/weathercli/weather.exe";
-            path = "weather.exe";
-        } else if cfg!(unix) {
-            url = "https://arihant2math.github.io/weathercli/weather";
-            path = "weather";
-        } else {
-            return Err("OS unsupported".to_string());
-        }
+        let url = "https://arihant2math.github.io/weathercli".to_string()
+            + &Config::new().WeatherFileName;
+        let mut path = w_install_path.to_path_buf();
+        path.push(Config::new().WeatherFileName);
         update_component(
-            url,
-            path,
+            &url,
+            &path.display().to_string(),
             "Downloading weathercli update from ".to_string(),
             "Updated weathercli".to_string(),
             args.quiet,
@@ -133,20 +143,13 @@ async fn main() -> Result<(), String> {
         .await?;
     }
     if to_update.contains(&Component::Daemon) {
-        let url;
-        let path;
-        if cfg!(windows) {
-            url = "https://arihant2math.github.io/weathercli/weatherd.exe";
-            path = "weatherd.exe";
-        } else if cfg!(unix) {
-            url = "https://arihant2math.github.io/weathercli/weatherd";
-            path = "weatherd";
-        } else {
-            return Err("OS unsupported".to_string());
-        }
+        let url = "https://arihant2math.github.io/weathercli".to_string()
+            + &Config::new().WeatherDFileName;
+        let mut path = d_install_path.to_path_buf();
+        path.push(Config::new().WeatherDFileName);
         update_component(
-            url,
-            path,
+            &url,
+            &path.display().to_string(),
             "Downloading daemon update from ".to_string(),
             "Updated daemon".to_string(),
             args.quiet,
