@@ -107,7 +107,7 @@ def clear_cache():
 def setup():
     settings_s = weather_core.Settings()
     settings = settings_s.internal
-    print(colorama.Fore.CYAN + "=== Weather CLI Setup ===")
+    print(colorama.Fore.CYAN + "===== Weather CLI Setup =====")
     weather_core.updater.update_web_resources(settings.development)
     print(colorama.Fore.RED + "Choose the default weather backend: ")
     options = [
