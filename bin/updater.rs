@@ -4,9 +4,9 @@ use std::path::Path;
 use clap::Parser;
 use serde::Deserialize;
 use serde::Serialize;
-use windows::w;
 
-use weather_core::bin_common::{Config, update_component};
+use weather_core::bin_common::update_component;
+use weather_core::Config;
 use weather_core::hash_file;
 
 #[derive(Clone, Parser)]

@@ -6,7 +6,7 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 use serde_json::Value;
 
-use crate::bin_common::Config;
+use crate::Config;
 use crate::hash_file;
 use crate::local::weather_file::WeatherFile;
 
@@ -92,7 +92,7 @@ fn get_latest_updater_version() -> String {
 /// Downloads the OS specific updater
 #[pyfunction]
 fn get_updater(path: String) {
-    let url = format!("https://arihant2math.github.io/weathercli/{}", Config::new().UpdaterFileName);{
+    let url = format!("https://arihant2math.github.io/weathercli/{}", Config::new().UpdaterFileName);
     let data = reqwest::blocking::get(url)
         .expect("url expected")
         .bytes()
