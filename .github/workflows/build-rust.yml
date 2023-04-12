@@ -25,6 +25,8 @@ jobs:
         os: ["ubuntu-latest", "windows-latest"]
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
 
     - name: Build with cargo
       run: cargo build -r --all-features
