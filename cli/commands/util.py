@@ -59,7 +59,7 @@ def update(force):
             if platform.system() == "Windows":
                 updater_location = application_path.parent / "components" / "updater.exe"
             else:
-                updater_location = application_path.parent / "components" / "update"
+                updater_location = application_path.parent / "components" / "updater"
             if not updater_location.exists():
                 print("Updater not found, downloading updater")
                 weather_core.updater.get_updater(str(updater_location))
