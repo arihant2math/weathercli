@@ -39,7 +39,7 @@ fn read_bytes_from_file() -> Vec<u8> {
     path.push("f.cache");
     if !path.exists() {
         let mut f = File::create(path.display().to_string()).expect("File Creation Failed");
-        let to_write: Vec<u8> = vec![0];
+        let to_write: [u8; 0] = [];
         f.write_all(&to_write).expect("Write failed");
     }
     let mut f = File::options()
@@ -66,31 +66,28 @@ pub fn read(key: String) -> Option<String> {
     let mut current_date = "".to_string();
     let mut place = Place::Key;
     for b in buffer {
-        if b == 28 {
-            if current_key == key {
-                return Some(current_value.to_string());
+        match b {
+            28 => {
+                if current_key == key {
+                    return Some(current_value.to_string());
+                }
+                current_key = String::from("");
+                current_value = String::from("");
+                current_date = String::from("");
+                place = Place::Key;
             }
-            current_key = String::from("");
-            current_value = String::from("");
-            current_date = String::from("");
-            place = Place::Key;
-        } else if b == 29 {
-            place = Place::Value
-        } else if b == 30 {
-            place = Place::Date
-        } else if b == 31 {
-            place = Place::Hits
-        } else {
-            match place {
-                Place::Key => current_key += &*u8_to_string(b),
-                Place::Value => current_value += &*u8_to_string(b),
-                Place::Date => current_date += &*u8_to_string(b),
-                Place::Hits => (),
+            29 => place = Place::Value,
+            30 => place = Place::Date,
+            31 => place = Place::Hits,
+            _ => {
+                match place {
+                    Place::Key => current_key += &*u8_to_string(b),
+                    Place::Value => current_value += &*u8_to_string(b),
+                    Place::Date => current_date += &*u8_to_string(b),
+                    Place::Hits => (),
+                }
             }
         }
-    }
-    if current_key != *"" && current_key == key {
-        return Some(current_value.to_string());
     }
     None
 }

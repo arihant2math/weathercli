@@ -7,8 +7,9 @@ use winreg::enums::*;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
-use weather_core::bin_common::{Config, update_component};
+use weather_core::bin_common::update_component;
 use weather_core::component_updater::update_web_resources;
+use weather_core::Config;
 
 #[derive(Clone, Parser)]
 struct Cli {
