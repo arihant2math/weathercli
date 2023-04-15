@@ -26,7 +26,7 @@ jobs:
             done
         - name: Update Executables
           run:
-            python3 update_docs_templates.py "$GH_API_PAT"
+            python3 ./scripts/update_docs_templates.py "$GH_API_PAT"
           env:
             SUPER_SECRET: ${{secrets.GH_API_PAT}}
         - uses: actions/checkout@v3
