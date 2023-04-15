@@ -28,7 +28,7 @@ pub async fn update_component(
     let status = res.status().as_u16();
     assert_eq!(status, 200, "Server returned a status code of {} instead of 200,\
     the update was aborted because downloading this file would damage the installation,\
-    this is likely a bug.", status); // Prevent a 404 page from blanking someone's exe
+    this is likely a bug.\nURL: {}", status, url); // Prevent a 404 page from blanking someone's exe
     let retries = 0;
     let mut file_expect = File::create(path);
     while file_expect.is_err() {

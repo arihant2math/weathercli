@@ -129,7 +129,7 @@ async fn main() -> Result<(), String> {
         return Ok(());
     }
     if to_update.contains(&Component::Main) {
-        let url = "https://arihant2math.github.io/weathercli".to_string()
+        let url = "https://arihant2math.github.io/weathercli/".to_string()
             + &Config::new().WeatherFileName;
         let mut path = w_install_path.to_path_buf();
         path.push(Config::new().WeatherFileName);
@@ -143,7 +143,7 @@ async fn main() -> Result<(), String> {
         .await?;
     }
     if to_update.contains(&Component::Daemon) {
-        let url = "https://arihant2math.github.io/weathercli".to_string()
+        let url = "https://arihant2math.github.io/weathercli/".to_string()
             + &Config::new().WeatherDFileName;
         let mut path = d_install_path.to_path_buf();
         path.push(Config::new().WeatherDFileName);
