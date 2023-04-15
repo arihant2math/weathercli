@@ -183,7 +183,9 @@ impl Sandbox for App {
                 .spacing(10)
                 .height(50)
                 .align_items(Alignment::Center),
-            row![cancel, save].spacing(10).align_items(Alignment::Center),
+            row![cancel, save]
+                .spacing(10)
+                .align_items(Alignment::Center),
         ]
         .spacing(20)
         .padding(20)

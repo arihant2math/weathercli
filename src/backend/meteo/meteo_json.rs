@@ -72,5 +72,5 @@ pub struct MeteoAirQualityJson {
     pub timezone: String,
     pub timezone_abbreviation: String,
     pub hourly_units: HashMap<String, String>,
-    pub hourly: MeteoAQIHourlyJson
+    pub hourly: MeteoAQIHourlyJson,
 }

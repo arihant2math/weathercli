@@ -79,14 +79,12 @@ pub fn read(key: String) -> Option<String> {
             29 => place = Place::Value,
             30 => place = Place::Date,
             31 => place = Place::Hits,
-            _ => {
-                match place {
-                    Place::Key => current_key += &*u8_to_string(b),
-                    Place::Value => current_value += &*u8_to_string(b),
-                    Place::Date => current_date += &*u8_to_string(b),
-                    Place::Hits => (),
-                }
-            }
+            _ => match place {
+                Place::Key => current_key += &*u8_to_string(b),
+                Place::Value => current_value += &*u8_to_string(b),
+                Place::Date => current_date += &*u8_to_string(b),
+                Place::Hits => (),
+            },
         }
     }
     None

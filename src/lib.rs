@@ -58,9 +58,8 @@ pub fn open_settings_app() {
 pub struct Config {
     pub WeatherFileName: String,
     pub WeatherDFileName: String,
-    pub UpdaterFileName: String
+    pub UpdaterFileName: String,
 }
-
 
 #[cfg(target_os = "windows")]
 impl Config {
@@ -68,7 +67,7 @@ impl Config {
         Config {
             WeatherFileName: "weather.exe".to_string(),
             WeatherDFileName: "weatherd.exe".to_string(),
-            UpdaterFileName: "updater.exe".to_string()
+            UpdaterFileName: "updater.exe".to_string(),
         }
     }
 }
@@ -79,11 +78,10 @@ impl Config {
         Config {
             WeatherFileName: "weather".to_string(),
             WeatherDFileName: "weatherd".to_string(),
-            UpdaterFileName: "updater".to_string()
+            UpdaterFileName: "updater".to_string(),
         }
     }
 }
-
 
 /// corelib module for weather cli, implemented in Rust.
 #[pymodule]

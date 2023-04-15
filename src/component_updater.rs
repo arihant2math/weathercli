@@ -92,7 +92,10 @@ fn get_latest_updater_version() -> String {
 /// Downloads the OS specific updater
 #[pyfunction]
 fn get_updater(path: String) {
-    let url = format!("https://arihant2math.github.io/weathercli/{}", Config::new().UpdaterFileName);
+    let url = format!(
+        "https://arihant2math.github.io/weathercli/{}",
+        Config::new().UpdaterFileName
+    );
     let data = reqwest::blocking::get(url)
         .expect("url expected")
         .bytes()

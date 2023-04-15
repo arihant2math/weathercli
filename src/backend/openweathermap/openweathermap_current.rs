@@ -68,7 +68,10 @@ impl WeatherDataRS for OpenWeatherMapCurrent {
         let weather_file = WeatherFile::weather_codes();
         let mut conditions: Vec<WeatherCondition> = Vec::new();
         for condition in self.data.weather.clone() {
-            conditions.push(WeatherCondition::new(condition.id as u16, &weather_file.data))
+            conditions.push(WeatherCondition::new(
+                condition.id as u16,
+                &weather_file.data,
+            ))
         }
         conditions
     }

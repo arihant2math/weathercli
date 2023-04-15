@@ -14,12 +14,17 @@ pub struct MeteoCurrent {
 
 impl MeteoCurrent {
     pub fn new(data: MeteoForecastJson, aqi: MeteoAirQualityJson, metric: bool) -> Self {
-        let index = data.hourly.time.iter().position(|r| *r == data.current_weather.time).unwrap();
+        let index = data
+            .hourly
+            .time
+            .iter()
+            .position(|r| *r == data.current_weather.time)
+            .unwrap();
         MeteoCurrent {
             data,
             aqi,
             metric,
-            index
+            index,
         }
     }
 }
@@ -74,40 +79,25 @@ impl WeatherDataRS for MeteoCurrent {
         let cloud_cover = self.get_cloud_cover();
         if cloud_cover == 0 {
             conditions.push(WeatherCondition::new(800, &weather_file.data));
-        }
-        else if cloud_cover < 25
-        {
+        } else if cloud_cover < 25 {
             conditions.push(WeatherCondition::new(801, &weather_file.data));
-        }
-        else if cloud_cover < 50 {
+        } else if cloud_cover < 50 {
             conditions.push(WeatherCondition::new(802, &weather_file.data));
-        }
-        else if cloud_cover < 85 {
+        } else if cloud_cover < 85 {
             conditions.push(WeatherCondition::new(803, &weather_file.data));
-        }
-        else {
+        } else {
             conditions.push(WeatherCondition::new(804, &weather_file.data));
         }
         if self.data.hourly.rain[self.index] != 0.0 {
             let rain = self.data.hourly.rain[self.index];
             let metric = self.metric;
-            if (0.0 < rain && rain < 0.098 && !metric
-            ) || (0.0 < rain && rain  < 2.5 && metric) {
+            if (0.0 < rain && rain < 0.098 && !metric) || (0.0 < rain && rain < 2.5 && metric) {
                 conditions.push(WeatherCondition::new(500, &weather_file.data));
-            } else if (rain < 0.39
-            && !metric) || (
-                rain < 10.0 && metric
-            )
-            {
+            } else if (rain < 0.39 && !metric) || (rain < 10.0 && metric) {
                 conditions.push(WeatherCondition::new(501, &weather_file.data));
-            }
-            else if (rain < 2.0 && !metric) || (
-                rain < 50.0 && metric
-            )
-            {
+            } else if (rain < 2.0 && !metric) || (rain < 50.0 && metric) {
                 conditions.push(WeatherCondition::new(502, &weather_file.data));
-            }
-            else if rain != 0.0 {
+            } else if rain != 0.0 {
                 conditions.push(WeatherCondition::new(503, &weather_file.data));
             }
         }

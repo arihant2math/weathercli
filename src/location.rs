@@ -91,7 +91,9 @@ fn nominatim_reverse_geocode(lat: &str, lon: &str) -> String {
 fn get_location_core(no_sys_loc: bool) -> [String; 2] {
     // If no_sys_loc is true, the location will always be gotten from the web
     if !no_sys_loc {
-        return get_location_windows().unwrap_or(get_location_web().expect("Windows location and web location fallback failed"));
+        return get_location_windows().unwrap_or(
+            get_location_web().expect("Windows location and web location fallback failed"),
+        );
     }
     get_location_web().expect("web location not found")
 }
