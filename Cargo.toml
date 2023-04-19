@@ -27,7 +27,7 @@ crate-type = [
 
 [package]
 name = "weather_core"
-version = "2023.4.14"
+version = "2023.4.17"
 edition = "2021"
 authors = ["Ashwin Naren"]
 rust-version = "1.60.0"

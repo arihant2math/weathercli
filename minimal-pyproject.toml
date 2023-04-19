@@ -1,6 +1,9 @@
 [tool.maturin]
-features = []
+features = ["python"]
 no-default-features = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
 
 [build-system]
 requires = ["setuptools", "maturin>=0.10,<1.0"]
