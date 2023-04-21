@@ -15,9 +15,12 @@ def update_hash(file, key):
 
 
 if __name__ == "__main__":
-    update_hash(weathercli_dir / "weather_codes.json", "weather-codes-hash")
+    update_hash(weathercli_dir / "docs_templates" / "weather_codes.json", "weather-codes-hash")
     update_hash(
-        weathercli_dir / "weather_ascii_images.json", "weather-ascii-images-hash"
+        weathercli_dir / "docs_templates" / "weather_ascii_images.json", "weather-ascii-images-hash"
+    )
+    update_hash(
+        weathercli_dir / "docs_templates" / "default_layout.json", "default-layout-hash"
     )
     update_hash(
         weathercli_dir / "docs_templates" / "weather.exe", "weather-exe-hash-windows"
