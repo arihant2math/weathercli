@@ -2,8 +2,6 @@ use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
 
-use pyo3::prelude::*;
-use pyo3::pyfunction;
 use serde_json::Value;
 
 use crate::Config;
@@ -45,7 +43,6 @@ fn update_web_resource(
 
 /// Updates all the web resources, run on a separate thread as there is no return value
 /// :param dev: gets passed update_web_resource, if true update_web_resource will print the hashes if they don't match
-#[pyfunction]
 pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
     let real_quiet = quiet.unwrap_or(false);
     let resp =
@@ -73,7 +70,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
         );
     }
 }
-#[pyfunction]
+
 fn get_latest_version() -> String {
     let data =
         reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
@@ -81,7 +78,6 @@ fn get_latest_version() -> String {
     json.get("version").expect("").to_string()
 }
 
-#[pyfunction]
 fn get_latest_updater_version() -> String {
     let data =
         reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
@@ -90,7 +86,6 @@ fn get_latest_updater_version() -> String {
 }
 
 /// Downloads the OS specific updater
-#[pyfunction]
 fn get_updater(path: String) {
     let url = format!(
         "https://arihant2math.github.io/weathercli/{}",

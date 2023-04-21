@@ -1,47 +1,29 @@
-use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::local::weather_file::WeatherFile;
 
-#[pyclass]
 #[derive(Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct SettingsJson {
-    #[pyo3(get, set)]
     pub open_weather_map_api_key: Option<String>,
-    #[pyo3(get, set)]
     pub bing_maps_api_key: Option<String>,
-    #[pyo3(get, set)]
     pub ncdc_api_key: Option<String>,
-    #[pyo3(get, set)]
     pub metric_default: Option<bool>,
-    #[pyo3(get, set)]
     pub default_backend: Option<String>,
-    #[pyo3(get, set)]
     pub constant_location: Option<bool>,
-    #[pyo3(get, set)]
     pub default_layout: Option<String>,
-    #[pyo3(get, set)]
     pub auto_update_internet_resources: Option<bool>,
-    #[pyo3(get, set)]
     pub debug: Option<bool>,
-    #[pyo3(get, set)]
     pub development: Option<bool>,
-    #[pyo3(get, set)]
     pub show_alerts: Option<bool>,
-    #[pyo3(get, set)]
     pub layout_file: Option<String>,
-    #[pyo3(get, set)]
     pub enable_daemon: Option<bool>,
-    #[pyo3(get, set)]
     pub daemon_update_interval: Option<i64>,
-    #[pyo3(get, set)]
     pub installed_components: Option<Vec<String>>,
 }
 
-#[pyclass]
+#[derive(Clone)]
 pub struct Settings {
-    #[pyo3(get)]
     pub internal: SettingsJson,
     file: WeatherFile,
 }
@@ -52,9 +34,7 @@ impl Default for Settings {
     }
 }
 
-#[pymethods]
 impl Settings {
-    #[new]
     pub fn new() -> Self {
         let file = WeatherFile::settings();
         let mut parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");

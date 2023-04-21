@@ -1,13 +1,11 @@
 use std::collections::HashMap;
 
-use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MeteoHourlyJson {
     pub time: Vec<String>,
-    pub temperature_2m: Vec<i32>,
+    pub temperature_2m: Vec<f32>,
     pub rain: Vec<f32>,
     pub showers: Vec<f32>,
     pub snowfall: Vec<f32>,
@@ -20,7 +18,6 @@ pub struct MeteoHourlyJson {
     pub winddirection_10m: Vec<f32>,
 }
 
-#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MeteoDailyJson {
     pub time: Vec<String>,
@@ -28,17 +25,15 @@ pub struct MeteoDailyJson {
     pub temperature_2m_min: Vec<f32>,
 }
 
-#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MeteoCurrentWeatherJson {
     pub temperature: f32,
-    pub windspeed: u64,
-    pub winddirection: u16,
+    pub windspeed: f64,
+    pub winddirection: f64,
     pub weathercode: i64,
     pub time: String,
 }
 
-#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MeteoForecastJson {
     pub latitude: f64,
@@ -47,7 +42,7 @@ pub struct MeteoForecastJson {
     pub utc_offset_seconds: i32,
     pub timezone: String,
     pub timezone_abbreviation: String,
-    pub elevation: i32,
+    pub elevation: f32,
     pub current_weather: MeteoCurrentWeatherJson,
     pub hourly_units: HashMap<String, String>,
     pub hourly: MeteoHourlyJson,
@@ -55,14 +50,12 @@ pub struct MeteoForecastJson {
     pub daily: MeteoDailyJson,
 }
 
-#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MeteoAQIHourlyJson {
     pub time: Vec<String>,
-    pub european_aqi: Vec<u8>,
+    pub european_aqi: Vec<Option<u8>>,
 }
 
-#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MeteoAirQualityJson {
     pub latitude: f64,

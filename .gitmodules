@@ -1,3 +1,0 @@
-[submodule "lib/pyo3"]
-	path = lib/pyo3
-	url = https://github.com/arihant2math/pyo3

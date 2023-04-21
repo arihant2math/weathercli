@@ -3,7 +3,6 @@ use std::time::Duration;
 
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, read};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-use pyo3::pyfunction;
 
 fn draw(options: &Vec<String>, choice: usize, multiline: bool) -> String {
     assert!(options.len() > choice);
@@ -25,7 +24,6 @@ fn draw(options: &Vec<String>, choice: usize, multiline: bool) -> String {
     result
 }
 
-#[pyfunction]
 pub fn choice(options: Vec<String>, default: usize, multiline: Option<bool>) -> usize {
     read().expect("Input Patching failed");
     let mut multiline_standard = true;

@@ -1,17 +1,12 @@
-use pyo3::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[pyclass]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct WindData {
-    #[pyo3(get, set)]
-    pub(crate) speed: f64,
-    #[pyo3(get, set)]
-    pub(crate) heading: i16,
+    pub speed: f64,
+    pub heading: i16,
 }
 
-#[pymethods]
 impl WindData {
-    #[new]
     fn new(speed: f64, heading: i16) -> Self {
         WindData { speed, heading }
     }

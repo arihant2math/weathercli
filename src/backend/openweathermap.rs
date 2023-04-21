@@ -1,4 +1,3 @@
-use pyo3::{pyclass, pyfunction};
 use serde::{Deserialize, Serialize};
 
 use crate::backend::openweathermap::openweathermap_json::{
@@ -8,12 +7,11 @@ use crate::networking;
 use crate::networking::Resp;
 
 mod openweathermap_current;
-mod openweathermap_forecast;
+pub mod openweathermap_forecast;
 mod openweathermap_future;
 pub mod openweathermap_json;
 
 /// Gets the urls from the openweathermap api server
-#[pyfunction]
 pub fn open_weather_map_get_api_urls(
     url: &str,
     api_key: String,
@@ -39,7 +37,6 @@ pub fn open_weather_map_get_api_urls(
 }
 
 /// Gets the urls from the openweathermap api server and returns a FormattedData struct with the data
-#[pyfunction]
 pub fn open_weather_map_get_combined_data_formatted(
     open_weather_map_api_url: &str,
     open_weather_map_api_key: String,
@@ -64,15 +61,10 @@ pub fn open_weather_map_get_combined_data_formatted(
     }
 }
 
-#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct OpenWeatherMapFormattedData {
-    #[pyo3(get)]
     pub weather: OpenWeatherMapJson,
-    #[pyo3(get)]
     pub air_quality: OpenWeatherMapAirQualityJson,
-    #[pyo3(get)]
     pub forecast: OpenWeatherMapForecastJson,
-    #[pyo3(get)]
     pub raw_data: Vec<Resp>,
 }

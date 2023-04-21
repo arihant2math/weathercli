@@ -3,25 +3,18 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::PathBuf;
 
-use pyo3::prelude::*;
-
 use local::dirs::home_dir;
 
 use crate::local;
 
-#[pyclass(subclass)]
 #[derive(Clone)]
 pub struct WeatherFile {
     pub path: PathBuf,
-    #[pyo3(get, set)]
     pub data: String,
-    #[pyo3(get)]
     pub exists: bool,
 }
 
-#[pymethods]
 impl WeatherFile {
-    #[new]
     pub fn new(file_name: &str) -> Self {
         let mut path = home_dir().expect("expect home dir");
         let mut exists = true;
@@ -55,22 +48,18 @@ impl WeatherFile {
         f.flush().expect("Flushing failed");
     }
 
-    #[getter]
     pub fn get_path(&self) -> String {
         self.path.display().to_string()
     }
 
-    #[staticmethod]
     pub fn weather_codes() -> Self {
         WeatherFile::new("resources/weather_codes.json")
     }
 
-    #[staticmethod]
     pub fn settings() -> Self {
         WeatherFile::new("settings.json")
     }
 
-    #[staticmethod]
     pub fn weather_ascii_art() -> Self {
         WeatherFile::new("resources/weather_ascii_images.json")
     }

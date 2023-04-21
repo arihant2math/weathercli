@@ -3,8 +3,6 @@ use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
 
-use pyo3::prelude::*;
-
 use local::dirs::home_dir;
 
 use crate::{local, now};
@@ -54,7 +52,6 @@ fn read_bytes_from_file() -> Vec<u8> {
 
 /// Reads the value of a key from the cache. This does not update the count value, use update_hits to do that
 /// Returns None if the key does not exist and returns a string otherwise
-#[pyfunction]
 pub fn read(key: String) -> Option<String> {
     let path = get_cache_path();
     if !path.exists() {
@@ -121,7 +118,6 @@ fn get_cache_path() -> PathBuf {
 }
 
 /// writes the key to the cache, overwriting it if it already exists
-#[pyfunction]
 pub fn write(key: String, value: String) {
     let path = get_cache_path();
     let buffer = read_bytes_from_file();
@@ -200,8 +196,7 @@ fn to_rows(bytes: Vec<u8>) -> Vec<Row> {
 }
 
 /// Bumps the number of hits to the row, makes it so that the row is less likely to be deleted
-#[pyfunction]
-pub(crate) fn update_hits(key: String) {
+pub fn update_hits(key: String) {
     let path = get_cache_path();
     let buffer = read_bytes_from_file();
     let mut rows: Vec<Row> = to_rows(buffer);
@@ -232,14 +227,4 @@ pub(crate) fn update_hits(key: String) {
         .open(path.display().to_string())
         .expect("File opening failed");
     file.write_all(&new_bytes).expect("Write Failed");
-}
-
-#[cfg(feature = "python")]
-pub fn register_caching_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
-    let child_module = PyModule::new(py, "caching")?;
-    child_module.add_function(wrap_pyfunction!(read, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(write, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(update_hits, child_module)?)?;
-    parent_module.add_submodule(child_module)?;
-    Ok(())
 }

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::thread;
 
-use pyo3::prelude::*;
 use serde_json::Value;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
@@ -105,23 +104,6 @@ fn get_location_core(_no_sys_loc: bool) -> [String; 2] {
     get_location_web().expect("web location not found")
 }
 
-// fn main() {
-//     let handle = thread::spawn(|| {
-//         for i in 1..10 {
-//             println!("hi number {} from the spawned thread!", i);
-//             thread::sleep(Duration::from_millis(1));
-//         }
-//     });
-//
-//     for i in 1..5 {
-//         println!("hi number {} from the main thread!", i);
-//         thread::sleep(Duration::from_millis(1));
-//     }
-//
-//     handle.join().unwrap();
-// }
-
-#[pyfunction]
 pub fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
     if constant_location {
         let attempt_cache = cache::read("current_location".to_string());
@@ -146,43 +128,44 @@ pub fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
     get_location_core(no_sys_loc)
 }
 
-#[pyfunction]
 pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option<[String; 2]> {
     let attempt_cache = cache::read("location".to_string() + &location_string);
-    return if let Some(..) = attempt_cache {
-        let mut coordinates: Option<Vec<String>>;
-        if bing_maps_api_key != *"" {
-            coordinates = bing_maps_location_query(&location_string, bing_maps_api_key);
-            if coordinates.is_none() {
-                println!("Bing maps geocoding failed");
+
+    match attempt_cache {
+        None => {
+            let mut coordinates: Option<Vec<String>>;
+            if bing_maps_api_key != *"" {
+                coordinates = bing_maps_location_query(&location_string, bing_maps_api_key);
+                if coordinates.is_none() {
+                    println!("Bing maps geocoding failed");
+                    coordinates = nominatim_geocode(&location_string);
+                }
+            } else {
                 coordinates = nominatim_geocode(&location_string);
             }
-        } else {
-            coordinates = nominatim_geocode(&location_string);
+            coordinates.as_ref()?;
+            let real_coordinate = coordinates.unwrap();
+            cache::write(
+                "location".to_string() + &location_string.to_lowercase(),
+                real_coordinate.join(",").as_str().to_string(),
+            );
+            Some([
+                real_coordinate[0].to_string(),
+                real_coordinate[1].to_string(),
+            ])
         }
-        coordinates.as_ref()?;
-        let real_coordinate = coordinates.unwrap();
-        cache::write(
-            "location".to_string() + &location_string.to_lowercase(),
-            real_coordinate.join(",").as_str().to_string(),
-        );
-        Some([
-            real_coordinate[0].to_string(),
-            real_coordinate[1].to_string(),
-        ])
-    } else {
-        let cache_string = "location".to_string() + &location_string.to_lowercase();
-        let handle = thread::spawn(|| {
-            cache::update_hits(cache_string);
-        });
-        let real_cache = attempt_cache.unwrap();
-        let vec_collect: Vec<&str> = real_cache.split(',').collect();
-        handle.join().expect("Update Hits Thread Failed");
-        Some([vec_collect[0].to_string(), vec_collect[1].to_string()])
-    };
+        Some(real_cache) => {
+            let cache_string = "location".to_string() + &location_string.to_lowercase();
+            let handle = thread::spawn(|| {
+                cache::update_hits(cache_string);
+            });
+            let vec_collect: Vec<&str> = real_cache.split(',').collect();
+            handle.join().expect("Update Hits Thread Failed");
+            Some([vec_collect[0].to_string(), vec_collect[1].to_string()])
+        }
+    }
 }
 
-#[pyfunction]
 pub fn reverse_location(latitude: &str, longitude: &str) -> [String; 2] {
     let k = latitude.to_string() + "," + longitude;
     let attempt_cache = cache::read("coordinates".to_string() + &k);

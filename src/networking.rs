@@ -2,44 +2,33 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
-use bincode::{deserialize, serialize};
-use pyo3::{pyclass, pyfunction, PyResult, Python, wrap_pyfunction};
-use pyo3::prelude::*;
-use pyo3::types::PyBytes;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use reqwest::cookie::Jar;
 use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
 
-#[pyclass]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Resp {
-    #[pyo3(get)]
     pub url: String,
-    #[pyo3(get)]
     pub status: u16,
-    #[pyo3(get)]
     pub text: String,
-    #[pyo3(get)]
     pub bytes: Vec<u8>,
 }
+
 #[derive(Clone, Serialize, Deserialize)]
 struct SessionInternalSerialize {
     user_agent: String,
     header_map: HashMap<String, String>,
 }
 
-#[pyclass(module = "weather_core.networking")]
 #[derive(Clone)]
 pub struct Session {
     client: reqwest::blocking::Client,
     internal_serialize: SessionInternalSerialize,
 }
 
-#[pymethods]
 impl Session {
-    #[new]
     pub fn new(user_agent: Option<String>, headers: Option<HashMap<String, String>>) -> Self {
         let jar: Jar = Jar::default();
         let app_user_agent = get_user_agent(user_agent);
@@ -58,31 +47,6 @@ impl Session {
                 header_map: headers.unwrap_or(HashMap::new()),
             },
         }
-    }
-
-    pub fn __setstate__(&mut self, py: Python, state: PyObject) -> PyResult<()> {
-        match state.extract::<&PyBytes>(py) {
-            Ok(s) => {
-                let jar: Jar = Jar::default();
-                self.internal_serialize = deserialize(s.as_bytes()).unwrap();
-                let client = reqwest::blocking::Client::builder()
-                    .user_agent(self.internal_serialize.user_agent.to_string())
-                    .cookie_store(true)
-                    .default_headers(get_header_map(Some(
-                        self.internal_serialize.header_map.clone(),
-                    )))
-                    .cookie_provider::<Jar>(Arc::new(jar))
-                    .build()
-                    .unwrap();
-                self.client = client;
-                Ok(())
-            }
-            Err(e) => Err(e),
-        }
-    }
-
-    pub fn __getstate__(&self, py: Python) -> PyResult<PyObject> {
-        Ok(PyBytes::new(py, &serialize(&self.internal_serialize).unwrap()).to_object(py))
     }
 
     pub fn get(&self, url: String) -> Resp {
@@ -130,7 +94,6 @@ fn get_user_agent(custom: Option<String>) -> String {
 /// :param user_agent: the user agent to use, weathercli/1 by default
 /// :param headers: optional dictionary with headers in it
 /// :param cookies: optional list of cookies
-#[pyfunction]
 pub fn get_url(
     url: String,
     user_agent: Option<String>,
@@ -177,7 +140,6 @@ pub fn get_url(
 /// :param user_agent: the user agent to use, weathercli/1 by default
 /// :param headers: optional dictionary with headers in it
 /// :param cookies: optional list of cookies
-#[pyfunction]
 pub fn get_urls(
     urls: Vec<String>,
     user_agent: Option<String>,

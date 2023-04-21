@@ -1,7 +1,6 @@
-use pyo3::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[pyclass]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub enum Status {
     OK = 0,
     ServerError = 1,
