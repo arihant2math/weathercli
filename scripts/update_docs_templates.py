@@ -52,27 +52,19 @@ def main(gh_token):
         "https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=100&status=completed"
     )
     runs = json.loads(get_run_id.text)["workflow_runs"]
-    ci = filter_by_file(runs, ".github/workflows/build.yml")
     rust_ci = filter_by_file(runs, ".github/workflows/build-rust.yml")
-    artifacts = None
     rust_artifacts = None
-    if len(ci) > 0:
-        latest_run_id = ci[0]["id"]
-        artifacts = get_artifact_urls(s, latest_run_id)
     if len(rust_ci) > 0:
         latest_updater_run_id = rust_ci[0]["id"]
         rust_artifacts = get_artifact_urls(s, latest_updater_run_id)
     tasks = []
-    if artifacts is not None:
-        print("Starting Unix Download")
-        tasks.append((s, artifacts, "weather (Unix)", "weather"))
-        print("Starting Windows Download")
-        tasks.append((s, artifacts, "weather (Windows)", "weather.exe"))
     if rust_artifacts is not None:
+        print("Starting Unix Download")
+        tasks.append((s, rust_artifacts, "weather (Unix)", "weather"))
+        print("Starting Windows Download")
+        tasks.append((s, rust_artifacts, "weather (Windows)", "weather.exe"))
         print("Starting Unix Download (Updater)")
-        tasks.append(
-            (s, rust_artifacts, "updater (Unix)", "updater"),
-        )
+        tasks.append((s, rust_artifacts, "updater (Unix)", "updater"))
         print("Starting Windows Download (Updater)")
         tasks.append((s, rust_artifacts, "updater (Windows)", "updater.exe"))
         print("Starting Unix Download (Daemon)")

@@ -61,10 +61,19 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
         );
         update_web_resource(
             "resources/weather_ascii_images.json".to_string(),
-            web_json,
+            web_json.clone(),
             "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
             "weather-ascii-images-hash",
             "ascii images",
+            dev,
+            real_quiet,
+        );
+        update_web_resource(
+            "layouts/default.json".to_string(),
+            web_json,
+            "https://arihant2math.github.io/weathercli/default_layout.json",
+            "default-layout-hash",
+            "default layout",
             dev,
             real_quiet,
         );

@@ -31,6 +31,10 @@ jobs:
     - name: Build with cargo
       run: cargo build -r --all-features
 
+    - name: Fix weather icon windows
+      if: startsWith(matrix.os, 'windows')
+      run: ./rcedit ./target/release/weather.exe --set-icon .\icon\icon.ico
+
     - uses: actions/upload-artifact@v3
       name: Upload Updater (Windows)
       if: startsWith(matrix.os, 'windows')

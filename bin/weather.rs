@@ -1,3 +1,4 @@
+use std::str::FromStr;
 use std::thread;
 use std::time::Duration;
 
@@ -52,6 +53,24 @@ struct GlobalOpts {
     #[clap(long, short, action, global = true)]
     no_sys_loc: bool,
 }
+
+fn config(settings: Settings, key_name: String, value: Option<String>) {
+    if value.is_none() {
+        let f = WeatherFile::settings();
+        let data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
+        println!("{}: {}", key_name, data[key_name]);
+    }
+    else {
+        println!("Writing {}={} ...", key_name.lower(), value.unwrap());
+        let mut f = WeatherFile::settings();
+        let mut data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
+        data[key_name.to_uppercase()] = Value::from_str(&value.unwrap()).expect("Value conversion failed");
+        f.data = serde_json::to_string(&data).expect("Serialization failed");
+        f.write();
+    }
+}
+
+
 
 fn setup(settings_s: Settings) {
     let mut settings = settings_s;

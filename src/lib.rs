@@ -92,9 +92,9 @@ fn get_data_from_datasource(
     let mut dir = crate::local::dirs::home_dir().expect("Home dir get failed");
     dir.push(".weathercli/resources");
     let mut f1 = dir.clone();
-    f1.push("weather_codes.json");
+    f1.push("../docs_templates/weather_codes.json");
     let mut f2 = dir.clone();
-    f2.push("weather_ascii_images.json");
+    f2.push("../docs_templates/weather_ascii_images.json");
     if !(Path::exists(&*dir) && Path::exists(&*f1) && Path::exists(&*f2)) {
         component_updater::update_web_resources(settings.internal.development.unwrap(), None)
     } else if settings.internal.auto_update_internet_resources.unwrap() {
