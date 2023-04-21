@@ -1,8 +1,8 @@
+use serde_json::Value;
+
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
-
-use serde_json::Value;
 
 use crate::Config;
 use crate::hash_file;

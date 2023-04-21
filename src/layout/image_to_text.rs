@@ -1,8 +1,8 @@
 extern crate image;
 
-use std::path::Path;
-
 use image::{GenericImageView, imageops};
+
+use std::path::Path;
 
 fn rgb(red: u8, green: u8, blue: u8) -> String {
     let escape = "\x1b[";

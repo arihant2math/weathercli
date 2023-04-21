@@ -1,10 +1,9 @@
-use std::fs;
-use std::path::Path;
-
 use clap::Parser;
 use serde::Deserialize;
 use serde::Serialize;
 
+use std::fs;
+use std::path::Path;
 use weather_core::bin_common::update_component;
 use weather_core::Config;
 use weather_core::hash_file;

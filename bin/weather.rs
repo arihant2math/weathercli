@@ -1,10 +1,9 @@
-use std::str::FromStr;
-use std::thread;
-use std::time::Duration;
-
 use clap::{Args, Parser, Subcommand};
 use serde_json::Value;
 
+use std::str::FromStr;
+use std::thread;
+use std::time::Duration;
 use weather_core::{component_updater, networking, version, weather};
 use weather_core::component_updater::get_updater;
 use weather_core::local::settings::Settings;
@@ -27,13 +26,13 @@ enum Command {
     Config(ConfigOpts),
     ClearCache,
     Setup,
-    Update(UpdateOpts)
+    Update(UpdateOpts),
 }
 
 #[derive(Debug, Args)]
 struct ConfigOpts {
     key: String,
-    value: Option<String>
+    value: Option<String>,
 }
 
 #[derive(Debug, Args)]
@@ -66,49 +65,75 @@ fn config(key_name: String, value: Option<String>) {
         let f = WeatherFile::settings();
         let data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
         println!("{}: {}", &key_name, data[&key_name]);
-    }
-    else {
-        println!("Writing {}={} ...", key_name.to_lowercase(), value.clone().unwrap());
+    } else {
+        println!(
+            "Writing {}={} ...",
+            key_name.to_lowercase(),
+            value.clone().unwrap()
+        );
         let mut f = WeatherFile::settings();
         let mut data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
-        data[key_name.to_uppercase()] = Value::from_str(&value.unwrap()).expect("Value conversion failed");
+        data[key_name.to_uppercase()] =
+            Value::from_str(&value.unwrap()).expect("Value conversion failed");
         f.data = serde_json::to_string(&data).expect("Serialization failed");
         f.write();
     }
 }
 
-
-
 fn setup(settings_s: Settings) {
     let mut settings = settings_s;
-    println!("{}===== Weather CLI Setup =====", weather_core::color::FORE_CYAN);
-    weather_core::component_updater::update_web_resources(settings.internal.development.unwrap(), None);
-    println!("{}Choose the default weather backend: ", weather_core::color::FORE_RED);
-    let options = vec!["Meteo".to_string(), "Open Weather Map".to_string(), "National Weather Service".to_string(), "The Weather Channel".to_string()];
-    let mut default = vec!["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"].iter()
-        .position(|&x| x == settings.internal.default_backend.clone().unwrap()).unwrap_or(0);
+    println!(
+        "{}===== Weather CLI Setup =====",
+        weather_core::color::FORE_CYAN
+    );
+    weather_core::component_updater::update_web_resources(
+        settings.internal.development.unwrap(),
+        None,
+    );
+    println!(
+        "{}Choose the default weather backend: ",
+        weather_core::color::FORE_RED
+    );
+    let options = vec![
+        "Meteo".to_string(),
+        "Open Weather Map".to_string(),
+        "National Weather Service".to_string(),
+        "The Weather Channel".to_string(),
+    ];
+    let mut default = vec!["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"]
+        .iter()
+        .position(|&x| x == settings.internal.default_backend.clone().unwrap())
+        .unwrap_or(0);
     let current = weather_core::prompt::choice(options, default, None);
     let weather_backend_setting = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"][current];
     settings.internal.default_backend = Some(weather_backend_setting.to_string());
     settings.write();
     thread::sleep(Duration::from_millis(100));
-    println!("{}Is your location constant (i.e. is this computer stationary at all times)?", weather_core::color::FORE_RED);
+    println!(
+        "{}Is your location constant (i.e. is this computer stationary at all times)?",
+        weather_core::color::FORE_RED
+    );
     if settings.internal.constant_location.unwrap() {
         default = 0;
     } else {
         default = 1;
     }
-    let constant_location_setting = [true, false][weather_core::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)];
+    let constant_location_setting = [true, false]
+        [weather_core::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)];
     settings.internal.constant_location = Some(constant_location_setting);
     settings.write();
     thread::sleep(Duration::from_millis(100));
-    println!("{}Should static resources (ascii art, weather code sentences, etc.) be auto-updated?", weather_core::color::FORE_RED);
+    println!(
+        "{}Should static resources (ascii art, weather code sentences, etc.) be auto-updated?",
+        weather_core::color::FORE_RED
+    );
     if settings.internal.auto_update_internet_resources.unwrap() {
         default = 0;
     } else {
         default = 1;
     }
-    let auto_update_setting = [true, false][weather_core::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)];
+    let auto_update_setting = [true, false]
+        [weather_core::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)];
     settings.internal.auto_update_internet_resources = Some(auto_update_setting);
     settings.write();
 }
@@ -121,7 +146,10 @@ fn update(force: bool) {
     println!("Current Version: {}", version());
     if latest_version != version() || force {
         println!("Updating weather.exe at {}", application_path.display());
-        let mut updater_location = application_path.parent().expect("no parent dir").to_path_buf();
+        let mut updater_location = application_path
+            .parent()
+            .expect("no parent dir")
+            .to_path_buf();
         if cfg!(windows) {
             updater_location.push("components");
             updater_location.push("updater.exe");
@@ -133,23 +161,37 @@ fn update(force: bool) {
             println!("Updater not found, downloading updater");
             get_updater(updater_location.display().to_string());
             let resp: Value = serde_json::from_str(
-                &networking::get_url("https://arihant2math.github.io/weathercli/index.json".to_string(), None, None, None).text
-            ).expect("JSON deserialize failed");
-            let web_hash = resp["updater-exe-hash-unix"].as_str().expect("updater-exe-hash-unix key not found in index.json");
+                &networking::get_url(
+                    "https://arihant2math.github.io/weathercli/index.json".to_string(),
+                    None,
+                    None,
+                    None,
+                )
+                .text,
+            )
+            .expect("JSON deserialize failed");
+            let web_hash = resp["updater-exe-hash-unix"]
+                .as_str()
+                .expect("updater-exe-hash-unix key not found in index.json");
             if cfg!(windows) {
-                web_hash = resp["updater-exe-hash-windows"].as_str().expect("updater-exe-hash-windows key not found in index.json");
+                web_hash = resp["updater-exe-hash-windows"]
+                    .as_str()
+                    .expect("updater-exe-hash-windows key not found in index.json");
             }
-            if weather_core::hash_file(&updater_location.display().to_string()) != web_hash || force {
+            if weather_core::hash_file(&updater_location.display().to_string()) != web_hash || force
+            {
                 get_updater(updater_location.display().to_string());
             }
             println!("Starting updater and exiting");
             if force {
-                std::process::Command::new(updater_location.display().to_string()).arg("--force")
-                    .spawn().expect("spawn failed");
-            }
-            else {
                 std::process::Command::new(updater_location.display().to_string())
-                    .spawn().expect("spawn failed");
+                    .arg("--force")
+                    .spawn()
+                    .expect("spawn failed");
+            } else {
+                std::process::Command::new(updater_location.display().to_string())
+                    .spawn()
+                    .expect("spawn failed");
             }
         }
     }
@@ -195,7 +237,7 @@ fn main() {
                     f.write();
                 }
                 Command::Setup => setup(settings),
-                Command::Update(opts) => update(opts.force)
+                Command::Update(opts) => update(opts.force),
             };
         }
         None => weather(

@@ -1,10 +1,9 @@
+use clap::Parser;
+
 use std::{thread, time};
 use std::env::current_exe;
 use std::fs;
 use std::io::Write;
-
-use clap::Parser;
-
 use weather_core::autolaunch::{AutoLaunchBuilder, Error};
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;

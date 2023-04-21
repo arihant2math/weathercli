@@ -1,8 +1,8 @@
+use sha2::Digest;
+
 use std::{fs, thread};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
-
-use sha2::Digest;
 
 use crate::backend::meteo::meteo_forecast::get_meteo_forecast;
 use crate::backend::nws::nws_forecast::get_nws_forecast;

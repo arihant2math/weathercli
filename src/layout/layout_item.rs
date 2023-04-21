@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-
 use serde_json::Value;
+
+use std::collections::HashMap;
 
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::color;
@@ -127,7 +127,8 @@ impl Item {
         }
     }
 
-    fn get_function_value(&self) -> Option<String> { // TODO: Fix
+    fn get_function_value(&self) -> Option<String> {
+        // TODO: Fix
         println!("{}", &self.data.value); // TODO: Remove
         let args = self.data.args.clone().unwrap_or(Vec::new());
         let kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
