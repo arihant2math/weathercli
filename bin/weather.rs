@@ -16,6 +16,7 @@ pub struct App {
 #[derive(Debug, Subcommand)]
 enum Command {
     Place(PlaceOpts),
+    Settings
 }
 
 #[derive(Debug, Args)]
@@ -69,6 +70,7 @@ fn main() {
                     true_metric,
                     args.global_opts.json,
                 ),
+                Command::Settings => weather_core::open_settings_app()
             };
         }
         None => weather(

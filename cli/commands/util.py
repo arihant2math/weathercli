@@ -13,11 +13,6 @@ from weather_core import WeatherFile
 from cli import version
 
 
-@command("settings", help="opens a terminal gui for editing settings")
-def settings():
-    weather_core.open_settings_app()
-
-
 @command("config", help="prints or changes the settings")
 @argument("key_name")
 @argument("value", required=False)
@@ -58,7 +53,7 @@ def update(force):
             print("Updating weather.exe at " + str(application_path))
             if platform.system() == "Windows":
                 updater_location = (
-                    application_path.parent / "components" / "updater.exe"
+                        application_path.parent / "components" / "updater.exe"
                 )
             else:
                 updater_location = application_path.parent / "components" / "updater"
@@ -79,7 +74,7 @@ def update(force):
             else:
                 web_hash = resp["updater-exe-hash-unix"]
             if (
-                weather_core.hash_file(str(updater_location.absolute())) != web_hash
+                    weather_core.hash_file(str(updater_location.absolute())) != web_hash
             ) or web_force:
                 weather_core.updater.get_updater(str(updater_location))
             print("Starting updater and exiting")
