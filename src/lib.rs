@@ -57,18 +57,18 @@ pub fn open_settings_app() {
 }
 
 pub struct Config {
-    pub WeatherFileName: String,
-    pub WeatherDFileName: String,
-    pub UpdaterFileName: String,
+    pub weather_file_name: String,
+    pub weather_dfile_name: String,
+    pub updater_file_name: String,
 }
 
 #[cfg(target_os = "windows")]
 impl Config {
     pub fn new() -> Self {
         Config {
-            WeatherFileName: "weather.exe".to_string(),
-            WeatherDFileName: "weatherd.exe".to_string(),
-            UpdaterFileName: "updater.exe".to_string(),
+            weather_file_name: "weather.exe".to_string(),
+            weather_dfile_name: "weatherd.exe".to_string(),
+            updater_file_name: "updater.exe".to_string(),
         }
     }
 }
@@ -77,9 +77,9 @@ impl Config {
 impl Config {
     pub fn new() -> Self {
         Config {
-            WeatherFileName: "weather".to_string(),
-            WeatherDFileName: "weatherd".to_string(),
-            UpdaterFileName: "updater".to_string(),
+            weather_file_name: "weather".to_string(),
+            weather_dfile_name: "weatherd".to_string(),
+            updater_file_name: "updater".to_string(),
         }
     }
 }
@@ -92,10 +92,10 @@ fn get_data_from_datasource(
     let mut dir = crate::local::dirs::home_dir().expect("Home dir get failed");
     dir.push(".weathercli/resources");
     let mut f1 = dir.clone();
-    f1.push("../docs_templates/weather_codes.json");
+    f1.push("weather_codes.json");
     let mut f2 = dir.clone();
-    f2.push("../docs_templates/weather_ascii_images.json");
-    if !(Path::exists(&*dir) && Path::exists(&*f1) && Path::exists(&*f2)) {
+    f2.push("weather_ascii_images.json");
+    if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
         println!("Forcing downloading of web resources");
         component_updater::update_web_resources(settings.internal.development.unwrap(), None)
     } else if settings.internal.auto_update_internet_resources.unwrap() {

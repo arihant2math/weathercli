@@ -1,5 +1,3 @@
-import colorama
-
 from cli.layout import temp_constants
 
 
@@ -39,18 +37,6 @@ class Util:
     @staticmethod
     def pretty_list(li, delimiter=","):
         return delimiter.join(li)
-
-    @staticmethod
-    def color_aqi(aqi):
-        aqi = str(aqi)
-        if not aqi.isdigit():
-            return aqi
-        if int(aqi) < 3:
-            return colorama.Fore.LIGHTGREEN_EX + aqi + colorama.Fore.RESET
-        elif int(aqi) < 5:
-            return colorama.Fore.LIGHTYELLOW_EX + aqi + colorama.Fore.RESET
-        else:
-            return colorama.Fore.RED + aqi + colorama.Fore.RESET
 
     @staticmethod
     def round(number, digits):

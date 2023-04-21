@@ -98,7 +98,7 @@ pub fn get_latest_updater_version() -> String {
 pub fn get_updater(path: String) {
     let url = format!(
         "https://arihant2math.github.io/weathercli/{}",
-        Config::new().UpdaterFileName
+        Config::new().updater_file_name
     );
     let data = reqwest::blocking::get(url)
         .expect("url expected")

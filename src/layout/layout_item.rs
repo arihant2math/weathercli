@@ -4,10 +4,14 @@ use serde_json::Value;
 
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::color;
-use crate::layout::{ItemEnum, ItemJSON};
+use crate::layout::{ItemEnum, ItemJSON, util};
 
 pub struct Item {
     data: ItemJSON,
+}
+
+fn round(f: f64) -> String {
+   format!("{:.1}", f)
 }
 
 impl Item {
@@ -49,16 +53,17 @@ impl Item {
             } else if new_s.chars().nth(0).expect("Oth char expected") == '#' {
                 new_s = new_s[1..].to_string();
                 let mut split: Vec<&str> = new_s.split("|").collect();
+                let value = split[0];
                 split.remove(0);
-                let mut args: Vec<String> = Vec::new();
-                let mut kwargs: HashMap<String, String> = HashMap::new();
+                let mut args: Vec<ItemEnum> = Vec::new();
+                let mut kwargs: HashMap<String, ItemEnum> = HashMap::new();
                 for item in split {
                     if !item.contains('=') {
-                        args.push(item.to_string())
+                        args.push(ItemEnum::ItemString(item.to_string()))
                     } else {
                         let temp_item = item.to_string();
                         let kwarg: Vec<&str> = temp_item.split("=").collect();
-                        kwargs.insert(kwarg[0].to_string(), kwarg[1].to_string());
+                        kwargs.insert(kwarg[0].to_string(), ItemEnum::ItemString(kwarg[1].to_string()));
                     }
                 }
                 let item: ItemJSON = ItemJSON {
@@ -68,13 +73,13 @@ impl Item {
                     metric: None,
                     imperial: None,
                     unit_color: None,
-                    value: "".to_string(),
+                    value: value.to_string(),
                     args: Some(args),
                     kwargs: Some(kwargs),
                 };
                 return Item::from_item_json(item);
             } else if new_s.chars().nth(0).expect("Oth char expected") == '\\' {
-                new_s = (&new_s[1..]).to_string();
+                new_s = new_s[1..].to_string();
             }
         }
         Item::from_item_json(ItemJSON {
@@ -93,6 +98,7 @@ impl Item {
     pub fn from_item_json(i: ItemJSON) -> Self {
         Item { data: i }
     }
+
     fn get_variable_value(&self, data: Value) -> Option<String> {
         let mut split: Vec<&str> = self.data.value.split('.').collect();
         let mut current = data;
@@ -121,29 +127,28 @@ impl Item {
         match current.as_str() {
             Some(t) => Some(t.to_string()),
             None => match current.as_f64() {
-                Some(t) => Some(t.to_string()),
+                Some(t) => Some(round(t)),
                 None => current.as_i64().map(|t| t.to_string()),
             },
         }
     }
 
-    fn get_function_value(&self) -> Option<String> {
-        // TODO: Fix
-        println!("{}", &self.data.value); // TODO: Remove
+    fn get_function_value(&self, data: WeatherForecastRS) -> Option<String> {
         let args = self.data.args.clone().unwrap_or(Vec::new());
         let _kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
+        println!("{}", Item::new(args[0].clone()).get_value(data.clone()).expect("no aqi value"));
         match &*self.data.value {
-            "color_aqi" => Some(args.get(0).unwrap().to_string()),
-            _ => None,
+            "color_aqi" => Some(util::color_aqi(Item::new(args[0].clone()).get_value(data).expect("no aqi value").parse().unwrap())),
+            _ => None, // TODO: add more functions
         }
     }
 
-    fn get_value(&self, data: WeatherForecastRS) -> Option<String> {
+    pub fn get_value(&self, data: WeatherForecastRS) -> Option<String> {
         if self.data.item_type == "variable" {
             return self
                 .get_variable_value(serde_json::to_value(data).expect("Serialization failed"));
         } else if self.data.item_type == "function" {
-            return self.get_function_value();
+            return self.get_function_value(data);
         }
         Some(self.data.value.clone())
     }
@@ -185,7 +190,7 @@ impl Item {
                 s + &self.data.imperial.clone().unwrap_or("".to_string())
             };
         } else if self.data.item_type == "function" {
-            let value = self.get_function_value();
+            let value = self.get_function_value(data);
             return self.data.color.clone().unwrap_or("".to_string())
                 + &self.data.bg_color.clone().unwrap_or("".to_string())
                 + &value.unwrap_or("".to_string());

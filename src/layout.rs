@@ -12,6 +12,7 @@ use crate::local::weather_file::WeatherFile;
 mod image_to_text;
 mod layout_item;
 mod layout_row;
+pub mod util;
 
 pub const VERSION: u64 = 10;
 pub const DEFAULT_LAYOUT_SETTINGS: LayoutDefaultsJSON = LayoutDefaultsJSON {
@@ -58,8 +59,8 @@ pub struct ItemJSON {
     pub imperial: Option<String>,
     pub unit_color: Option<String>,
     pub value: String,
-    pub args: Option<Vec<String>>,
-    pub kwargs: Option<HashMap<String, String>>,
+    pub args: Option<Vec<ItemEnum>>,
+    pub kwargs: Option<HashMap<String, ItemEnum>>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]

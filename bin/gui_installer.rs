@@ -245,16 +245,6 @@ fn button<'a, Message: Clone>(label: &str) -> Button<'a, Message> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Language {
-    Rust,
-    Elm,
-    Ruby,
-    Haskell,
-    C,
-    Other,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Layout {
     Row,
     Column,

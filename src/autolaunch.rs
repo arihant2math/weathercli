@@ -10,7 +10,7 @@
 /// ```rust
 /// # #[cfg(target_os = "linux")]
 /// # mod linux {
-/// use auto_launch::AutoLaunch;
+/// use weather_core::auto_launch::AutoLaunch;
 ///
 /// fn main() {
 ///     let app_name = "the-app";
@@ -41,7 +41,7 @@
 /// ```rust
 /// # #[cfg(target_os = "macos")]
 /// # mod macos {
-/// use auto_launch::AutoLaunch;
+/// use weather_core::auto_launch::AutoLaunch;
 ///
 /// fn main() {
 ///     let app_name = "the-app";
