@@ -107,23 +107,25 @@ fn get_location_core(_no_sys_loc: bool) -> [String; 2] {
 pub fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
     if constant_location {
         let attempt_cache = cache::read("current_location".to_string());
-        return if let Some(..) = attempt_cache {
-            let location = get_location_core(no_sys_loc);
-            cache::write(
-                "current_location".to_string(),
-                location.join(",").as_str().to_string(),
-            );
-            location
-        } else {
-            let handle = thread::spawn(|| {
-                cache::update_hits("current_location".to_string());
-            });
-            let ca = attempt_cache.unwrap();
-            let splt = ca.split(',');
-            let split_vec: Vec<&str> = splt.into_iter().collect();
-            handle.join().expect("Update Hits Thread Failed");
-            [split_vec[0].to_string(), split_vec[1].to_string()]
-        };
+        return match attempt_cache {
+            None => {
+                let location = get_location_core(no_sys_loc);
+                cache::write(
+                    "current_location".to_string(),
+                    location.join(",").as_str().to_string(),
+                );
+                location
+            },
+            Some(ca) => {
+                let handle = thread::spawn(|| {
+                    cache::update_hits("current_location".to_string());
+                });
+                let splt = ca.split(',');
+                let split_vec: Vec<&str> = splt.into_iter().collect();
+                handle.join().expect("Update Hits Thread Failed");
+                [split_vec[0].to_string(), split_vec[1].to_string()]
+            }
+        }
     }
     get_location_core(no_sys_loc)
 }

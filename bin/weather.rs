@@ -135,9 +135,9 @@ fn update(force: bool) {
             let resp: Value = serde_json::from_str(
                 &networking::get_url("https://arihant2math.github.io/weathercli/index.json".to_string(), None, None, None).text
             ).expect("JSON deserialize failed");
-            let mut web_hash = resp["updater-exe-hash-unix"].as_str().expect("updater-exe-hash-unix key not found in index.json");
+            let web_hash = resp["updater-exe-hash-unix"].as_str().expect("updater-exe-hash-unix key not found in index.json");
             if cfg!(windows) {
-                let web_hash = resp["updater-exe-hash-windows"].as_str().expect("updater-exe-hash-windows key not found in index.json");
+                web_hash = resp["updater-exe-hash-windows"].as_str().expect("updater-exe-hash-windows key not found in index.json");
             }
             if weather_core::hash_file(&updater_location.display().to_string()) != web_hash || force {
                 get_updater(updater_location.display().to_string());
