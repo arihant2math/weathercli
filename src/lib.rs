@@ -23,7 +23,7 @@ mod layout;
 pub mod local;
 pub mod location;
 pub mod networking;
-mod prompt;
+pub mod prompt;
 #[cfg(feature = "gui")]
 mod settings_app;
 
