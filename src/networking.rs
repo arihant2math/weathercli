@@ -16,25 +16,18 @@ pub struct Resp {
     pub bytes: Vec<u8>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
-struct SessionInternalSerialize {
-    user_agent: String,
-    header_map: HashMap<String, String>,
-}
-
 #[derive(Clone)]
 pub struct Session {
-    client: reqwest::blocking::Client,
-    internal_serialize: SessionInternalSerialize,
+    client: reqwest::blocking::Client
 }
 
 impl Session {
     pub fn new(user_agent: Option<String>, headers: Option<HashMap<String, String>>) -> Self {
         let jar: Jar = Jar::default();
         let app_user_agent = get_user_agent(user_agent);
-        let header_map = get_header_map(headers.clone());
+        let header_map = get_header_map(headers);
         let client = reqwest::blocking::Client::builder()
-            .user_agent(&app_user_agent)
+            .user_agent(app_user_agent)
             .cookie_store(true)
             .default_headers(header_map)
             .cookie_provider::<Jar>(Arc::new(jar))
@@ -42,10 +35,6 @@ impl Session {
             .unwrap();
         Session {
             client,
-            internal_serialize: SessionInternalSerialize {
-                user_agent: app_user_agent,
-                header_map: headers.unwrap_or(HashMap::new()),
-            },
         }
     }
 
@@ -187,14 +176,4 @@ pub fn get_urls(
         })
         .collect();
     data
-}
-
-#[cfg(feature = "python")]
-pub fn register_networking_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
-    let child_module = PyModule::new(py, "networking")?;
-    child_module.add_class::<Session>()?;
-    child_module.add_function(wrap_pyfunction!(get_url, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(get_urls, child_module)?)?;
-    parent_module.add_submodule(child_module)?;
-    Ok(())
 }

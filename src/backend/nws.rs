@@ -15,7 +15,7 @@ pub fn nws_get_api_urls(location: Vec<String>, _metric: bool) -> String {
     .text;
     let point_json: NWSPointJSON =
         serde_json::from_str(&*get_point).expect("Deserialization of json failed");
-    return point_json.properties.forecastGridData;
+    return point_json.properties.forecast_grid_data;
 }
 
 pub fn nws_get_combined_data_formatted(location: Vec<String>, metric: bool) -> NWSJSON {

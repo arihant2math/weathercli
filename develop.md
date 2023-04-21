@@ -1,66 +1,29 @@
 # Development
 ## Prerequisites
-* [Python](https://python.org) (3.9+, any supported python version is supported)
 * [Rust](https://www.rust-lang.org/) (1.60+, the earliest supported release is at worst 1 year old)
+* [Python](https://python.org) (3.9+, any supported python version is supported, optional and only used for some scripts)
 ## Build for Development
 ```shell
 git clone https://github.com/arihant2math/weathercli.git
 ```
-First build corelib:
+
+To build, run:
 ```shell
-pip install maturin
-maturin develop
+cargo build
 ```
-Now install python dependencies:
-```shell
-pip install -r dev-requirements.txt
-```
-... and run with the command `python weather.py`
+
 To have a development friendly experience run the following commands
 ```shell
-python weather.py config DEVELOPMENT true
-python weather.py config DEBUG true
+weather config DEVELOPMENT true
+weather config DEBUG true
 ```
 ## Build Release Executable
+Just run:
 ```shell
-maturin build -r
+cargo build -r
 ```
-Now install the wheel at `target/wheels/`, you can manually type the wheel name, or you can use one of these scripts.
-
-Bash/ZSH:
-```shell
-for file in target/wheels/*.whl
-do
-  name=${file##*/}
-  pip install "$file"
-done
-```
-Powershell:
-```shell
-$files = Get-ChildItem "target/wheels/"
-foreach ($f in $files) {
-    pip install $f.FullName
-}
-```
-Now install python dependencies:
-```shell
-pip install -r requirements.txt
-pip install pyinstaller
-```
-And we can build the executable:
-```shell
-pyinstaller -F weather.py -i ./icon/icon.png
-```
-The executable will be in `build/`
 ## Scripts
 Scripts automate daily tasks
-### Generate Stubs
-Many IDEs use stub files to detect functions and annotations, pyo3 does not automatically generate them, to generate them run the following command:
-```shell
-python ./scripts/generate_stubs_v2.py weather_core ./venv/Lib/weather_core
-```
-
-Where ./venv/Lib/core is where weather_core is installed
 
 ### Update Docs Templates
 This script downloads the latest artifacts from GitHub Actions and replaces the executables in docs_templates/ with the new artifacts.

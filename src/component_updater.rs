@@ -1,8 +1,8 @@
-use serde_json::Value;
-
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+
+use serde_json::Value;
 
 use crate::Config;
 use crate::hash_file;
@@ -112,15 +112,4 @@ pub fn get_updater(path: String) {
         .unwrap();
     file.write_all(&data)
         .expect("Something went wrong opening the file");
-}
-
-#[cfg(feature = "python")]
-pub fn register_updater_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
-    let child_module = PyModule::new(py, "updater")?;
-    child_module.add_function(wrap_pyfunction!(get_latest_version, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(get_latest_updater_version, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(get_updater, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(update_web_resources, child_module)?)?;
-    parent_module.add_submodule(child_module)?;
-    Ok(())
 }

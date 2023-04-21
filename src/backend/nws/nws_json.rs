@@ -8,13 +8,14 @@ pub struct NWSPointGeometry {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NWSPointProperties {
     #[serde(rename = "@id")]
     pub id: String,
     pub cwa: String,
-    pub gridX: i32,
-    pub gridY: i32,
-    pub forecastGridData: String,
+    pub grid_x: i32,
+    pub grid_y: i32,
+    pub forecast_grid_data: String,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -24,14 +25,16 @@ pub struct NWSPointJSON {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NWSValueIntJSON {
-    pub validTime: String,
+    pub valid_time: String,
     pub value: i64,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NWSValueFloatJSON {
-    pub validTime: String,
+    pub valid_time: String,
     pub value: f64,
 }
 

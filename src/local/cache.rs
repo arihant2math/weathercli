@@ -52,7 +52,7 @@ fn read_bytes_from_file() -> Vec<u8> {
 
 /// Reads the value of a key from the cache. This does not update the count value, use update_hits to do that
 /// Returns None if the key does not exist and returns a string otherwise
-pub fn read(key: String) -> Option<String> {
+pub fn read(key: &str) -> Option<String> {
     let path = get_cache_path();
     if !path.exists() {
         return None;
@@ -118,7 +118,7 @@ fn get_cache_path() -> PathBuf {
 }
 
 /// writes the key to the cache, overwriting it if it already exists
-pub fn write(key: String, value: String) {
+pub fn write(key: &str, value: &str) {
     let path = get_cache_path();
     let buffer = read_bytes_from_file();
     let mut key_index: i64 = -1;
@@ -129,8 +129,8 @@ pub fn write(key: String, value: String) {
         }
     }
     let new_row = Row {
-        key,
-        value,
+        key: key.to_string(),
+        value: value.to_string(),
         date: get_date_string(),
         hits: 0,
     };

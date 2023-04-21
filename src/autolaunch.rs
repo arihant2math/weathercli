@@ -67,7 +67,7 @@
 /// ```rust
 /// # #[cfg(target_os = "windows")]
 /// # mod win {
-/// use auto_launch::AutoLaunch;
+/// use weather_core::autolaunch::AutoLaunch;
 ///
 /// fn main() {
 ///     let app_name = "the-app";

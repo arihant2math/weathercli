@@ -1,6 +1,0 @@
-[tool.maturin]
-features = ["python", "gui"]
-no-default-features = true
-
-[build-system]
-requires = ["setuptools", "maturin>=0.10,<1.0"]

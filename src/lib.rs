@@ -1,8 +1,8 @@
-use sha2::Digest;
-
 use std::{fs, thread};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
+
+use sha2::Digest;
 
 use crate::backend::meteo::meteo_forecast::get_meteo_forecast;
 use crate::backend::nws::nws_forecast::get_nws_forecast;
@@ -96,6 +96,7 @@ fn get_data_from_datasource(
     let mut f2 = dir.clone();
     f2.push("../docs_templates/weather_ascii_images.json");
     if !(Path::exists(&*dir) && Path::exists(&*f1) && Path::exists(&*f2)) {
+        println!("Forcing downloading of web resources");
         component_updater::update_web_resources(settings.internal.development.unwrap(), None)
     } else if settings.internal.auto_update_internet_resources.unwrap() {
         thread::spawn(move || {

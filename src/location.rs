@@ -1,11 +1,12 @@
+use std::collections::HashMap;
+use std::thread;
+
 use serde_json::Value;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 
-use std::collections::HashMap;
-use std::thread;
-
 use crate::local::cache;
+use crate::networking;
 
 #[cfg(target_os = "windows")]
 fn get_location_windows() -> Result<[String; 2], windows::core::Error> {
@@ -32,18 +33,11 @@ fn get_location_web() -> Result<[String; 2], reqwest::Error> {
 }
 
 fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> Option<Vec<String>> {
-    let client = reqwest::blocking::Client::builder()
-        .user_agent("weathercli/1")
-        .build()
-        .unwrap();
-    let r = client
-        .get(format!(
+    let r = networking::get_url(format!(
             "https://dev.virtualearth.net/REST/v1/Locations?query=\"{}\"&maxResults=5&key={}",
             query, bing_maps_api_key
-        ))
-        .send()
-        .unwrap();
-    let j: Value = r.json::<Value>().expect("json parsing failed");
+        ), None, None, None);
+    let j: Value = serde_json::from_str(&r.text).expect("json parsing failed");
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
     Some(vec![
         j_data[0].as_f64()?.to_string(),
@@ -70,18 +64,8 @@ fn nominatim_geocode(query: &str) -> Option<Vec<String>> {
 }
 
 fn nominatim_reverse_geocode(lat: &str, lon: &str) -> String {
-    let client = reqwest::blocking::Client::builder()
-        .user_agent("weathercli/1")
-        .build()
-        .unwrap();
-    let r = client
-        .get(format!(
-            "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
-            lat, lon
-        ))
-        .send()
-        .unwrap();
-    r.text().unwrap()
+    let r = networking::get_url(format!("https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2", lat, lon), None, None, None);
+    r.text
 }
 
 /// :param no_sys_loc: if true the location will not be retrieved with the OS location api,
@@ -106,13 +90,13 @@ fn get_location_core(_no_sys_loc: bool) -> [String; 2] {
 
 pub fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
     if constant_location {
-        let attempt_cache = cache::read("current_location".to_string());
+        let attempt_cache = cache::read("current_location");
         return match attempt_cache {
             None => {
                 let location = get_location_core(no_sys_loc);
                 cache::write(
-                    "current_location".to_string(),
-                    location.join(",").as_str().to_string(),
+                    "current_location",
+                    location.join(",").as_str(),
                 );
                 location
             }
@@ -131,7 +115,7 @@ pub fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
 }
 
 pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Option<[String; 2]> {
-    let attempt_cache = cache::read("location".to_string() + &location_string);
+    let attempt_cache = cache::read(&("location".to_string() + &location_string));
 
     match attempt_cache {
         None => {
@@ -147,10 +131,13 @@ pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Op
             }
             coordinates.as_ref()?;
             let real_coordinate = coordinates.unwrap();
-            cache::write(
-                "location".to_string() + &location_string.to_lowercase(),
-                real_coordinate.join(",").as_str().to_string(),
-            );
+            let v = real_coordinate.join(",");
+            thread::spawn(move || {
+                cache::write(
+                &("location".to_string() + &location_string.to_lowercase()),
+                &v,
+                );
+            });
             Some([
                 real_coordinate[0].to_string(),
                 real_coordinate[1].to_string(),
@@ -158,52 +145,45 @@ pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Op
         }
         Some(real_cache) => {
             let cache_string = "location".to_string() + &location_string.to_lowercase();
-            let handle = thread::spawn(|| {
+            thread::spawn(move || {
                 cache::update_hits(cache_string);
             });
             let vec_collect: Vec<&str> = real_cache.split(',').collect();
-            handle.join().expect("Update Hits Thread Failed");
             Some([vec_collect[0].to_string(), vec_collect[1].to_string()])
         }
     }
 }
 
 pub fn reverse_location(latitude: &str, longitude: &str) -> [String; 2] {
-    let k = latitude.to_string() + "," + longitude;
-    let attempt_cache = cache::read("coordinates".to_string() + &k);
-    if attempt_cache.is_none() {
-        let data = nominatim_reverse_geocode(latitude, longitude);
-        let place: Value = serde_json::from_str(&data).unwrap();
-        let country = place["address"]["country"].as_str().unwrap().to_string();
-        let mut region = "";
-        if place["address"]["city"].as_str().is_some() {
-            region = place["address"]["city"].as_str().unwrap();
-        } else if place["address"]["county"].as_str().is_some() {
-            region = place["address"]["county"].as_str().unwrap();
+    let k = "coordinates".to_string() + latitude + "," + longitude;
+    let attempt_cache = cache::read(&k);
+    match attempt_cache {
+        None => {
+            let data = nominatim_reverse_geocode(latitude, longitude);
+            let place: Value = serde_json::from_str(&data).unwrap();
+            let country = place["address"]["country"].as_str().unwrap().to_string();
+            let mut region = "";
+            if place["address"]["city"].as_str().is_some() {
+                region = place["address"]["city"].as_str().unwrap();
+            } else if place["address"]["county"].as_str().is_some() {
+                region = place["address"]["county"].as_str().unwrap();
+            }
+            let v = region.to_string() + ",?`|" + &country;
+            thread::spawn(move || {
+                cache::write(
+                    &k,
+                    &v,
+                );
+            });
+            [region.to_string(), country]
         }
-        cache::write(
-            "coordinate".to_string() + &k,
-            region.to_string() + ",?`|" + &country,
-        );
-        [region.to_string(), country]
-    } else {
-        let cache_string = "coordinates".to_string() + &k;
-        let handle = thread::spawn(|| {
-            cache::update_hits(cache_string);
-        });
-        let real_cache = attempt_cache.unwrap();
-        let vec_collect: Vec<&str> = real_cache.split(",?`|").collect();
-        handle.join().expect("Update Hits Thread Failed");
-        [vec_collect[0].to_string(), vec_collect[1].to_string()]
+        Some(real_cache) => {
+            let cache_string = "coordinates".to_string() + &k;
+            thread::spawn(move || {
+                cache::update_hits(cache_string);
+            });
+            let vec_collect: Vec<&str> = real_cache.split(",?`|").collect();
+            [vec_collect[0].to_string(), vec_collect[1].to_string()]
+        }
     }
-}
-
-#[cfg(feature = "python")]
-pub fn register_location_module(py: Python<'_>, parent_module: &PyModule) -> PyResult<()> {
-    let child_module = PyModule::new(py, "location")?;
-    child_module.add_function(wrap_pyfunction!(get_location, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(get_coordinates, child_module)?)?;
-    child_module.add_function(wrap_pyfunction!(reverse_location, child_module)?)?;
-    parent_module.add_submodule(child_module)?;
-    Ok(())
 }
