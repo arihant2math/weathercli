@@ -86,3 +86,17 @@ jobs:
       with:
         name: GUI installer (Unix)
         path: ./target/release/gui_installer
+
+    - uses: actions/upload-artifact@v3
+      name: Upload Weather (Windows)
+      if: startsWith(matrix.os, 'windows')
+      with:
+        name: Weather (Windows)
+        path: ./target/release/weather.exe
+
+    - uses: actions/upload-artifact@v3
+      name: Upload Weather (Unix)
+      if: startsWith(matrix.os, 'ubuntu')
+      with:
+        name: Weather (Unix)
+        path: ./target/release/weather
