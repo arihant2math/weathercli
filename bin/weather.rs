@@ -24,9 +24,16 @@ pub struct App {
 enum Command {
     Place(PlaceOpts),
     Settings,
+    Config(ConfigOpts),
     ClearCache,
     Setup,
     Update(UpdateOpts)
+}
+
+#[derive(Debug, Args)]
+struct ConfigOpts {
+    key: String,
+    value: Option<String>
 }
 
 #[derive(Debug, Args)]
@@ -54,14 +61,14 @@ struct GlobalOpts {
     no_sys_loc: bool,
 }
 
-fn config(settings: Settings, key_name: String, value: Option<String>) {
+fn config(key_name: String, value: Option<String>) {
     if value.is_none() {
         let f = WeatherFile::settings();
         let data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
-        println!("{}: {}", key_name, data[key_name]);
+        println!("{}: {}", &key_name, data[&key_name]);
     }
     else {
-        println!("Writing {}={} ...", key_name.lower(), value.unwrap());
+        println!("Writing {}={} ...", key_name.to_lowercase(), value.clone().unwrap());
         let mut f = WeatherFile::settings();
         let mut data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
         data[key_name.to_uppercase()] = Value::from_str(&value.unwrap()).expect("Value conversion failed");
@@ -180,6 +187,7 @@ fn main() {
                     true_metric,
                     args.global_opts.json,
                 ),
+                Command::Config(opts) => config(opts.key, opts.value),
                 Command::Settings => weather_core::open_settings_app(),
                 Command::ClearCache => {
                     let mut f = WeatherFile::new("d.cache");

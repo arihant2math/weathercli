@@ -21,61 +21,63 @@ impl Item {
     }
 
     pub fn from_str(s: &str) -> Self {
-        let mut new_s: String = s.to_string(); // TODO: Add check for empty string
-        if new_s.chars().nth(0).expect("Oth char expected") == '@' {
-            new_s = (&new_s[1..]).to_string();
-            let splt: Vec<&str> = new_s.split("|").collect();
-            let mut metric: Option<String> = None;
-            let mut imperial: Option<String> = None;
-            if splt.len() == 2 {
-                metric = Some(splt[1].to_string());
-                imperial = Some(splt[1].to_string());
-            } else if splt.len() == 3 {
-                imperial = Some(splt[1].to_string());
-                metric = Some(splt[2].to_string());
-            }
-            return Item::from_item_json(ItemJSON {
-                item_type: "variable".to_string(),
-                color: None,
-                bg_color: None,
-                metric,
-                imperial,
-                unit_color: None,
-                value: splt[0].to_string(),
-                args: None,
-                kwargs: None,
-            });
-        } else if new_s.chars().nth(0).expect("Oth char expected") == '#' {
-            new_s = new_s[1..].to_string();
-            let mut split: Vec<&str> = new_s.split("|").collect();
-            split.remove(0);
-            let mut args: Vec<String> = Vec::new();
-            let mut kwargs: HashMap<String, String> = HashMap::new();
-            for item in split {
-                if !item.contains('=') {
-                    args.push(item.to_string())
-                } else {
-                    let temp_item = item.to_string();
-                    let kwarg: Vec<&str> = temp_item.split("=").collect();
-                    kwargs.insert(kwarg[0].to_string(), kwarg[1].to_string());
+        let mut new_s: String = s.to_string();
+        if !new_s.is_empty() {
+            if new_s.chars().nth(0).expect("Oth char expected") == '@' {
+                new_s = new_s[1..].to_string();
+                let splt: Vec<&str> = new_s.split("|").collect();
+                let mut metric: Option<String> = None;
+                let mut imperial: Option<String> = None;
+                if splt.len() == 2 {
+                    metric = Some(splt[1].to_string());
+                    imperial = Some(splt[1].to_string());
+                } else if splt.len() == 3 {
+                    imperial = Some(splt[1].to_string());
+                    metric = Some(splt[2].to_string());
                 }
+                return Item::from_item_json(ItemJSON {
+                    item_type: "variable".to_string(),
+                    color: None,
+                    bg_color: None,
+                    metric,
+                    imperial,
+                    unit_color: None,
+                    value: splt[0].to_string(),
+                    args: None,
+                    kwargs: None,
+                });
+            } else if new_s.chars().nth(0).expect("Oth char expected") == '#' {
+                new_s = new_s[1..].to_string();
+                let mut split: Vec<&str> = new_s.split("|").collect();
+                split.remove(0);
+                let mut args: Vec<String> = Vec::new();
+                let mut kwargs: HashMap<String, String> = HashMap::new();
+                for item in split {
+                    if !item.contains('=') {
+                        args.push(item.to_string())
+                    } else {
+                        let temp_item = item.to_string();
+                        let kwarg: Vec<&str> = temp_item.split("=").collect();
+                        kwargs.insert(kwarg[0].to_string(), kwarg[1].to_string());
+                    }
+                }
+                let item: ItemJSON = ItemJSON {
+                    item_type: "function".to_string(),
+                    color: None,
+                    bg_color: None,
+                    metric: None,
+                    imperial: None,
+                    unit_color: None,
+                    value: "".to_string(),
+                    args: Some(args),
+                    kwargs: Some(kwargs),
+                };
+                return Item::from_item_json(item);
+            } else if new_s.chars().nth(0).expect("Oth char expected") == '\\' {
+                new_s = (&new_s[1..]).to_string();
             }
-            let item: ItemJSON = ItemJSON {
-                item_type: "function".to_string(),
-                color: None,
-                bg_color: None,
-                metric: None,
-                imperial: None,
-                unit_color: None,
-                value: "".to_string(),
-                args: Some(args),
-                kwargs: Some(kwargs),
-            };
-            return Item::from_item_json(item);
-        } else if new_s.chars().nth(0).expect("Oth char expected") == '\\' {
-            new_s = (&new_s[1..]).to_string();
         }
-        return Item::from_item_json(ItemJSON {
+        Item::from_item_json(ItemJSON {
             item_type: "text".to_string(),
             color: None,
             bg_color: None,
@@ -85,7 +87,7 @@ impl Item {
             value: new_s,
             args: None,
             kwargs: None,
-        });
+        })
     }
 
     pub fn from_item_json(i: ItemJSON) -> Self {
@@ -120,15 +122,13 @@ impl Item {
             Some(t) => Some(t.to_string()),
             None => match current.as_f64() {
                 Some(t) => Some(t.to_string()),
-                None => match current.as_i64() {
-                    Some(t) => Some(t.to_string()),
-                    None => None,
-                },
+                None => current.as_i64().map(|t| t.to_string()),
             },
         }
     }
 
-    fn get_function_value(&self) -> Option<String> {
+    fn get_function_value(&self) -> Option<String> { // TODO: Fix
+        println!("{}", &self.data.value); // TODO: Remove
         let args = self.data.args.clone().unwrap_or(Vec::new());
         let kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
         match &*self.data.value {
