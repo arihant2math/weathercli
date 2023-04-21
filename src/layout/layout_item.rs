@@ -1,6 +1,6 @@
-use serde_json::Value;
-
 use std::collections::HashMap;
+
+use serde_json::Value;
 
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::color;
@@ -131,7 +131,7 @@ impl Item {
         // TODO: Fix
         println!("{}", &self.data.value); // TODO: Remove
         let args = self.data.args.clone().unwrap_or(Vec::new());
-        let kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
+        let _kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
         match &*self.data.value {
             "color_aqi" => Some(args.get(0).unwrap().to_string()),
             _ => None,

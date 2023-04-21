@@ -5,7 +5,7 @@ mod nws_current;
 pub mod nws_forecast;
 mod nws_json;
 
-pub fn nws_get_api_urls(location: Vec<String>, metric: bool) -> String {
+pub fn nws_get_api_urls(location: Vec<String>, _metric: bool) -> String {
     let get_point = networking::get_url(
         "https://api.weather.gov/points/".to_string() + &location[0] + "," + &location[1],
         None,

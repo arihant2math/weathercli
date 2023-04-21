@@ -33,7 +33,7 @@ impl Row {
 
     pub fn from_vec(data: Vec<ItemEnum>) -> Self {
         let mut items: Vec<Item> = Vec::new();
-        for (count, &ref item) in data.iter().enumerate() {
+        for (_count, &ref item) in data.iter().enumerate() {
             items.push(Item::new(item.clone()));
         }
         Row {
@@ -54,7 +54,7 @@ impl Row {
         metric: bool,
     ) -> String {
         let mut s = "".to_string();
-        for (count, i) in self.items.iter().enumerate() {
+        for (_count, i) in self.items.iter().enumerate() {
             s += &*i.to_string(
                 data.clone(),
                 variable_color.clone(),

@@ -1,9 +1,10 @@
-use clap::{Args, Parser, Subcommand};
-use serde_json::Value;
-
 use std::str::FromStr;
 use std::thread;
 use std::time::Duration;
+
+use clap::{Args, Parser, Subcommand};
+use serde_json::Value;
+
 use weather_core::{component_updater, networking, version, weather};
 use weather_core::component_updater::get_updater;
 use weather_core::local::settings::Settings;
@@ -170,7 +171,7 @@ fn update(force: bool) {
                 .text,
             )
             .expect("JSON deserialize failed");
-            let web_hash = resp["updater-exe-hash-unix"]
+            let mut web_hash = resp["updater-exe-hash-unix"]
                 .as_str()
                 .expect("updater-exe-hash-unix key not found in index.json");
             if cfg!(windows) {

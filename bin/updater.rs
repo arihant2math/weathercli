@@ -1,9 +1,10 @@
+use std::fs;
+use std::path::Path;
+
 use clap::Parser;
 use serde::Deserialize;
 use serde::Serialize;
 
-use std::fs;
-use std::path::Path;
 use weather_core::bin_common::update_component;
 use weather_core::Config;
 use weather_core::hash_file;
@@ -99,12 +100,11 @@ async fn main() -> Result<(), String> {
                 == Config::new().WeatherFileName
         });
     let d_install_path = install_dir.clone();
-    let w_install_path;
-    if install_type_folders {
-        w_install_path = parent.to_path_buf();
+    let w_install_path = if install_type_folders {
+         parent.to_path_buf()
     } else {
-        w_install_path = install_dir;
-    }
+         install_dir
+    };
     weather_core::component_updater::update_web_resources(false, Some(args.quiet));
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();

@@ -176,7 +176,7 @@ impl LayoutFile {
         }
         let layout = file_data.layout.clone().unwrap().clone();
         let mut _internal_layout: Vec<Row> = Vec::new();
-        for (count, &ref row) in layout.clone().iter().enumerate() {
+        for (_count, &ref row) in layout.clone().iter().enumerate() {
             match row.clone() {
                 RowString(payload) => _internal_layout.push(Row::from_str(&*payload)),
                 RowVec(payload) => _internal_layout.push(Row::from_vec(payload)),
@@ -196,7 +196,7 @@ impl LayoutFile {
 
     pub fn to_string(&self, data: WeatherForecastRS, metric: bool) -> String {
         let mut s = Vec::new();
-        for (count, &ref row) in self.layout.iter().enumerate() {
+        for (_count, &ref row) in self.layout.iter().enumerate() {
             s.push(row.to_string(
                 data.clone(),
                 self.variable_color.clone(),
