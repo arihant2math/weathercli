@@ -71,14 +71,14 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
     }
 }
 
-fn get_latest_version() -> String {
+pub fn get_latest_version() -> String {
     let data =
         reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
     let json = data.json::<HashMap<String, String>>().expect("");
     json.get("version").expect("").to_string()
 }
 
-fn get_latest_updater_version() -> String {
+pub fn get_latest_updater_version() -> String {
     let data =
         reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
     let json = data.json::<HashMap<String, String>>().expect("");
@@ -86,7 +86,7 @@ fn get_latest_updater_version() -> String {
 }
 
 /// Downloads the OS specific updater
-fn get_updater(path: String) {
+pub fn get_updater(path: String) {
     let url = format!(
         "https://arihant2math.github.io/weathercli/{}",
         Config::new().UpdaterFileName

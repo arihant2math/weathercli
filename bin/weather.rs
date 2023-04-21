@@ -2,11 +2,13 @@ use std::thread;
 use std::time::Duration;
 
 use clap::{Args, Parser, Subcommand};
+use serde_json::Value;
 
+use weather_core::{component_updater, networking, version, weather};
+use weather_core::component_updater::get_updater;
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
 use weather_core::location::{get_coordinates, get_location};
-use weather_core::weather;
 
 #[derive(Debug, Parser)]
 #[clap(name = "weathercli")]
@@ -22,12 +24,19 @@ enum Command {
     Place(PlaceOpts),
     Settings,
     ClearCache,
-    Setup
+    Setup,
+    Update(UpdateOpts)
 }
 
 #[derive(Debug, Args)]
 struct PlaceOpts {
     query: String,
+}
+
+#[derive(Debug, Args)]
+struct UpdateOpts {
+    #[clap(long, short, action)]
+    force: bool,
 }
 
 #[derive(Debug, Args)]
@@ -78,6 +87,48 @@ fn setup(settings_s: Settings) {
     settings.write();
 }
 
+fn update(force: bool) {
+    println!("Checking for updates ...");
+    let latest_version = component_updater::get_latest_version();
+    let application_path = std::env::current_exe().expect("Current exe not found");
+    println!("Latest Version: {}", latest_version);
+    println!("Current Version: {}", version());
+    if latest_version != version() || force {
+        println!("Updating weather.exe at {}", application_path.display());
+        let mut updater_location = application_path.parent().expect("no parent dir").to_path_buf();
+        if cfg!(windows) {
+            updater_location.push("components");
+            updater_location.push("updater.exe");
+        } else {
+            updater_location.push("components");
+            updater_location.push("updater");
+        }
+        if !updater_location.exists() {
+            println!("Updater not found, downloading updater");
+            get_updater(updater_location.display().to_string());
+            let resp: Value = serde_json::from_str(
+                &networking::get_url("https://arihant2math.github.io/weathercli/index.json".to_string(), None, None, None).text
+            ).expect("JSON deserialize failed");
+            let mut web_hash = resp["updater-exe-hash-unix"].as_str().expect("updater-exe-hash-unix key not found in index.json");
+            if cfg!(windows) {
+                let web_hash = resp["updater-exe-hash-windows"].as_str().expect("updater-exe-hash-windows key not found in index.json");
+            }
+            if weather_core::hash_file(&updater_location.display().to_string()) != web_hash || force {
+                get_updater(updater_location.display().to_string());
+            }
+            println!("Starting updater and exiting");
+            if force {
+                std::process::Command::new(updater_location.display().to_string()).arg("--force")
+                    .spawn().expect("spawn failed");
+            }
+            else {
+                std::process::Command::new(updater_location.display().to_string())
+                    .spawn().expect("spawn failed");
+            }
+        }
+    }
+}
+
 fn main() {
     let args = App::parse();
     let settings = Settings::new();
@@ -116,7 +167,8 @@ fn main() {
                     f.data = String::new();
                     f.write();
                 }
-                Command::Setup => setup(settings)
+                Command::Setup => setup(settings),
+                Command::Update(opts) => update(opts.force)
             };
         }
         None => weather(
