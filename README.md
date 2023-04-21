@@ -19,6 +19,6 @@ More config values can be found in the table below
 | default_backend          | METEO, NWS, THEWEATHERCHANNEL, OPENWEATHERMAP | sets the default backend to get data from, see datasources.md for more info                                    |
 | constant_location        | true, false                                   | if true, the users current location will be cached                                                             |
 
-Usage: `weather config [NAME] --value [VALUE]`, to get the value of a config name try `weather config [NAME]`
+Usage: `weather config [NAME] [VALUE]`, to get the value of a config name try `weather config [NAME]`
 ## Custom Layouts
 See custom_layouts.md for more info.
