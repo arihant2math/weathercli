@@ -84,6 +84,3 @@ support = ["dep:clap", "dep:tokio", "dep:futures-util", "dep:thiserror", "reqwes
 installer = []
 gui = ["dep:iced"]
 default = ["gui", "support"]
-
-[profile.release]
-debug = true
