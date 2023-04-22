@@ -95,12 +95,12 @@ jobs:
       name: Upload Weather (Windows)
       if: startsWith(matrix.os, 'windows')
       with:
-        name: Weather (Windows)
+        name: weather (Windows)
         path: ./target/release/weather.exe
 
     - uses: actions/upload-artifact@v3
       name: Upload Weather (Unix)
       if: startsWith(matrix.os, 'ubuntu')
       with:
-        name: Weather (Unix)
+        name: weather (Unix)
         path: ./target/release/weather

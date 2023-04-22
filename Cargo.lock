@@ -3472,7 +3472,7 @@ dependencies = [
 
 [[package]]
 name = "weather_core"
-version = "2023.4.17"
+version = "2023.4.21"
 dependencies = [
  "bincode",
  "clap",
