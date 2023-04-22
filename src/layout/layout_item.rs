@@ -2,7 +2,6 @@ use std::collections::HashMap;
 
 use serde_json::Value;
 
-use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::color;
 use crate::layout::{ItemEnum, ItemJSON, util};
 
@@ -99,7 +98,7 @@ impl Item {
         Item { data: i }
     }
 
-    fn get_variable_value(&self, data: Value) -> Option<String> {
+    fn get_variable_value(&self, data: &Value) -> Option<String> {
         let mut split: Vec<&str> = self.data.value.split('.').collect();
         let mut current = data;
         while !split.is_empty() {
@@ -113,11 +112,11 @@ impl Item {
                 let place = split[0][1..split.clone()[0].len() - 1]
                     .parse::<usize>()
                     .unwrap();
-                current = current.clone()[place].clone();
+                current = &current[place];
             } else {
                 // normal variable
                 if !current.is_null() {
-                    current = current.clone()[split[0]].clone();
+                    current = &current[split[0]];
                 } else {
                     return None;
                 }
@@ -133,20 +132,19 @@ impl Item {
         }
     }
 
-    fn get_function_value(&self, data: &WeatherForecastRS) -> Option<String> {
+    fn get_function_value(&self, data: &Value) -> Option<String> {
         let args = self.data.args.clone().unwrap_or(Vec::new());
         let _kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
-        println!("{}", Item::new(args[0].clone()).get_value(data).expect("no aqi value"));
         match &*self.data.value {
             "color_aqi" => Some(util::color_aqi(Item::new(args[0].clone()).get_value(data).expect("no aqi value").parse().unwrap_or(0))),
             _ => None, // TODO: add more functions
         }
     }
 
-    pub fn get_value(&self, data: &WeatherForecastRS) -> Option<String> {
+    pub fn get_value(&self, data: &Value) -> Option<String> {
         if self.data.item_type == "variable" {
             return self
-                .get_variable_value(serde_json::to_value(data).expect("Serialization failed"));
+                .get_variable_value(data);
         } else if self.data.item_type == "function" {
             return self.get_function_value(data);
         }
@@ -155,7 +153,7 @@ impl Item {
 
     pub fn to_string(
         &self,
-        data: &WeatherForecastRS,
+        data: &Value,
         variable_color: String,
         text_color: String,
         unit_color: String,
@@ -172,7 +170,7 @@ impl Item {
                 + &self.data.value;
         } else if self.data.item_type == "variable" {
             let value =
-                self.get_variable_value(serde_json::to_value(data).expect("Serialization failed"));
+                self.get_variable_value(data);
             let s = variable_color
                 + &variable_bg_color
                 + &color::from_string(self.data.color.clone().unwrap_or("".to_string()))

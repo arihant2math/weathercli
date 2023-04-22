@@ -197,9 +197,10 @@ impl LayoutFile {
 
     pub fn to_string(&self, data: WeatherForecastRS, metric: bool) -> String {
         let mut s = Vec::new();
+        let data_value = serde_json::to_value(data).expect("Serialization failed");
         for (_count, &ref row) in self.layout.iter().enumerate() {
             s.push(row.to_string(
-                &data,
+                &data_value,
                 self.variable_color.clone(),
                 self.text_color.clone(),
                 self.unit_color.clone(),

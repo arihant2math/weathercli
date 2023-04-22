@@ -1,4 +1,5 @@
-use crate::backend::weather_forecast::WeatherForecastRS;
+use serde_json::Value;
+
 use crate::layout::ItemEnum;
 use crate::layout::layout_item::Item;
 
@@ -44,7 +45,7 @@ impl Row {
 
     pub fn to_string(
         &self,
-        data: &WeatherForecastRS,
+        data: &Value,
         variable_color: String,
         text_color: String,
         unit_color: String,

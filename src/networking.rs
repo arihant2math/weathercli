@@ -90,9 +90,9 @@ pub fn get_url(
     cookies: Option<HashMap<String, String>>,
 ) -> Resp {
     let jar: Jar = Jar::default();
-    if let Some(cookies) = cookies {
+    if cookies.is_some() {
         let mut formatted_cookies: Vec<String> = Vec::new();
-        for (key, value) in cookies {
+        for (key, value) in cookies.clone().unwrap() {
             formatted_cookies.push(key + "=" + &value);
         }
         for cookie in formatted_cookies {
@@ -101,13 +101,14 @@ pub fn get_url(
     }
     let app_user_agent = get_user_agent(user_agent);
     let header_map = get_header_map(headers);
-    let client = reqwest::blocking::Client::builder()
+    let mut client_pre = reqwest::blocking::Client::builder()
         .user_agent(app_user_agent)
-        .cookie_store(true)
-        .default_headers(header_map)
-        .cookie_provider::<Jar>(Arc::new(jar))
-        .build()
-        .unwrap();
+        .cookie_store(cookies.is_some())
+        .default_headers(header_map);
+    if cookies.is_some() {
+        client_pre = client_pre.cookie_provider::<Jar>(Arc::new(jar))
+    }
+    let client = client_pre.build().unwrap();
     let data = client.get(url).send().expect("Url Get failed");
     let url = data.url().to_string();
     let status = data.status().as_u16();
@@ -136,10 +137,10 @@ pub fn get_urls(
     cookies: Option<HashMap<String, String>>,
 ) -> Vec<Resp> {
     let jar: Jar = Jar::default();
-    if let Some(cookies) = cookies {
+    if cookies.is_some() {
         let mut formatted_cookies: Vec<String> = Vec::new();
-        for (key, value) in cookies {
-            formatted_cookies.push(key + "=" + &value);
+        for (key, value) in cookies.clone().unwrap() {
+            formatted_cookies.push(key.to_string() + "=" + &value);
         }
         for cookie in formatted_cookies {
             for url in urls.clone() {
@@ -149,13 +150,14 @@ pub fn get_urls(
     }
     let app_user_agent = get_user_agent(user_agent);
     let header_map = get_header_map(headers);
-    let client = reqwest::blocking::Client::builder()
-        .default_headers(header_map)
+    let mut client_pre = reqwest::blocking::Client::builder()
         .user_agent(app_user_agent)
-        .cookie_store(true)
-        .cookie_provider::<Jar>(Arc::new(jar))
-        .build()
-        .unwrap();
+        .cookie_store(cookies.is_some())
+        .default_headers(header_map);
+    if cookies.is_some() {
+        client_pre = client_pre.cookie_provider::<Jar>(Arc::new(jar))
+    }
+    let client = client_pre.build().unwrap();
     let data: Vec<_> = urls
         .par_iter()
         .map(|url| {
