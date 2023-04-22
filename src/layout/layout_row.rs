@@ -44,7 +44,7 @@ impl Row {
 
     pub fn to_string(
         &self,
-        data: WeatherForecastRS,
+        data: &WeatherForecastRS,
         variable_color: String,
         text_color: String,
         unit_color: String,
@@ -56,7 +56,7 @@ impl Row {
         let mut s = "".to_string();
         for (_count, i) in self.items.iter().enumerate() {
             s += &*i.to_string(
-                data.clone(),
+                data,
                 variable_color.clone(),
                 text_color.clone(),
                 unit_color.clone(),

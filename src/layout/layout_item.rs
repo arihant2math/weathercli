@@ -133,17 +133,17 @@ impl Item {
         }
     }
 
-    fn get_function_value(&self, data: WeatherForecastRS) -> Option<String> {
+    fn get_function_value(&self, data: &WeatherForecastRS) -> Option<String> {
         let args = self.data.args.clone().unwrap_or(Vec::new());
         let _kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
-        println!("{}", Item::new(args[0].clone()).get_value(data.clone()).expect("no aqi value"));
+        println!("{}", Item::new(args[0].clone()).get_value(data).expect("no aqi value"));
         match &*self.data.value {
-            "color_aqi" => Some(util::color_aqi(Item::new(args[0].clone()).get_value(data).expect("no aqi value").parse().unwrap())),
+            "color_aqi" => Some(util::color_aqi(Item::new(args[0].clone()).get_value(data).expect("no aqi value").parse().unwrap_or(0))),
             _ => None, // TODO: add more functions
         }
     }
 
-    pub fn get_value(&self, data: WeatherForecastRS) -> Option<String> {
+    pub fn get_value(&self, data: &WeatherForecastRS) -> Option<String> {
         if self.data.item_type == "variable" {
             return self
                 .get_variable_value(serde_json::to_value(data).expect("Serialization failed"));
@@ -155,7 +155,7 @@ impl Item {
 
     pub fn to_string(
         &self,
-        data: WeatherForecastRS,
+        data: &WeatherForecastRS,
         variable_color: String,
         text_color: String,
         unit_color: String,

@@ -199,7 +199,7 @@ impl LayoutFile {
         let mut s = Vec::new();
         for (_count, &ref row) in self.layout.iter().enumerate() {
             s.push(row.to_string(
-                data.clone(),
+                &data,
                 self.variable_color.clone(),
                 self.text_color.clone(),
                 self.unit_color.clone(),
