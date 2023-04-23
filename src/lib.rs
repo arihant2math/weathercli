@@ -2,6 +2,7 @@ use std::{fs, thread};
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use clap::ValueEnum;
 use sha2::Digest;
 
 use crate::backend::meteo::meteo_forecast::get_meteo_forecast;
@@ -85,7 +86,7 @@ impl Config {
 }
 
 fn get_data_from_datasource(
-    datasource: String,
+    datasource: Datasource,
     coordinates: [String; 2],
     settings: Settings,
 ) -> WeatherForecastRS {
@@ -104,11 +105,10 @@ fn get_data_from_datasource(
         });
     }
 
-    match &*datasource {
-        "openweathermap" => get_openweathermap_forecast(Vec::from(coordinates), settings),
-        "meteo" => get_meteo_forecast(Vec::from(coordinates), settings),
-        "nws" => get_nws_forecast(Vec::from(coordinates), settings),
-        _ => get_meteo_forecast(Vec::from(coordinates), settings),
+    match datasource {
+        Datasource::Openweathermap => get_openweathermap_forecast(Vec::from(coordinates), settings),
+        Datasource::NWS => get_nws_forecast(Vec::from(coordinates), settings),
+        Datasource::Meteo => get_meteo_forecast(Vec::from(coordinates), settings),
     }
 }
 
@@ -127,8 +127,23 @@ fn print_out(layout_file: Option<String>, data: WeatherForecastRS, json: bool, m
     }
 }
 
+#[derive(Clone, Copy, Eq, PartialEq, ValueEnum)]
+pub enum Datasource {
+    Meteo,
+    Openweathermap,
+    NWS
+}
+
+pub fn datasource_from_str(s: &str) -> Datasource {
+    match &*s.to_lowercase() {
+        "nws" => Datasource::NWS,
+        "openweathermap" => Datasource::Openweathermap,
+        _ => Datasource::Meteo
+    }
+}
+
 pub fn weather(
-    datasource: String,
+    datasource: Datasource,
     coordinates: [String; 2],
     settings: Settings,
     true_metric: bool,

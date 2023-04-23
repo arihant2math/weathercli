@@ -1,4 +1,4 @@
-use std::{fs, i128, u128};
+use std::{fs, u128};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
@@ -25,7 +25,7 @@ struct Row {
 }
 
 fn calculate_power(row: &Row) -> f64 {
-    let offset = now().abs_diff(u128::from_str(&row.date).unwrap_or(u128::MAX_VALUE)) as f64;
+    let offset = now().abs_diff(u128::from_str(&row.date).unwrap_or(u128::MAX)) as f64;
     (row.hits as f64) / (offset/86400000.0)
 }
 

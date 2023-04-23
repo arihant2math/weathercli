@@ -5,23 +5,23 @@ use std::time::Duration;
 use clap::{Args, Parser, Subcommand};
 use serde_json::Value;
 
-use weather_core::{component_updater, networking, version, weather};
+use weather_core::{component_updater, Datasource, datasource_from_str, networking, version, weather};
 use weather_core::component_updater::get_updater;
 use weather_core::local::cache::prune_cache;
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
 use weather_core::location::{get_coordinates, get_location};
 
-#[derive(Debug, Parser)]
-#[clap(name = "weathercli")]
+#[derive(Clone, Parser)]
+#[command(version, author, about, name = "weathercli")]
 pub struct App {
-    #[clap(flatten)]
+    #[command(flatten)]
     global_opts: GlobalOpts,
-    #[clap(subcommand)]
+    #[command(subcommand)]
     command: Option<Command>,
 }
 
-#[derive(Debug, Subcommand)]
+#[derive(Clone, Subcommand)]
 enum Command {
     Place(PlaceOpts),
     Settings,
@@ -32,34 +32,34 @@ enum Command {
     Update(UpdateOpts),
 }
 
-#[derive(Debug, Args)]
+#[derive(Clone, Args)]
 struct ConfigOpts {
     key: String,
     value: Option<String>,
 }
 
-#[derive(Debug, Args)]
+#[derive(Clone, Args)]
 struct PlaceOpts {
     query: String,
 }
 
-#[derive(Debug, Args)]
+#[derive(Clone, Copy, Args)]
 struct UpdateOpts {
-    #[clap(long, short, action)]
+    #[arg(long, short, action)]
     force: bool,
 }
 
-#[derive(Debug, Args)]
+#[derive(Clone, Copy, Args)]
 struct GlobalOpts {
-    #[clap(long, short, action, global = true)]
+    #[arg(long, short, action, global = true, help = "Print raw json output, useful for debugging")]
     json: bool,
-    #[clap(long, short, global = true)]
-    datasource: Option<String>,
-    #[clap(long, short, action, global = true)]
+    #[arg(long, short, global = true, value_enum, help = "Which datasource to use, possible options are meteo, nws, and openweathermap")]
+    datasource: Option<Datasource>,
+    #[arg(long, short, action, global = true, help = "the output will be in metric")]
     metric: bool,
-    #[clap(long, short, action, global = true)]
+    #[arg(long, short, action, global = true, help = "the output will be in imperial, overrides --metric")]
     imperial: bool,
-    #[clap(long, short, action, global = true)]
+    #[arg(long, short, action, global = true, help = "If used, the location will not be gotten from the win32 api, if applicable")]
     no_sys_loc: bool,
 }
 
@@ -213,7 +213,7 @@ fn main() {
     let datasource = args
         .global_opts
         .datasource
-        .unwrap_or(settings.internal.default_backend.clone().unwrap());
+        .unwrap_or(datasource_from_str(&settings.internal.default_backend.clone().unwrap()));
     match args.command {
         Some(command) => {
             match command {

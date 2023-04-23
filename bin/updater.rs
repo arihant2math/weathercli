@@ -28,27 +28,18 @@ enum Component {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "kebab-case")]
 struct IndexStruct {
     version: String,
-    #[serde(rename = "updater-version")]
     updater_version: String,
-    #[serde(rename = "weather-codes-hash")]
     weather_codes_hash: String,
-    #[serde(rename = "weather-ascii-images-hash")]
     weather_ascii_images_hash: String,
-    #[serde(rename = "daemon-version")]
     daemon_version: String,
-    #[serde(rename = "weather-exe-hash-windows")]
     weather_exe_hash_windows: String,
-    #[serde(rename = "weather-exe-hash-unix")]
     weather_exe_hash_unix: String,
-    #[serde(rename = "updater-exe-hash-windows")]
     updater_exe_hash_windows: String,
-    #[serde(rename = "updater-exe-hash-unix")]
     updater_exe_hash_unix: String,
-    #[serde(rename = "weatherd-exe-hash-windows")]
     weatherd_exe_hash_windows: String,
-    #[serde(rename = "weatherd-exe-hash-unix")]
     weatherd_exe_hash_unix: String,
 }
 

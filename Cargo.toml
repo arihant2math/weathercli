@@ -35,7 +35,7 @@ version = "2023.4.22"
 edition = "2021"
 authors = ["Ashwin Naren"]
 rust-version = "1.60.0"
-description = "Rust portions of weathercli"
+description = "weather, in your terminal"
 readme = "README.md"
 homepage = "https://arihant2math.github.io/weathercli/"
 repository = "https://github.com/arihant2math/weathercli"
@@ -85,3 +85,6 @@ support = ["dep:clap", "dep:tokio", "dep:futures-util", "dep:thiserror", "reqwes
 installer = []
 gui = ["dep:iced"]
 default = ["gui", "support"]
+
+[profile.bench]
+debug = true
