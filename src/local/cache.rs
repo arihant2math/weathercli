@@ -1,7 +1,8 @@
-use std::fs;
+use std::{fs, i128, u128};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use local::dirs::home_dir;
 
@@ -21,6 +22,32 @@ struct Row {
     value: String,
     date: String,
     hits: i32,
+}
+
+fn calculate_power(row: &Row) -> f64 {
+    let offset = now().abs_diff(u128::from_str(&row.date).unwrap_or(u128::MAX_VALUE)) as f64;
+    (row.hits as f64) / (offset/86400000.0)
+}
+
+pub fn prune_cache() {
+    let path = get_cache_path();
+    let buffer = read_bytes_from_file();
+    let mut rows: Vec<Row> = to_rows(buffer);
+    while rows.len() > 100  {
+        let powers: Vec<f64> = rows.iter().map(|row| calculate_power(row)).collect();
+        let sort = powers.iter()
+        .enumerate()
+        .min_by(|(_, a), (_, b)| a.total_cmp(b))
+        .map(|(index, _)| index).unwrap_or(0);
+        rows.remove(sort);
+    }
+    let new_bytes = update_cache(rows);
+    let mut file = File::options()
+        .truncate(true)
+        .write(true)
+        .open(path.display().to_string())
+        .expect("File opening failed");
+    file.write_all(&new_bytes).expect("Write Failed");
 }
 
 pub fn get_date_string() -> String {

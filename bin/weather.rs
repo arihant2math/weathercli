@@ -7,6 +7,7 @@ use serde_json::Value;
 
 use weather_core::{component_updater, networking, version, weather};
 use weather_core::component_updater::get_updater;
+use weather_core::local::cache::prune_cache;
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
 use weather_core::location::{get_coordinates, get_location};
@@ -25,6 +26,7 @@ enum Command {
     Place(PlaceOpts),
     Settings,
     Config(ConfigOpts),
+    PruneCache,
     ClearCache,
     Setup,
     Update(UpdateOpts),
@@ -236,7 +238,8 @@ fn main() {
                     let mut f = WeatherFile::new("d.cache");
                     f.data = String::new();
                     f.write();
-                }
+                },
+                Command::PruneCache => prune_cache(),
                 Command::Setup => setup(settings),
                 Command::Update(opts) => update(opts.force),
             };
