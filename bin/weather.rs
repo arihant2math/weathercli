@@ -23,13 +23,22 @@ pub struct App {
 
 #[derive(Clone, Subcommand)]
 enum Command {
+    #[command(about = "Get the weather for a specific place")]
     Place(PlaceOpts),
+    #[command(about = "Open the gui settings editor")]
     Settings,
+    #[command(about = "Set a config variable via weather config [key] [value]")]
     Config(ConfigOpts),
+    #[command(about = "Trim the size of the cache")]
     PruneCache,
+    #[command(about = "Delete the cache")]
     ClearCache,
+    #[command(about = "Run the interactive terminal setup")]
     Setup,
+    #[command(about = "Update weathercli")]
     Update(UpdateOpts),
+    #[command(about = "Various Credits")]
+    Credits
 }
 
 #[derive(Clone, Args)]
@@ -200,6 +209,11 @@ fn update(force: bool) {
     }
 }
 
+fn credits() {
+    println!("Backends:\nMeteo - https://open-meteo.com\nOpen Weather Map - https://openweathermap.org/\nNWS - weather.gov");
+    println!("Icons from Icons8: https://icons8.com/");
+}
+
 fn main() {
     let args = App::parse();
     let settings = Settings::new();
@@ -242,6 +256,7 @@ fn main() {
                 Command::PruneCache => prune_cache(),
                 Command::Setup => setup(settings),
                 Command::Update(opts) => update(opts.force),
+                Command::Credits => credits()
             };
         }
         None => weather(
