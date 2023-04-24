@@ -1,7 +1,9 @@
+use dark_light::Mode;
 use iced::{Alignment, Element, Length, Sandbox, Settings};
 use iced::theme::Theme;
 use iced::widget::{button, column, container, radio, row, text, text_input, toggler};
 
+use crate::local::settings;
 use crate::local::settings::SettingsJson;
 
 pub fn run_settings_app() -> iced::Result {
@@ -56,7 +58,13 @@ impl Sandbox for App {
 
     fn new() -> Self {
         let mut a = App::default();
-        let settings = crate::local::settings::Settings::new();
+        let mode = dark_light::detect();
+        let settings = settings::Settings::new();
+        a.theme = match mode {
+            Mode::Default => Theme::default(),
+            Mode::Light => Theme::Light,
+            Mode::Dark => Theme::Dark
+        };
         a.data = settings.internal;
         a
     }
@@ -68,7 +76,7 @@ impl Sandbox for App {
     fn update(&mut self, message: Message) {
         match message {
             Message::Save => save(self.data.clone()),
-            Message::Cancel => panic!("Implementation TBD"),
+            Message::Cancel => self.data = settings::Settings::new().internal,
             Message::MetricDefault(value) => self.data.metric_default = Some(value),
             Message::ShowAlerts(value) => self.data.show_alerts = Some(value),
             Message::AutoUpdateInternetResources(value) => {
