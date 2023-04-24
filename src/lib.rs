@@ -1,9 +1,8 @@
-use std::{fs, thread};
 use std::path::Path;
+use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use clap::ValueEnum;
-use sha2::Digest;
 
 use crate::backend::meteo::meteo_forecast::get_meteo_forecast;
 use crate::backend::nws::nws_forecast::get_nws_forecast;
@@ -12,6 +11,7 @@ use crate::backend::status::Status;
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::layout::LayoutFile;
 use crate::local::settings::Settings;
+use crate::util::Config;
 
 #[cfg(feature = "support")]
 pub mod autolaunch;
@@ -27,6 +27,7 @@ pub mod networking;
 pub mod prompt;
 #[cfg(feature = "gui")]
 mod settings_app;
+pub mod util;
 
 pub fn now() -> u128 {
     let start = SystemTime::now();
@@ -40,12 +41,6 @@ pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
 
-/// returns the sha-256 of the file
-pub fn hash_file(filename: &str) -> String {
-    let input = Path::new(filename);
-    let bytes = fs::read(input).expect("File read failed");
-    hex::encode(sha2::Sha256::digest(bytes))
-}
 
 #[cfg(feature = "gui")]
 pub fn open_settings_app() {
@@ -57,24 +52,19 @@ pub fn open_settings_app() {
     panic!("GUI support not enabled!");
 }
 
-pub struct Config {
-    pub weather_file_name: String,
-    pub weather_dfile_name: String,
-    pub updater_file_name: String,
-}
 
 #[cfg(target_os = "windows")]
-pub const config: Config = Config {
-            weather_file_name: "weather.exe".to_string(),
-            weather_dfile_name: "weatherd.exe".to_string(),
-            updater_file_name: "updater.exe".to_string(),
+pub const CONFIG: Config<'static> = Config {
+            weather_file_name: "weather.exe",
+            weather_dfile_name: "weatherd.exe",
+            updater_file_name: "updater.exe",
         };
 
 #[cfg(not(target_os = "windows"))]
-pub const config: Config = Config {
-            weather_file_name: "weather".to_string(),
-            weather_dfile_name: "weatherd".to_string(),
-            updater_file_name: "updater".to_string(),
+pub const CONFIG: Config<'static> = Config {
+            weather_file_name: "weather",
+            weather_dfile_name: "weatherd",
+            updater_file_name: "updater",
         };
 
 fn get_data_from_datasource(

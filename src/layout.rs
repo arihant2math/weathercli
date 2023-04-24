@@ -80,7 +80,6 @@ enum RowEnum {
 }
 
 pub struct LayoutFile {
-    data: LayoutJSON,
     layout: Vec<Row>,
     variable_color: String,
     text_color: String,
@@ -184,7 +183,6 @@ impl LayoutFile {
             }
         }
         LayoutFile {
-            data: file_data.clone(),
             layout: _internal_layout,
             variable_color,
             text_color,

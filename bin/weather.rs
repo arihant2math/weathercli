@@ -181,7 +181,7 @@ fn update(force: bool) {
                     .as_str()
                     .expect("updater-exe-hash-windows key not found in index.json");
             }
-            if weather_core::hash_file(&updater_location.display().to_string()) != web_hash || force
+            if weather_core::util::hash_file(&updater_location.display().to_string()) != web_hash || force
             {
                 get_updater(updater_location.display().to_string());
             }

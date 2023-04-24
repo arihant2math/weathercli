@@ -124,7 +124,7 @@ impl Sandbox for App {
                 .open_weather_map_api_key
                 .clone()
                 .unwrap_or("".to_string()),
-        )
+        ).on_input(Message::OpenWeatherMapAPIKey)
         .padding(10)
         .size(20);
         let metric_default = toggler(

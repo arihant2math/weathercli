@@ -4,8 +4,7 @@ use crate::layout::ItemEnum;
 use crate::layout::layout_item::Item;
 
 pub struct Row {
-    items: Vec<Item>,
-    data: Option<Vec<ItemEnum>>,
+    items: Vec<Item>
 }
 
 impl Row {
@@ -27,8 +26,7 @@ impl Row {
             item_list.push(Item::from_str(&current));
         }
         Row {
-            items: item_list,
-            data: None,
+            items: item_list
         }
     }
 
@@ -38,8 +36,7 @@ impl Row {
             items.push(Item::new(item.clone()));
         }
         Row {
-            items,
-            data: Some(data),
+            items
         }
     }
 

@@ -5,9 +5,9 @@ use clap::Parser;
 use serde::Deserialize;
 use serde::Serialize;
 
-use weather_core::{Config, config};
 use weather_core::bin_common::update_component;
-use weather_core::hash_file;
+use weather_core::CONFIG;
+use weather_core::util::hash_file;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -88,7 +88,7 @@ async fn main() -> Result<(), String> {
         .expect("read parent dir failed")
         .any(|f| {
             f.expect("read failed").file_name().to_str().unwrap_or("")
-                == config.weather_file_name
+                == CONFIG.weather_file_name
         });
     let d_install_path = install_dir.clone();
     let w_install_path = if install_type_folders {
@@ -120,9 +120,9 @@ async fn main() -> Result<(), String> {
     }
     if to_update.contains(&Component::Main) {
         let url = "https://arihant2math.github.io/weathercli/".to_string()
-            + &config.weather_file_name;
+            + &CONFIG.weather_file_name;
         let mut path = w_install_path.to_path_buf();
-        path.push(config.weather_file_name);
+        path.push(CONFIG.weather_file_name);
         update_component(
             &url,
             &path.display().to_string(),
@@ -134,9 +134,9 @@ async fn main() -> Result<(), String> {
     }
     if to_update.contains(&Component::Daemon) {
         let url = "https://arihant2math.github.io/weathercli/".to_string()
-            + &config.weather_dfile_name;
+            + &CONFIG.weather_dfile_name;
         let mut path = d_install_path.to_path_buf();
-        path.push(config.weather_dfile_name);
+        path.push(CONFIG.weather_dfile_name);
         update_component(
             &url,
             &path.display().to_string(),

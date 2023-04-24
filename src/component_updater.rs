@@ -4,9 +4,9 @@ use std::io::Write;
 
 use serde_json::Value;
 
-use crate::{Config, config, networking};
-use crate::hash_file;
+use crate::{CONFIG, networking};
 use crate::local::weather_file::WeatherFile;
+use crate::util::hash_file;
 
 /// Updates the web resource at $weathercli_dir/$local_path if the hash of the local file does not match with
 /// the hash at index.json of the index name, if the hashes do not match it download a copy and replaces the existing file
@@ -95,7 +95,7 @@ pub fn get_latest_updater_version() -> String {
 pub fn get_updater(path: String) {
     let url = format!(
         "https://arihant2math.github.io/weathercli/{}",
-        config.updater_file_name
+        CONFIG.updater_file_name
     );
     let data = networking::get_url(url, None, None, None).bytes;
     let mut file = OpenOptions::new()
