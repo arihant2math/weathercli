@@ -4212,6 +4212,7 @@ dependencies = [
  "indicatif",
  "libc",
  "libloading 0.8.0",
+ "log",
  "log4rs",
  "rand",
  "rayon",
