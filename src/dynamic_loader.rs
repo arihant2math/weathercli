@@ -7,22 +7,22 @@ use crate::custom_backend;
 use crate::custom_backend::{InvocationError, PluginDeclaration, WeatherForecastPlugin};
 use crate::local::settings::Settings;
 
-fn run(
-    paths: Vec<String>,
-    name: String,
-    coordinates: Vec<String>,
-    settings: Settings,
-) -> WeatherForecastRS {
+pub fn load(paths: Vec<String>) -> ExternalBackends {
     let mut functions = ExternalBackends::new();
-
     unsafe {
         for path in paths {
             functions.load(path).expect("Function loading failed");
         }
     }
+    functions
+}
 
-    // then call the function
-    
+pub fn run(
+    functions: ExternalBackends,
+    name: String,
+    coordinates: Vec<String>,
+    settings: Settings,
+) -> WeatherForecastRS {
     functions
         .call(name, coordinates, settings)
         .expect("Invocation failed")
@@ -48,7 +48,7 @@ impl ExternalBackends {
     ) -> Result<WeatherForecastRS, InvocationError> {
         self.functions
             .get(&*name)
-            .ok_or_else(|| format!("\"{}\" not found", name))?
+            .ok_or_else(|| format!("\"{}\" not found", name))? // TODO: Use NotFound variant instead
             .call(coordinates, settings)
     }
 

@@ -1,4 +1,4 @@
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap::{Args, Parser, Subcommand};
 
 use crate::backend::status::Status;
 use crate::backend::weather_forecast::WeatherForecastRS;
@@ -53,7 +53,7 @@ pub struct UpdateOpts {
     pub force: bool,
 }
 
-#[derive(Clone, Copy, Args)]
+#[derive(Clone, Args)]
 pub struct GlobalOpts {
     #[arg(
         long,
@@ -70,7 +70,7 @@ pub struct GlobalOpts {
         value_enum,
         help = "Which datasource to use, note that openweathermap requires an API key"
     )]
-    pub datasource: Option<Datasource>,
+    pub datasource: Option<String>,
     #[arg(
         long,
         short,
@@ -112,17 +112,19 @@ fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: b
     }
 }
 
-#[derive(Clone, Copy, Eq, PartialEq, ValueEnum)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum Datasource {
     Meteo,
     Openweathermap,
     NWS,
+    Other(String)
 }
 
 pub fn datasource_from_str(s: &str) -> Datasource {
     match &*s.to_lowercase() {
         "nws" => Datasource::NWS,
         "openweathermap" => Datasource::Openweathermap,
-        _ => Datasource::Meteo,
+        "meteo" => Datasource::Meteo,
+        _ => Datasource::Other(s.to_string())
     }
 }

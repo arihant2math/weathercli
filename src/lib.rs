@@ -7,6 +7,7 @@ use crate::backend::nws::nws_forecast::get_nws_forecast;
 use crate::backend::openweathermap::openweathermap_forecast::get_openweathermap_forecast;
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::cli::Datasource;
+use crate::dynamic_loader::ExternalBackends;
 use crate::local::settings::Settings;
 #[cfg(feature = "gui")]
 use crate::local::settings_app;
@@ -20,8 +21,8 @@ pub mod bin_common;
 pub mod cli;
 pub mod color;
 pub mod component_updater;
-mod custom_backend;
-mod dynamic_loader;
+pub mod custom_backend;
+pub mod dynamic_loader;
 mod layout;
 pub mod local;
 pub mod location;
@@ -69,8 +70,9 @@ fn get_data_from_datasource(
     datasource: Datasource,
     coordinates: [String; 2],
     settings: Settings,
+    custom_backends: ExternalBackends
 ) -> WeatherForecastRS {
-    let mut dir = crate::local::dirs::home_dir().expect("Home dir get failed");
+    let mut dir = local::dirs::home_dir().expect("Home dir get failed");
     dir.push(".weathercli/resources");
     let mut f1 = dir.clone();
     f1.push("weather_codes.json");
@@ -89,5 +91,6 @@ fn get_data_from_datasource(
         Datasource::Openweathermap => get_openweathermap_forecast(Vec::from(coordinates), settings),
         Datasource::NWS => get_nws_forecast(Vec::from(coordinates), settings),
         Datasource::Meteo => get_meteo_forecast(Vec::from(coordinates), settings),
+        Datasource::Other(s) => custom_backends.call(s, Vec::from(coordinates), settings).expect("Custom backend execution failed")
     }
 }

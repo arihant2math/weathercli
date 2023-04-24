@@ -30,7 +30,7 @@ crate-type = [
 ]
 
 [package]
-name = "weather_core"
+name = "weather"
 version = "2023.4.22"
 edition = "2021"
 authors = ["Ashwin Naren"]
@@ -59,7 +59,6 @@ reqwest = { version = "0.11.*", features = ["blocking", "json", "cookies"] }
 thiserror = { version = "1", optional = true }
 hex = "0.4.*"
 image = "0.24.6"
-scraper = "0.16.0"
 ureq = { version = "2.6.2", features = ["cookies", "json"] }
 cookie_store = "0.19.0"
 url = "2.3.1"
@@ -90,7 +89,7 @@ windows = { version = "0.48.*", features = ["Foundation", "Devices_Geolocation"]
 support = ["dep:tokio", "dep:futures-util", "dep:thiserror", "reqwest/stream", "dep:indicatif"]
 installer = []
 gui = ["dep:iced"]
-default = ["gui", "support"]
+default = []
 
 [profile.bench]
 debug = true

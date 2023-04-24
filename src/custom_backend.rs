@@ -2,6 +2,7 @@ use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::local::settings::Settings;
 
 pub static CORE_VERSION: &str = "0";
+pub static RUSTC_VERSION: &str = "TODO";
 
 pub trait WeatherForecastPlugin {
     fn call(
@@ -16,9 +17,10 @@ pub trait WeatherForecastPlugin {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InvocationError {
     CoordinatesError,
+    NotFound,
     Other { msg: String },
 }
 
@@ -45,9 +47,9 @@ pub trait PluginRegistrar {
 macro_rules! export_plugin {
     ($register:expr) => {
         #[no_mangle]
-        pub static plugin_declaration: $crate::PluginDeclaration = $crate::PluginDeclaration {
-            rustc_version: $crate::RUSTC_VERSION,
-            core_version: $crate::CORE_VERSION,
+        pub static plugin_declaration: weather_core::custom_backend::PluginDeclaration = weather_core::custom_backend::PluginDeclaration {
+            rustc_version: weather_core::custom_backend::RUSTC_VERSION,
+            core_version: weather_core::custom_backend::CORE_VERSION,
             register: $register,
         };
     };

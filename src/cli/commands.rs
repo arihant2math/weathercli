@@ -7,6 +7,7 @@ use serde_json::Value;
 use crate::{component_updater, get_data_from_datasource, networking, version};
 use crate::cli::{Datasource, print_out};
 use crate::component_updater::get_updater;
+use crate::dynamic_loader::ExternalBackends;
 use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
 
@@ -16,10 +17,11 @@ pub fn weather(
     settings: Settings,
     true_metric: bool,
     json: bool,
+    custom_backends: ExternalBackends
 ) {
     let mut s = settings.clone();
     s.internal.metric_default = true_metric;
-    let data = get_data_from_datasource(datasource, coordinates, s);
+    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends);
     print_out(settings.internal.layout_file, data, json, true_metric);
 }
 
