@@ -6,15 +6,15 @@ use crate::local::weather_file::WeatherFile;
 use crate::now;
 
 fn convert_temp(value: f64, metric: bool) -> f64 {
-    return if metric {
+    if metric {
         value
     } else {
         value * 9.0 / 5.0 + 32.0
-    };
+    }
 }
 
 fn convert_speed(value: f64, metric: bool) -> f64 {
-    return if metric { value } else { value * 0.62 };
+    if metric { value } else { value * 0.62 }
 }
 
 fn get_conditions(
@@ -52,7 +52,7 @@ fn get_conditions(
     if data.properties.snowfall_amount.values[index].value != 0.0 {
         conditions.push(WeatherCondition::new(601, &weather_file.data));
     }
-    return conditions;
+    conditions
 }
 
 pub fn get_nws_current(data: NWSJSON, metric: bool) -> WeatherDataRS {
@@ -60,24 +60,24 @@ pub fn get_nws_current(data: NWSJSON, metric: bool) -> WeatherDataRS {
     let conditions = get_conditions(data.clone(), metric, 0, cloud_cover);
     WeatherDataRS {
         time: now() as i128,
-        temperature: convert_temp(data.properties.temperature.values[0].value.clone(), metric)
+        temperature: convert_temp(data.properties.temperature.values[0].value, metric)
             as f32,
         min_temp: convert_temp(
-            data.properties.min_temperature.values[0].value.clone(),
+            data.properties.min_temperature.values[0].value,
             metric,
         ) as f32,
         max_temp: convert_temp(
-            data.properties.max_temperature.values[0].value.clone(),
+            data.properties.max_temperature.values[0].value,
             metric,
         ) as f32,
         wind: WindData {
-            speed: convert_speed(data.properties.wind_speed.values[0].value.clone(), metric),
-            heading: data.properties.wind_direction.values[0].value.clone() as i16,
+            speed: convert_speed(data.properties.wind_speed.values[0].value, metric),
+            heading: data.properties.wind_direction.values[0].value as i16,
         },
         raw_data: "".to_string(),
-        dewpoint: convert_temp(data.properties.dewpoint.values[0].value.clone(), metric) as f32,
+        dewpoint: convert_temp(data.properties.dewpoint.values[0].value, metric) as f32,
         feels_like: convert_temp(
-            data.properties.apparent_temperature.values[0].value.clone(),
+            data.properties.apparent_temperature.values[0].value,
             metric,
         ) as f32,
         aqi: 0,

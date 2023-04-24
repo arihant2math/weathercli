@@ -26,13 +26,14 @@ pub fn is_absolute_path(path: OsString) -> Option<PathBuf> {
 
 #[cfg(all(unix, not(target_os = "redox")))]
 mod target_unix_not_redox {
-    use libc;
     use std::env;
     use std::ffi::{CStr, OsString};
     use std::mem;
     use std::os::unix::ffi::OsStringExt;
     use std::path::PathBuf;
     use std::ptr;
+
+    use libc;
 
     // https://github.com/rust-lang/rust/blob/2682b88c526d493edeb2d3f2df358f44db69b73f/library/std/src/sys/unix/os.rs#L595
     pub fn home_dir() -> Option<PathBuf> {
@@ -78,8 +79,9 @@ mod target_unix_not_redox {
 
 #[cfg(target_os = "redox")]
 mod target_redox {
-    use redox_users::{All, AllUsers, Config};
     use std::path::PathBuf;
+
+    use redox_users::{All, AllUsers, Config};
 
     pub fn home_dir() -> Option<PathBuf> {
         let current_uid = redox_users::get_uid().ok()?;
@@ -123,14 +125,14 @@ mod target_unix_not_mac {
 
 #[cfg(target_os = "windows")]
 mod target_windows {
-    use windows_sys::Win32;
-    use windows_sys::Win32::UI::Shell;
-
     use std::ffi::c_void;
     use std::ffi::OsString;
     use std::os::windows::ffi::OsStringExt;
     use std::path::PathBuf;
     use std::slice;
+
+    use windows_sys::Win32;
+    use windows_sys::Win32::UI::Shell;
 
     pub fn known_folder(folder_id: windows_sys::core::GUID) -> Option<PathBuf> {
         unsafe {

@@ -45,7 +45,12 @@ fn update_web_resource(
 /// :param dev: gets passed update_web_resource, if true update_web_resource will print the hashes if they don't match
 pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
     let real_quiet = quiet.unwrap_or(false);
-    let resp = networking::get_url("https://arihant2math.github.io/weathercli/index.json", None, None, None);
+    let resp = networking::get_url(
+        "https://arihant2math.github.io/weathercli/index.json",
+        None,
+        None,
+        None,
+    );
     if resp.status == 200 {
         let web_text = resp.text;
         let web_json: Value = serde_json::from_str(&web_text).expect("");
@@ -80,13 +85,23 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
 }
 
 pub fn get_latest_version() -> String {
-    let data = networking::get_url("https://arihant2math.github.io/weathercli/index.json", None, None, None);
+    let data = networking::get_url(
+        "https://arihant2math.github.io/weathercli/index.json",
+        None,
+        None,
+        None,
+    );
     let json: HashMap<String, String> = serde_json::from_str(&data.text).expect("");
     json.get("version").expect("").to_string()
 }
 
 pub fn get_latest_updater_version() -> String {
-    let data = networking::get_url("https://arihant2math.github.io/weathercli/index.json", None, None, None);
+    let data = networking::get_url(
+        "https://arihant2math.github.io/weathercli/index.json",
+        None,
+        None,
+        None,
+    );
     let json: HashMap<String, String> = serde_json::from_str(&data.text).expect("");
     json.get("updater-version").expect("").to_string()
 }

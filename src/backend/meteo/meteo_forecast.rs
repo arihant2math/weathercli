@@ -62,16 +62,16 @@ fn get_forecast_sentence(
         }
         return format!("It will continue snowing for {} hours.", t);
     } else {
-        let rain_start = rain.clone().into_iter().position(|x| x == true);
-        let snow_start = snow.clone().into_iter().position(|x| x == true);
+        let rain_start = rain.clone().into_iter().position(|x| x);
+        let snow_start = snow.clone().into_iter().position(|x| x);
 
         if rain_start.is_none() && snow_start.is_none() {
             return "Conditions are predicted to be clear for the next 7 days.".to_string();
         }
         rain.reverse();
         snow.reverse();
-        let rain_end = rain.into_iter().position(|x| x == true);
-        let snow_end = snow.into_iter().position(|x| x == true);
+        let rain_end = rain.into_iter().position(|x| x);
+        let snow_end = snow.into_iter().position(|x| x);
         if rain_start.is_some() {
             return format!(
                 "It will rain in {} hours for {} hours",
@@ -91,10 +91,8 @@ fn get_forecast_sentence(
 }
 
 pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> WeatherForecastRS {
-    let data = meteo_get_combined_data_formatted(
-        coordinates.clone(),
-        settings.internal.metric_default.unwrap(),
-    );
+    let data =
+        meteo_get_combined_data_formatted(coordinates.clone(), settings.internal.metric_default);
     let mut forecast: Vec<WeatherDataRS> = Vec::new();
     let now = data
         .weather
@@ -107,25 +105,25 @@ pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> Weath
         data.weather.clone(),
         data.air_quality.clone(),
         now,
-        settings.internal.metric_default.unwrap(),
+        settings.internal.metric_default,
     );
     forecast.push(current);
-    for i in now + 1..data.weather.hourly.time.clone().len() - 1 {
+    for i in now + 1..data.weather.hourly.time.len() - 1 {
         forecast.push(get_meteo_weather_data(
             data.weather.clone(),
             data.air_quality.clone(),
             i,
-            settings.internal.metric_default.unwrap(),
+            settings.internal.metric_default,
         ));
     }
     let region_country = get_location(coordinates);
-    let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather.clone(), now);
+    let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather, now);
     WeatherForecastRS {
         status: Status::OK,
         region: region_country[0].clone(),
         country: region_country[1].clone(),
         forecast: forecast.clone(),
-        current_weather: forecast.into_iter().nth(0).unwrap(),
+        current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,
         raw_data: None,
     }

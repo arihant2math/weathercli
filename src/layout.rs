@@ -24,12 +24,12 @@ pub const DEFAULT_LAYOUT_SETTINGS: LayoutDefaultsJSON = LayoutDefaultsJSON {
     unit_bg_color: None,
 };
 
-type Result<T> = std::result::Result<T, LayoutErr>;
+pub type Result<T> = std::result::Result<T, LayoutErr>;
 #[derive(Debug, Clone)]
-struct LayoutErr {
-    message: String,
-    row: Option<u64>,
-    item: Option<u64>,
+pub struct LayoutErr {
+    pub message: String,
+    pub row: Option<u64>,
+    pub item: Option<u64>,
 }
 
 // Generation of an error is completely separate from how it is displayed.
@@ -107,10 +107,8 @@ struct LayoutJSON {
 }
 
 impl LayoutFile {
-    pub fn new(path: Option<String>) -> Self {
-        let file = WeatherFile::new(
-            &("layouts/".to_string() + &path.unwrap_or("default.json".to_string())),
-        );
+    pub fn new(path: String) -> Result<Self> {
+        let file = WeatherFile::new(&("layouts/".to_string() + &path));
         let file_data: LayoutJSON =
             serde_json::from_str(&file.data).expect("Invalid Layout, JSON parsing failed"); // TODO: Default instead
         if file_data.version.is_none() {
@@ -166,7 +164,7 @@ impl LayoutFile {
         .unwrap_or("".to_string());
         let unit_bg_color = color::from_string(
             retrieved_settings
-                .clone()
+                
                 .variable_bg_color
                 .unwrap_or("".to_string()),
         )
@@ -174,15 +172,15 @@ impl LayoutFile {
         if file_data.layout.is_none() {
             panic!("Layout key not found"); // TODO: No panic
         }
-        let layout = file_data.layout.clone().unwrap().clone();
+        let layout = file_data.layout.unwrap();
         let mut _internal_layout: Vec<Row> = Vec::new();
-        for (_count, &ref row) in layout.clone().iter().enumerate() {
+        for (_count, row) in layout.iter().enumerate() {
             match row.clone() {
-                RowString(payload) => _internal_layout.push(Row::from_str(&*payload)),
+                RowString(payload) => _internal_layout.push(Row::from_str(&payload)),
                 RowVec(payload) => _internal_layout.push(Row::from_vec(payload)),
             }
         }
-        LayoutFile {
+        Ok(LayoutFile {
             layout: _internal_layout,
             variable_color,
             text_color,
@@ -190,13 +188,13 @@ impl LayoutFile {
             variable_bg_color,
             text_bg_color,
             unit_bg_color,
-        }
+        })
     }
 
     pub fn to_string(&self, data: WeatherForecastRS, metric: bool) -> String {
         let mut s = Vec::new();
         let data_value = serde_json::to_value(data).expect("Serialization failed");
-        for (_count, &ref row) in self.layout.iter().enumerate() {
+        for (_count, row) in self.layout.iter().enumerate() {
             s.push(row.to_string(
                 &data_value,
                 self.variable_color.clone(),
@@ -208,6 +206,6 @@ impl LayoutFile {
                 metric,
             ))
         }
-        return s.join("\n");
+        s.join("\n")
     }
 }

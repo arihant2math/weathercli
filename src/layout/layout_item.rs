@@ -10,7 +10,7 @@ pub struct Item {
 }
 
 fn round(f: f64) -> String {
-   format!("{:.1}", f)
+    format!("{:.1}", f)
 }
 
 impl Item {
@@ -26,9 +26,9 @@ impl Item {
     pub fn from_str(s: &str) -> Self {
         let mut new_s: String = s.to_string();
         if !new_s.is_empty() {
-            if new_s.chars().nth(0).expect("Oth char expected") == '@' {
+            if new_s.chars().next().expect("Oth char expected") == '@' {
                 new_s = new_s[1..].to_string();
-                let splt: Vec<&str> = new_s.split("|").collect();
+                let splt: Vec<&str> = new_s.split('|').collect();
                 let mut metric: Option<String> = None;
                 let mut imperial: Option<String> = None;
                 if splt.len() == 2 {
@@ -49,9 +49,9 @@ impl Item {
                     args: None,
                     kwargs: None,
                 });
-            } else if new_s.chars().nth(0).expect("Oth char expected") == '#' {
+            } else if new_s.chars().next().expect("Oth char expected") == '#' {
                 new_s = new_s[1..].to_string();
-                let mut split: Vec<&str> = new_s.split("|").collect();
+                let mut split: Vec<&str> = new_s.split('|').collect();
                 let value = split[0];
                 split.remove(0);
                 let mut args: Vec<ItemEnum> = Vec::new();
@@ -61,8 +61,11 @@ impl Item {
                         args.push(ItemEnum::ItemString(item.to_string()))
                     } else {
                         let temp_item = item.to_string();
-                        let kwarg: Vec<&str> = temp_item.split("=").collect();
-                        kwargs.insert(kwarg[0].to_string(), ItemEnum::ItemString(kwarg[1].to_string()));
+                        let kwarg: Vec<&str> = temp_item.split('=').collect();
+                        kwargs.insert(
+                            kwarg[0].to_string(),
+                            ItemEnum::ItemString(kwarg[1].to_string()),
+                        );
                     }
                 }
                 let item: ItemJSON = ItemJSON {
@@ -77,7 +80,7 @@ impl Item {
                     kwargs: Some(kwargs),
                 };
                 return Item::from_item_json(item);
-            } else if new_s.chars().nth(0).expect("Oth char expected") == '\\' {
+            } else if new_s.chars().next().expect("Oth char expected") == '\\' {
                 new_s = new_s[1..].to_string();
             }
         }
@@ -103,8 +106,7 @@ impl Item {
         let mut current = data;
         while !split.is_empty() {
             if split[0]
-                .chars()
-                .nth(0)
+                .chars().next()
                 .expect("0th element expected don't place two dots in a row, like: \"..\"")
                 == '['
             {
@@ -136,15 +138,20 @@ impl Item {
         let args = self.data.args.clone().unwrap_or(Vec::new());
         let _kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
         match &*self.data.value {
-            "color_aqi" => Some(util::color_aqi(Item::new(args[0].clone()).get_value(data).expect("no aqi value").parse().unwrap_or(0))),
+            "color_aqi" => Some(util::color_aqi(
+                Item::new(args[0].clone())
+                    .get_value(data)
+                    .expect("no aqi value")
+                    .parse()
+                    .unwrap_or(0),
+            )),
             _ => None, // TODO: add more functions
         }
     }
 
     pub fn get_value(&self, data: &Value) -> Option<String> {
         if self.data.item_type == "variable" {
-            return self
-                .get_variable_value(data);
+            return self.get_variable_value(data);
         } else if self.data.item_type == "function" {
             return self.get_function_value(data);
         }
@@ -169,8 +176,7 @@ impl Item {
                 + &self.data.bg_color.clone().unwrap_or("".to_string())
                 + &self.data.value;
         } else if self.data.item_type == "variable" {
-            let value =
-                self.get_variable_value(data);
+            let value = self.get_variable_value(data);
             let s = variable_color
                 + &variable_bg_color
                 + &color::from_string(self.data.color.clone().unwrap_or("".to_string()))

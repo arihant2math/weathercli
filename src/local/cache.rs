@@ -26,19 +26,21 @@ struct Row {
 
 fn calculate_power(row: &Row) -> f64 {
     let offset = now().abs_diff(u128::from_str(&row.date).unwrap_or(u128::MAX)) as f64;
-    (row.hits as f64) / (offset/86400000.0)
+    (row.hits as f64) / (offset / 86400000.0)
 }
 
 pub fn prune_cache() {
     let path = get_cache_path();
     let buffer = read_bytes_from_file();
     let mut rows: Vec<Row> = to_rows(buffer);
-    while rows.len() > 100  {
-        let powers: Vec<f64> = rows.iter().map(|row| calculate_power(row)).collect();
-        let sort = powers.iter()
-        .enumerate()
-        .min_by(|(_, a), (_, b)| a.total_cmp(b))
-        .map(|(index, _)| index).unwrap_or(0);
+    while rows.len() > 100 {
+        let powers: Vec<f64> = rows.iter().map(calculate_power).collect();
+        let sort = powers
+            .iter()
+            .enumerate()
+            .min_by(|(_, a), (_, b)| a.total_cmp(b))
+            .map(|(index, _)| index)
+            .unwrap_or(0);
         rows.remove(sort);
     }
     let new_bytes = update_cache(rows);

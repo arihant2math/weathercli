@@ -4,7 +4,7 @@ use crate::layout::ItemEnum;
 use crate::layout::layout_item::Item;
 
 pub struct Row {
-    items: Vec<Item>
+    items: Vec<Item>,
 }
 
 impl Row {
@@ -25,19 +25,15 @@ impl Row {
         if !current.is_empty() {
             item_list.push(Item::from_str(&current));
         }
-        Row {
-            items: item_list
-        }
+        Row { items: item_list }
     }
 
     pub fn from_vec(data: Vec<ItemEnum>) -> Self {
         let mut items: Vec<Item> = Vec::new();
-        for (_count, &ref item) in data.iter().enumerate() {
+        for (_count, item) in data.iter().enumerate() {
             items.push(Item::new(item.clone()));
         }
-        Row {
-            items
-        }
+        Row { items }
     }
 
     pub fn to_string(

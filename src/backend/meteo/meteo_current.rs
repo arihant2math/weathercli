@@ -30,7 +30,7 @@ pub fn get_meteo_weather_data(
             .european_aqi
             .get(index)
             .unwrap_or(&Some(0))
-            .unwrap_or(0 as u8),
+            .unwrap_or(0_u8),
         cloud_cover,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions),
@@ -72,5 +72,5 @@ fn get_conditions(
     if data.hourly.snowfall[index] != 0.0 {
         conditions.push(WeatherCondition::new(601, &weather_file.data));
     }
-    return conditions;
+    conditions
 }

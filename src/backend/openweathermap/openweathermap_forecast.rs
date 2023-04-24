@@ -63,27 +63,17 @@ pub fn get_openweathermap_forecast(
     coordinates: Vec<String>,
     settings: Settings,
 ) -> WeatherForecastRS {
-    if settings.internal.open_weather_map_api_key.is_none()
-        || settings
-            .internal
-            .open_weather_map_api_key
-            .clone()
-            .unwrap_or("".to_string())
-            == ""
-    {
+    if settings.internal.open_weather_map_api_key.is_empty() {
         panic!(
             "Improper openweathermap api key, {}",
-            settings
-                .internal
-                .open_weather_map_api_key
-                .unwrap_or("No key at all".to_string())
+            settings.internal.open_weather_map_api_key
         )
     }
     let data = backend::openweathermap::open_weather_map_get_combined_data_formatted(
         "https://api.openweathermap.org/data/2.5/",
-        settings.internal.open_weather_map_api_key.clone().unwrap(),
+        settings.internal.open_weather_map_api_key.clone(),
         coordinates,
-        settings.internal.metric_default.unwrap(),
+        settings.internal.metric_default,
     );
     let mut forecast: Vec<WeatherDataRS> = Vec::new();
     forecast.push(get_openweathermap_current(
@@ -99,7 +89,7 @@ pub fn get_openweathermap_forecast(
         region: data.weather.name,
         country: data.weather.sys.country,
         forecast: forecast.clone(),
-        current_weather: forecast.into_iter().nth(0).unwrap(),
+        current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,
         raw_data: None,
     }

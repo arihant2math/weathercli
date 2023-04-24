@@ -4,7 +4,6 @@ use iced::theme::Theme;
 use iced::widget::{button, column, container, radio, row, text, text_input, toggler};
 
 use crate::local::settings;
-use crate::local::settings::SettingsJson;
 
 pub fn run_settings_app() -> iced::Result {
     App::run(Settings::default())
@@ -13,7 +12,7 @@ pub fn run_settings_app() -> iced::Result {
 #[derive(Default)]
 struct App {
     theme: Theme,
-    data: SettingsJson,
+    data: settings::SettingsJson,
 }
 
 #[derive(Debug, Clone)]
@@ -28,7 +27,7 @@ enum Message {
     Save,
 }
 
-fn save(data: SettingsJson) {
+fn save(data: settings::SettingsJson) {
     let mut settings = crate::local::settings::Settings::new();
     settings.internal = data;
     settings.write();
@@ -63,7 +62,7 @@ impl Sandbox for App {
         a.theme = match mode {
             Mode::Default => Theme::default(),
             Mode::Light => Theme::Light,
-            Mode::Dark => Theme::Dark
+            Mode::Dark => Theme::Dark,
         };
         a.data = settings.internal;
         a
@@ -76,18 +75,16 @@ impl Sandbox for App {
     fn update(&mut self, message: Message) {
         match message {
             Message::Save => save(self.data.clone()),
-            Message::Cancel => self.data = settings::Settings::new().internal,
-            Message::MetricDefault(value) => self.data.metric_default = Some(value),
-            Message::ShowAlerts(value) => self.data.show_alerts = Some(value),
+            Message::Cancel => self.data = crate::local::settings::Settings::new().internal,
+            Message::MetricDefault(value) => self.data.metric_default = value,
+            Message::ShowAlerts(value) => self.data.show_alerts = value,
             Message::AutoUpdateInternetResources(value) => {
-                self.data.auto_update_internet_resources = Some(value)
+                self.data.auto_update_internet_resources = value
             }
-            Message::EnableDaemon(value) => self.data.enable_daemon = Some(value),
-            Message::OpenWeatherMapAPIKey(value) => {
-                self.data.open_weather_map_api_key = Some(value)
-            }
+            Message::EnableDaemon(value) => self.data.enable_daemon = value,
+            Message::OpenWeatherMapAPIKey(value) => self.data.open_weather_map_api_key = value,
             Message::DataSource(value) => {
-                self.data.default_backend = Some(value.to_string().to_uppercase())
+                self.data.default_backend = value.to_string().to_uppercase()
             }
         }
     }
@@ -106,20 +103,12 @@ impl Sandbox for App {
                 column.push(radio(
                     format!("{data_source:?}"),
                     *data_source,
-                    Some(
-                        match &*self
-                            .data
-                            .default_backend
-                            .clone()
-                            .unwrap_or("meteo".to_string())
-                            .to_lowercase()
-                        {
-                            "openweathermap" => DataSource::OpenWeatherMap,
-                            "nws" => DataSource::Nws,
-                            "theweatherchannel" => DataSource::TheWeatherChannel,
-                            _ => DataSource::Meteo,
-                        },
-                    ),
+                    Some(match &*self.data.default_backend.clone().to_lowercase() {
+                        "openweathermap" => DataSource::OpenWeatherMap,
+                        "nws" => DataSource::Nws,
+                        "theweatherchannel" => DataSource::TheWeatherChannel,
+                        _ => DataSource::Meteo,
+                    }),
                     Message::DataSource,
                 ))
             },
@@ -127,38 +116,35 @@ impl Sandbox for App {
         let openweathermap_api_key_label = text("OpenWeatherMap API key: ");
         let openweathermap_api_key = text_input(
             "OpenWeatherMap API key",
-            &self
-                .data
-                .open_weather_map_api_key
-                .clone()
-                .unwrap_or("".to_string()),
-        ).on_input(Message::OpenWeatherMapAPIKey)
+            &self.data.open_weather_map_api_key.clone(),
+        )
+        .on_input(Message::OpenWeatherMapAPIKey)
         .padding(10)
         .size(20);
         let metric_default = toggler(
             String::from("Use Metric by default"),
-            self.data.metric_default.unwrap_or(true),
+            self.data.metric_default,
             Message::MetricDefault,
         )
         .width(Length::Shrink)
         .spacing(10);
         let show_alerts = toggler(
             String::from("Show Alerts"),
-            self.data.show_alerts.unwrap_or(true),
+            self.data.show_alerts,
             Message::ShowAlerts,
         )
         .width(Length::Shrink)
         .spacing(10);
         let auto_update_internet_resources = toggler(
             String::from("Auto Update Internet Resources"),
-            self.data.auto_update_internet_resources.unwrap_or(true),
+            self.data.auto_update_internet_resources,
             Message::AutoUpdateInternetResources,
         )
         .width(Length::Shrink)
         .spacing(10);
         let enable_daemon = toggler(
             String::from("Enable Daemon"),
-            self.data.enable_daemon.unwrap_or(false),
+            self.data.enable_daemon,
             Message::EnableDaemon,
         )
         .width(Length::Shrink)

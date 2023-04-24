@@ -14,7 +14,6 @@ pub struct Resp {
     pub text: String,
 }
 
-
 fn get_user_agent(custom: Option<String>) -> String {
     let mut app_user_agent = "weathercli/1".to_string();
     if let Some(user_agent) = custom {
@@ -37,15 +36,18 @@ pub fn get_url<S: AsRef<str>>(
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
     if cookies.is_some() {
         for (key, value) in cookies.clone().unwrap() {
-            cookies_vec.push(cookie_store::Cookie::parse(key.clone() + "=" + &value, &Url::parse(&url).expect("parse failed")));
+            cookies_vec.push(cookie_store::Cookie::parse(
+                key.clone() + "=" + &value,
+                &Url::parse(url).expect("parse failed"),
+            ));
         }
-
     }
     let app_user_agent = get_user_agent(user_agent);
-    let mut client_pre = ureq::AgentBuilder::new()
-        .user_agent(&*app_user_agent);
+    let mut client_pre = ureq::AgentBuilder::new().user_agent(&app_user_agent);
     if cookies.is_some() {
-        client_pre = client_pre.cookie_store(CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"));
+        client_pre = client_pre.cookie_store(
+            CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"),
+        );
     }
     let client = client_pre.build();
     let mut req = client.get(url);
@@ -57,7 +59,8 @@ pub fn get_url<S: AsRef<str>>(
     let mut bytes: Vec<u8> = Vec::with_capacity(100);
     data.into_reader()
         .take(10_000_000)
-        .read_to_end(&mut bytes).expect("read failed");
+        .read_to_end(&mut bytes)
+        .expect("read failed");
     let mut text = String::from("");
     for byte in bytes.clone() {
         text += &(byte as char).to_string();
@@ -84,16 +87,19 @@ pub fn get_urls(
     if cookies.is_some() {
         for (key, value) in cookies.clone().unwrap() {
             for url in &urls {
-                cookies_vec.push(cookie_store::Cookie::parse(key.clone() + "=" + &value, &url::Url::parse(url).expect("parse failed")));
+                cookies_vec.push(cookie_store::Cookie::parse(
+                    key.clone() + "=" + &value,
+                    &url::Url::parse(url).expect("parse failed"),
+                ));
             }
         }
-
     }
     let app_user_agent = get_user_agent(user_agent);
-    let mut client_pre = ureq::AgentBuilder::new()
-        .user_agent(&*app_user_agent);
+    let mut client_pre = ureq::AgentBuilder::new().user_agent(&app_user_agent);
     if cookies.is_some() {
-        client_pre = client_pre.cookie_store(CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"));
+        client_pre = client_pre.cookie_store(
+            CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"),
+        );
     }
     let client = client_pre.build();
     let data: Vec<_> = urls
@@ -108,7 +114,8 @@ pub fn get_urls(
             let mut bytes: Vec<u8> = Vec::with_capacity(100);
             data.into_reader()
                 .take(10_000_000)
-                .read_to_end(&mut bytes).expect("read failed");
+                .read_to_end(&mut bytes)
+                .expect("read failed");
 
             let mut text = String::from("");
             for byte in bytes.clone() {
@@ -117,7 +124,7 @@ pub fn get_urls(
             Resp {
                 status,
                 bytes,
-                text
+                text,
             }
         })
         .collect();

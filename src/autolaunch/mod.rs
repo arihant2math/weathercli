@@ -323,7 +323,7 @@ impl AutoLaunchBuilder {
             &args,
         ));
         #[cfg(target_os = "windows")]
-        return Ok(AutoLaunch::new(&app_name, &app_path, &args));
+        return Ok(AutoLaunch::new(app_name, app_path, &args));
 
         #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
         return Err(Error::UnsupportedOS);

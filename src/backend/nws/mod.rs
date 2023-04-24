@@ -14,13 +14,13 @@ pub fn nws_get_api_urls(location: Vec<String>, _metric: bool) -> String {
     )
     .text;
     let point_json: NWSPointJSON =
-        serde_json::from_str(&*get_point).expect("Deserialization of json failed");
-    return point_json.properties.forecast_grid_data;
+        serde_json::from_str(&get_point).expect("Deserialization of json failed");
+    point_json.properties.forecast_grid_data
 }
 
 pub fn nws_get_combined_data_formatted(location: Vec<String>, metric: bool) -> NWSJSON {
     let raw_data = networking::get_url(nws_get_api_urls(location, metric), None, None, None);
     let data: NWSJSON =
         serde_json::from_str(&raw_data.text).expect("Deserialization of json failed");
-    return data;
+    data
 }

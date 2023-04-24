@@ -1,9 +1,10 @@
-use clap::Parser;
-
 use std::{thread, time};
 use std::env::current_exe;
 use std::fs;
 use std::io::Write;
+
+use clap::Parser;
+
 use weather_core::autolaunch::{AutoLaunchBuilder, Error};
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
@@ -12,11 +13,11 @@ use weather_core::local::weather_file::WeatherFile;
 struct Cli {
     #[arg(long, short, default_value_t = String::from("start"))]
     action: String,
-    #[clap(long, short, action)]
+    #[arg(long, short, action)]
     quiet: bool,
-    #[clap(long, short, action)]
+    #[arg(long, short, action)]
     version: bool,
-    #[clap(long, short, action)]
+    #[arg(long, short, action)]
     no_register: bool,
 }
 
@@ -60,24 +61,24 @@ fn main() {
         register().expect("Registering failed");
     }
     if args.action == "start" {
-        let mut enabled = settings.internal.enable_daemon.unwrap();
+        let mut enabled = settings.internal.enable_daemon;
         while enabled {
             if !args.quiet {
                 println!("Updating Data ...");
             }
             let sleep_duration =
-                time::Duration::from_secs(settings.internal.daemon_update_interval.unwrap() as u64);
-            enabled = settings.internal.enable_daemon.unwrap();
-            let default_datasource = &*settings.internal.default_backend.clone().unwrap();
+                time::Duration::from_secs(settings.internal.daemon_update_interval as u64);
+            enabled = settings.internal.enable_daemon;
+            let default_datasource = &*settings.internal.default_backend.clone();
             if default_datasource.to_lowercase() == "openweathermap" {
                 let data =
                     weather_core::backend::openweathermap::open_weather_map_get_combined_data_formatted(
                         "https://api.openweathermap.org/data/2.5/",
-                        settings.internal.open_weather_map_api_key.clone().unwrap(),
+                        settings.internal.open_weather_map_api_key.clone(),
                                     weather_core::location::get_location(
                                         false,
-                                        settings.internal.constant_location.unwrap()).to_vec(),
-                                    settings.internal.metric_default.unwrap());
+                                        settings.internal.constant_location).to_vec(),
+                                    settings.internal.metric_default);
                 let bytes = bincode::serialize(&data).expect("Serialization Failed");
                 let out = WeatherFile::new("d.cache");
                 let path = out.path;

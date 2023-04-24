@@ -21,7 +21,8 @@ fn get_location_windows() -> Result<[String; 2], windows::core::Error> {
 
 fn get_location_web() -> Result<[String; 2], String> {
     let resp = networking::get_url("https://ipinfo.io", None, None, None).text;
-    let json: HashMap<String, String> = serde_json::from_str(&resp).expect("JSON deserialization failed");
+    let json: HashMap<String, String> =
+        serde_json::from_str(&resp).expect("JSON deserialization failed");
     let location = json.get("loc").expect("No loc section").split(',');
     let mut location_vec: Vec<String> = vec![];
     for s in location {
@@ -34,10 +35,15 @@ fn get_location_web() -> Result<[String; 2], String> {
 }
 
 fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> Option<Vec<String>> {
-    let r = networking::get_url(format!(
+    let r = networking::get_url(
+        format!(
             "https://dev.virtualearth.net/REST/v1/Locations?query=\"{}\"&maxResults=5&key={}",
             query, bing_maps_api_key
-        ), None, None, None);
+        ),
+        None,
+        None,
+        None,
+    );
     let j: Value = serde_json::from_str(&r.text).expect("json parsing failed");
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
     Some(vec![
@@ -65,7 +71,15 @@ fn nominatim_geocode(query: &str) -> Option<Vec<String>> {
 }
 
 fn nominatim_reverse_geocode(lat: &str, lon: &str) -> String {
-    let r = networking::get_url(format!("https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2", lat, lon), None, None, None);
+    let r = networking::get_url(
+        format!(
+            "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
+            lat, lon
+        ),
+        None,
+        None,
+        None,
+    );
     r.text
 }
 
@@ -95,10 +109,7 @@ pub fn get_location(no_sys_loc: bool, constant_location: bool) -> [String; 2] {
         return match attempt_cache {
             None => {
                 let location = get_location_core(no_sys_loc);
-                cache::write(
-                    "current_location",
-                    location.join(",").as_str(),
-                );
+                cache::write("current_location", location.join(",").as_str());
                 location
             }
             Some(ca) => {
@@ -135,8 +146,8 @@ pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Op
             let v = real_coordinate.join(",");
             thread::spawn(move || {
                 cache::write(
-                &("location".to_string() + &location_string.to_lowercase()),
-                &v,
+                    &("location".to_string() + &location_string.to_lowercase()),
+                    &v,
                 );
             });
             Some([
@@ -171,10 +182,7 @@ pub fn reverse_location(latitude: &str, longitude: &str) -> [String; 2] {
             }
             let v = region.to_string() + ",?`|" + &country;
             thread::spawn(move || {
-                cache::write(
-                    &k,
-                    &v,
-                );
+                cache::write(&k, &v);
             });
             [region.to_string(), country]
         }

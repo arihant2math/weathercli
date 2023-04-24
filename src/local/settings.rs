@@ -2,24 +2,55 @@ use serde::{Deserialize, Serialize};
 
 use crate::local::weather_file::WeatherFile;
 
+fn _true() -> bool {
+    true
+}
+
+fn _default_layout() -> String {
+    String::from("default.json")
+}
+
+fn _default_daemon_update_interval() -> i64 {
+    600
+}
+
+fn _meteo() -> String {
+    String::from("meteo")
+}
+
 #[derive(Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct SettingsJson {
-    pub open_weather_map_api_key: Option<String>,
-    pub bing_maps_api_key: Option<String>,
-    pub ncdc_api_key: Option<String>,
-    pub metric_default: Option<bool>,
-    pub default_backend: Option<String>,
-    pub constant_location: Option<bool>,
-    pub default_layout: Option<String>,
-    pub auto_update_internet_resources: Option<bool>,
-    pub debug: Option<bool>,
-    pub development: Option<bool>,
-    pub show_alerts: Option<bool>,
-    pub layout_file: Option<String>,
-    pub enable_daemon: Option<bool>,
-    pub daemon_update_interval: Option<i64>,
+    #[serde(default)]
+    pub open_weather_map_api_key: String,
+    #[serde(default)]
+    pub bing_maps_api_key: String,
+    #[serde(default)]
+    pub ncdc_api_key: String,
+    #[serde(default)]
+    pub metric_default: bool,
+    #[serde(default = "_meteo")]
+    pub default_backend: String,
+    #[serde(default)]
+    pub constant_location: bool,
+    #[serde(default = "_true")]
+    pub auto_update_internet_resources: bool,
+    #[serde(default)]
+    pub debug: bool,
+    #[serde(default)]
+    pub development: bool,
+    #[serde(default = "_true")]
+    pub show_alerts: bool,
+    #[serde(default = "_default_layout")]
+    pub layout_file: String,
+    #[serde(default)]
+    pub enable_daemon: bool,
+    #[serde(default = "_default_daemon_update_interval")]
+    pub daemon_update_interval: i64,
+    #[serde(default)]
     pub installed_components: Option<Vec<String>>,
+    #[serde(default)]
+    pub enable_custom_backends: bool,
 }
 
 #[derive(Clone)]
@@ -37,31 +68,7 @@ impl Default for Settings {
 impl Settings {
     pub fn new() -> Self {
         let file = WeatherFile::settings();
-        let mut parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");
-        parsed.open_weather_map_api_key =
-            Some(parsed.open_weather_map_api_key.unwrap_or("".to_string()));
-        parsed.bing_maps_api_key = Some(parsed.bing_maps_api_key.unwrap_or("".to_string()));
-        parsed.ncdc_api_key = Some(parsed.ncdc_api_key.unwrap_or("".to_string()));
-        parsed.metric_default = Some(parsed.metric_default.unwrap_or(false));
-        let valid_backends = vec![
-            "OPENWEATHERMAP".to_string(),
-            "METEO".to_string(),
-            "NWS".to_string(),
-            "THEWEATHERCHANNEL".to_string(),
-        ];
-        if parsed.default_backend.is_none()
-            || !valid_backends.contains(&parsed.default_backend.clone().unwrap())
-        {
-            parsed.default_backend = Some("METEO".to_string());
-        }
-        parsed.constant_location = Some(parsed.constant_location.unwrap_or(false));
-        parsed.auto_update_internet_resources =
-            Some(parsed.auto_update_internet_resources.unwrap_or(true));
-        parsed.debug = Some(parsed.debug.unwrap_or(false));
-        parsed.development = Some(parsed.development.unwrap_or(false));
-        parsed.show_alerts = Some(parsed.show_alerts.unwrap_or(true));
-        parsed.enable_daemon = Some(parsed.enable_daemon.unwrap_or(false));
-        parsed.daemon_update_interval = Some(parsed.daemon_update_interval.unwrap_or(300));
+        let parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");
         Settings {
             internal: parsed,
             file,
