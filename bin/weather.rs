@@ -62,7 +62,7 @@ struct UpdateOpts {
 struct GlobalOpts {
     #[arg(long, short, action, global = true, help = "Print raw json output, useful for debugging")]
     json: bool,
-    #[arg(long, short, global = true, value_enum, help = "Which datasource to use, possible options are meteo, nws, and openweathermap")]
+    #[arg(long, short, global = true, value_enum, help = "Which datasource to use, note that openweathermap requires an API key")]
     datasource: Option<Datasource>,
     #[arg(long, short, action, global = true, help = "the output will be in metric")]
     metric: bool,
