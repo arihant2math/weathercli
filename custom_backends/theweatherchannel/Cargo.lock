@@ -3084,6 +3084,7 @@ dependencies = [
  "image",
  "libc",
  "libloading",
+ "log",
  "log4rs",
  "rayon",
  "redox_users",
