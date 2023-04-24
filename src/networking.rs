@@ -1,75 +1,19 @@
 use std::collections::HashMap;
-use std::str::FromStr;
-use std::sync::Arc;
+use std::io::Read;
 
+use cookie_store::{CookieResult, CookieStore};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use reqwest::cookie::Jar;
-use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
-use reqwest::Url;
 use serde::{Deserialize, Serialize};
+use ureq;
+use url::Url;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Resp {
-    pub url: String,
     pub status: u16,
-    pub text: String,
     pub bytes: Vec<u8>,
+    pub text: String,
 }
 
-#[derive(Clone)]
-pub struct Session {
-    client: reqwest::blocking::Client
-}
-
-impl Session {
-    pub fn new(user_agent: Option<String>, headers: Option<HashMap<String, String>>) -> Self {
-        let jar: Jar = Jar::default();
-        let app_user_agent = get_user_agent(user_agent);
-        let header_map = get_header_map(headers);
-        let client = reqwest::blocking::Client::builder()
-            .user_agent(app_user_agent)
-            .cookie_store(true)
-            .default_headers(header_map)
-            .cookie_provider::<Jar>(Arc::new(jar))
-            .build()
-            .unwrap();
-        Session {
-            client,
-        }
-    }
-
-    pub fn get(&self, url: String) -> Resp {
-        let data = self.client.get(url).send().expect("Url Get failed");
-        let url = data.url().to_string();
-        let status = data.status().as_u16();
-        let bytes = data.bytes().unwrap().to_vec();
-        let mut text = String::new();
-        for byte in bytes.clone() {
-            text += &(byte as char).to_string();
-        }
-        Resp {
-            url,
-            status,
-            text,
-            bytes,
-        }
-    }
-}
-
-fn get_header_map(headers: Option<HashMap<String, String>>) -> HeaderMap {
-    let mut header_map = HeaderMap::new();
-    let mut heads = HashMap::new();
-    if let Some(h) = headers {
-        heads = h
-    }
-    for (k, v) in heads {
-        header_map.insert(
-            HeaderName::from_str(&k).expect(""),
-            HeaderValue::from_str(&v).expect(""),
-        );
-    }
-    header_map
-}
 
 fn get_user_agent(custom: Option<String>) -> String {
     let mut app_user_agent = "weathercli/1".to_string();
@@ -83,45 +27,45 @@ fn get_user_agent(custom: Option<String>) -> String {
 /// :param user_agent: the user agent to use, weathercli/1 by default
 /// :param headers: optional dictionary with headers in it
 /// :param cookies: optional list of cookies
-pub fn get_url(
-    url: String,
+pub fn get_url<S: AsRef<str>>(
+    url_s: S,
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
 ) -> Resp {
-    let jar: Jar = Jar::default();
+    let url = url_s.as_ref();
+    let mut cookies_vec: Vec<CookieResult> = Vec::new();
     if cookies.is_some() {
-        let mut formatted_cookies: Vec<String> = Vec::new();
         for (key, value) in cookies.clone().unwrap() {
-            formatted_cookies.push(key + "=" + &value);
+            cookies_vec.push(cookie_store::Cookie::parse(key.clone() + "=" + &value, &Url::parse(&url).expect("parse failed")));
         }
-        for cookie in formatted_cookies {
-            jar.add_cookie_str(&cookie, &url.parse::<Url>().unwrap());
-        }
+
     }
     let app_user_agent = get_user_agent(user_agent);
-    let header_map = get_header_map(headers);
-    let mut client_pre = reqwest::blocking::Client::builder()
-        .user_agent(app_user_agent)
-        .cookie_store(cookies.is_some())
-        .default_headers(header_map);
+    let mut client_pre = ureq::AgentBuilder::new()
+        .user_agent(&*app_user_agent);
     if cookies.is_some() {
-        client_pre = client_pre.cookie_provider::<Jar>(Arc::new(jar))
+        client_pre = client_pre.cookie_store(CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"));
     }
-    let client = client_pre.build().unwrap();
-    let data = client.get(url).send().expect("Url Get failed");
-    let url = data.url().to_string();
-    let status = data.status().as_u16();
-    let bytes = data.bytes().unwrap().to_vec();
+    let client = client_pre.build();
+    let mut req = client.get(url);
+    for (key, value) in headers.unwrap_or(HashMap::new()) {
+        req = req.set(&key, &value);
+    }
+    let data = req.call().expect("Url Get failed");
+    let status = data.status();
+    let mut bytes: Vec<u8> = Vec::with_capacity(100);
+    data.into_reader()
+        .take(10_000_000)
+        .read_to_end(&mut bytes).expect("read failed");
     let mut text = String::from("");
     for byte in bytes.clone() {
         text += &(byte as char).to_string();
     }
     Resp {
-        url,
         status,
-        text,
         bytes,
+        text,
     }
 }
 
@@ -136,44 +80,44 @@ pub fn get_urls(
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
 ) -> Vec<Resp> {
-    let jar: Jar = Jar::default();
+    let mut cookies_vec: Vec<CookieResult> = Vec::new();
     if cookies.is_some() {
-        let mut formatted_cookies: Vec<String> = Vec::new();
         for (key, value) in cookies.clone().unwrap() {
-            formatted_cookies.push(key.to_string() + "=" + &value);
-        }
-        for cookie in formatted_cookies {
-            for url in urls.clone() {
-                jar.add_cookie_str(&cookie, &url.parse::<Url>().unwrap());
+            for url in &urls {
+                cookies_vec.push(cookie_store::Cookie::parse(key.clone() + "=" + &value, &url::Url::parse(url).expect("parse failed")));
             }
         }
+
     }
     let app_user_agent = get_user_agent(user_agent);
-    let header_map = get_header_map(headers);
-    let mut client_pre = reqwest::blocking::Client::builder()
-        .user_agent(app_user_agent)
-        .cookie_store(cookies.is_some())
-        .default_headers(header_map);
+    let mut client_pre = ureq::AgentBuilder::new()
+        .user_agent(&*app_user_agent);
     if cookies.is_some() {
-        client_pre = client_pre.cookie_provider::<Jar>(Arc::new(jar))
+        client_pre = client_pre.cookie_store(CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"));
     }
-    let client = client_pre.build().unwrap();
+    let client = client_pre.build();
     let data: Vec<_> = urls
         .par_iter()
         .map(|url| {
-            let data = client.get(url).send().unwrap();
-            let url = data.url().to_string();
-            let status = data.status().as_u16();
-            let bytes = data.bytes().unwrap().to_vec();
+            let mut req = client.get(url);
+            for (key, value) in headers.clone().unwrap_or(HashMap::new()) {
+                req = req.set(&key, &value);
+            }
+            let data = req.call().expect("Request failed");
+            let status = data.status();
+            let mut bytes: Vec<u8> = Vec::with_capacity(100);
+            data.into_reader()
+                .take(10_000_000)
+                .read_to_end(&mut bytes).expect("read failed");
+
             let mut text = String::from("");
             for byte in bytes.clone() {
                 text += &(byte as char).to_string();
             }
             Resp {
-                url,
                 status,
-                text,
                 bytes,
+                text
             }
         })
         .collect();

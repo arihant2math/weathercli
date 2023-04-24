@@ -7,9 +7,9 @@ use winreg::enums::*;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
+use weather_core::{Config, config};
 use weather_core::bin_common::update_component;
 use weather_core::component_updater::update_web_resources;
-use weather_core::Config;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -72,9 +72,9 @@ async fn main() -> Result<(), String> {
         return Err("Directory is not empty".to_string());
     }
     let url =
-        "https://arihant2math.github.io/weathercli/".to_string() + &Config::new().weather_file_name;
+        "https://arihant2math.github.io/weathercli/".to_string() + &config.weather_file_name;
     let mut path = dir_path.to_path_buf();
-    path.push(Config::new().weather_file_name);
+    path.push(config.weather_file_name);
     update_component(
         &url,
         &path.display().to_string(),
@@ -84,10 +84,10 @@ async fn main() -> Result<(), String> {
     )
     .await?;
     let url =
-        "https://arihant2math.github.io/weathercli/".to_string() + &Config::new().weather_dfile_name;
+        "https://arihant2math.github.io/weathercli/".to_string() + &config.weather_dfile_name;
     let mut path = dir_path.to_path_buf();
     path.push("internal");
-    path.push(Config::new().weather_dfile_name);
+    path.push(config.weather_dfile_name);
     update_component(
         &url,
         &path.display().to_string(),

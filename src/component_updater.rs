@@ -4,7 +4,7 @@ use std::io::Write;
 
 use serde_json::Value;
 
-use crate::Config;
+use crate::{Config, config, networking};
 use crate::hash_file;
 use crate::local::weather_file::WeatherFile;
 
@@ -35,7 +35,7 @@ fn update_web_resource(
                 println!("\x1b[33mDownloading {}", out_name);
             }
         }
-        let data = reqwest::blocking::get(web_path).unwrap().text().unwrap();
+        let data = networking::get_url(web_path, None, None, None).text;
         f.data = data;
         f.write();
     }
@@ -45,10 +45,9 @@ fn update_web_resource(
 /// :param dev: gets passed update_web_resource, if true update_web_resource will print the hashes if they don't match
 pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
     let real_quiet = quiet.unwrap_or(false);
-    let resp =
-        reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
-    if resp.status().as_u16() == 200 {
-        let web_text = resp.text().unwrap();
+    let resp = networking::get_url("https://arihant2math.github.io/weathercli/index.json", None, None, None);
+    if resp.status == 200 {
+        let web_text = resp.text;
         let web_json: Value = serde_json::from_str(&web_text).expect("");
         update_web_resource(
             String::from("resources/weather_codes.json"),
@@ -81,16 +80,14 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
 }
 
 pub fn get_latest_version() -> String {
-    let data =
-        reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
-    let json = data.json::<HashMap<String, String>>().expect("");
+    let data = networking::get_url("https://arihant2math.github.io/weathercli/index.json", None, None, None);
+    let json: HashMap<String, String> = serde_json::from_str(&data.text).expect("");
     json.get("version").expect("").to_string()
 }
 
 pub fn get_latest_updater_version() -> String {
-    let data =
-        reqwest::blocking::get("https://arihant2math.github.io/weathercli/index.json").expect("");
-    let json = data.json::<HashMap<String, String>>().expect("");
+    let data = networking::get_url("https://arihant2math.github.io/weathercli/index.json", None, None, None);
+    let json: HashMap<String, String> = serde_json::from_str(&data.text).expect("");
     json.get("updater-version").expect("").to_string()
 }
 
@@ -98,12 +95,9 @@ pub fn get_latest_updater_version() -> String {
 pub fn get_updater(path: String) {
     let url = format!(
         "https://arihant2math.github.io/weathercli/{}",
-        Config::new().updater_file_name
+        config.updater_file_name
     );
-    let data = reqwest::blocking::get(url)
-        .expect("url expected")
-        .bytes()
-        .expect("bytes expected");
+    let data = networking::get_url(url, None, None, None).bytes;
     let mut file = OpenOptions::new()
         .create(true)
         .write(true)

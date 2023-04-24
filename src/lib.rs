@@ -54,7 +54,7 @@ pub fn open_settings_app() {
 
 #[cfg(not(feature = "gui"))]
 pub fn open_settings_app() {
-    println!("GUI support not enabled!");
+    panic!("GUI support not enabled!");
 }
 
 pub struct Config {
@@ -64,26 +64,18 @@ pub struct Config {
 }
 
 #[cfg(target_os = "windows")]
-impl Config {
-    pub fn new() -> Self {
-        Config {
+pub const config: Config = Config {
             weather_file_name: "weather.exe".to_string(),
             weather_dfile_name: "weatherd.exe".to_string(),
             updater_file_name: "updater.exe".to_string(),
-        }
-    }
-}
+        };
 
 #[cfg(not(target_os = "windows"))]
-impl Config {
-    pub fn new() -> Self {
-        Config {
+pub const config: Config = Config {
             weather_file_name: "weather".to_string(),
             weather_dfile_name: "weatherd".to_string(),
             updater_file_name: "updater".to_string(),
-        }
-    }
-}
+        };
 
 fn get_data_from_datasource(
     datasource: Datasource,

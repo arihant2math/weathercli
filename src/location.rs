@@ -19,9 +19,10 @@ fn get_location_windows() -> Result<[String; 2], windows::core::Error> {
     ])
 }
 
-fn get_location_web() -> Result<[String; 2], reqwest::Error> {
-    let resp = reqwest::blocking::get("https://ipinfo.io")?.json::<HashMap<String, String>>()?;
-    let location = resp.get("loc").expect("No loc section").split(',');
+fn get_location_web() -> Result<[String; 2], String> {
+    let resp = networking::get_url("https://ipinfo.io", None, None, None).text;
+    let json: HashMap<String, String> = serde_json::from_str(&resp).expect("JSON deserialization failed");
+    let location = json.get("loc").expect("No loc section").split(',');
     let mut location_vec: Vec<String> = vec![];
     for s in location {
         location_vec.push(s.to_string());

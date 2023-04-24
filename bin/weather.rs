@@ -45,7 +45,7 @@ struct PlaceOpts {
 
 #[derive(Clone, Copy, Args)]
 struct UpdateOpts {
-    #[arg(long, short, action)]
+    #[arg(long, short, action, help = "Forces a reinstall of weathercli")]
     force: bool,
 }
 
