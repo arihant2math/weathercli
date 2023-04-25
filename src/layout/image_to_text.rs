@@ -16,7 +16,7 @@ fn rgb(red: u8, green: u8, blue: u8) -> String {
         + "m"
 }
 
-fn image_to_text(input_path: &str, scale: f64) -> String {
+pub(crate) fn ascii_image(input_path: &str, scale: f64) -> String {
     let img = image::open(Path::new(input_path)).unwrap();
     let img_width = img.dimensions().0;
     let img_height = img.dimensions().1;

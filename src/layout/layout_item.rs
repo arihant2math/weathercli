@@ -1,5 +1,8 @@
 use std::collections::HashMap;
+use std::fs;
+use std::io::Write;
 
+use regex::Regex;
 use serde_json::Value;
 
 use crate::color;
@@ -11,6 +14,11 @@ pub struct Item {
 
 fn round(f: f64) -> String {
     format!("{:.1}", f)
+}
+
+fn url_validator(u: &str) -> bool {
+    let r = Regex::new(r"https?://(www\d?\.)?\w+\.\w+").expect("Regex failed (bug)");
+    r.is_match(u)
 }
 
 impl Item {
@@ -48,6 +56,7 @@ impl Item {
                     value: splt[0].to_string(),
                     args: None,
                     kwargs: None,
+                    scale: None,
                 });
             } else if new_s.chars().next().expect("Oth char expected") == '#' {
                 new_s = new_s[1..].to_string();
@@ -78,6 +87,7 @@ impl Item {
                     value: value.to_string(),
                     args: Some(args),
                     kwargs: Some(kwargs),
+                    scale: None,
                 };
                 return Item::from_item_json(item);
             } else if new_s.chars().next().expect("Oth char expected") == '\\' {
@@ -94,6 +104,7 @@ impl Item {
             value: new_s,
             args: None,
             kwargs: None,
+            scale: None,
         })
     }
 
@@ -199,18 +210,16 @@ impl Item {
                 + &self.data.bg_color.clone().unwrap_or("".to_string())
                 + &value.unwrap_or("".to_string());
         }
-        // else if self.data.item_type == "image" {
-        //     let source = Item::from_str(&self.data.value).get_value(data);
-        //     let is_uri = uri_validator(source);
-        //     if is_uri {
-        //         let response = networking::get_url(source.unwrap_or("".to_string()), None, None, None);
-        //         let f = open("temp.img", "bw");
-        //         f.write(bytes(response.bytes));
-        //         f.close()
-        //     }
-        //     data = image_to_text("temp.img", self.item_data["scale"])
-        //     return data;
-        // }
+        else if self.data.item_type == "image" {
+            let source = Item::from_str(&self.data.value).get_value(data);
+            let is_url = url_validator(&source.clone().unwrap());
+            if is_url {
+                let response = crate::networking::get_url(&source.unwrap_or("".to_string()), None, None, None);
+                let mut f = fs::OpenOptions::new().write(true).truncate(true).create(true).open("temp.img").expect("Open options failed");
+                f.write(&response.bytes).expect("Write Failed");
+            }
+            return crate::layout::image_to_text::ascii_image("temp.img", self.data.scale.unwrap());
+        }
         "".to_string()
     }
 }

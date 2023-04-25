@@ -66,6 +66,7 @@ dark-light = "1.0.0"
 libloading = "0.8.0"
 log4rs = "1.2.0"
 log = "0.4.17"
+regex = "1.8.1"
 
 [dev-dependencies]
 rand = "0.8.5"

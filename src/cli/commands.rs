@@ -3,6 +3,7 @@ use std::thread;
 use std::time::Duration;
 
 use serde_json::Value;
+use log::info;
 
 use crate::{component_updater, get_data_from_datasource, networking, version};
 use crate::cli::{Datasource, print_out};
@@ -19,6 +20,8 @@ pub fn weather(
     json: bool,
     custom_backends: ExternalBackends
 ) {
+    info!("Coordinates {:#?}", coordinates.clone());
+    info!("True metric {}", true_metric);
     let mut s = settings.clone();
     s.internal.metric_default = true_metric;
     let data = get_data_from_datasource(datasource, coordinates, s, custom_backends);

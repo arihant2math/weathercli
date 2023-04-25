@@ -4217,6 +4217,7 @@ dependencies = [
  "rand",
  "rayon",
  "redox_users",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",

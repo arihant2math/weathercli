@@ -61,6 +61,7 @@ pub struct ItemJSON {
     pub value: String,
     pub args: Option<Vec<ItemEnum>>,
     pub kwargs: Option<HashMap<String, ItemEnum>>,
+    pub scale: Option<f64>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
