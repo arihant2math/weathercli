@@ -1,16 +1,15 @@
-use std::collections::HashMap;
-
-use serde::{Deserialize, Serialize};
-
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::color;
 use crate::layout::layout_row::Row;
-use crate::layout::RowEnum::{RowString, RowVec};
+use crate::layout::layout_json::{LayoutJSON, LayoutDefaultsJSON};
+use crate::layout::layout_json::RowEnum::{RowString, RowVec};
 use crate::local::weather_file::WeatherFile;
+use crate::util::{Error, LayoutErr};
 
 mod image_to_text;
 mod layout_item;
 mod layout_row;
+mod layout_json;
 pub mod util;
 
 pub const VERSION: u64 = 10;
@@ -23,37 +22,6 @@ pub const DEFAULT_LAYOUT_SETTINGS: LayoutDefaultsJSON = LayoutDefaultsJSON {
     unit_bg_color: None,
 };
 
-#[derive(Clone, Serialize, Deserialize)]
-pub struct ItemJSON {
-    #[serde(rename = "type")]
-    pub item_type: String,
-    pub color: Option<String>,
-    pub bg_color: Option<String>,
-    pub metric: Option<String>,
-    pub imperial: Option<String>,
-    pub unit_color: Option<String>,
-    pub value: String,
-    pub args: Option<Vec<ItemEnum>>,
-    pub kwargs: Option<HashMap<String, ItemEnum>>,
-    pub scale: Option<f64>,
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-pub enum ItemEnum {
-    ItemString(String),
-    ItemInt(i64),
-    ItemFloat(f64),
-    Item(ItemJSON),
-}
-
-#[derive(Clone, Serialize, Deserialize)]
-#[serde(untagged)]
-enum RowEnum {
-    RowString(String),
-    RowVec(Vec<ItemEnum>),
-}
-
 pub struct LayoutFile {
     layout: Vec<Row>,
     variable_color: String,
@@ -64,39 +32,42 @@ pub struct LayoutFile {
     unit_bg_color: String,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct LayoutDefaultsJSON {
-    pub variable_color: Option<String>,
-    pub text_color: Option<String>,
-    pub unit_color: Option<String>,
-    pub variable_bg_color: Option<String>,
-    pub text_bg_color: Option<String>,
-    pub unit_bg_color: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Clone)]
-struct LayoutJSON {
-    pub version: Option<u64>,
-    pub defaults: Option<LayoutDefaultsJSON>,
-    pub layout: Option<Vec<RowEnum>>,
+fn reemit_layout_error(e: Error, count: usize) -> Error {
+    match e {
+        Error::LayoutError(e ) => Error::LayoutError(LayoutErr {
+            message: e.message,
+            row: Some(count as u64),
+            item: e.item
+        }),
+        _ => e
+    }
 }
 
 impl LayoutFile {
     pub fn new(path: String) -> crate::Result<Self> {
         let file = WeatherFile::new(&("layouts/".to_string() + &path))?;
         let file_data: LayoutJSON =
-            serde_json::from_str(&file.data).expect("Invalid Layout, JSON parsing failed"); // TODO: Default instead
+            serde_json::from_str(&file.data)?; // TODO: Default instead
         if file_data.version.is_none() {
-            panic!("Invalid Layout, missing key 'version'"); // TODO: Default instead
-                                                             // println!("Invalid Layout, missing Key 'version', add it like this {\n\t... // Your json here\n\t"version": ' + str(self.version) + "\n}"")
+            return Err(Error::LayoutError(LayoutErr {
+                message: "Invalid Layout, missing key 'version'".to_string(),
+                row: None,
+                item: None,
+            })); // TODO: Default instead
+            // trace!("Invalid Layout, missing Key 'version', add it like this {\n\t... // Your json here\n\t"version": ' + str(self.version) + "\n}"")
         } else if file_data.version.expect("version not found") > VERSION {
-            panic!(
-                "Version of layout file, {}, is greater than the highest supported version {}",
-                file_data.version.expect("version not found"),
-                VERSION
-            )
+            return Err(Error::LayoutError(LayoutErr {
+                message: format!("Version of layout file, {}, is greater than the highest supported version {}",
+                file_data.version.unwrap_or(0), VERSION),
+                row: None,
+                item: None,
+            })); // TODO: Default instead
         } else if file_data.version.expect("version not found") < 1 {
-            panic!("Layout Version too old (version 0 is not supported), defaulting");
+            return Err(Error::LayoutError(LayoutErr {
+                message: "Layout Version too old (version 0 is not supported), defaulting".to_string(),
+                row: None,
+                item: None,
+            }));
         }
         let retrieved_settings = file_data
             .defaults
@@ -145,7 +116,7 @@ impl LayoutFile {
         )
         .unwrap_or("".to_string());
         if file_data.layout.is_none() {
-            panic!("Layout key not found"); // TODO: No panic
+            return Err(LayoutErr {message: "Layout key not found".to_string(), row: None, item: None})?;
         }
         let layout = file_data.layout.unwrap();
         let mut _internal_layout: Vec<Row> = Vec::new();
@@ -168,8 +139,8 @@ impl LayoutFile {
 
     pub fn to_string(&self, data: WeatherForecastRS, metric: bool) -> crate::Result<String> {
         let mut s = Vec::new();
-        let data_value = serde_json::to_value(data).expect("Serialization failed");
-        for (_count, row) in self.layout.iter().enumerate() {
+        let data_value = serde_json::to_value(data)?;
+        for (count, row) in self.layout.iter().enumerate() {
             s.push(row.to_string(
                 &data_value,
                 self.variable_color.clone(),
@@ -179,7 +150,7 @@ impl LayoutFile {
                 self.text_bg_color.clone(),
                 self.unit_bg_color.clone(),
                 metric,
-            )?)
+            ).map_err(|e| reemit_layout_error(e, count))?)
         }
         Ok(s.join("\n"))
     }

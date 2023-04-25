@@ -1,7 +1,7 @@
 use crate::backend;
 use crate::backend::openweathermap::openweathermap_current::get_openweathermap_current;
 use crate::backend::openweathermap::openweathermap_future::get_openweathermap_future;
-use crate::backend::status::Status;
+use crate::backend::Status;
 use crate::backend::weather_data::WeatherDataRS;
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::local::settings::Settings;

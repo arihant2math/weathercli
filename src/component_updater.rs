@@ -21,9 +21,9 @@ fn update_web_resource(
     quiet: bool,
 ) -> crate::Result<()> {
     let mut f = WeatherFile::new(&local_path)?;
-    let file_hash = hash_file(&f.path.display().to_string());
+    let file_hash = hash_file(&f.path.display().to_string())?;
     let web_json: Value = web_resp;
-    let web_hash: String = web_json[name].as_str().unwrap().to_string();
+    let web_hash: String = web_json[name].as_str().ok_or_else(|| "Failed to get hash from web")?.to_string();
     if web_hash != file_hash {
         if dev {
             println!("web: {} file: {}", web_hash, file_hash)
@@ -37,7 +37,7 @@ fn update_web_resource(
         }
         let data = networking::get_url(web_path, None, None, None)?.text;
         f.data = data;
-        f.write();
+        f.write()?;
     }
     Ok(())
 }
@@ -54,7 +54,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()>
     )?;
     if resp.status == 200 {
         let web_text = resp.text;
-        let web_json: Value = serde_json::from_str(&web_text).expect("");
+        let web_json: Value = serde_json::from_str(&web_text)?;
         update_web_resource(
             String::from("resources/weather_codes.json"),
             web_json.clone(),
@@ -63,7 +63,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()>
             "weather codes",
             dev,
             real_quiet,
-        );
+        )?;
         update_web_resource(
             "resources/weather_ascii_images.json".to_string(),
             web_json.clone(),
@@ -72,7 +72,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()>
             "ascii images",
             dev,
             real_quiet,
-        );
+        )?;
         update_web_resource(
             "layouts/default.json".to_string(),
             web_json,
@@ -81,7 +81,7 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()>
             "default layout",
             dev,
             real_quiet,
-        );
+        )?;
         return Ok(());
     }
     else {
@@ -96,7 +96,7 @@ pub fn get_latest_version() -> crate::Result<String> {
         None,
         None,
     );
-    let json: HashMap<String, String> = serde_json::from_str(&data?.text).expect("");
+    let json: HashMap<String, String> = serde_json::from_str(&data?.text)?;
     Ok(json.get("version").expect("").to_string())
 }
 
@@ -107,7 +107,7 @@ pub fn get_latest_updater_version() -> crate::Result<String> {
         None,
         None,
     );
-    let json: HashMap<String, String> = serde_json::from_str(&data?.text).expect("");
+    let json: HashMap<String, String> = serde_json::from_str(&data?.text)?;
     Ok(json.get("updater-version").expect("").to_string())
 }
 
@@ -122,9 +122,7 @@ pub fn get_updater(path: String) -> crate::Result<()> {
         .create(true)
         .write(true)
         .truncate(true)
-        .open(path)
-        .unwrap();
-    file.write_all(&data)
-        .expect("Something went wrong opening the file");
+        .open(path)?;
+    file.write_all(&data)?;
     Ok(())
 }

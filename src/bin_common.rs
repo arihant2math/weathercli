@@ -6,7 +6,15 @@ use std::time::Duration;
 
 use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
+use indicatif::style::TemplateError;
 use reqwest::Client;
+use crate::util;
+
+impl From<TemplateError> for util::Error {
+    fn from(error: TemplateError) -> Self {
+        util::Error::Other(error.to_string())
+    }
+}
 
 pub async fn update_component(
     url: &str,
@@ -14,7 +22,7 @@ pub async fn update_component(
     progress_msg: String,
     finish_msg: String,
     quiet: bool,
-) -> Result<(), String> {
+) -> crate::Result<()> {
     let client = Client::new();
     // Reqwest setup
     let res = client
@@ -37,19 +45,17 @@ pub async fn update_component(
     let mut file_expect = File::create(path);
     while file_expect.is_err() {
         if retries > 30 {
-            return Err(format!("Failed to create/open file '{}'", path));
+            return Err(util::Error::IoError(format!("Failed to create/open file '{}'", path)));
         }
         file_expect = File::create(path);
         thread::sleep(Duration::from_millis(100));
     }
-    let mut file =
-        file_expect.expect("Something went wrong when opening the file, check access permissions.");
+    let mut file = file_expect?;
     let mut progress_bar = ProgressBar::hidden();
     if !quiet {
         progress_bar = ProgressBar::new(total_size);
         progress_bar.set_style(ProgressStyle::default_bar()
-            .template("{msg}\n[{elapsed}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
-            .expect("Failed due to progress bar error")
+            .template("{msg}\n[{elapsed}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")?
             .progress_chars("━ "));
         progress_bar.set_message(progress_msg + url);
     }
@@ -69,8 +75,7 @@ pub async fn update_component(
     }
     if !quiet {
         progress_bar.set_style(ProgressStyle::default_bar()
-            .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec})")
-            .expect("Failed due to progress bar error")
+            .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec})")?
             .progress_chars("━ "));
         progress_bar.finish_with_message(finish_msg);
     }

@@ -1,6 +1,6 @@
 use crate::backend::nws::nws_current::get_nws_current;
 use crate::backend::nws::nws_get_combined_data_formatted;
-use crate::backend::status::Status;
+use crate::backend::Status;
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::local::settings::Settings;
 

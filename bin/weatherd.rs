@@ -6,6 +6,7 @@ use std::io::Write;
 use clap::Parser;
 
 use weather_core::autolaunch::{AutoLaunchBuilder, Error};
+use weather_core::cli::datasource_from_str;
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
 
@@ -47,13 +48,10 @@ fn unregister() -> Result<(), Error> {
     Ok(())
 }
 
-fn main() {
-    let settings = Settings::new();
+fn main() -> weather_core::Result<()> {
+    let settings = Settings::new()?;
     let args = Cli::parse();
-    if args.version && !args.quiet {
-        println!("{}", weather_core::version());
-        return;
-    }
+
     if args.action == "unregister" || args.action == "uninstall" {
         unregister().expect("Unregistering failed");
     }
@@ -71,16 +69,11 @@ fn main() {
             enabled = settings.internal.enable_daemon;
             let default_datasource = &*settings.internal.default_backend.clone();
             if default_datasource.to_lowercase() == "openweathermap" {
-                let data =
-                    weather_core::backend::openweathermap::open_weather_map_get_combined_data_formatted(
-                        "https://api.openweathermap.org/data/2.5/",
-                        settings.internal.open_weather_map_api_key.clone(),
-                                    weather_core::location::get_location(
-                                        false,
-                                        settings.internal.constant_location).to_vec(),
-                                    settings.internal.metric_default);
+                let data = weather_core::get_data_from_datasource(datasource_from_str(default_datasource),
+                                                                  weather_core::location::get_location(false, settings.internal.constant_location)?,
+                                                                  settings.clone(), Default::default())?;
                 let bytes = bincode::serialize(&data).expect("Serialization Failed");
-                let out = WeatherFile::new("d.cache");
+                let out = WeatherFile::new("d.cache")?;
                 let path = out.path;
                 let mut file = fs::OpenOptions::new()
                     .write(true)
@@ -93,4 +86,5 @@ fn main() {
             thread::sleep(sleep_duration);
         }
     }
+    Ok(())
 }

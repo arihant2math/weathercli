@@ -6,7 +6,9 @@ use regex::Regex;
 use serde_json::Value;
 
 use crate::color;
-use crate::layout::{ItemEnum, ItemJSON, util};
+use crate::layout::util;
+use crate::layout::layout_json::{ItemJSON, ItemEnum};
+use crate::util::LayoutErr;
 
 pub struct Item {
     data: ItemJSON,
@@ -112,7 +114,7 @@ impl Item {
         Item { data: i }
     }
 
-    fn get_variable_value(&self, data: &Value) -> Option<String> {
+    fn get_variable_value(&self, data: &Value) -> crate::Result<String> {
         let mut split: Vec<&str> = self.data.value.split('.').collect();
         let mut current = data;
         while !split.is_empty() {
@@ -131,42 +133,53 @@ impl Item {
                 if !current.is_null() {
                     current = &current[split[0]];
                 } else {
-                    return None;
+                    return Err(crate::util::Error::LayoutError(LayoutErr {
+                        message: "Variable not found in data".to_string(),
+                        row: None,
+                        item: None,
+                    }));
                 }
             }
             split.remove(0);
         }
         match current.as_str() {
-            Some(t) => Some(t.to_string()),
+            Some(t) => Ok(t.to_string()),
             None => match current.as_f64() {
-                Some(t) => Some(round(t)),
-                None => current.as_i64().map(|t| t.to_string()),
+                Some(t) => Ok(round(t)),
+                None => Ok(current.as_i64().ok_or_else(|| crate::util::Error::LayoutError(LayoutErr {
+                    message: "Json type not supported".to_string(),
+                    row: None,
+                    item: None,
+                }))?.to_string()),
             },
         }
     }
 
-    fn get_function_value(&self, data: &Value) -> Option<String> {
+    fn get_function_value(&self, data: &Value) -> crate::Result<String> {
         let args = self.data.args.clone().unwrap_or(Vec::new());
         let _kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
         match &*self.data.value {
-            "color_aqi" => Some(util::color_aqi(
+            "color_aqi" => util::color_aqi(
                 Item::new(args[0].clone())
-                    .get_value(data)
-                    .expect("no aqi value")
+                    .get_value(data)?
                     .parse()
                     .unwrap_or(0),
-            )),
-            _ => None, // TODO: add more functions
+            ),
+            _ => Err(crate::util::Error::LayoutError(LayoutErr {
+                message: "Function not found".to_string(),
+                row: None,
+                item: None,
+            })), // TODO: add more functions
         }
     }
 
-    pub fn get_value(&self, data: &Value) -> Option<String> {
+    pub fn get_value(&self, data: &Value) -> crate::Result<String> {
         if self.data.item_type == "variable" {
             return self.get_variable_value(data);
         } else if self.data.item_type == "function" {
             return self.get_function_value(data);
         }
-        Some(self.data.value.clone())
+        Ok(self.data.value.clone())
     }
 
     pub fn to_string(
@@ -187,14 +200,14 @@ impl Item {
                 + &self.data.bg_color.clone().unwrap_or("".to_string())
                 + &self.data.value);
         } else if self.data.item_type == "variable" {
-            let value = self.get_variable_value(data);
+            let value = self.get_variable_value(data)?;
             let s = variable_color
                 + &variable_bg_color
                 + &color::from_string(self.data.color.clone().unwrap_or("".to_string()))
                     .unwrap_or("".to_string())
                 + &color::from_string(self.data.bg_color.clone().unwrap_or("".to_string()))
                     .unwrap_or("".to_string())
-                + &value.unwrap_or("".to_string())
+                + &value
                 + &unit_color
                 + &unit_bg_color
                 + &self.data.unit_color.clone().unwrap_or("".to_string());
@@ -205,20 +218,21 @@ impl Item {
                 Ok(s + &self.data.imperial.clone().unwrap_or("".to_string()))
             };
         } else if self.data.item_type == "function" {
-            let value = self.get_function_value(data);
+            let value = self.get_function_value(data)?;
             return Ok(self.data.color.clone().unwrap_or("".to_string())
                 + &self.data.bg_color.clone().unwrap_or("".to_string())
-                + &value.unwrap_or("".to_string()));
+                + &value);
         }
         else if self.data.item_type == "image" {
-            let source = Item::from_str(&self.data.value).get_value(data);
-            let is_url = url_validator(&source.clone().unwrap());
+            let source = Item::from_str(&self.data.value).get_value(data)?;
+            let is_url = url_validator(&source.clone());
             if is_url {
-                let response = crate::networking::get_url(&source.unwrap_or("".to_string()), None, None, None);
-                let mut f = fs::OpenOptions::new().write(true).truncate(true).create(true).open("temp.img").expect("Open options failed");
-                f.write(&response?.bytes).expect("Write Failed");
+                let response = crate::networking::get_url(&source, None, None, None)?;
+                let mut f = fs::OpenOptions::new().write(true).truncate(true).create(true).open("temp.img")?;
+                f.write(&response.bytes)?;
+                return Ok(crate::layout::image_to_text::ascii_image("temp.img", self.data.scale.unwrap_or(1.0)));
             }
-            return Ok(crate::layout::image_to_text::ascii_image("temp.img", self.data.scale.unwrap()));
+            Err("source is not a url".to_string())? // TODO: Fix
         }
         Ok("".to_string())
     }

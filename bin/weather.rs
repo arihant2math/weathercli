@@ -1,4 +1,5 @@
 use std::{fs, io};
+use std::mem::discriminant;
 
 use clap::Parser;
 use log4rs::append::console::{ConsoleAppender, Target};
@@ -9,7 +10,7 @@ use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use log::LevelFilter;
 
-use weather_core::cli::{App, Command, datasource_from_str};
+use weather_core::cli::{App, Command, Datasource, datasource_from_str};
 use weather_core::cli::commands::{credits, setup, update, weather};
 use weather_core::dynamic_loader::ExternalBackends;
 use weather_core::local::cache::prune_cache;
@@ -93,7 +94,7 @@ fn main() -> weather_core::Result<()> {
         settings.internal.default_backend.clone(),
     ));
     let mut custom_backends = ExternalBackends::default();
-    if settings.internal.enable_custom_backends { // TODO: make sure its a custom backend
+    if settings.internal.enable_custom_backends && discriminant(&datasource) == discriminant(&Datasource::Other("".to_string())) {
         let mut path = home_dir().expect("expect home dir");
         path.push(".weathercli");
         path.push("custom_backends");
@@ -122,10 +123,13 @@ fn main() -> weather_core::Result<()> {
                 Command::ClearCache => {
                     let mut f = WeatherFile::new("d.cache")?;
                     f.data = String::new();
-                    f.write();
+                    f.write()?;
+                    let mut f = WeatherFile::new("f.cache")?;
+                    f.data = String::new();
+                    f.write()?;
                 }
-                Command::PruneCache => prune_cache(),
-                Command::Setup => setup(settings),
+                Command::PruneCache => prune_cache()?,
+                Command::Setup => setup(settings)?,
                 Command::Update(opts) => update(opts.force)?,
                 Command::Credits => credits(),
             };
@@ -135,7 +139,7 @@ fn main() -> weather_core::Result<()> {
             get_location(
                 args.global_opts.no_sys_loc,
                 settings.internal.constant_location,
-            ),
+            )?,
             settings,
             true_metric,
             args.global_opts.json,

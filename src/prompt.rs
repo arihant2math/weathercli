@@ -7,32 +7,39 @@ use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 fn draw(options: &Vec<String>, choice: usize, multiline: bool) -> String {
     assert!(options.len() > choice);
     let mut result = String::new();
-    for (count, option) in options.iter().enumerate() {
-        if count != choice {
-            result += "\x1b[34m  ";
-        } else {
-            result += "\x1b[35m> \x1b[32m";
-        }
-        result += option;
-        result += "\x1b[39m";
-        if multiline {
+    if multiline {
+        for (count, option) in options.iter().enumerate() {
+            if count != choice {
+                result += "\x1b[34m  ";
+            } else {
+                result += "\x1b[35m> \x1b[32m";
+            }
+            result += option;
+            result += "\x1b[39m";
             result += "\n"
-        } else {
+        }
+    }
+    else {
+        for (count, option) in options.iter().enumerate() {
+            if count != choice {
+                result += "\x1b[34m";
+            } else {
+                result += "\x1b[32m";
+            }
+            result += option;
+            result += "\x1b[39m";
             result += " "
         }
     }
     result
 }
 
-pub fn choice(options: Vec<String>, default: usize, multiline: Option<bool>) -> usize {
-    read().expect("Input Patching failed");
-    let mut multiline_standard = true;
-    if let Some(..) = multiline {
-        multiline_standard = multiline.unwrap();
-    }
+pub fn choice(options: Vec<String>, default: usize, multiline: Option<bool>) -> crate::Result<usize> {
+    read()?;
+    let multiline_standard = multiline.unwrap_or(true);
     thread::sleep(Duration::from_millis(100));
     // entering raw mode
-    enable_raw_mode().unwrap();
+    enable_raw_mode()?;
     let start_msg = draw(&options, default, multiline_standard);
     print!("{}", start_msg);
     let mut choice = default;
@@ -45,9 +52,9 @@ pub fn choice(options: Vec<String>, default: usize, multiline: Option<bool>) -> 
             print!("\x1b[1A");
         }
         print!("{}", draw(&options, choice, multiline_standard));
-        read().expect("Patching failed");
+        read()?;
         // matching the key
-        match read().unwrap() {
+        match read()? {
             Event::Key(KeyEvent {
                 code: KeyCode::Up, ..
             })
@@ -80,6 +87,6 @@ pub fn choice(options: Vec<String>, default: usize, multiline: Option<bool>) -> 
         thread::sleep(Duration::from_millis(10));
     }
     // disabling raw mode
-    disable_raw_mode().unwrap();
-    choice
+    disable_raw_mode()?;
+    Ok(choice)
 }

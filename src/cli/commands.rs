@@ -30,33 +30,36 @@ pub fn weather(
 }
 
 pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
-    if value.is_none() {
-        let f = WeatherFile::settings()?;
-        let data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
-        println!("{}: {}", &key_name, data[&key_name]);
-    } else {
-        println!(
-            "Writing {}={} ...",
-            key_name.to_lowercase(),
-            value.clone().unwrap()
-        );
-        let mut f = WeatherFile::settings()?;
-        let mut data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
-        data[key_name.to_uppercase()] =
-            Value::from_str(&value.unwrap()).expect("Value conversion failed");
-        f.data = serde_json::to_string(&data).expect("Serialization failed");
-        f.write();
-    }
+    match value {
+        None => {
+            let f = WeatherFile::settings()?;
+            let data: Value = serde_json::from_str(&f.data)?;
+            println!("{}: {}", &key_name, data[&key_name]);
+        },
+        Some(real_value) => {
+            println!(
+                "Writing {}={} ...",
+                key_name.to_lowercase(),
+                &real_value
+            );
+            let mut f = WeatherFile::settings()?;
+            let mut data: Value = serde_json::from_str(&f.data)?;
+            data[key_name.to_uppercase()] =
+                Value::from_str(&real_value)?;
+            f.data = serde_json::to_string(&data)?;
+            f.write()?;
+        }
+    };
     Ok(())
 }
 
-pub fn setup(settings_s: Settings) {
+pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
     println!(
         "{}===== Weather CLI Setup =====",
         crate::color::FORE_CYAN
     );
-    component_updater::update_web_resources(settings.internal.development, None);
+    component_updater::update_web_resources(settings.internal.development, None)?;
     println!(
         "{}Choose the default weather backend: ",
         crate::color::FORE_RED
@@ -71,10 +74,10 @@ pub fn setup(settings_s: Settings) {
         .iter()
         .position(|&x| x == settings.internal.default_backend.clone())
         .unwrap_or(0);
-    let current = crate::prompt::choice(options, default, None);
+    let current = crate::prompt::choice(options, default, None)?;
     let weather_backend_setting = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"][current];
     settings.internal.default_backend = weather_backend_setting.to_string();
-    settings.write();
+    settings.write()?;
     thread::sleep(Duration::from_millis(100));
     println!(
         "{}Is your location constant (i.e. is this computer stationary at all times)?",
@@ -86,9 +89,9 @@ pub fn setup(settings_s: Settings) {
         default = 1;
     }
     let constant_location_setting = [true, false]
-        [crate::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)];
+        [crate::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)?];
     settings.internal.constant_location = constant_location_setting;
-    settings.write();
+    settings.write()?;
     thread::sleep(Duration::from_millis(100));
     println!(
         "{}Should static resources (ascii art, weather code sentences, etc.) be auto-updated?",
@@ -100,9 +103,10 @@ pub fn setup(settings_s: Settings) {
         default = 1;
     }
     let auto_update_setting = [true, false]
-        [crate::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)];
+        [crate::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)?];
     settings.internal.auto_update_internet_resources = auto_update_setting;
-    settings.write();
+    settings.write()?;
+    Ok(())
 }
 
 pub fn update(force: bool) -> crate::Result<()> {
@@ -126,7 +130,7 @@ pub fn update(force: bool) -> crate::Result<()> {
         }
         if !updater_location.exists() {
             println!("Updater not found, downloading updater");
-            get_updater(updater_location.display().to_string());
+            get_updater(updater_location.display().to_string())?;
             let resp: Value = serde_json::from_str(
                 &networking::get_url(
                     "https://arihant2math.github.io/weathercli/index.json",
@@ -134,8 +138,7 @@ pub fn update(force: bool) -> crate::Result<()> {
                     None,
                     None,
                 )?.text,
-            )
-            .expect("JSON deserialize failed");
+            )?;
             let mut web_hash = resp["updater-exe-hash-unix"]
                 .as_str()
                 .expect("updater-exe-hash-unix key not found in index.json");
@@ -144,10 +147,10 @@ pub fn update(force: bool) -> crate::Result<()> {
                     .as_str()
                     .expect("updater-exe-hash-windows key not found in index.json");
             }
-            if crate::util::hash_file(&updater_location.display().to_string()) != web_hash
+            if crate::util::hash_file(&updater_location.display().to_string())? != web_hash
                 || force
             {
-                get_updater(updater_location.display().to_string());
+                get_updater(updater_location.display().to_string())?;
             }
             println!("Starting updater and exiting");
             if force {

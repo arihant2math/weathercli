@@ -6,6 +6,7 @@ use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::custom_backend;
 use crate::custom_backend::{InvocationError, PluginDeclaration, WeatherForecastPlugin};
 use crate::local::settings::Settings;
+use crate::util::Error;
 
 pub fn load(paths: Vec<String>) -> ExternalBackends {
     let mut functions = ExternalBackends::new();
@@ -45,10 +46,10 @@ impl ExternalBackends {
         name: String,
         coordinates: Vec<String>,
         settings: Settings,
-    ) -> Result<WeatherForecastRS, InvocationError> {
+    ) -> crate::Result<WeatherForecastRS> {
         self.functions
             .get(&*name)
-            .ok_or_else(|| format!("\"{}\" not found", name))? // TODO: Use NotFound variant instead
+            .ok_or_else(|| Error::InvocationError(InvocationError::NotFound))?
             .call(coordinates, settings)
     }
 
@@ -127,7 +128,7 @@ impl WeatherForecastPlugin for BackendWrapper {
         &self,
         coordinates: Vec<String>,
         settings: Settings,
-    ) -> Result<WeatherForecastRS, InvocationError> {
+    ) -> crate::Result<WeatherForecastRS> {
         self.backend.call(coordinates, settings)
     }
 

@@ -27,10 +27,11 @@ enum Message {
     Save,
 }
 
-fn save(data: settings::SettingsJson) {
-    let mut settings = crate::local::settings::Settings::new();
+fn save(data: settings::SettingsJson) -> crate::Result<()> {
+    let mut settings = settings::Settings::new()?;
     settings.internal = data;
-    settings.write();
+    settings.write()?;
+    Ok(())
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -58,7 +59,7 @@ impl Sandbox for App {
     fn new() -> Self {
         let mut a = App::default();
         let mode = dark_light::detect();
-        let settings = settings::Settings::new();
+        let settings = settings::Settings::new().expect("Loading settings failed");
         a.theme = match mode {
             Mode::Default => Theme::default(),
             Mode::Light => Theme::Light,
@@ -74,8 +75,8 @@ impl Sandbox for App {
 
     fn update(&mut self, message: Message) {
         match message {
-            Message::Save => save(self.data.clone()),
-            Message::Cancel => self.data = crate::local::settings::Settings::new().internal,
+            Message::Save => save(self.data.clone()).unwrap_or(()),
+            Message::Cancel => self.data = settings::Settings::new().expect("Loading settings failed").internal,
             Message::MetricDefault(value) => self.data.metric_default = value,
             Message::ShowAlerts(value) => self.data.show_alerts = value,
             Message::AutoUpdateInternetResources(value) => {

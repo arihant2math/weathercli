@@ -31,8 +31,8 @@ pub fn meteo_get_combined_data_formatted(
 ) -> crate::Result<MeteoFormattedData> {
     let urls = meteo_get_api_urls(coordinates, metric);
     let n = networking::get_urls(urls, None, None, None)?;
-    let r1: MeteoForecastJson = serde_json::from_str(&n[0].text).expect("");
-    let r2: MeteoAirQualityJson = serde_json::from_str(&n[1].text).expect("");
+    let r1: MeteoForecastJson = serde_json::from_str(&n[0].text)?;
+    let r2: MeteoAirQualityJson = serde_json::from_str(&n[1].text)?;
     Ok(MeteoFormattedData {
         weather: r1,
         air_quality: r2,

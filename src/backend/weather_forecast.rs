@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::backend::status::Status;
+use crate::backend::Status;
 use crate::backend::weather_data::WeatherDataRS;
 use crate::location;
 

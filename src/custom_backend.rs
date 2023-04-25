@@ -9,7 +9,7 @@ pub trait WeatherForecastPlugin {
         &self,
         coordinates: Vec<String>,
         settings: Settings,
-    ) -> Result<WeatherForecastRS, InvocationError>;
+    ) -> crate::Result<WeatherForecastRS>;
 
     /// Help text that may be used to display information about this function.
     fn help(&self) -> Option<&str> {

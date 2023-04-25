@@ -1,7 +1,7 @@
 use crate::backend::meteo::meteo_current::get_meteo_weather_data;
 use crate::backend::meteo::meteo_get_combined_data_formatted;
 use crate::backend::meteo::meteo_json::MeteoForecastJson;
-use crate::backend::status::Status;
+use crate::backend::Status;
 use crate::backend::weather_data::WeatherDataRS;
 use crate::backend::weather_forecast::get_location;
 use crate::backend::weather_forecast::WeatherForecastRS;

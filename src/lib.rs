@@ -69,7 +69,7 @@ pub const CONFIG: Config<'static> = Config {
     updater_file_name: "updater",
 };
 
-fn get_data_from_datasource(
+pub fn get_data_from_datasource(
     datasource: Datasource,
     coordinates: [String; 2],
     settings: Settings,
@@ -86,7 +86,7 @@ fn get_data_from_datasource(
         component_updater::update_web_resources(settings.internal.development, None)?;
     } else if settings.internal.auto_update_internet_resources {
         thread::spawn(move || {
-            component_updater::update_web_resources(settings.internal.development, None);
+            component_updater::update_web_resources(settings.internal.development, None).unwrap_or(());
         });
     }
 
@@ -94,6 +94,6 @@ fn get_data_from_datasource(
         Datasource::Openweathermap => get_openweathermap_forecast(Vec::from(coordinates), settings)?,
         Datasource::NWS => get_nws_forecast(Vec::from(coordinates), settings)?,
         Datasource::Meteo => get_meteo_forecast(Vec::from(coordinates), settings)?,
-        Datasource::Other(s) => custom_backends.call(s, Vec::from(coordinates), settings).expect("Custom backend execution failed")
+        Datasource::Other(s) => custom_backends.call(s, Vec::from(coordinates), settings)?
     });
 }

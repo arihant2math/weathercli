@@ -7,9 +7,9 @@ use winreg::enums::*;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
-use weather_core::{config, Config};
 use weather_core::bin_common::update_component;
 use weather_core::component_updater::update_web_resources;
+use weather_core::CONFIG;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -24,21 +24,20 @@ struct Cli {
 }
 
 #[cfg(target_os = "windows")]
-fn add_to_path(dir: String) {
+fn add_to_path(dir: String) -> weather_core::Result<()> {
     println!("Adding to Path ...");
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let environment = hklm
         .open_subkey(r#"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"#)
         .expect("");
-    let mut path: String = environment.get_value("Path").expect("");
+    let mut path: String = environment.get_value("Path")?;
     let append = fs::canonicalize(dir).unwrap().display().to_string();
     if path.chars().last().unwrap_or(';') != ';' {
         path += ";"
     }
     path += &append;
-    environment
-        .set_value("Path", &path)
-        .expect("RegEdit write failed");
+    environment.set_value("Path", &path)?;
+    Ok(())
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -47,7 +46,7 @@ fn add_to_path(dir: String) {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), String> {
+async fn main() -> weather_core::Result<()> {
     let args = Cli::parse();
     if args.guided {
         println!("WeatherCLI installer");
@@ -58,7 +57,7 @@ async fn main() -> Result<(), String> {
     }
     let dir_path = Path::new(&args.install_dir);
     if dir_path.is_file() {
-        return Err("Install path is a file".to_string());
+        return Err("Install path is a file".to_string())?;
     }
     if !dir_path.exists() {
         fs::create_dir(&args.install_dir).expect("Directory Creation Failed");
@@ -69,11 +68,11 @@ async fn main() -> Result<(), String> {
         .next()
         .is_none();
     if !is_empty {
-        return Err("Directory is not empty".to_string());
+        return Err("Directory is not empty".to_string())?;
     }
-    let url = "https://arihant2math.github.io/weathercli/".to_string() + &config.weather_file_name;
+    let url = "https://arihant2math.github.io/weathercli/".to_string() + &CONFIG.weather_file_name;
     let mut path = dir_path.to_path_buf();
-    path.push(config.weather_file_name);
+    path.push(CONFIG.weather_file_name);
     update_component(
         &url,
         &path.display().to_string(),
@@ -82,10 +81,10 @@ async fn main() -> Result<(), String> {
         args.quiet,
     )
     .await?;
-    let url = "https://arihant2math.github.io/weathercli/".to_string() + &config.weather_dfile_name;
+    let url = "https://arihant2math.github.io/weathercli/".to_string() + &CONFIG.weather_dfile_name;
     let mut path = dir_path.to_path_buf();
     path.push("internal");
-    path.push(config.weather_dfile_name);
+    path.push(CONFIG.weather_dfile_name);
     update_component(
         &url,
         &path.display().to_string(),
@@ -95,8 +94,8 @@ async fn main() -> Result<(), String> {
     )
     .await?;
     if args.add_to_path {
-        add_to_path(dir_path.display().to_string());
+        add_to_path(dir_path.display().to_string())?;
     }
-    update_web_resources(false, Some(false));
+    update_web_resources(false, Some(false))?;
     Ok(())
 }

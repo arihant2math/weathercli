@@ -1,6 +1,6 @@
 use clap::{Args, Parser, Subcommand};
 
-use crate::backend::status::Status;
+use crate::backend::Status;
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::color;
 use crate::layout::LayoutFile;
@@ -101,8 +101,11 @@ fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: b
     if json {
         println!("{:#?}", data.raw_data.expect("No raw data to print"))
     } else if data.status == Status::OK {
-        let out = LayoutFile::new(layout_file)?;
-        println!("{}", out.to_string(data, metric)?);
+        let mut out = LayoutFile::new(layout_file);
+        if out.is_err() {
+            out = LayoutFile::new("default.json".to_string());
+        }
+        println!("{}", out?.to_string(data, metric)?);
     } else {
         println!(
             "{}Something went wrong when requesting data!{}",

@@ -3,7 +3,7 @@ use crate::backend::openweathermap::openweathermap_json::{
 };
 use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherDataRS};
-use crate::backend::wind_data::WindData;
+use crate::backend::WindData;
 use crate::local::weather_file::WeatherFile;
 use crate::now;
 
@@ -17,7 +17,7 @@ pub fn get_openweathermap_current(
         conditions.push(WeatherCondition::new(
             condition.id as u16,
             &weather_file.data,
-        ))
+        )?)
     }
     Ok(WeatherDataRS {
         time: now() as i128,

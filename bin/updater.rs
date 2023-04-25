@@ -43,16 +43,16 @@ struct IndexStruct {
     weatherd_exe_hash_unix: String,
 }
 
-fn is_update_needed_platform(file: &str, web_hash: String) -> Result<bool, String> {
+fn is_update_needed_platform(file: &str, web_hash: String) -> weather_core::Result<bool> {
     if Path::new(file).exists() {
-        let file_hash = hash_file(file);
+        let file_hash = hash_file(file)?;
         Ok(file_hash != web_hash)
     } else {
         Ok(true)
     }
 }
 
-async fn is_update_needed(index: IndexStruct, component: Component) -> Result<bool, String> {
+async fn is_update_needed(index: IndexStruct, component: Component) -> weather_core::Result<bool> {
     if component == Component::Main {
         if cfg!(windows) {
             return is_update_needed_platform("weather.exe", index.weather_exe_hash_windows);
@@ -70,7 +70,7 @@ async fn is_update_needed(index: IndexStruct, component: Component) -> Result<bo
 }
 
 #[tokio::main]
-async fn main() -> Result<(), String> {
+async fn main() -> weather_core::Result<()> {
     let args = Cli::parse();
     let resp = reqwest::get("https://arihant2math.github.io/weathercli/index.json")
         .await
@@ -87,7 +87,7 @@ async fn main() -> Result<(), String> {
     let install_type_folders = fs::read_dir(parent)
         .expect("read parent dir failed")
         .any(|f| {
-            f.expect("read failed").file_name().to_str().unwrap_or("") == CONFIG.weather_file_name
+            f.expect("Dir Entry failed").file_name().to_str().unwrap_or("") == CONFIG.weather_file_name
         });
     let d_install_path = install_dir.clone();
     let w_install_path = if install_type_folders {
@@ -95,7 +95,7 @@ async fn main() -> Result<(), String> {
     } else {
         install_dir
     };
-    weather_core::component_updater::update_web_resources(false, Some(args.quiet));
+    weather_core::component_updater::update_web_resources(false, Some(args.quiet))?;
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {

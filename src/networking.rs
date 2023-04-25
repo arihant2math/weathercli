@@ -22,10 +22,7 @@ fn get_user_agent(custom: Option<String>) -> String {
     app_user_agent
 }
 
-/// :param url: the url to retrieve
-/// :param user_agent: the user agent to use, weathercli/1 by default
-/// :param headers: optional dictionary with headers in it
-/// :param cookies: optional list of cookies
+/// get a url
 pub fn get_url<S: AsRef<str>>(
     url_s: S,
     user_agent: Option<String>,
@@ -34,13 +31,11 @@ pub fn get_url<S: AsRef<str>>(
 ) -> crate::Result<Resp> {
     let url = url_s.as_ref();
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
-    if cookies.is_some() {
-        for (key, value) in cookies.clone().unwrap() {
-            cookies_vec.push(cookie_store::Cookie::parse(
-                key.clone() + "=" + &value,
-                &Url::parse(url).expect("parse failed"),
-            ));
-        }
+    for (key, value) in cookies.clone().unwrap_or(HashMap::new()) {
+        cookies_vec.push(cookie_store::Cookie::parse(
+            key.clone() + "=" + &value,
+            &Url::parse(url).expect("parse failed"),
+        ));
     }
     let app_user_agent = get_user_agent(user_agent);
     let mut client_pre = ureq::AgentBuilder::new().user_agent(&app_user_agent);
@@ -58,7 +53,7 @@ pub fn get_url<S: AsRef<str>>(
     let real_resp = match resp {
         Ok(d) =>  Ok(d),
         Err(e) => match e {
-            ureq::Error::Status(s, d) => Ok(d),
+            ureq::Error::Status(_s, d) => Ok(d),
             ureq::Error::Transport(d) => Err(d)
         }
     };
@@ -70,11 +65,10 @@ pub fn get_url<S: AsRef<str>>(
     let mut bytes: Vec<u8> = Vec::with_capacity(100);
     data.into_reader()
         .take(10_000_000)
-        .read_to_end(&mut bytes)
-        .map(|e| "read failed".to_string());
+        .read_to_end(&mut bytes)?;
     let mut text = String::from("");
-    for byte in bytes.clone() {
-        text += &(byte as char).to_string();
+    for byte in &bytes {
+        text += &(*byte as char).to_string();
     }
     Ok(Resp {
         status,
@@ -95,14 +89,12 @@ pub fn get_urls(
     cookies: Option<HashMap<String, String>>,
 ) -> crate::Result<Vec<Resp>> {
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
-    if cookies.is_some() {
-        for (key, value) in cookies.clone().unwrap() {
-            for url in &urls {
-                cookies_vec.push(cookie_store::Cookie::parse(
-                    key.clone() + "=" + &value,
-                    &url::Url::parse(url).expect("parse failed"),
-                ));
-            }
+    for (key, value) in cookies.clone().unwrap_or(HashMap::new()) {
+        for url in &urls {
+            cookies_vec.push(cookie_store::Cookie::parse(
+                key.clone() + "=" + &value,
+                &url::Url::parse(url).expect("parse failed"),
+            ));
         }
     }
     let app_user_agent = get_user_agent(user_agent);
@@ -129,8 +121,8 @@ pub fn get_urls(
                 .expect("read failed");
 
             let mut text = String::from("");
-            for byte in bytes.clone() {
-                text += &(byte as char).to_string();
+            for byte in &bytes {
+                text += &(*byte as char).to_string();
             }
             Resp {
                 status,

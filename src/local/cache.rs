@@ -29,7 +29,7 @@ fn calculate_power(row: &Row) -> f64 {
     (row.hits as f64) / (offset / 86400000.0)
 }
 
-pub fn prune_cache() {
+pub fn prune_cache() -> crate::Result<()> {
     let path = get_cache_path();
     let buffer = read_bytes_from_file();
     let mut rows: Vec<Row> = to_rows(buffer);
@@ -47,9 +47,9 @@ pub fn prune_cache() {
     let mut file = File::options()
         .truncate(true)
         .write(true)
-        .open(path.display().to_string())
-        .expect("File opening failed");
-    file.write_all(&new_bytes).expect("Write Failed");
+        .open(path.display().to_string())?;
+    file.write_all(&new_bytes)?;
+    return Ok(());
 }
 
 pub fn get_date_string() -> String {
@@ -225,7 +225,7 @@ fn to_rows(bytes: Vec<u8>) -> Vec<Row> {
 }
 
 /// Bumps the number of hits to the row, makes it so that the row is less likely to be deleted
-pub fn update_hits(key: String) {
+pub fn update_hits(key: String) -> crate::Result<()> {
     let path = get_cache_path();
     let buffer = read_bytes_from_file();
     let mut rows: Vec<Row> = to_rows(buffer);
@@ -236,7 +236,7 @@ pub fn update_hits(key: String) {
         }
     }
     if key_index == -1 {
-        return;
+        return Err(format!("Key not found, {}", key))?;
     }
     let key_index_usize = key_index as usize;
     let row = rows.get(key_index_usize).expect("row not found");
@@ -253,7 +253,7 @@ pub fn update_hits(key: String) {
     let mut file = File::options()
         .truncate(true)
         .write(true)
-        .open(path.display().to_string())
-        .expect("File opening failed");
-    file.write_all(&new_bytes).expect("Write Failed");
+        .open(path.display().to_string())?;
+    file.write_all(&new_bytes)?;
+    Ok(())
 }

@@ -1,10 +1,22 @@
 use serde_json::Value;
 
-use crate::layout::ItemEnum;
+use crate::layout::layout_json::ItemEnum;
 use crate::layout::layout_item::Item;
+use crate::util::{Error, LayoutErr};
 
 pub struct Row {
     items: Vec<Item>,
+}
+
+fn reemit_layout_error(e: Error, count: usize) -> Error {
+    match e {
+        Error::LayoutError(e ) => Error::LayoutError(LayoutErr {
+            message: e.message,
+            row: None,
+            item: Some(count as u64)
+        }),
+        _ => e
+    }
 }
 
 impl Row {
@@ -48,7 +60,7 @@ impl Row {
         metric: bool,
     ) -> crate::Result<String> {
         let mut s = "".to_string();
-        for (_count, i) in self.items.iter().enumerate() {
+        for (count, i) in self.items.iter().enumerate() {
             s += &*i.to_string(
                 data,
                 variable_color.clone(),
@@ -58,7 +70,7 @@ impl Row {
                 text_bg_color.clone(),
                 unit_bg_color.clone(),
                 metric,
-            )?;
+            ).map_err(|e| reemit_layout_error(e, count))?;
         }
         Ok(s)
     }

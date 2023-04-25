@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::backend::weather_condition::WeatherCondition;
-use crate::backend::wind_data::WindData;
+use crate::backend::WindData;
 
 pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
     let mut data = conditions;

@@ -4,8 +4,10 @@ use std::fmt;
 use std::fmt::Debug;
 
 use sha2::Digest;
+use crate::custom_backend::InvocationError;
 
-#[derive(Debug, Clone)]
+
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct LayoutErr {
     pub message: String,
     pub row: Option<u64>,
@@ -29,11 +31,14 @@ impl LayoutErr {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Error {
     LayoutError(LayoutErr),
     NetworkError(String),
-    JsonError
+    JsonError(String),
+    IoError(String),
+    InvocationError(InvocationError),
+    Other(String)
 }
 
 // Generation of an error is completely separate from how it is displayed.
@@ -44,18 +49,58 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Error::LayoutError(e) => write!(f, "{}", e.to_string()),
-            Error::NetworkError(e) => write!(f, "{}", e.to_string()),
-            Error::JsonError => write!(f, "JSON error") // TODO: Fix
+            Error::LayoutError(e) => write!(f, "Layout Error: {}", e.to_string()),
+            Error::NetworkError(e) => write!(f, "Network Error: {}", e),
+            Error::JsonError(e) => write!(f, "JSON Error: {}", e), // TODO: Fix
+            Error::IoError(e) => write!(f, "I/O Error: {}", e), // TODO: Fix
+            Error::InvocationError(e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
+            Error::Other(s) => write!(f, "{}", s)
         }
     }
 }
 
+impl From<std::io::Error> for Error {
+    fn from(error: std::io::Error) -> Self {
+        Error::IoError(error.to_string())
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(error: serde_json::Error) -> Self {
+        Error::JsonError(format!("JSON parsing error at line {}, column {}", error.line(), error.column()))
+    }
+}
+
+impl From<String> for Error {
+    fn from(value: String) -> Self {
+        Error::Other(value)
+    }
+}
+
+impl From<&str> for Error {
+    fn from(value: &str) -> Self {
+        Error::Other(value.to_string())
+    }
+}
+
+
+impl From<LayoutErr> for Error {
+    fn from(error: LayoutErr) -> Self {
+        Error::LayoutError(error)
+    }
+}
+
+impl From<windows::core::Error> for Error {
+    fn from(error: windows::core::Error) -> Self {
+        Error::Other(error.message().to_string_lossy())
+    }
+}
+
 /// returns the sha-256 of the file
-pub fn hash_file(filename: &str) -> String {
+pub fn hash_file(filename: &str) -> crate::Result<String> {
     let input = Path::new(filename);
-    let bytes = fs::read(input).expect("File read failed");
-    hex::encode(sha2::Sha256::digest(bytes))
+    let bytes = fs::read(input)?;
+    Ok(hex::encode(sha2::Sha256::digest(bytes)))
 }
 
 pub struct Config<'a> {
