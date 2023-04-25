@@ -97,12 +97,12 @@ pub struct GlobalOpts {
     pub no_sys_loc: bool,
 }
 
-fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: bool) {
+fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: bool) -> crate::Result<()> {
     if json {
         println!("{:#?}", data.raw_data.expect("No raw data to print"))
     } else if data.status == Status::OK {
-        let out = LayoutFile::new(layout_file).expect("Layout engine failed");
-        println!("{}", out.to_string(data, metric));
+        let out = LayoutFile::new(layout_file)?;
+        println!("{}", out.to_string(data, metric)?);
     } else {
         println!(
             "{}Something went wrong when requesting data!{}",
@@ -110,6 +110,7 @@ fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: b
             color::FORE_RESET
         )
     }
+    return Ok(());
 }
 
 #[derive(Clone, Eq, PartialEq)]

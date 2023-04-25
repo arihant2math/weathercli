@@ -22,8 +22,8 @@ fn get_conditions(
     metric: bool,
     index: usize,
     cloud_cover: u8,
-) -> Vec<WeatherCondition> {
-    let weather_file = WeatherFile::weather_codes();
+) -> crate::Result<Vec<WeatherCondition>> {
+    let weather_file = WeatherFile::weather_codes()?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     if cloud_cover == 0 {
         conditions.push(WeatherCondition::new(800, &weather_file.data));
@@ -52,13 +52,13 @@ fn get_conditions(
     if data.properties.snowfall_amount.values[index].value != 0.0 {
         conditions.push(WeatherCondition::new(601, &weather_file.data));
     }
-    conditions
+    Ok(conditions)
 }
 
-pub fn get_nws_current(data: NWSJSON, metric: bool) -> WeatherDataRS {
+pub fn get_nws_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherDataRS> {
     let cloud_cover = data.properties.sky_cover.values[0].value as u8;
-    let conditions = get_conditions(data.clone(), metric, 0, cloud_cover);
-    WeatherDataRS {
+    let conditions = get_conditions(data.clone(), metric, 0, cloud_cover)?;
+    let d = WeatherDataRS {
         time: now() as i128,
         temperature: convert_temp(data.properties.temperature.values[0].value, metric)
             as f32,
@@ -84,5 +84,6 @@ pub fn get_nws_current(data: NWSJSON, metric: bool) -> WeatherDataRS {
         cloud_cover,
         conditions: vec![],
         condition_sentence: get_conditions_sentence(conditions),
-    }
+    };
+    return Ok(d);
 }

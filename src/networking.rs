@@ -31,7 +31,7 @@ pub fn get_url<S: AsRef<str>>(
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
-) -> Resp {
+) -> crate::Result<Resp> {
     let url = url_s.as_ref();
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
     if cookies.is_some() {
@@ -44,32 +44,43 @@ pub fn get_url<S: AsRef<str>>(
     }
     let app_user_agent = get_user_agent(user_agent);
     let mut client_pre = ureq::AgentBuilder::new().user_agent(&app_user_agent);
+    for (key, value) in headers.unwrap_or(HashMap::new()) {
+        client_pre = client_pre.add_header(&key, &value);
+    }
     if cookies.is_some() {
         client_pre = client_pre.cookie_store(
             CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"),
         );
     }
     let client = client_pre.build();
-    let mut req = client.get(url);
-    for (key, value) in headers.unwrap_or(HashMap::new()) {
-        req = req.set(&key, &value);
+    let req = client.get(url);
+    let resp = req.call();
+    let real_resp = match resp {
+        Ok(d) =>  Ok(d),
+        Err(e) => match e {
+            ureq::Error::Status(s, d) => Ok(d),
+            ureq::Error::Transport(d) => Err(d)
+        }
+    };
+    if real_resp.is_err() {
+        return Err(crate::util::Error::NetworkError(format!("Get to {} failed", url)))
     }
-    let data = req.call().expect("Url Get failed");
+    let data = real_resp.unwrap();
     let status = data.status();
     let mut bytes: Vec<u8> = Vec::with_capacity(100);
     data.into_reader()
         .take(10_000_000)
         .read_to_end(&mut bytes)
-        .expect("read failed");
+        .map(|e| "read failed".to_string());
     let mut text = String::from("");
     for byte in bytes.clone() {
         text += &(byte as char).to_string();
     }
-    Resp {
+    Ok(Resp {
         status,
         bytes,
         text,
-    }
+    })
 }
 
 /// Async retrival of multiple urls
@@ -82,7 +93,7 @@ pub fn get_urls(
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
-) -> Vec<Resp> {
+) -> crate::Result<Vec<Resp>> {
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
     if cookies.is_some() {
         for (key, value) in cookies.clone().unwrap() {
@@ -101,17 +112,17 @@ pub fn get_urls(
             CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"),
         );
     }
+    for (key, value) in headers.unwrap_or(HashMap::new()) {
+        client_pre = client_pre.add_header(&key, &value);
+    }
     let client = client_pre.build();
     let data: Vec<_> = urls
         .par_iter()
         .map(|url| {
-            let mut req = client.get(url);
-            for (key, value) in headers.clone().unwrap_or(HashMap::new()) {
-                req = req.set(&key, &value);
-            }
+            let req = client.get(url);
             let data = req.call().expect("Request failed");
             let status = data.status();
-            let mut bytes: Vec<u8> = Vec::with_capacity(100);
+            let mut bytes: Vec<u8> = Vec::with_capacity(128);
             data.into_reader()
                 .take(10_000_000)
                 .read_to_end(&mut bytes)
@@ -128,5 +139,5 @@ pub fn get_urls(
             }
         })
         .collect();
-    data
+    Ok(data)
 }

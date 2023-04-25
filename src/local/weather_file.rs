@@ -15,7 +15,7 @@ pub struct WeatherFile {
 }
 
 impl WeatherFile {
-    pub fn new(file_name: &str) -> Self {
+    pub fn new(file_name: &str) -> crate::Result<Self> {
         let mut path = home_dir().expect("expect home dir");
         let mut exists = true;
         path.push(".weathercli");
@@ -32,7 +32,7 @@ impl WeatherFile {
         let mut buf_reader = BufReader::new(file);
         let mut data = String::new();
         buf_reader.read_to_string(&mut data).expect("Read failed");
-        WeatherFile { path, data, exists }
+        Ok(WeatherFile { path, data, exists })
     }
 
     /// Writes self.data to the file at self.path
@@ -52,15 +52,15 @@ impl WeatherFile {
         self.path.display().to_string()
     }
 
-    pub fn weather_codes() -> Self {
+    pub fn weather_codes() -> crate::Result<Self> {
         WeatherFile::new("resources/weather_codes.json")
     }
 
-    pub fn settings() -> Self {
+    pub fn settings() -> crate::Result<Self> {
         WeatherFile::new("settings.json")
     }
 
-    pub fn weather_ascii_art() -> Self {
+    pub fn weather_ascii_art() -> crate::Result<Self> {
         WeatherFile::new("resources/weather_ascii_images.json")
     }
 }

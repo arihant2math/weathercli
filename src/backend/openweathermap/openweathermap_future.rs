@@ -5,8 +5,8 @@ use crate::backend::wind_data::WindData;
 use crate::local::weather_file::WeatherFile;
 use crate::now;
 
-pub fn get_openweathermap_future(data: OpenWeatherMapForecastItemJson) -> WeatherDataRS {
-    let weather_file = WeatherFile::weather_codes();
+pub fn get_openweathermap_future(data: OpenWeatherMapForecastItemJson) -> crate::Result<WeatherDataRS> {
+    let weather_file = WeatherFile::weather_codes()?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     for condition in data.weather.clone() {
         conditions.push(WeatherCondition::new(
@@ -14,7 +14,7 @@ pub fn get_openweathermap_future(data: OpenWeatherMapForecastItemJson) -> Weathe
             &weather_file.data,
         ))
     }
-    WeatherDataRS {
+    Ok(WeatherDataRS {
         time: now() as i128,
         temperature: data.main.temp as f32,
         min_temp: data.main.temp_min as f32,
@@ -30,5 +30,5 @@ pub fn get_openweathermap_future(data: OpenWeatherMapForecastItemJson) -> Weathe
         cloud_cover: 0,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions.clone()),
-    }
+    })
 }

@@ -4,7 +4,7 @@ use crate::backend::status::Status;
 use crate::backend::weather_data::WeatherDataRS;
 use crate::location;
 
-pub fn get_location(loc: Vec<String>) -> [String; 2] {
+pub fn get_location(loc: Vec<String>) -> crate::Result<[String; 2]> {
     location::reverse_location(&loc[0], &loc[1])
 }
 

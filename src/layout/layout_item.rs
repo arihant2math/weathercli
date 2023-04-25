@@ -179,13 +179,13 @@ impl Item {
         text_bg_color: String,
         unit_bg_color: String,
         metric: bool,
-    ) -> String {
+    ) -> crate::Result<String> {
         if self.data.item_type == "text" {
-            return text_color
+            return Ok(text_color
                 + &text_bg_color
                 + &self.data.color.clone().unwrap_or("".to_string())
                 + &self.data.bg_color.clone().unwrap_or("".to_string())
-                + &self.data.value;
+                + &self.data.value);
         } else if self.data.item_type == "variable" {
             let value = self.get_variable_value(data);
             let s = variable_color
@@ -200,15 +200,15 @@ impl Item {
                 + &self.data.unit_color.clone().unwrap_or("".to_string());
             return if metric {
                 // TODO: Fix color mess
-                s + &self.data.metric.clone().unwrap_or("".to_string())
+                Ok(s + &self.data.metric.clone().unwrap_or("".to_string()))
             } else {
-                s + &self.data.imperial.clone().unwrap_or("".to_string())
+                Ok(s + &self.data.imperial.clone().unwrap_or("".to_string()))
             };
         } else if self.data.item_type == "function" {
             let value = self.get_function_value(data);
-            return self.data.color.clone().unwrap_or("".to_string())
+            return Ok(self.data.color.clone().unwrap_or("".to_string())
                 + &self.data.bg_color.clone().unwrap_or("".to_string())
-                + &value.unwrap_or("".to_string());
+                + &value.unwrap_or("".to_string()));
         }
         else if self.data.item_type == "image" {
             let source = Item::from_str(&self.data.value).get_value(data);
@@ -216,10 +216,10 @@ impl Item {
             if is_url {
                 let response = crate::networking::get_url(&source.unwrap_or("".to_string()), None, None, None);
                 let mut f = fs::OpenOptions::new().write(true).truncate(true).create(true).open("temp.img").expect("Open options failed");
-                f.write(&response.bytes).expect("Write Failed");
+                f.write(&response?.bytes).expect("Write Failed");
             }
-            return crate::layout::image_to_text::ascii_image("temp.img", self.data.scale.unwrap());
+            return Ok(crate::layout::image_to_text::ascii_image("temp.img", self.data.scale.unwrap()));
         }
-        "".to_string()
+        Ok("".to_string())
     }
 }

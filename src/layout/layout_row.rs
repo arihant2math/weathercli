@@ -46,7 +46,7 @@ impl Row {
         text_bg_color: String,
         unit_bg_color: String,
         metric: bool,
-    ) -> String {
+    ) -> crate::Result<String> {
         let mut s = "".to_string();
         for (_count, i) in self.items.iter().enumerate() {
             s += &*i.to_string(
@@ -58,8 +58,8 @@ impl Row {
                 text_bg_color.clone(),
                 unit_bg_color.clone(),
                 metric,
-            );
+            )?;
         }
-        s
+        Ok(s)
     }
 }

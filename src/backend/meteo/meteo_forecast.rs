@@ -90,9 +90,9 @@ fn get_forecast_sentence(
     String::from("Conditions are predicted to be clear for the next 7 days.")
 }
 
-pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> WeatherForecastRS {
+pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> crate::Result<WeatherForecastRS> {
     let data =
-        meteo_get_combined_data_formatted(coordinates.clone(), settings.internal.metric_default);
+        meteo_get_combined_data_formatted(coordinates.clone(), settings.internal.metric_default)?;
     let mut forecast: Vec<WeatherDataRS> = Vec::new();
     let now = data
         .weather
@@ -106,7 +106,7 @@ pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> Weath
         data.air_quality.clone(),
         now,
         settings.internal.metric_default,
-    );
+    )?;
     forecast.push(current);
     for i in now + 1..data.weather.hourly.time.len() - 1 {
         forecast.push(get_meteo_weather_data(
@@ -114,11 +114,11 @@ pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> Weath
             data.air_quality.clone(),
             i,
             settings.internal.metric_default,
-        ));
+        )?);
     }
-    let region_country = get_location(coordinates);
+    let region_country = get_location(coordinates)?;
     let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather, now);
-    WeatherForecastRS {
+    let f = WeatherForecastRS {
         status: Status::OK,
         region: region_country[0].clone(),
         country: region_country[1].clone(),
@@ -126,5 +126,6 @@ pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> Weath
         current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,
         raw_data: None,
-    }
+    };
+    Ok(f)
 }

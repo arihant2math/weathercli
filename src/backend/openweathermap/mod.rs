@@ -42,23 +42,23 @@ pub fn open_weather_map_get_combined_data_formatted(
     open_weather_map_api_key: String,
     coordinates: Vec<String>,
     metric: bool,
-) -> OpenWeatherMapFormattedData {
+) -> crate::Result<OpenWeatherMapFormattedData> {
     let urls = open_weather_map_get_api_urls(
         open_weather_map_api_url,
         open_weather_map_api_key,
         coordinates,
         metric,
     );
-    let n = networking::get_urls(urls, None, None, None);
+    let n = networking::get_urls(urls, None, None, None)?;
     let r1: OpenWeatherMapJson = serde_json::from_str(&n[0].text).expect("");
     let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(&n[1].text).expect("");
     let r3: OpenWeatherMapForecastJson = serde_json::from_str(&n[2].text).expect("");
-    OpenWeatherMapFormattedData {
+    Ok(OpenWeatherMapFormattedData {
         weather: r1,
         air_quality: r2,
         forecast: r3,
         raw_data: n,
-    }
+    })
 }
 
 #[derive(Clone, Serialize, Deserialize)]

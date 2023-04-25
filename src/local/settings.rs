@@ -18,7 +18,7 @@ fn _meteo() -> String {
     String::from("meteo")
 }
 
-#[derive(Serialize, Deserialize, Clone, Default)]
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct SettingsJson {
     #[serde(default)]
@@ -59,20 +59,14 @@ pub struct Settings {
     file: WeatherFile,
 }
 
-impl Default for Settings {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Settings {
-    pub fn new() -> Self {
-        let file = WeatherFile::settings();
+    pub fn new() -> crate::Result<Self> {
+        let file = WeatherFile::settings()?;
         let parsed: SettingsJson = serde_json::from_str(&file.data).expect("JSON read failed");
-        Settings {
+        Ok(Settings {
             internal: parsed,
             file,
-        }
+        })
     }
 
     pub fn write(&mut self) {

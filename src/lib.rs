@@ -30,6 +30,9 @@ pub mod networking;
 pub mod prompt;
 pub mod util;
 
+pub type Result<T> = std::result::Result<T, crate::util::Error>;
+
+
 pub fn now() -> u128 {
     let start = SystemTime::now();
     let since_the_epoch = start.duration_since(UNIX_EPOCH).expect(
@@ -71,7 +74,7 @@ fn get_data_from_datasource(
     coordinates: [String; 2],
     settings: Settings,
     custom_backends: ExternalBackends
-) -> WeatherForecastRS {
+) -> crate::Result<WeatherForecastRS> {
     let mut dir = local::dirs::home_dir().expect("Home dir get failed");
     dir.push(".weathercli/resources");
     let mut f1 = dir.clone();
@@ -80,17 +83,17 @@ fn get_data_from_datasource(
     f2.push("weather_ascii_images.json");
     if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
         println!("Forcing downloading of web resources");
-        component_updater::update_web_resources(settings.internal.development, None)
+        component_updater::update_web_resources(settings.internal.development, None)?;
     } else if settings.internal.auto_update_internet_resources {
         thread::spawn(move || {
             component_updater::update_web_resources(settings.internal.development, None);
         });
     }
 
-    match datasource {
-        Datasource::Openweathermap => get_openweathermap_forecast(Vec::from(coordinates), settings),
-        Datasource::NWS => get_nws_forecast(Vec::from(coordinates), settings),
-        Datasource::Meteo => get_meteo_forecast(Vec::from(coordinates), settings),
+    return Ok(match datasource {
+        Datasource::Openweathermap => get_openweathermap_forecast(Vec::from(coordinates), settings)?,
+        Datasource::NWS => get_nws_forecast(Vec::from(coordinates), settings)?,
+        Datasource::Meteo => get_meteo_forecast(Vec::from(coordinates), settings)?,
         Datasource::Other(s) => custom_backends.call(s, Vec::from(coordinates), settings).expect("Custom backend execution failed")
-    }
+    });
 }

@@ -10,8 +10,8 @@ use crate::now;
 pub fn get_openweathermap_current(
     data: OpenWeatherMapJson,
     aqi: OpenWeatherMapAirQualityJson,
-) -> WeatherDataRS {
-    let weather_file = WeatherFile::weather_codes();
+) -> crate::Result<WeatherDataRS> {
+    let weather_file = WeatherFile::weather_codes()?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     for condition in data.weather.clone() {
         conditions.push(WeatherCondition::new(
@@ -19,7 +19,7 @@ pub fn get_openweathermap_current(
             &weather_file.data,
         ))
     }
-    WeatherDataRS {
+    Ok(WeatherDataRS {
         time: now() as i128,
         temperature: data.main.temp as f32,
         min_temp: data.main.temp_min as f32,
@@ -39,5 +39,5 @@ pub fn get_openweathermap_current(
         cloud_cover: data.clouds.all,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions.clone()),
-    }
+    })
 }

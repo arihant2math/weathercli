@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fmt;
 
 use serde::{Deserialize, Serialize};
 
@@ -23,31 +22,6 @@ pub const DEFAULT_LAYOUT_SETTINGS: LayoutDefaultsJSON = LayoutDefaultsJSON {
     text_bg_color: None,
     unit_bg_color: None,
 };
-
-pub type Result<T> = std::result::Result<T, LayoutErr>;
-#[derive(Debug, Clone)]
-pub struct LayoutErr {
-    pub message: String,
-    pub row: Option<u64>,
-    pub item: Option<u64>,
-}
-
-// Generation of an error is completely separate from how it is displayed.
-// There's no need to be concerned about cluttering complex logic with the display style.
-//
-// Note that we don't store any extra info about the errors. This means we can't state
-// which string failed to parse without modifying our types to carry that information.
-impl fmt::Display for LayoutErr {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.row {
-            Some(row) => match self.item {
-                Some(item) => write!(f, "Error at row {}, item {}: {}", row, item, self.message),
-                None => write!(f, "Error at row {}: {}", row, self.message),
-            },
-            None => write!(f, "Error: {}", &self.message),
-        }
-    }
-}
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct ItemJSON {
@@ -108,8 +82,8 @@ struct LayoutJSON {
 }
 
 impl LayoutFile {
-    pub fn new(path: String) -> Result<Self> {
-        let file = WeatherFile::new(&("layouts/".to_string() + &path));
+    pub fn new(path: String) -> crate::Result<Self> {
+        let file = WeatherFile::new(&("layouts/".to_string() + &path))?;
         let file_data: LayoutJSON =
             serde_json::from_str(&file.data).expect("Invalid Layout, JSON parsing failed"); // TODO: Default instead
         if file_data.version.is_none() {
@@ -192,7 +166,7 @@ impl LayoutFile {
         })
     }
 
-    pub fn to_string(&self, data: WeatherForecastRS, metric: bool) -> String {
+    pub fn to_string(&self, data: WeatherForecastRS, metric: bool) -> crate::Result<String> {
         let mut s = Vec::new();
         let data_value = serde_json::to_value(data).expect("Serialization failed");
         for (_count, row) in self.layout.iter().enumerate() {
@@ -205,8 +179,8 @@ impl LayoutFile {
                 self.text_bg_color.clone(),
                 self.unit_bg_color.clone(),
                 metric,
-            ))
+            )?)
         }
-        s.join("\n")
+        Ok(s.join("\n"))
     }
 }

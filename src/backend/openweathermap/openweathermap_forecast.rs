@@ -62,7 +62,7 @@ fn get_forecast_sentence(forecast: Vec<WeatherDataRS>) -> String {
 pub fn get_openweathermap_forecast(
     coordinates: Vec<String>,
     settings: Settings,
-) -> WeatherForecastRS {
+) -> crate::Result<WeatherForecastRS> {
     if settings.internal.open_weather_map_api_key.is_empty() {
         panic!(
             "Improper openweathermap api key, {}",
@@ -74,17 +74,17 @@ pub fn get_openweathermap_forecast(
         settings.internal.open_weather_map_api_key.clone(),
         coordinates,
         settings.internal.metric_default,
-    );
+    )?;
     let mut forecast: Vec<WeatherDataRS> = Vec::new();
     forecast.push(get_openweathermap_current(
         data.weather.clone(),
         data.air_quality.clone(),
-    ));
+    )?);
     for item in data.forecast.list.into_iter() {
-        forecast.push(get_openweathermap_future(item));
+        forecast.push(get_openweathermap_future(item)?);
     }
     let forecast_sentence = get_forecast_sentence(forecast.clone());
-    WeatherForecastRS {
+    Ok(WeatherForecastRS {
         status: Status::OK,
         region: data.weather.name,
         country: data.weather.sys.country,
@@ -92,5 +92,5 @@ pub fn get_openweathermap_forecast(
         current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,
         raw_data: None,
-    }
+    })
 }

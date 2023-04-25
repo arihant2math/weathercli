@@ -10,10 +10,10 @@ pub fn get_meteo_weather_data(
     aqi: MeteoAirQualityJson,
     index: usize,
     metric: bool,
-) -> WeatherDataRS {
+) -> crate::Result<WeatherDataRS> {
     let cloud_cover = data.hourly.cloudcover[index];
-    let conditions = get_conditions(data.clone(), metric, index, cloud_cover);
-    WeatherDataRS {
+    let conditions = get_conditions(data.clone(), metric, index, cloud_cover)?;
+    let d = WeatherDataRS {
         time: now() as i128,
         temperature: data.current_weather.temperature,
         min_temp: data.daily.temperature_2m_min[index / 24],
@@ -34,7 +34,8 @@ pub fn get_meteo_weather_data(
         cloud_cover,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions),
-    }
+    };
+    Ok(d)
 }
 
 fn get_conditions(
@@ -42,8 +43,8 @@ fn get_conditions(
     metric: bool,
     index: usize,
     cloud_cover: u8,
-) -> Vec<WeatherCondition> {
-    let weather_file = WeatherFile::weather_codes();
+) -> crate::Result<Vec<WeatherCondition>> {
+    let weather_file = WeatherFile::weather_codes()?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     if cloud_cover == 0 {
         conditions.push(WeatherCondition::new(800, &weather_file.data));
@@ -72,5 +73,5 @@ fn get_conditions(
     if data.hourly.snowfall[index] != 0.0 {
         conditions.push(WeatherCondition::new(601, &weather_file.data));
     }
-    conditions
+    Ok(conditions)
 }

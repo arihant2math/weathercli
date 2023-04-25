@@ -43,7 +43,7 @@ fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
     }
 }
 
-fn main() {
+fn main() -> weather_core::Result<()> {
     let level = LevelFilter::Info;
     let file_path = "/tmp/foo.log";
 
@@ -81,7 +81,7 @@ fn main() {
     let _handle = log4rs::init_config(config).unwrap();
 
     let args = App::parse();
-    let settings = Settings::new();
+    let settings = Settings::new()?;
     let mut true_metric = settings.internal.metric_default;
     if args.global_opts.metric {
         true_metric = true;
@@ -116,17 +116,17 @@ fn main() {
                     true_metric,
                     args.global_opts.json,
                     custom_backends
-                ),
-                Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value),
+                )?,
+                Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value)?,
                 Command::Settings => weather_core::open_settings_app(),
                 Command::ClearCache => {
-                    let mut f = WeatherFile::new("d.cache");
+                    let mut f = WeatherFile::new("d.cache")?;
                     f.data = String::new();
                     f.write();
                 }
                 Command::PruneCache => prune_cache(),
                 Command::Setup => setup(settings),
-                Command::Update(opts) => update(opts.force),
+                Command::Update(opts) => update(opts.force)?,
                 Command::Credits => credits(),
             };
         }
@@ -140,6 +140,7 @@ fn main() {
             true_metric,
             args.global_opts.json,
             custom_backends
-        ),
+        )?,
     };
+    return Ok(());
 }

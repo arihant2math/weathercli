@@ -19,18 +19,19 @@ pub fn weather(
     true_metric: bool,
     json: bool,
     custom_backends: ExternalBackends
-) {
+) -> crate::Result<()> {
     info!("Coordinates {:#?}", coordinates.clone());
     info!("True metric {}", true_metric);
     let mut s = settings.clone();
     s.internal.metric_default = true_metric;
-    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends);
-    print_out(settings.internal.layout_file, data, json, true_metric);
+    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
+    print_out(settings.internal.layout_file, data, json, true_metric)?;
+    Ok(())
 }
 
-pub fn config(key_name: String, value: Option<String>) {
+pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
     if value.is_none() {
-        let f = WeatherFile::settings();
+        let f = WeatherFile::settings()?;
         let data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
         println!("{}: {}", &key_name, data[&key_name]);
     } else {
@@ -39,13 +40,14 @@ pub fn config(key_name: String, value: Option<String>) {
             key_name.to_lowercase(),
             value.clone().unwrap()
         );
-        let mut f = WeatherFile::settings();
+        let mut f = WeatherFile::settings()?;
         let mut data: Value = serde_json::from_str(&f.data).expect("Deserialization failed");
         data[key_name.to_uppercase()] =
             Value::from_str(&value.unwrap()).expect("Value conversion failed");
         f.data = serde_json::to_string(&data).expect("Serialization failed");
         f.write();
     }
+    Ok(())
 }
 
 pub fn setup(settings_s: Settings) {
@@ -103,9 +105,9 @@ pub fn setup(settings_s: Settings) {
     settings.write();
 }
 
-pub fn update(force: bool) {
+pub fn update(force: bool) -> crate::Result<()> {
     println!("Checking for updates ...");
-    let latest_version = component_updater::get_latest_version();
+    let latest_version = component_updater::get_latest_version()?;
     let application_path = std::env::current_exe().expect("Current exe not found");
     println!("Latest Version: {}", latest_version);
     println!("Current Version: {}", version());
@@ -131,8 +133,7 @@ pub fn update(force: bool) {
                     None,
                     None,
                     None,
-                )
-                .text,
+                )?.text,
             )
             .expect("JSON deserialize failed");
             let mut web_hash = resp["updater-exe-hash-unix"]
@@ -161,6 +162,7 @@ pub fn update(force: bool) {
             }
         }
     }
+    Ok(())
 }
 
 pub fn credits() {

@@ -28,16 +28,16 @@ pub fn meteo_get_api_urls(location: Vec<String>, metric: bool) -> Vec<String> {
 pub fn meteo_get_combined_data_formatted(
     coordinates: Vec<String>,
     metric: bool,
-) -> MeteoFormattedData {
+) -> crate::Result<MeteoFormattedData> {
     let urls = meteo_get_api_urls(coordinates, metric);
-    let n = networking::get_urls(urls, None, None, None);
+    let n = networking::get_urls(urls, None, None, None)?;
     let r1: MeteoForecastJson = serde_json::from_str(&n[0].text).expect("");
     let r2: MeteoAirQualityJson = serde_json::from_str(&n[1].text).expect("");
-    MeteoFormattedData {
+    Ok(MeteoFormattedData {
         weather: r1,
         air_quality: r2,
         raw_data: n,
-    }
+    })
 }
 
 #[derive(Clone, Serialize, Deserialize)]

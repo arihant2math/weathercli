@@ -19,8 +19,8 @@ fn get_location_windows() -> Result<[String; 2], windows::core::Error> {
     ])
 }
 
-fn get_location_web() -> Result<[String; 2], String> {
-    let resp = networking::get_url("https://ipinfo.io", None, None, None).text;
+fn get_location_web() -> crate::Result<[String; 2]> {
+    let resp = networking::get_url("https://ipinfo.io", None, None, None)?.text;
     let json: HashMap<String, String> =
         serde_json::from_str(&resp).expect("JSON deserialization failed");
     let location = json.get("loc").expect("No loc section").split(',');
@@ -44,7 +44,7 @@ fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> Option<Ve
         None,
         None,
     );
-    let j: Value = serde_json::from_str(&r.text).expect("json parsing failed");
+    let j: Value = serde_json::from_str(&r.expect("request failed").text).expect("json parsing failed");
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
     Some(vec![
         j_data[0].as_f64()?.to_string(),
@@ -70,7 +70,7 @@ fn nominatim_geocode(query: &str) -> Option<Vec<String>> {
     Some(vec![lat, lon])
 }
 
-fn nominatim_reverse_geocode(lat: &str, lon: &str) -> String {
+fn nominatim_reverse_geocode(lat: &str, lon: &str) -> crate::Result<String> {
     let r = networking::get_url(
         format!(
             "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
@@ -80,7 +80,7 @@ fn nominatim_reverse_geocode(lat: &str, lon: &str) -> String {
         None,
         None,
     );
-    r.text
+    Ok(r?.text)
 }
 
 /// :param no_sys_loc: if true the location will not be retrieved with the OS location api,
@@ -166,12 +166,12 @@ pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> Op
     }
 }
 
-pub fn reverse_location(latitude: &str, longitude: &str) -> [String; 2] {
+pub fn reverse_location(latitude: &str, longitude: &str) -> crate::Result<[String; 2]> {
     let k = "coordinates".to_string() + latitude + "," + longitude;
     let attempt_cache = cache::read(&k);
     match attempt_cache {
         None => {
-            let data = nominatim_reverse_geocode(latitude, longitude);
+            let data = nominatim_reverse_geocode(latitude, longitude)?;
             let place: Value = serde_json::from_str(&data).unwrap();
             let country = place["address"]["country"].as_str().unwrap().to_string();
             let mut region = "";
@@ -184,7 +184,7 @@ pub fn reverse_location(latitude: &str, longitude: &str) -> [String; 2] {
             thread::spawn(move || {
                 cache::write(&k, &v);
             });
-            [region.to_string(), country]
+            Ok([region.to_string(), country])
         }
         Some(real_cache) => {
             let cache_string = "coordinates".to_string() + &k;
@@ -192,7 +192,7 @@ pub fn reverse_location(latitude: &str, longitude: &str) -> [String; 2] {
                 cache::update_hits(cache_string);
             });
             let vec_collect: Vec<&str> = real_cache.split(",?`|").collect();
-            [vec_collect[0].to_string(), vec_collect[1].to_string()]
+            Ok([vec_collect[0].to_string(), vec_collect[1].to_string()])
         }
     }
 }

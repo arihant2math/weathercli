@@ -19,8 +19,8 @@ fn update_web_resource(
     out_name: &str,
     dev: bool,
     quiet: bool,
-) {
-    let mut f = WeatherFile::new(&local_path);
+) -> crate::Result<()> {
+    let mut f = WeatherFile::new(&local_path)?;
     let file_hash = hash_file(&f.path.display().to_string());
     let web_json: Value = web_resp;
     let web_hash: String = web_json[name].as_str().unwrap().to_string();
@@ -35,22 +35,23 @@ fn update_web_resource(
                 println!("\x1b[33mDownloading {}", out_name);
             }
         }
-        let data = networking::get_url(web_path, None, None, None).text;
+        let data = networking::get_url(web_path, None, None, None)?.text;
         f.data = data;
         f.write();
     }
+    Ok(())
 }
 
 /// Updates all the web resources, run on a separate thread as there is no return value
 /// :param dev: gets passed update_web_resource, if true update_web_resource will print the hashes if they don't match
-pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
+pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()> {
     let real_quiet = quiet.unwrap_or(false);
     let resp = networking::get_url(
         "https://arihant2math.github.io/weathercli/index.json",
         None,
         None,
         None,
-    );
+    )?;
     if resp.status == 200 {
         let web_text = resp.text;
         let web_json: Value = serde_json::from_str(&web_text).expect("");
@@ -81,38 +82,42 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) {
             dev,
             real_quiet,
         );
+        return Ok(());
+    }
+    else {
+        return Err(crate::util::Error::NetworkError("Status not 200".to_string()));
     }
 }
 
-pub fn get_latest_version() -> String {
+pub fn get_latest_version() -> crate::Result<String> {
     let data = networking::get_url(
         "https://arihant2math.github.io/weathercli/index.json",
         None,
         None,
         None,
     );
-    let json: HashMap<String, String> = serde_json::from_str(&data.text).expect("");
-    json.get("version").expect("").to_string()
+    let json: HashMap<String, String> = serde_json::from_str(&data?.text).expect("");
+    Ok(json.get("version").expect("").to_string())
 }
 
-pub fn get_latest_updater_version() -> String {
+pub fn get_latest_updater_version() -> crate::Result<String> {
     let data = networking::get_url(
         "https://arihant2math.github.io/weathercli/index.json",
         None,
         None,
         None,
     );
-    let json: HashMap<String, String> = serde_json::from_str(&data.text).expect("");
-    json.get("updater-version").expect("").to_string()
+    let json: HashMap<String, String> = serde_json::from_str(&data?.text).expect("");
+    Ok(json.get("updater-version").expect("").to_string())
 }
 
 /// Downloads the OS specific updater
-pub fn get_updater(path: String) {
+pub fn get_updater(path: String) -> crate::Result<()> {
     let url = format!(
         "https://arihant2math.github.io/weathercli/{}",
         CONFIG.updater_file_name
     );
-    let data = networking::get_url(url, None, None, None).bytes;
+    let data = networking::get_url(url, None, None, None)?.bytes;
     let mut file = OpenOptions::new()
         .create(true)
         .write(true)
@@ -121,4 +126,5 @@ pub fn get_updater(path: String) {
         .unwrap();
     file.write_all(&data)
         .expect("Something went wrong opening the file");
+    Ok(())
 }
