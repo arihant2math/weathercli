@@ -60,15 +60,15 @@ def main(gh_token):
     tasks = []
     if rust_artifacts is not None:
         print("Starting Unix Download")
-        tasks.append((s, rust_artifacts, "weather (Unix)", "weather"))
+        tasks.append((s, rust_artifacts, "weather (Linux)", "weather"))
         print("Starting Windows Download")
         tasks.append((s, rust_artifacts, "weather (Windows)", "weather.exe"))
         print("Starting Unix Download (Updater)")
-        tasks.append((s, rust_artifacts, "updater (Unix)", "updater"))
+        tasks.append((s, rust_artifacts, "updater (Linux)", "updater"))
         print("Starting Windows Download (Updater)")
         tasks.append((s, rust_artifacts, "updater (Windows)", "updater.exe"))
         print("Starting Unix Download (Daemon)")
-        tasks.append((s, rust_artifacts, "weatherd (Unix)", "weatherd"))
+        tasks.append((s, rust_artifacts, "weatherd (Linux)", "weatherd"))
         print("Starting Windows Download (Daemon)")
         tasks.append((s, rust_artifacts, "weatherd (Windows)", "weatherd.exe"))
     jobs = []
