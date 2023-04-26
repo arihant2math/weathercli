@@ -1,6 +1,7 @@
 use std::{collections::HashMap, ffi::OsStr, io, rc::Rc};
 
 use libloading::Library;
+use log::{debug, error, trace};
 
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::custom_backend;
@@ -12,7 +13,12 @@ pub fn load(paths: Vec<String>) -> ExternalBackends {
     let mut functions = ExternalBackends::new();
     unsafe {
         for path in paths {
-            functions.load(path).expect("Function loading failed");
+            trace!("Loading {}", path);
+            let l  = functions.load(&path);
+            match l {
+                Ok(()) => trace!("Loaded {} successfully", &path),
+                Err(e) => error!("Failed to load external backend at {}", &path) // TODO: More info
+            }
         }
     }
     functions
@@ -47,6 +53,7 @@ impl ExternalBackends {
         coordinates: Vec<String>,
         settings: Settings,
     ) -> crate::Result<WeatherForecastRS> {
+        debug!("Calling function {}", name);
         self.functions
             .get(&*name)
             .ok_or_else(|| Error::InvocationError(InvocationError::NotFound))?
@@ -62,9 +69,10 @@ impl ExternalBackends {
     /// [`plugins_core::plugin_declaration!()`] macro. Trying manually implement
     /// a plugin without going through that macro will result in undefined
     /// behaviour.
-    pub unsafe fn load<P: AsRef<OsStr>>(&mut self, library_path: P) -> io::Result<()> {
+    pub unsafe fn load<P: AsRef<OsStr>>(&mut self, library_path: P) -> crate::Result<()> {
+        let path = library_path.as_ref().to_str().ok_or_else(|| "Failed to get library path")?;
         // load the library into memory
-        let library = Rc::new(Library::new(library_path).expect("Lib init failed"));
+        let library = Rc::new(Library::new(path).map_err(|e| format!("Could not load library at {}, details: {}", path, e.to_string()))?);
 
         // get a pointer to the plugin_declaration symbol.
         let decl = library
@@ -76,7 +84,7 @@ impl ExternalBackends {
         if decl.core_version != custom_backend::CORE_VERSION
         // TODO: Add rustc check
         {
-            return Err(io::Error::new(io::ErrorKind::Other, "Version mismatch"));
+            return Err(io::Error::new(io::ErrorKind::Other, "Version mismatch"))?;
         }
 
         let mut registrar = PluginRegistrar::new(Rc::clone(&library));

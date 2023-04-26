@@ -3,7 +3,7 @@ use std::thread;
 use std::time::Duration;
 
 use serde_json::Value;
-use log::info;
+use log::debug;
 
 use crate::{component_updater, get_data_from_datasource, networking, version};
 use crate::cli::{Datasource, print_out};
@@ -20,8 +20,9 @@ pub fn weather(
     json: bool,
     custom_backends: ExternalBackends
 ) -> crate::Result<()> {
-    info!("Coordinates {:#?}", coordinates.clone());
-    info!("True metric {}", true_metric);
+    debug!("Coordinates: {:?}", coordinates.clone());
+    debug!("Metric: {}", true_metric);
+    debug!("json: {}", json);
     let mut s = settings.clone();
     s.internal.metric_default = true_metric;
     let data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
@@ -59,7 +60,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
         "{}===== Weather CLI Setup =====",
         crate::color::FORE_CYAN
     );
-    component_updater::update_web_resources(settings.internal.development, None)?;
+    component_updater::update_web_resources(None)?;
     println!(
         "{}Choose the default weather backend: ",
         crate::color::FORE_RED

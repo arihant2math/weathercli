@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+use log::{debug, trace};
 
 use serde_json::Value;
 
@@ -17,17 +18,15 @@ fn update_web_resource(
     web_path: &str,
     name: &str,
     out_name: &str,
-    dev: bool,
     quiet: bool,
 ) -> crate::Result<()> {
+    trace!("updating {} ", name);
     let mut f = WeatherFile::new(&local_path)?;
     let file_hash = hash_file(&f.path.display().to_string())?;
     let web_json: Value = web_resp;
     let web_hash: String = web_json[name].as_str().ok_or_else(|| "Failed to get hash from web")?.to_string();
     if web_hash != file_hash {
-        if dev {
-            println!("web: {} file: {}", web_hash, file_hash)
-        }
+        debug!("name: {} web: {} file: {}", name, web_hash, file_hash);
         if !quiet {
             if f.exists {
                 println!("\x1b[33mDownloading {} update", out_name);
@@ -44,7 +43,8 @@ fn update_web_resource(
 
 /// Updates all the web resources, run on a separate thread as there is no return value
 /// :param dev: gets passed update_web_resource, if true update_web_resource will print the hashes if they don't match
-pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()> {
+pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
+    debug!("updating web resources");
     let real_quiet = quiet.unwrap_or(false);
     let resp = networking::get_url(
         "https://arihant2math.github.io/weathercli/index.json",
@@ -61,7 +61,6 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()>
             "https://arihant2math.github.io/weathercli/weather_codes.json",
             "weather-codes-hash",
             "weather codes",
-            dev,
             real_quiet,
         )?;
         update_web_resource(
@@ -70,7 +69,6 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()>
             "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
             "weather-ascii-images-hash",
             "ascii images",
-            dev,
             real_quiet,
         )?;
         update_web_resource(
@@ -79,7 +77,6 @@ pub fn update_web_resources(dev: bool, quiet: Option<bool>) -> crate::Result<()>
             "https://arihant2math.github.io/weathercli/default_layout.json",
             "default-layout-hash",
             "default layout",
-            dev,
             real_quiet,
         )?;
         return Ok(());

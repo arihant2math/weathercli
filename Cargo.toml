@@ -19,8 +19,10 @@ name = "installer"
 path = "bin/installer.rs"
 
 [[bin]]
+required-features = ["binary"]
 name = "weather"
 path = "bin/weather.rs"
+
 
 [lib]
 name = "weather_core"
@@ -88,9 +90,10 @@ winreg = "0.50.*"
 windows = { version = "0.48.*", features = ["Foundation", "Devices_Geolocation"] }
 
 [features]
-support = ["dep:tokio", "dep:futures-util", "dep:thiserror", "reqwest/stream", "dep:indicatif"]
-installer = []
-gui = ["dep:iced"]
+binary = []
+support = ["binary", "dep:tokio", "dep:futures-util", "dep:thiserror", "reqwest/stream", "dep:indicatif"]
+installer = ["binary"]
+gui = ["binary", "dep:iced"]
 default = []
 
 [profile.bench]

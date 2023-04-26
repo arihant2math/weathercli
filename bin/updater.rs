@@ -95,7 +95,7 @@ async fn main() -> weather_core::Result<()> {
     } else {
         install_dir
     };
-    weather_core::component_updater::update_web_resources(false, Some(args.quiet))?;
+    weather_core::component_updater::update_web_resources(Some(args.quiet))?;
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {

@@ -96,6 +96,6 @@ async fn main() -> weather_core::Result<()> {
     if args.add_to_path {
         add_to_path(dir_path.display().to_string())?;
     }
-    update_web_resources(false, Some(false))?;
+    update_web_resources(Some(false))?;
     Ok(())
 }

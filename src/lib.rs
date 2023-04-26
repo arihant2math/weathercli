@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
+use log::warn;
 
 use crate::backend::meteo::meteo_forecast::get_meteo_forecast;
 use crate::backend::nws::nws_forecast::get_nws_forecast;
@@ -82,11 +83,11 @@ pub fn get_data_from_datasource(
     let mut f2 = dir.clone();
     f2.push("weather_ascii_images.json");
     if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
-        println!("Forcing downloading of web resources");
-        component_updater::update_web_resources(settings.internal.development, None)?;
+        warn!("Forcing downloading of web resources");
+        component_updater::update_web_resources(None)?;
     } else if settings.internal.auto_update_internet_resources {
         thread::spawn(move || {
-            component_updater::update_web_resources(settings.internal.development, None).unwrap_or(());
+            component_updater::update_web_resources(None).unwrap_or(());
         });
     }
 

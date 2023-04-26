@@ -95,6 +95,13 @@ pub struct GlobalOpts {
         help = "If used, the location will not be gotten from the win32 api, if applicable"
     )]
     pub no_sys_loc: bool,
+    #[arg(
+        long,
+        action,
+        global = true,
+        help = "Enables debugging"
+    )]
+    pub debug: bool
 }
 
 fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: bool) -> crate::Result<()> {
