@@ -1,7 +1,9 @@
 use std::{collections::HashMap, ffi::OsStr, io, rc::Rc};
+use std::fmt::format;
 
 use libloading::Library;
 use log::{debug, error, trace};
+use serde::de;
 
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::custom_backend;
@@ -17,7 +19,7 @@ pub fn load(paths: Vec<String>) -> ExternalBackends {
             let l  = functions.load(&path);
             match l {
                 Ok(()) => trace!("Loaded {} successfully", &path),
-                Err(e) => error!("Failed to load external backend at {}", &path) // TODO: More info
+                Err(e) => error!("Failed to load external backend at {}: {}", &path, e.to_string())
             }
         }
     }
@@ -27,7 +29,7 @@ pub fn load(paths: Vec<String>) -> ExternalBackends {
 pub fn run(
     functions: ExternalBackends,
     name: String,
-    coordinates: Vec<String>,
+    coordinates: [&str; 2],
     settings: Settings,
 ) -> WeatherForecastRS {
     functions
@@ -50,7 +52,7 @@ impl ExternalBackends {
     pub fn call(
         &self,
         name: String,
-        coordinates: Vec<String>,
+        coordinates: [&str; 2],
         settings: Settings,
     ) -> crate::Result<WeatherForecastRS> {
         debug!("Calling function {}", name);
@@ -81,10 +83,15 @@ impl ExternalBackends {
             .read();
 
         // version checks to prevent accidental ABI incompatibilities
-        if decl.core_version != custom_backend::CORE_VERSION
-        // TODO: Add rustc check
-        {
-            return Err(io::Error::new(io::ErrorKind::Other, "Version mismatch"))?;
+        if decl.core_version != custom_backend::CORE_VERSION {
+            return Err(io::Error::new(io::ErrorKind::Other,
+                                      format!("Plugin version mismatch, found {}, but expected {}", decl.core_version, custom_backend::CORE_VERSION)
+            ))?;
+        }
+        if decl.rustc_version != custom_backend::RUSTC_VERSION {
+            return Err(io::Error::new(io::ErrorKind::Other,
+                                      format!("Rustc version mismatch, found {}, but expected {}", decl.rustc_version, custom_backend::RUSTC_VERSION)
+            ))?;
         }
 
         let mut registrar = PluginRegistrar::new(Rc::clone(&library));
@@ -134,10 +141,14 @@ pub struct BackendWrapper {
 impl WeatherForecastPlugin for BackendWrapper {
     fn call(
         &self,
-        coordinates: Vec<String>,
+        coordinates: [&str; 2],
         settings: Settings,
     ) -> crate::Result<WeatherForecastRS> {
         self.backend.call(coordinates, settings)
+    }
+
+    fn name(&self) -> Option<&str> {
+        self.backend.name()
     }
 
     fn help(&self) -> Option<&str> {

@@ -6,9 +6,9 @@ use weather_core::custom_backend::PluginRegistrar;
 use weather_core::{export_plugin, networking};
 use weather_core::backend::weather_data::WeatherDataRS;
 use scraper::Html;
-use weather_core::backend::{Status, WindData};
+use weather_core::backend::WindData;
 use weather_core::now;
-pub static CORE_VERSION: &str = "0";
+// pub static CORE_VERSION: &str = "0";
 
 fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_quality_soup: Html) -> WeatherDataRS {
     WeatherDataRS {
@@ -30,8 +30,8 @@ fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_
     }
 }
 
-fn get_the_weather_channel_forecast(coordinates: Vec<String>, settings: Settings) -> weather_core::Result<WeatherForecastRS> {
-    let region_country = get_location(coordinates.clone())?;
+fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecastRS> {
+    let region_country = get_location(coordinates)?;
     let mut cookies = HashMap::new();
     if !settings.internal.metric_default {
         cookies.insert("unitOfMeasurement".to_string(), "e".to_string());
@@ -43,19 +43,16 @@ fn get_the_weather_channel_forecast(coordinates: Vec<String>, settings: Settings
                                  None, None, Some(cookies.clone()))?;
     let r2 = networking::get_url("https://weather.com/weather/hourbyhour/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
                              None, None, Some(cookies.clone()))?;
-    // TODO: Fix
-    // let r3 = networking::get_url("https://weather.com/weather/air-quality/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
-    //                          None, None, Some(cookies.clone()));
+    let r3 = networking::get_url("https://weather.com/weather/air-quality/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
+                             None, None, Some(cookies.clone()))?;
     let weather_soup =  Html::parse_document(&r1.text);
     let forecast_soup =  Html::parse_document(&r2.text);
-    // let air_quality_soup =  Html::parse_document(&r3.text);
-    let air_quality_soup =  Html::parse_document(&r1.text); // TODO: Fix
+    let air_quality_soup =  Html::parse_document(&r3.text);
     let current = get_the_weather_channel_current(weather_soup, forecast_soup, air_quality_soup);
     let forecast = vec![current.clone()];
     let region = &region_country.clone()[0];
     let country = &region_country.clone()[1];
     Ok(WeatherForecastRS {
-        status: Status::OK,
         region: region.to_string(),
         country: country.to_string(),
         forecast,
@@ -75,11 +72,15 @@ extern "C" fn register(registrar: &mut dyn PluginRegistrar) {
 pub struct TheWeatherChannel;
 
 impl WeatherForecastPlugin for TheWeatherChannel {
-    fn call(&self, coordinates: Vec<String>, settings: Settings) -> weather_core::Result<WeatherForecastRS> {
+    fn call(&self, coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecastRS> {
         get_the_weather_channel_forecast(coordinates, settings)
     }
 
+    fn name(&self) -> Option<&str> {
+        Some("theweatherchannel")
+    }
+
     fn help(&self) -> Option<&str> { // TODO: Fix
-        None
+        Some("A weather channel scraper")
     }
 }

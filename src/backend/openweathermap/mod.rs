@@ -15,11 +15,11 @@ pub mod openweathermap_json;
 pub fn open_weather_map_get_api_urls(
     url: &str,
     api_key: String,
-    location: Vec<String>,
+    location: [&str; 2],
     metric: bool,
-) -> Vec<String> {
-    let longitude = location.get(1).expect("");
-    let latitude = location.get(0).expect("");
+) -> [String; 3] {
+    let longitude = location[0];
+    let latitude = location[1];
     let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
     let mut air_quality =
         format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}");
@@ -33,14 +33,14 @@ pub fn open_weather_map_get_api_urls(
         air_quality += "&units=imperial";
         forecast += "&units=imperial";
     }
-    vec![weather_string, air_quality, forecast]
+    [weather_string, air_quality, forecast]
 }
 
 /// Gets the urls from the openweathermap api server and returns a FormattedData struct with the data
 pub fn open_weather_map_get_combined_data_formatted(
     open_weather_map_api_url: &str,
     open_weather_map_api_key: String,
-    coordinates: Vec<String>,
+    coordinates: [&str; 2],
     metric: bool,
 ) -> crate::Result<OpenWeatherMapFormattedData> {
     let urls = open_weather_map_get_api_urls(
@@ -49,7 +49,7 @@ pub fn open_weather_map_get_combined_data_formatted(
         coordinates,
         metric,
     );
-    let n = networking::get_urls(urls, None, None, None)?;
+    let n = networking::get_urls(urls.to_vec(), None, None, None)?;
     let r1: OpenWeatherMapJson = serde_json::from_str(&n[0].text)?;
     let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(&n[1].text)?;
     let r3: OpenWeatherMapForecastJson = serde_json::from_str(&n[2].text)?;

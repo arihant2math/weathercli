@@ -1,8 +1,6 @@
 use clap::{Args, Parser, Subcommand};
 
-use crate::backend::Status;
 use crate::backend::weather_forecast::WeatherForecastRS;
-use crate::color;
 use crate::layout::LayoutFile;
 
 pub mod commands;
@@ -107,18 +105,13 @@ pub struct GlobalOpts {
 fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: bool) -> crate::Result<()> {
     if json {
         println!("{:#?}", data.raw_data.expect("No raw data to print"))
-    } else if data.status == Status::OK {
+    }
+    else {
         let mut out = LayoutFile::new(layout_file);
         if out.is_err() {
             out = LayoutFile::new("default.json".to_string());
         }
         println!("{}", out?.to_string(data, metric)?);
-    } else {
-        println!(
-            "{}Something went wrong when requesting data!{}",
-            color::FORE_RED,
-            color::FORE_RESET
-        )
     }
     return Ok(());
 }

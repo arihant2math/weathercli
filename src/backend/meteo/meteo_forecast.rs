@@ -1,7 +1,6 @@
 use crate::backend::meteo::meteo_current::get_meteo_weather_data;
 use crate::backend::meteo::meteo_get_combined_data_formatted;
 use crate::backend::meteo::meteo_json::MeteoForecastJson;
-use crate::backend::Status;
 use crate::backend::weather_data::WeatherDataRS;
 use crate::backend::weather_forecast::get_location;
 use crate::backend::weather_forecast::WeatherForecastRS;
@@ -82,7 +81,7 @@ fn get_forecast_sentence(
     String::from("Conditions are predicted to be clear for the next 7 days.")
 }
 
-pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> crate::Result<WeatherForecastRS> {
+pub fn get_meteo_forecast(coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecastRS> {
     let data =
         meteo_get_combined_data_formatted(coordinates.clone(), settings.internal.metric_default)?;
     let mut forecast: Vec<WeatherDataRS> = Vec::new();
@@ -111,7 +110,6 @@ pub fn get_meteo_forecast(coordinates: Vec<String>, settings: Settings) -> crate
     let region_country = get_location(coordinates)?;
     let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather, now);
     let f = WeatherForecastRS {
-        status: Status::OK,
         region: region_country[0].clone(),
         country: region_country[1].clone(),
         forecast: forecast.clone(),

@@ -35,7 +35,7 @@ fn is_valid_ext(f: &str) -> bool {
 
 fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
     match f {
-        Err(_e) => false, // TODO: Re-emit error
+        Err(_e) => false, // TODO: Re-emit error if needed
         Ok(dir) => {
             if dir.metadata().is_ok() && dir.metadata().unwrap().is_file() && is_valid_ext(dir.file_name().to_str().unwrap()) {
                 return true

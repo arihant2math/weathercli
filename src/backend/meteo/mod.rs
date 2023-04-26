@@ -9,16 +9,16 @@ pub mod meteo_forecast;
 mod meteo_json;
 
 /// Gets the urls from the openweathermap api server
-pub fn meteo_get_api_urls(location: Vec<String>, metric: bool) -> Vec<String> {
-    let longitude = location.get(0).expect("");
-    let latitude = location.get(1).expect("");
+pub fn meteo_get_api_urls(location: [&str; 2], metric: bool) -> [String; 2] {
+    let longitude = location[0];
+    let latitude = location[1];
     if !metric {
-        vec![format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,pressure_msl,visibility,windspeed_10m,winddirection_10m&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=auto",
+        [format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,pressure_msl,visibility,windspeed_10m,winddirection_10m&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=auto",
                      longitude, latitude),
              format!("https://air-quality-api.open-meteo.com/v1/air-quality?latitude={}&longitude={}&hourly=european_aqi", longitude, latitude),
         ]
     } else {
-        vec![format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,visibility,windspeed_10m,winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto", longitude, latitude),
+        [format!("https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current_weather=true&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,visibility,windspeed_10m,winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto", longitude, latitude),
              format!("https://air-quality-api.open-meteo.com/v1/air-quality?latitude={}&longitude={}&hourly=european_aqi", longitude, latitude),
         ]
     }
@@ -26,11 +26,11 @@ pub fn meteo_get_api_urls(location: Vec<String>, metric: bool) -> Vec<String> {
 
 /// Gets the urls from the meteo api server and returns a FormattedData struct with the data
 pub fn meteo_get_combined_data_formatted(
-    coordinates: Vec<String>,
+    coordinates: [&str; 2],
     metric: bool,
 ) -> crate::Result<MeteoFormattedData> {
     let urls = meteo_get_api_urls(coordinates, metric);
-    let n = networking::get_urls(urls, None, None, None)?;
+    let n = networking::get_urls(urls.to_vec(), None, None, None)?;
     let r1: MeteoForecastJson = serde_json::from_str(&n[0].text)?;
     let r2: MeteoAirQualityJson = serde_json::from_str(&n[1].text)?;
     Ok(MeteoFormattedData {

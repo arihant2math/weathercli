@@ -1,15 +1,19 @@
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::local::settings::Settings;
 
-pub static CORE_VERSION: &str = "0";
-pub static RUSTC_VERSION: &str = "TODO";
+pub static RUSTC_VERSION: &str = env!("RUSTC_VERSION");
+pub static CORE_VERSION: &str = "0.1";
 
 pub trait WeatherForecastPlugin {
     fn call(
         &self,
-        coordinates: Vec<String>,
+        coordinates: [&str; 2],
         settings: Settings,
     ) -> crate::Result<WeatherForecastRS>;
+
+    fn name(&self) -> Option<&str> {
+        None
+    }
 
     /// Help text that may be used to display information about this function.
     fn help(&self) -> Option<&str> {
@@ -32,7 +36,7 @@ impl<S: ToString> From<S> for InvocationError {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Clone)]
 pub struct PluginDeclaration {
     pub rustc_version: &'static str,
     pub core_version: &'static str,
