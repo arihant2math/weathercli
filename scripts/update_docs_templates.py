@@ -52,7 +52,7 @@ def main(gh_token):
         "https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=100&status=completed"
     )
     runs = json.loads(get_run_id.text)["workflow_runs"]
-    rust_ci = filter_by_file(runs, ".github/workflows/build-rust.yml")
+    rust_ci = filter_by_file(runs, ".github/workflows/build.yml")
     rust_artifacts = None
     if len(rust_ci) > 0:
         latest_updater_run_id = rust_ci[0]["id"]
