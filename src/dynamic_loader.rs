@@ -1,9 +1,7 @@
 use std::{collections::HashMap, ffi::OsStr, io, rc::Rc};
-use std::fmt::format;
 
 use libloading::Library;
 use log::{debug, error, trace};
-use serde::de;
 
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::custom_backend;

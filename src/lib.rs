@@ -13,9 +13,6 @@ use crate::local::settings::Settings;
 #[cfg(feature = "gui")]
 use crate::local::settings_app;
 use crate::util::Config;
-
-#[cfg(feature = "support")]
-pub mod autolaunch;
 pub mod backend;
 #[cfg(feature = "support")]
 pub mod bin_common;

@@ -270,6 +270,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1181e1e0d1fce796a03db1ae795d67167da795f9cf4a39c37589e85ef57f26d3"
 
 [[package]]
+name = "auto-launch"
+version = "0.4.0"
+dependencies = [
+ "dirs-sys 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "thiserror",
+ "winreg 0.50.0",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1005,7 +1014,7 @@ version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ca3aa72a6f96ea37bbc5aa912f6788242832f75369bdfdadcb0e38423f100059"
 dependencies = [
- "dirs-sys",
+ "dirs-sys 0.3.7",
 ]
 
 [[package]]
@@ -1017,6 +1026,27 @@ dependencies = [
  "libc",
  "redox_users",
  "winapi",
+]
+
+[[package]]
+name = "dirs-sys"
+version = "0.4.0"
+dependencies = [
+ "libc",
+ "option-ext",
+ "redox_users",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "dirs-sys"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04414300db88f70d74c5ff54e50f9e1d1737d9a5b90f53fcf2e95ca2a9ab554b"
+dependencies = [
+ "libc",
+ "redox_users",
+ "windows-sys 0.45.0",
 ]
 
 [[package]]
@@ -2627,6 +2657,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "option-ext"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
+
+[[package]]
 name = "ordered-float"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4210,37 +4246,35 @@ dependencies = [
 
 [[package]]
 name = "weather"
-version = "2023.4.25"
+version = "2023.4.26"
 dependencies = [
+ "auto-launch",
  "bincode",
  "clap",
  "cookie_store 0.19.0",
  "crossterm",
  "dark-light",
+ "dirs-sys 0.4.0",
  "futures-util",
  "hex",
  "iced",
  "image",
  "indicatif",
- "libc",
  "libloading 0.8.0",
  "log",
  "log4rs",
  "rand",
  "rayon",
- "redox_users",
  "regex",
  "reqwest",
  "rustc_version",
  "serde",
  "serde_json",
  "sha2",
- "thiserror",
  "tokio",
  "ureq",
  "url",
  "windows 0.48.0",
- "windows-sys 0.48.0",
  "winreg 0.50.0",
  "winresource",
 ]
