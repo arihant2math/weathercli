@@ -55,7 +55,7 @@ crossterm = "0.26.*"
 futures-util = { version = "0.3.*", optional = true }
 indicatif = { version = "0.17.*", optional = true }
 iced = { version = "0.9.*", optional = true }
-tokio = { version = "1.27.*", features = ["full"], optional = true }
+tokio = { version = "1.28.*", features = ["full"], optional = true }
 clap = { version = "4.2.*", features = ["derive"] }
 serde = { version = "1.0.*", features = ["derive"] }
 reqwest = { version = "0.11.*", features = ["blocking", "json", "cookies"] }
