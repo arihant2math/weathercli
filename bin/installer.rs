@@ -41,8 +41,8 @@ fn add_to_path(dir: String) -> weather_core::Result<()> {
 }
 
 #[cfg(not(target_os = "windows"))]
-fn add_to_path(dir: String) {
-    println!("Add to path is unsupported for your system")
+fn add_to_path(dir: String) -> weather_core::Result<()> {
+    return Err("Add to path is unsupported for your system")?;
 }
 
 #[tokio::main]

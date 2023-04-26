@@ -24,10 +24,8 @@ fn get_forecast_sentence(
         .iter()
         .map(|x| x != &0.0)
         .collect::<Vec<bool>>();
-    for _i in 0..start {
-        rain.remove(0);
-        snow.remove(0);
-    } // TODO: Convert
+    rain.drain(0..start);
+    snow.drain(0..start);
     if data[0]
         .conditions
         .clone()
@@ -53,13 +51,7 @@ fn get_forecast_sentence(
         .collect::<Vec<bool>>()
         .contains(&true)
     {
-        let mut t: u8 = 0;
-        for i in snow {
-            if !i {
-                break;
-            }
-            t += 1;
-        }
+        let t = snow.iter().position(|&b| b).unwrap_or(0);
         return format!("It will continue snowing for {} hours.", t);
     } else {
         let rain_start = rain.clone().into_iter().position(|x| x);

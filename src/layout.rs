@@ -44,16 +44,16 @@ fn reemit_layout_error(e: Error, count: usize) -> Error {
 }
 
 impl LayoutFile {
-    pub fn new(path: String) -> crate::Result<Self> {
+    pub fn new(path: String) -> crate::Result<Self> { // Error here means default unless its default.json
         let file = WeatherFile::new(&("layouts/".to_string() + &path))?;
         let file_data: LayoutJSON =
-            serde_json::from_str(&file.data)?; // TODO: Default instead
+            serde_json::from_str(&file.data)?;
         if file_data.version.is_none() {
             return Err(Error::LayoutError(LayoutErr {
                 message: "Invalid Layout, missing key 'version'".to_string(),
                 row: None,
                 item: None,
-            })); // TODO: Default instead
+            }));
             // trace!("Invalid Layout, missing Key 'version', add it like this {\n\t... // Your json here\n\t"version": ' + str(self.version) + "\n}"")
         } else if file_data.version.expect("version not found") > VERSION {
             return Err(Error::LayoutError(LayoutErr {
@@ -61,7 +61,7 @@ impl LayoutFile {
                 file_data.version.unwrap_or(0), VERSION),
                 row: None,
                 item: None,
-            })); // TODO: Default instead
+            }));
         } else if file_data.version.expect("version not found") < 1 {
             return Err(Error::LayoutError(LayoutErr {
                 message: "Layout Version too old (version 0 is not supported), defaulting".to_string(),
