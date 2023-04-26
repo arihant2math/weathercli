@@ -4,6 +4,7 @@ use std::thread;
 use serde_json::Value;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
+#[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::PositionAccuracy;
 
 use crate::local::cache;

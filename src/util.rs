@@ -90,6 +90,7 @@ impl From<LayoutErr> for Error {
     }
 }
 
+#[cfg(target_os = "windows")]
 impl From<windows::core::Error> for Error {
     fn from(error: windows::core::Error) -> Self {
         Error::Other(error.message().to_string_lossy())
