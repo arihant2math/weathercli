@@ -71,21 +71,19 @@ async fn is_update_needed(index: IndexStruct, component: Component) -> weather_c
 
 #[tokio::main]
 async fn main() -> weather_core::Result<()> {
+    print!("\x1b[0J");
     let args = Cli::parse();
     let resp = reqwest::get("https://arihant2math.github.io/weathercli/index.json")
         .await
-        .expect("Index get failed");
-    let json: IndexStruct =
-        serde_json::from_str(&resp.text().await.expect("Failed to receive text"))
-            .expect("JSON parsing failed");
+        .expect("Network request failed");
+    let json: IndexStruct = serde_json::from_str(&resp.text().await.expect("Failed to receive text"))?;
     if args.version && !args.quiet {
         println!("{}", weather_core::version());
         return Ok(());
     }
-    let install_dir = std::env::current_dir().expect("Not running from directory");
+    let install_dir = std::env::current_dir()?;
     let parent = install_dir.parent().unwrap_or(&*install_dir);
-    let install_type_folders = fs::read_dir(parent)
-        .expect("read parent dir failed")
+    let install_type_folders = fs::read_dir(parent)?
         .any(|f| {
             f.expect("Dir Entry failed").file_name().to_str().unwrap_or("") == CONFIG.weather_file_name
         });

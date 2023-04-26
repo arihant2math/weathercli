@@ -27,7 +27,7 @@ fn is_valid_ext(f: &str) -> bool {
 }
 
 #[cfg(target_family = "unix")]
-fn is_valid_ext(f: &String) -> bool {
+fn is_valid_ext(f: &str) -> bool {
     let len = f.len();
     &f[len-3 ..] == ".so"
 }
