@@ -4196,7 +4196,7 @@ dependencies = [
 
 [[package]]
 name = "weather"
-version = "2023.4.22"
+version = "2023.4.25"
 dependencies = [
  "bincode",
  "clap",
