@@ -4,7 +4,7 @@ use std::time::Duration;
 use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, read};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 
-fn draw(options: &Vec<String>, choice: usize, multiline: bool) -> String {
+fn draw(options: &[&str], choice: usize, multiline: bool) -> String {
     assert!(options.len() > choice);
     let mut result = String::new();
     if multiline {
@@ -34,13 +34,13 @@ fn draw(options: &Vec<String>, choice: usize, multiline: bool) -> String {
     result
 }
 
-pub fn choice(options: Vec<String>, default: usize, multiline: Option<bool>) -> crate::Result<usize> {
+pub fn choice(options: &[&str], default: usize, multiline: Option<bool>) -> crate::Result<usize> {
     read()?;
     let multiline_standard = multiline.unwrap_or(true);
     thread::sleep(Duration::from_millis(100));
     // entering raw mode
     enable_raw_mode()?;
-    let start_msg = draw(&options, default, multiline_standard);
+    let start_msg = draw(options, default, multiline_standard);
     print!("{}", start_msg);
     let mut choice = default;
     //key detection
@@ -51,7 +51,7 @@ pub fn choice(options: Vec<String>, default: usize, multiline: Option<bool>) -> 
         } else {
             print!("\x1b[1A");
         }
-        print!("{}", draw(&options, choice, multiline_standard));
+        print!("{}", draw(options, choice, multiline_standard));
         read()?;
         // matching the key
         match read()? {

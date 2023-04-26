@@ -65,17 +65,12 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
         "{}Choose the default weather backend: ",
         crate::color::FORE_RED
     );
-    let options = vec![
-        "Meteo".to_string(),
-        "Open Weather Map".to_string(),
-        "National Weather Service".to_string(),
-        "The Weather Channel".to_string(),
-    ];
-    let mut default = vec!["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"]
+    let options = ["Meteo", "Open Weather Map", "National Weather Service", "The Weather Channel"];
+    let mut default = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"]
         .iter()
         .position(|&x| x == settings.internal.default_backend.clone())
         .unwrap_or(0);
-    let current = crate::prompt::choice(options, default, None)?;
+    let current = crate::prompt::choice(&options, default, None)?;
     let weather_backend_setting = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"][current];
     settings.internal.default_backend = weather_backend_setting.to_string();
     settings.write()?;
@@ -90,7 +85,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
         default = 1;
     }
     let constant_location_setting = [true, false]
-        [crate::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)?];
+        [crate::prompt::choice(&["yes", "no"], default, None)?];
     settings.internal.constant_location = constant_location_setting;
     settings.write()?;
     thread::sleep(Duration::from_millis(100));
@@ -104,7 +99,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
         default = 1;
     }
     let auto_update_setting = [true, false]
-        [crate::prompt::choice(vec!["yes".to_string(), "no".to_string()], default, None)?];
+        [crate::prompt::choice(&["yes", "no"], default, None)?];
     settings.internal.auto_update_internet_resources = auto_update_setting;
     settings.write()?;
     Ok(())

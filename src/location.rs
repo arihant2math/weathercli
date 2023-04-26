@@ -32,7 +32,7 @@ fn get_location_web() -> crate::Result<[String; 2]> {
     Ok(location_list)
 }
 
-fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> crate::Result<Vec<String>> {
+fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> crate::Result<[String; 2]> {
     let r = networking::get_url(
         format!(
             "https://dev.virtualearth.net/REST/v1/Locations?query=\"{}\"&maxResults=5&key={}",
@@ -44,13 +44,13 @@ fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> crate::Re
     )?;
     let j: Value = serde_json::from_str(&r.text)?;
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
-    Ok(vec![
+    Ok([
         j_data[0].as_f64().ok_or_else(|| "latitude not found")?.to_string(),
         j_data[1].as_f64().ok_or_else(|| "longitude not found")?.to_string(),
     ])
 }
 
-fn nominatim_geocode(query: &str) -> crate::Result<Vec<String>> {
+fn nominatim_geocode(query: &str) -> crate::Result<[String; 2]> {
     let r = networking::get_url(format!(
             "https://nominatim.openstreetmap.org/search?q=\"{}\"&format=jsonv2",
             query
@@ -58,7 +58,7 @@ fn nominatim_geocode(query: &str) -> crate::Result<Vec<String>> {
     let j: Value = serde_json::from_str(&r.text)?;
     let lat = j[0]["lat"].as_f64().ok_or_else(|| "latitude not found")?.to_string();
     let lon = j[0]["lon"].as_f64().ok_or_else(|| "longitude not found")?.to_string();
-    Ok(vec![lat, lon])
+    Ok([lat, lon])
 }
 
 fn nominatim_reverse_geocode(lat: &str, lon: &str) -> crate::Result<String> {
@@ -119,7 +119,7 @@ pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> cr
 
     match attempt_cache {
         None => {
-            let mut coordinates: crate::Result<Vec<String>>;
+            let mut coordinates: crate::Result<[String; 2]>;
             if bing_maps_api_key != *"" {
                 coordinates = bing_maps_location_query(&location_string, bing_maps_api_key);
                 if coordinates.is_err() {
