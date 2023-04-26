@@ -28,10 +28,9 @@ fn add_to_path(dir: String) -> weather_core::Result<()> {
     println!("Adding to Path ...");
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let environment = hklm
-        .open_subkey(r#"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"#)
-        .expect("");
+        .open_subkey(r#"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"#)?;
     let mut path: String = environment.get_value("Path")?;
-    let append = fs::canonicalize(dir).unwrap().display().to_string();
+    let append = fs::canonicalize(dir)?.display().to_string();
     if path.chars().last().unwrap_or(';') != ';' {
         path += ";"
     }
