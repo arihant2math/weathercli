@@ -79,9 +79,8 @@ fn main() -> weather_core::Result<()> {
                     .write(true)
                     .truncate(true)
                     .create(true)
-                    .open(path)
-                    .expect("file open failed");
-                file.write_all(&bytes).expect("Write failed");
+                    .open(path)?;
+                file.write_all(&bytes)?;
             }
             thread::sleep(sleep_duration);
         }

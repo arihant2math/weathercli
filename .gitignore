@@ -12,3 +12,5 @@ weather.exe
 weatherd.exe
 weather.spec
 test.http
+
+custom_backends/theweatherchannel/target/*

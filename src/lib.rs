@@ -27,8 +27,9 @@ pub mod location;
 pub mod networking;
 pub mod prompt;
 pub mod util;
+pub mod error;
 
-pub type Result<T> = std::result::Result<T, crate::util::Error>;
+pub type Result<T> = std::result::Result<T, crate::error::Error>;
 
 
 pub fn now() -> u128 {
@@ -72,8 +73,8 @@ pub fn get_data_from_datasource(
     coordinates: [String; 2],
     settings: Settings,
     custom_backends: ExternalBackends
-) -> crate::Result<WeatherForecastRS> {
-    let mut dir = local::dirs::home_dir().expect("Home dir get failed");
+) -> Result<WeatherForecastRS> {
+    let mut dir = local::dirs::home_dir()?;
     dir.push(".weathercli/resources");
     let mut f1 = dir.clone();
     f1.push("weather_codes.json");

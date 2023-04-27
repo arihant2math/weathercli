@@ -102,7 +102,7 @@ fn main() -> weather_core::Result<()> {
     let mut custom_backends = ExternalBackends::default();
     if settings.internal.enable_custom_backends && discriminant(&datasource) == discriminant(&Datasource::Other("".to_string())) {
         debug!("Detecting external dlls");
-        let mut path = home_dir().expect("expect home dir");
+        let mut path = home_dir()?;
         path.push(".weathercli");
         path.push("custom_backends");
         if path.exists() {

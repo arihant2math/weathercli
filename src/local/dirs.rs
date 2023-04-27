@@ -2,10 +2,10 @@ use std::path::PathBuf;
 
 #[cfg(windows)]
 pub fn home_dir() -> crate::Result<PathBuf> {
-    dirs_sys::known_folder_profile().ok_or_else(|| "Home dir not found")?
+    Ok(dirs_sys::known_folder_profile().ok_or_else(|| "Home dir not found")?)
 }
 
 #[cfg(not(windows))]
 pub fn home_dir() -> crate::Result<PathBuf> {
-    dirs_sys::home_dir().ok_or_else(|| "Home dir not found")?
+    Ok(dirs_sys::home_dir().ok_or_else(|| "Home dir not found")?)
 }

@@ -108,7 +108,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
 pub fn update(force: bool) -> crate::Result<()> {
     println!("Checking for updates ...");
     let latest_version = component_updater::get_latest_version()?;
-    let application_path = std::env::current_exe().expect("Current exe not found");
+    let application_path = std::env::current_exe()?;
     println!("Latest Version: {}", latest_version);
     println!("Current Version: {}", version());
     if latest_version != version() || force {
