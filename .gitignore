@@ -14,3 +14,5 @@ weather.spec
 test.http
 
 custom_backends/theweatherchannel/target/*
+dev-scripts/target/*
+
