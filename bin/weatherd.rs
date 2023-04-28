@@ -3,9 +3,9 @@ use std::env::current_exe;
 use std::fs;
 use std::io::Write;
 
+use auto_launch::{AutoLaunchBuilder, Error};
 use clap::Parser;
 
-use weather_core::autolaunch::{AutoLaunchBuilder, Error};
 use weather_core::cli::datasource_from_str;
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
