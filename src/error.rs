@@ -34,7 +34,7 @@ pub enum Error {
     JsonError(String),
     IoError(String),
     InvocationError(InvocationError),
-    Other(String)
+    Other(String),
 }
 
 // Generation of an error is completely separate from how it is displayed.

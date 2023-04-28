@@ -69,9 +69,15 @@ fn main() -> weather_core::Result<()> {
             enabled = settings.internal.enable_daemon;
             let default_datasource = &*settings.internal.default_backend.clone();
             if default_datasource.to_lowercase() == "openweathermap" {
-                let data = weather_core::get_data_from_datasource(datasource_from_str(default_datasource),
-                                                                  weather_core::location::get_location(false, settings.internal.constant_location)?,
-                                                                  settings.clone(), Default::default())?;
+                let data = weather_core::get_data_from_datasource(
+                    datasource_from_str(default_datasource),
+                    weather_core::location::get_location(
+                        false,
+                        settings.internal.constant_location,
+                    )?,
+                    settings.clone(),
+                    Default::default(),
+                )?;
                 let bytes = bincode::serialize(&data).expect("Serialization Failed");
                 let out = WeatherFile::new("d.cache")?;
                 let path = out.path;

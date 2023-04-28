@@ -10,26 +10,24 @@ fn draw(options: &[&str], choice: usize, multiline: bool) -> String {
     if multiline {
         for (count, option) in options.iter().enumerate() {
             if count == choice {
-                                result += "\x1b[35m> \x1b[32m";
-
+                result += "\x1b[35m> \x1b[32m";
             } else {
-                                result += "\x1b[34m  ";
+                result += "\x1b[34m  ";
             }
             result += option;
             result += "\x1b[39m";
-            result += "\n"
+            result += "\n";
         }
-    }
-    else {
+    } else {
         for (count, option) in options.iter().enumerate() {
-            if count != choice {
-                result += "\x1b[34m";
-            } else {
+            if count == choice {
                 result += "\x1b[32m";
+            } else {
+                result += "\x1b[34m";
             }
             result += option;
             result += "\x1b[39m";
-            result += " "
+            result += " ";
         }
     }
     result
@@ -57,25 +55,25 @@ pub fn choice(options: &[&str], default: usize, multiline: Option<bool>) -> crat
         // matching the key
         match read()? {
             Event::Key(KeyEvent {
-                code: KeyCode::Up | KeyCode::Left, ..
-            }) => choice = choice.saturating_sub(1),
+                           code: KeyCode::Up | KeyCode::Left, ..
+                       }) => choice = choice.saturating_sub(1),
             Event::Key(KeyEvent {
-                code: KeyCode::Down | KeyCode::Right,
-                ..
-            }) => choice = choice.saturating_add(1),
+                           code: KeyCode::Down | KeyCode::Right,
+                           ..
+                       }) => choice = choice.saturating_add(1),
             Event::Key(KeyEvent {
-                code: KeyCode::Char('c'),
-                modifiers: KeyModifiers::CONTROL,
-                ..
-            }) => panic!("Control-C pressed"),
+                           code: KeyCode::Char('c'),
+                           modifiers: KeyModifiers::CONTROL,
+                           ..
+                       }) => panic!("Control-C pressed"),
             Event::Key(KeyEvent {
-                code: KeyCode::Enter,
-                ..
-            }) => break,
+                           code: KeyCode::Enter,
+                           ..
+                       }) => break,
             _ => (),
         }
         if choice >= options.len() {
-            choice = options.len() - 1
+            choice = options.len() - 1;
         }
         thread::sleep(Duration::from_millis(10));
     }

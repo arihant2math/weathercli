@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::{Read, Write};
+
 use serde_json::Value;
 
 pub fn update_hash(file: &str, key: &str) -> weather_core::Result<()> {

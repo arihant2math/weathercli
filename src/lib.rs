@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
+
 use log::warn;
 
 use crate::backend::meteo::meteo_forecast::get_meteo_forecast;
@@ -13,6 +14,7 @@ use crate::local::settings::Settings;
 #[cfg(feature = "gui")]
 use crate::local::settings_app;
 use crate::util::Config;
+
 pub mod backend;
 #[cfg(feature = "support")]
 pub mod bin_common;
@@ -72,7 +74,7 @@ pub fn get_data_from_datasource(
     datasource: Datasource,
     coordinates: [String; 2],
     settings: Settings,
-    custom_backends: ExternalBackends
+    custom_backends: ExternalBackends,
 ) -> Result<WeatherForecastRS> {
     let mut dir = local::dirs::home_dir()?;
     dir.push(".weathercli/resources");

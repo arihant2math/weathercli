@@ -48,8 +48,8 @@ fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> crate::Re
 
 fn nominatim_geocode(query: &str) -> crate::Result<[String; 2]> {
     let r = networking::get_url(format!(
-            "https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"
-        ), None, None, None)?;
+        "https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"
+    ), None, None, None)?;
     let j: Value = serde_json::from_str(&r.text)?;
     let lat = j[0]["lat"].as_f64().ok_or("latitude not found")?.to_string();
     let lon = j[0]["lon"].as_f64().ok_or("longitude not found")?.to_string();

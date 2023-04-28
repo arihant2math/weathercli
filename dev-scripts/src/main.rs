@@ -1,10 +1,12 @@
-mod update_docs;
-mod update_hash;
-
 use std::{fs, process};
 use std::path::Path;
-use clap::{Parser, Subcommand, Args};
+
+use clap::{Args, Parser, Subcommand};
+
 use crate::update_hash::update_hash;
+
+mod update_docs;
+mod update_hash;
 
 #[derive(Clone, Parser)]
 #[command(version, author, about, name = "weathercli")]
@@ -20,12 +22,12 @@ pub enum Command {
     #[command(about = "Bump docs executable")]
     UpdateDocs(UpdateDocsOpts),
     #[command(about = "Update index hashes")]
-    IndexHashes
+    IndexHashes,
 }
 
 #[derive(Clone, Args)]
 pub struct UpdateDocsOpts {
-    github_api_token: String
+    github_api_token: String,
 }
 
 fn build_docs() -> weather_core::Result<()> {

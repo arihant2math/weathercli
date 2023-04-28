@@ -5,34 +5,34 @@ on:
   workflow_dispatch:
 
 jobs:
-    update:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-          with:
-            submodules: 'true'
-        - name: Install dependencies
-          run: |
-            pip install -r dev-requirements.txt
-            cp minimal-pyproject.toml pyproject.toml
-            maturin build -r
-        - name: Install corelib
-          run: |
-            for file in target/wheels/*.whl
-            do
-              name=${file##*/}
-              pip install "$file"
-            done
-        - name: Update Executables
-          run:
-            python3 ./scripts/update_docs_templates.py "$GH_API_PAT"
-          env:
-            SUPER_SECRET: ${{secrets.GH_API_PAT}}
-        - uses: actions/checkout@v3
-        - run: |
-            git config user.name github-actions
-            git config user.email github-actions@github.com
-            git add .
-            git commit -m "docs bump"
-            git push
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+      - name: Install dependencies
+        run: |
+          pip install -r dev-requirements.txt
+          cp minimal-pyproject.toml pyproject.toml
+          maturin build -r
+      - name: Install corelib
+        run: |
+          for file in target/wheels/*.whl
+          do
+            name=${file##*/}
+            pip install "$file"
+          done
+      - name: Update Executables
+        run:
+          python3 ./scripts/update_docs_templates.py "$GH_API_PAT"
+        env:
+          SUPER_SECRET: ${{secrets.GH_API_PAT}}
+      - uses: actions/checkout@v3
+      - run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "docs bump"
+          git push

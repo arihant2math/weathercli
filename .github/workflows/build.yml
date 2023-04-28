@@ -22,75 +22,75 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        os: [ "ubuntu-latest", "windows-latest", "macos-latest" ]
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: 'true'
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
 
-    - name: Build with cargo
-      run: cargo build -r --all-features
+      - name: Build with cargo
+        run: cargo build -r --all-features
 
-    - name: Fix weather icon windows
-      if: startsWith(matrix.os, 'windows')
-      run: ./rcedit ./target/release/weather.exe --set-icon .\icon\icon.ico
+      - name: Fix weather icon windows
+        if: startsWith(matrix.os, 'windows')
+        run: ./rcedit ./target/release/weather.exe --set-icon .\icon\icon.ico
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'windows')
-      with:
-        name: updater (Windows)
-        path: ./target/release/updater.exe
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'windows')
+        with:
+          name: updater (Windows)
+          path: ./target/release/updater.exe
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'ubuntu')
-      with:
-        name: updater (Linux)
-        path: ./target/release/updater
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: updater (Linux)
+          path: ./target/release/updater
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'windows')
-      with:
-        name: weatherd (Windows)
-        path: ./target/release/weatherd.exe
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'windows')
+        with:
+          name: weatherd (Windows)
+          path: ./target/release/weatherd.exe
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'ubuntu')
-      with:
-        name: weatherd (Linux)
-        path: ./target/release/weatherd
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: weatherd (Linux)
+          path: ./target/release/weatherd
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'windows')
-      with:
-        name: installer (Windows)
-        path: ./target/release/installer.exe
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'windows')
+        with:
+          name: installer (Windows)
+          path: ./target/release/installer.exe
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'ubuntu')
-      with:
-        name: installer (Linux)
-        path: ./target/release/installer
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: installer (Linux)
+          path: ./target/release/installer
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'windows')
-      with:
-        name: GUI installer (Windows)
-        path: ./target/release/gui_installer.exe
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'windows')
+        with:
+          name: GUI installer (Windows)
+          path: ./target/release/gui_installer.exe
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'ubuntu')
-      with:
-        name: GUI installer (Linux)
-        path: ./target/release/gui_installer
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: GUI installer (Linux)
+          path: ./target/release/gui_installer
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'windows')
-      with:
-        name: weather (Windows)
-        path: ./target/release/weather.exe
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'windows')
+        with:
+          name: weather (Windows)
+          path: ./target/release/weather.exe
 
-    - uses: actions/upload-artifact@v3
-      if: startsWith(matrix.os, 'ubuntu')
-      with:
-        name: weather (Linux)
-        path: ./target/release/weather
+      - uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: weather (Linux)
+          path: ./target/release/weather

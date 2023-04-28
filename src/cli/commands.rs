@@ -2,8 +2,8 @@ use std::str::FromStr;
 use std::thread;
 use std::time::Duration;
 
-use serde_json::Value;
 use log::debug;
+use serde_json::Value;
 
 use crate::{component_updater, get_data_from_datasource, networking, version};
 use crate::cli::{Datasource, print_out};
@@ -18,7 +18,7 @@ pub fn weather(
     settings: Settings,
     true_metric: bool,
     json: bool,
-    custom_backends: ExternalBackends
+    custom_backends: ExternalBackends,
 ) -> crate::Result<()> {
     debug!("Coordinates: {:?}", coordinates);
     debug!("Metric: {}", true_metric);
@@ -36,7 +36,7 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
             let f = WeatherFile::settings()?;
             let data: Value = serde_json::from_str(&f.data)?;
             println!("{}: {}", &key_name, data[&key_name]);
-        },
+        }
         Some(real_value) => {
             println!(
                 "Writing {}={} ...",

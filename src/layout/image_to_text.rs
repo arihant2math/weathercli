@@ -30,7 +30,7 @@ pub fn ascii_image(input_path: &str, scale: f64) -> String {
         if p.1 == 0 {
             text += "\n";
         }
-        let pixel = p.2 .0;
+        let pixel = p.2.0;
         text += &rgb(pixel[0], pixel[1], pixel[2]);
         text += "█";
     }

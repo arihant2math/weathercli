@@ -6,9 +6,9 @@ use regex::Regex;
 use serde_json::Value;
 
 use crate::color;
-use crate::layout::util;
-use crate::layout::layout_json::{ItemJSON, ItemEnum};
 use crate::error::LayoutErr;
+use crate::layout::layout_json::{ItemEnum, ItemJSON};
+use crate::layout::util;
 
 pub struct Item {
     data: ItemJSON,
@@ -204,9 +204,9 @@ impl Item {
             let s = variable_color
                 + &variable_bg_color
                 + &color::from_string(self.data.color.clone().unwrap_or(String::new()))
-                    .unwrap_or(String::new())
+                .unwrap_or(String::new())
                 + &color::from_string(self.data.bg_color.clone().unwrap_or(String::new()))
-                    .unwrap_or(String::new())
+                .unwrap_or(String::new())
                 + &value
                 + &unit_color
                 + &unit_bg_color
@@ -222,8 +222,7 @@ impl Item {
             return Ok(self.data.color.clone().unwrap_or(String::new())
                 + &self.data.bg_color.clone().unwrap_or(String::new())
                 + &value);
-        }
-        else if self.data.item_type == "image" {
+        } else if self.data.item_type == "image" {
             let source = Item::from_str(&self.data.value).get_value(data)?;
             let is_url = url_validator(&source);
             if is_url {

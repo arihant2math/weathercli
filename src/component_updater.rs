@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
-use log::{debug, trace};
 
+use log::{debug, trace};
 use serde_json::Value;
 
 use crate::{CONFIG, networking};

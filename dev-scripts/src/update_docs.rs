@@ -2,16 +2,17 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::{BufReader, BufWriter, Write};
 use std::time::UNIX_EPOCH;
+
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
 use serde_json::Value;
-use crate::update_hash::update_hash;
 
+use crate::update_hash::update_hash;
 
 fn get_artifact_urls(h: HashMap<String, String>, run_id: &str) -> weather_core::Result<Value> {
     let artifact_request = weather_core::networking::get_url(
         format!("https://api.github.com/repos/arihant2math/weathercli/actions/runs/{}/artifacts", run_id),
-    None, Some(h), None)?;
+        None, Some(h), None)?;
     let json: Value = serde_json::from_str(&artifact_request.text)?;
     return Ok(json["artifacts"].clone());
 }
@@ -20,7 +21,7 @@ fn download_artifact(artifact_list: &Vec<Value>, h: HashMap<String, String>, nam
     let artifacts: Vec<&Value> = artifact_list.iter().filter(|a| a["name"].as_str().unwrap() == name).collect();
     let artifact_id = artifacts[0]["id"].as_str().unwrap();
     let download =
-    weather_core::networking::get_url(format!("https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/{}/zip", artifact_id), None, Some(h), None)?;
+        weather_core::networking::get_url(format!("https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/{}/zip", artifact_id), None, Some(h), None)?;
     let mut tmp_zip_file = fs::OpenOptions::new().create(true).write(true).open("./tmp".to_string() + file + ".zip")?;
     tmp_zip_file.write_all(&*download.bytes)?;
     let reader = BufReader::new(tmp_zip_file.try_clone()?);

@@ -51,14 +51,14 @@ pub fn get_url<S: AsRef<str>>(
     let req = client.get(url);
     let resp = req.call();
     let real_resp = match resp {
-        Ok(d) =>  Ok(d),
+        Ok(d) => Ok(d),
         Err(e) => match e {
             ureq::Error::Status(_s, d) => Ok(d),
             ureq::Error::Transport(d) => Err(d)
         }
     };
     if real_resp.is_err() {
-        return Err(crate::error::Error::NetworkError(format!("Get to {url} failed")))
+        return Err(crate::error::Error::NetworkError(format!("Get to {url} failed")));
     }
     let data = real_resp.unwrap();
     let status = data.status();

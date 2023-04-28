@@ -7,7 +7,6 @@ from zipfile import ZipFile
 
 import click
 import weather_core.networking
-
 from path_helper import weathercli_dir
 from update_index_hashes import update_hash
 

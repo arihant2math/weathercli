@@ -1,384 +1,384 @@
 {
-    "200": [
-        "Thunderstorm",
-        "thunderstorm with light rain",
-        "11d",
-        "A thunderstorm is occurring and there is light rain",
-        "ThunderyShowers"
-    ],
-    "201": [
-        "Thunderstorm",
-        "thunderstorm with rain",
-        "11d",
-        "A thunderstorm is occurring and there is rain",
-        "ThunderyHeavyRain"
-    ],
-    "202": [
-        "Thunderstorm",
-        "thunderstorm with heavy rain",
-        "11d",
-        "A thunderstorm is occurring and there is heavy rain",
-        "ThunderyHeavyRain"
-    ],
-    "210": [
-        "Thunderstorm",
-        "light thunderstorm",
-        "11d",
-        "A light thunderstorm is occurring.",
-        "ThunderyShowers"
-    ],
-    "211": [
-        "Thunderstorm",
-        "thunderstorm",
-        "11d",
-        "A thunderstorm is occurring",
-        "ThunderyHeavyRain"
-    ],
-    "212": [
-        "Thunderstorm",
-        "heavy thunderstorm",
-        "11d",
-        "A heavy thunderstorm is occurring",
-        "ThunderyHeavyRain"
-    ],
-    "221": [
-        "Thunderstorm",
-        "ragged thunderstorm",
-        "11d",
-        "A ragged thunderstorm is occurring",
-        "ThunderyShowers"
-    ],
-    "230": [
-        "Thunderstorm",
-        "thunderstorm with light drizzle",
-        "11d",
-        "A thunderstorm is occurring and there is a light drizzle",
-        "ThunderyShowers"
-    ],
-    "231": [
-        "Thunderstorm",
-        "thunderstorm with drizzle",
-        "11d",
-        "A thunderstorm is occurring and there is a drizzle",
-        "ThunderyShowers"
-    ],
-    "232": [
-        "Thunderstorm",
-        "thunderstorm with heavy drizzle",
-        "11d",
-        "A thunderstorm is occurring and there is a heavy drizzle",
-        "ThunderyHeavyRain"
-    ],
-    "300": [
-        "Drizzle",
-        "light intensity drizzle",
-        "09d",
-        "It is currently drizzling lightly",
-        "LightRain"
-    ],
-    "301": [
-        "Drizzle",
-        "drizzle",
-        "09d",
-        "It is currently drizzling",
-        "LightRain"
-    ],
-    "302": [
-        "Drizzle",
-        "heavy intensity drizzle",
-        "09d",
-        "It is currently drizzling with heavy intensity",
-        "HeavyRain"
-    ],
-    "310": [
-        "Drizzle",
-        "light intensity drizzle rain",
-        "09d",
-        "It is currently drizzling with light intensity",
-        "LightRain"
-    ],
-    "311": [
-        "Drizzle",
-        "drizzle rain",
-        "09d",
-        "It is currently drizzle-raining",
-        "LightRain"
-    ],
-    "312": [
-        "Drizzle",
-        "heavy intensity drizzle rain",
-        "09d",
-        "It is currently drizzle-raining with heavy intensity",
-        "LightRain"
-    ],
-    "313": [
-        "Drizzle",
-        "shower rain and drizzle",
-        "09d",
-        "It is currently showering and drizzling",
-        "LightRain"
-    ],
-    "314": [
-        "Drizzle",
-        "heavy shower rain and drizzle",
-        "09d",
-        "It is currently showering heavily and drizzling",
-        "LightRain"
-    ],
-    "321": [
-        "Drizzle",
-        "shower drizzle",
-        "09d",
-        "It is currently drizzling heavily",
-        "LightRain"
-    ],
-    "500": [
-        "Rain",
-        "light rain",
-        "10d",
-        "A light rain is occurring",
-        "LightRain"
-    ],
-    "501": [
-        "Rain",
-        "moderate rain",
-        "10d",
-        "It is raining",
-        "HeavyRain"
-    ],
-    "502": [
-        "Rain",
-        "heavy intensity rain",
-        "10d",
-        "It is raining heavily",
-        "HeavyRain"
-    ],
-    "503": [
-        "Rain",
-        "very heavy rain",
-        "10d",
-        "It is raining very heavily",
-        "HeavyRain"
-    ],
-    "504": [
-        "Rain",
-        "extreme rain",
-        "10d",
-        "It is raining extremely heavily",
-        "HeavyRain"
-    ],
-    "511": [
-        "Rain",
-        "freezing rain",
-        "13d",
-        "It is raining cold water",
-        "HeavyRain"
-    ],
-    "520": [
-        "Rain",
-        "light intensity shower rain",
-        "09d",
-        "A light intensity shower rain is occurring",
-        "HeavySnow"
-    ],
-    "521": [
-        "Rain",
-        "shower rain",
-        "09d",
-        "It is showering",
-        "HeavySnow"
-    ],
-    "522": [
-        "Rain",
-        "heavy intensity shower rain",
-        "09d",
-        "A heavy intensity shower rain is occurring"
-    ],
-    "531": [
-        "Rain",
-        "ragged shower rain",
-        "09d",
-        "It is showering",
-        "LightShowers"
-    ],
-    "600": [
-        "Snow",
-        "light snow",
-        "13d",
-        "It is snowing lightly",
-        "LightSnow"
-    ],
-    "601": [
-        "Snow",
-        "Snow",
-        "13d",
-        "It is snowing",
-        "LightSnow"
-    ],
-    "602": [
-        "Snow",
-        "Heavy snow",
-        "13d",
-        "It is snowing heavily",
-        "HeavySnow"
-    ],
-    "611": [
-        "Snow",
-        "Sleet",
-        "13d",
-        "Sleet is present",
-        "LightSleet"
-    ],
-    "612": [
-        "Snow",
-        "Light shower sleet",
-        "13d",
-        "Sleet is present",
-        "HeavySnow"
-    ],
-    "613": [
-        "Snow",
-        "Shower sleet",
-        "13d",
-        "Sleet is present",
-        "HeavySnow"
-    ],
-    "615": [
-        "Snow",
-        "Light rain and snow",
-        "13d",
-        "It is snowing while raining lightly",
-        "LightSnow"
-    ],
-    "616": [
-        "Snow",
-        "Rain and snow",
-        "13d",
-        "It is raining and snowing",
-        "HeavySnow"
-    ],
-    "620": [
-        "Snow",
-        "Light shower snow",
-        "13d",
-        "It is snowing lightly",
-        "LightSnow"
-    ],
-    "621": [
-        "Snow",
-        "Shower snow",
-        "13d",
-        "It is snowing",
-        "LightSnow"
-    ],
-    "622": [
-        "Snow",
-        "Heavy shower snow",
-        "13d",
-        "It is snowing heavily",
-        "HeavySnow"
-    ],
-    "701": [
-        "Mist",
-        "mist",
-        "50d",
-        "Conditions are misty",
-        "Fog"
-    ],
-    "711": [
-        "Smoke",
-        "Smoke",
-        "50d",
-        "Conditions are smokey",
-        "Fog"
-    ],
-    "721": [
-        "Haze",
-        "Haze",
-        "50d",
-        "Conditions are hazey",
-        "Fog"
-    ],
-    "731": [
-        "Dust",
-        "sand/ dust whirls",
-        "50d",
-        "There are dust whirls",
-        "Fog"
-    ],
-    "741": [
-        "Fog",
-        "fog",
-        "50d",
-        "Conditions are foggy",
-        "Fog"
-    ],
-    "751": [
-        "Sand",
-        "sand",
-        "50d",
-        "Conditions are sandy",
-        "Fog"
-    ],
-    "761": [
-        "Dust",
-        "dust",
-        "50d",
-        "Conditions are dusty",
-        "Fog"
-    ],
-    "762": [
-        "Ash",
-        "volcanic ash",
-        "50d",
-        "Volcanic ash is present",
-        "Fog"
-    ],
-    "771": [
-        "Squall",
-        "squalls",
-        "50d",
-        "There are squalls"
-    ],
-    "781": [
-        "Tornado",
-        "tornado",
-        "50d",
-        "There is a tornado nearby, seek shelter"
-    ],
-    "800": [
-        "Clear",
-        "clear sky",
-        "01d",
-        "Conditions are clear",
-        "Sunny"
-    ],
-    "801": [
-        "Clouds",
-        "few clouds: 11-25%",
-        "02d",
-        "Conditions are slightly cloudy",
-        "PartlyCloudy"
-    ],
-    "802": [
-        "Clouds",
-        "scattered clouds: 25-50%",
-        "03d",
-        "Conditions are cloudy",
-        "Cloudy"
-    ],
-    "803": [
-        "Clouds",
-        "broken clouds: 51-84%",
-        "04d",
-        "Conditions are very cloudy",
-        "VeryCloudy"
-    ],
-    "804": [
-        "Clouds",
-        "overcast clouds: 85-100%",
-        "04d",
-        "Conditions are overcast",
-        "VeryCloudy"
-    ]
+  "200": [
+    "Thunderstorm",
+    "thunderstorm with light rain",
+    "11d",
+    "A thunderstorm is occurring and there is light rain",
+    "ThunderyShowers"
+  ],
+  "201": [
+    "Thunderstorm",
+    "thunderstorm with rain",
+    "11d",
+    "A thunderstorm is occurring and there is rain",
+    "ThunderyHeavyRain"
+  ],
+  "202": [
+    "Thunderstorm",
+    "thunderstorm with heavy rain",
+    "11d",
+    "A thunderstorm is occurring and there is heavy rain",
+    "ThunderyHeavyRain"
+  ],
+  "210": [
+    "Thunderstorm",
+    "light thunderstorm",
+    "11d",
+    "A light thunderstorm is occurring.",
+    "ThunderyShowers"
+  ],
+  "211": [
+    "Thunderstorm",
+    "thunderstorm",
+    "11d",
+    "A thunderstorm is occurring",
+    "ThunderyHeavyRain"
+  ],
+  "212": [
+    "Thunderstorm",
+    "heavy thunderstorm",
+    "11d",
+    "A heavy thunderstorm is occurring",
+    "ThunderyHeavyRain"
+  ],
+  "221": [
+    "Thunderstorm",
+    "ragged thunderstorm",
+    "11d",
+    "A ragged thunderstorm is occurring",
+    "ThunderyShowers"
+  ],
+  "230": [
+    "Thunderstorm",
+    "thunderstorm with light drizzle",
+    "11d",
+    "A thunderstorm is occurring and there is a light drizzle",
+    "ThunderyShowers"
+  ],
+  "231": [
+    "Thunderstorm",
+    "thunderstorm with drizzle",
+    "11d",
+    "A thunderstorm is occurring and there is a drizzle",
+    "ThunderyShowers"
+  ],
+  "232": [
+    "Thunderstorm",
+    "thunderstorm with heavy drizzle",
+    "11d",
+    "A thunderstorm is occurring and there is a heavy drizzle",
+    "ThunderyHeavyRain"
+  ],
+  "300": [
+    "Drizzle",
+    "light intensity drizzle",
+    "09d",
+    "It is currently drizzling lightly",
+    "LightRain"
+  ],
+  "301": [
+    "Drizzle",
+    "drizzle",
+    "09d",
+    "It is currently drizzling",
+    "LightRain"
+  ],
+  "302": [
+    "Drizzle",
+    "heavy intensity drizzle",
+    "09d",
+    "It is currently drizzling with heavy intensity",
+    "HeavyRain"
+  ],
+  "310": [
+    "Drizzle",
+    "light intensity drizzle rain",
+    "09d",
+    "It is currently drizzling with light intensity",
+    "LightRain"
+  ],
+  "311": [
+    "Drizzle",
+    "drizzle rain",
+    "09d",
+    "It is currently drizzle-raining",
+    "LightRain"
+  ],
+  "312": [
+    "Drizzle",
+    "heavy intensity drizzle rain",
+    "09d",
+    "It is currently drizzle-raining with heavy intensity",
+    "LightRain"
+  ],
+  "313": [
+    "Drizzle",
+    "shower rain and drizzle",
+    "09d",
+    "It is currently showering and drizzling",
+    "LightRain"
+  ],
+  "314": [
+    "Drizzle",
+    "heavy shower rain and drizzle",
+    "09d",
+    "It is currently showering heavily and drizzling",
+    "LightRain"
+  ],
+  "321": [
+    "Drizzle",
+    "shower drizzle",
+    "09d",
+    "It is currently drizzling heavily",
+    "LightRain"
+  ],
+  "500": [
+    "Rain",
+    "light rain",
+    "10d",
+    "A light rain is occurring",
+    "LightRain"
+  ],
+  "501": [
+    "Rain",
+    "moderate rain",
+    "10d",
+    "It is raining",
+    "HeavyRain"
+  ],
+  "502": [
+    "Rain",
+    "heavy intensity rain",
+    "10d",
+    "It is raining heavily",
+    "HeavyRain"
+  ],
+  "503": [
+    "Rain",
+    "very heavy rain",
+    "10d",
+    "It is raining very heavily",
+    "HeavyRain"
+  ],
+  "504": [
+    "Rain",
+    "extreme rain",
+    "10d",
+    "It is raining extremely heavily",
+    "HeavyRain"
+  ],
+  "511": [
+    "Rain",
+    "freezing rain",
+    "13d",
+    "It is raining cold water",
+    "HeavyRain"
+  ],
+  "520": [
+    "Rain",
+    "light intensity shower rain",
+    "09d",
+    "A light intensity shower rain is occurring",
+    "HeavySnow"
+  ],
+  "521": [
+    "Rain",
+    "shower rain",
+    "09d",
+    "It is showering",
+    "HeavySnow"
+  ],
+  "522": [
+    "Rain",
+    "heavy intensity shower rain",
+    "09d",
+    "A heavy intensity shower rain is occurring"
+  ],
+  "531": [
+    "Rain",
+    "ragged shower rain",
+    "09d",
+    "It is showering",
+    "LightShowers"
+  ],
+  "600": [
+    "Snow",
+    "light snow",
+    "13d",
+    "It is snowing lightly",
+    "LightSnow"
+  ],
+  "601": [
+    "Snow",
+    "Snow",
+    "13d",
+    "It is snowing",
+    "LightSnow"
+  ],
+  "602": [
+    "Snow",
+    "Heavy snow",
+    "13d",
+    "It is snowing heavily",
+    "HeavySnow"
+  ],
+  "611": [
+    "Snow",
+    "Sleet",
+    "13d",
+    "Sleet is present",
+    "LightSleet"
+  ],
+  "612": [
+    "Snow",
+    "Light shower sleet",
+    "13d",
+    "Sleet is present",
+    "HeavySnow"
+  ],
+  "613": [
+    "Snow",
+    "Shower sleet",
+    "13d",
+    "Sleet is present",
+    "HeavySnow"
+  ],
+  "615": [
+    "Snow",
+    "Light rain and snow",
+    "13d",
+    "It is snowing while raining lightly",
+    "LightSnow"
+  ],
+  "616": [
+    "Snow",
+    "Rain and snow",
+    "13d",
+    "It is raining and snowing",
+    "HeavySnow"
+  ],
+  "620": [
+    "Snow",
+    "Light shower snow",
+    "13d",
+    "It is snowing lightly",
+    "LightSnow"
+  ],
+  "621": [
+    "Snow",
+    "Shower snow",
+    "13d",
+    "It is snowing",
+    "LightSnow"
+  ],
+  "622": [
+    "Snow",
+    "Heavy shower snow",
+    "13d",
+    "It is snowing heavily",
+    "HeavySnow"
+  ],
+  "701": [
+    "Mist",
+    "mist",
+    "50d",
+    "Conditions are misty",
+    "Fog"
+  ],
+  "711": [
+    "Smoke",
+    "Smoke",
+    "50d",
+    "Conditions are smokey",
+    "Fog"
+  ],
+  "721": [
+    "Haze",
+    "Haze",
+    "50d",
+    "Conditions are hazey",
+    "Fog"
+  ],
+  "731": [
+    "Dust",
+    "sand/ dust whirls",
+    "50d",
+    "There are dust whirls",
+    "Fog"
+  ],
+  "741": [
+    "Fog",
+    "fog",
+    "50d",
+    "Conditions are foggy",
+    "Fog"
+  ],
+  "751": [
+    "Sand",
+    "sand",
+    "50d",
+    "Conditions are sandy",
+    "Fog"
+  ],
+  "761": [
+    "Dust",
+    "dust",
+    "50d",
+    "Conditions are dusty",
+    "Fog"
+  ],
+  "762": [
+    "Ash",
+    "volcanic ash",
+    "50d",
+    "Volcanic ash is present",
+    "Fog"
+  ],
+  "771": [
+    "Squall",
+    "squalls",
+    "50d",
+    "There are squalls"
+  ],
+  "781": [
+    "Tornado",
+    "tornado",
+    "50d",
+    "There is a tornado nearby, seek shelter"
+  ],
+  "800": [
+    "Clear",
+    "clear sky",
+    "01d",
+    "Conditions are clear",
+    "Sunny"
+  ],
+  "801": [
+    "Clouds",
+    "few clouds: 11-25%",
+    "02d",
+    "Conditions are slightly cloudy",
+    "PartlyCloudy"
+  ],
+  "802": [
+    "Clouds",
+    "scattered clouds: 25-50%",
+    "03d",
+    "Conditions are cloudy",
+    "Cloudy"
+  ],
+  "803": [
+    "Clouds",
+    "broken clouds: 51-84%",
+    "04d",
+    "Conditions are very cloudy",
+    "VeryCloudy"
+  ],
+  "804": [
+    "Clouds",
+    "overcast clouds: 85-100%",
+    "04d",
+    "Conditions are overcast",
+    "VeryCloudy"
+  ]
 }

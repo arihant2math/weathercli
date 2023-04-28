@@ -1,10 +1,10 @@
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::color;
-use crate::layout::layout_row::Row;
-use crate::layout::layout_json::{LayoutJSON, LayoutDefaultsJSON};
-use crate::layout::layout_json::RowEnum::{RowString, RowVec};
-use crate::local::weather_file::WeatherFile;
 use crate::error::{Error, LayoutErr};
+use crate::layout::layout_json::{LayoutDefaultsJSON, LayoutJSON};
+use crate::layout::layout_json::RowEnum::{RowString, RowVec};
+use crate::layout::layout_row::Row;
+use crate::local::weather_file::WeatherFile;
 
 mod image_to_text;
 mod layout_item;
@@ -34,10 +34,10 @@ pub struct LayoutFile {
 
 fn reemit_layout_error(e: Error, count: usize) -> Error {
     match e {
-        Error::LayoutError(e ) => Error::LayoutError(LayoutErr {
+        Error::LayoutError(e) => Error::LayoutError(LayoutErr {
             message: e.message,
             row: Some(count as u64),
-            item: e.item
+            item: e.item,
         }),
         _ => e
     }
@@ -58,7 +58,7 @@ impl LayoutFile {
         } else if file_data.version.expect("version not found") > VERSION {
             return Err(Error::LayoutError(LayoutErr {
                 message: format!("Version of layout file, {}, is greater than the highest supported version {}",
-                file_data.version.unwrap_or(0), VERSION),
+                                 file_data.version.unwrap_or(0), VERSION),
                 row: None,
                 item: None,
             }));
@@ -79,44 +79,44 @@ impl LayoutFile {
                 .variable_bg_color
                 .unwrap_or("FORE_LIGHTGREEN".to_string()),
         )
-        .expect("Invalid color");
+            .expect("Invalid color");
         let text_color = color::from_string(
             retrieved_settings
                 .clone()
                 .variable_bg_color
                 .unwrap_or("FORE_LIGHTBLUE".to_string()),
         )
-        .expect("Invalid color");
+            .expect("Invalid color");
         let unit_color = color::from_string(
             retrieved_settings
                 .clone()
                 .variable_bg_color
                 .unwrap_or("FORE_MAGENTA".to_string()),
         )
-        .expect("Invalid color");
+            .expect("Invalid color");
         let variable_bg_color = color::from_string(
             retrieved_settings
                 .clone()
                 .variable_bg_color
                 .unwrap_or(String::new()),
         )
-        .unwrap_or(String::new());
+            .unwrap_or(String::new());
         let text_bg_color = color::from_string(
             retrieved_settings
                 .clone()
                 .variable_bg_color
                 .unwrap_or(String::new()),
         )
-        .unwrap_or(String::new());
+            .unwrap_or(String::new());
         let unit_bg_color = color::from_string(
             retrieved_settings
-                
+
                 .variable_bg_color
                 .unwrap_or(String::new()),
         )
-        .unwrap_or(String::new());
+            .unwrap_or(String::new());
         if file_data.layout.is_none() {
-            return Err(LayoutErr {message: "Layout key not found".to_string(), row: None, item: None})?;
+            return Err(LayoutErr { message: "Layout key not found".to_string(), row: None, item: None })?;
         }
         let layout = file_data.layout.unwrap();
         let mut _internal_layout: Vec<Row> = Vec::new();

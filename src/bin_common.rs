@@ -8,6 +8,7 @@ use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use indicatif::style::TemplateError;
 use reqwest::Client;
+
 use crate::util;
 
 impl From<TemplateError> for util::Error {

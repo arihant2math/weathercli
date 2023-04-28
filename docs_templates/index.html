@@ -30,30 +30,34 @@
         }
 
         .text-typing {
-          padding: 20px 30px;
-          font-size: 35px;
-          border-radius: 50px;
+            padding: 20px 30px;
+            font-size: 35px;
+            border-radius: 50px;
         }
 
         .text-typing p {
-          margin: 0;
-          white-space: nowrap;
-          overflow: hidden;
-          animation: typing 2s steps(45,end) forwards, blink 1s infinite;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            animation: typing 2s steps(45, end) forwards, blink 1s infinite;
         }
 
         @keyframes typing {
-          0% { width:0 }
-          100% { width:100% }
+            0% {
+                width: 0
+            }
+            100% {
+                width: 100%
+            }
         }
 
         @keyframes blink {
-          0%,100% {
-            border-right: 2px solid transparent;
-          }
-          50% {
-            border-right: 2px solid #ffffff;
-          }
+            0%, 100% {
+                border-right: 2px solid transparent;
+            }
+            50% {
+                border-right: 2px solid #ffffff;
+            }
         }
     </style>
 {% endblock %}
@@ -65,11 +69,18 @@
                 <p>A blazing fast CLI written in rust</p>
             </div>
             <div class="btn-group" role="group" aria-label="Hero Download" data-aos="flip-down">
-                <button type="button" class="btn btn-primary btn-lg" onclick="download()"><i class="bi bi-download"></i> Download</button>
-                <button type="button" class="btn btn-primary btn-lg dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                <button type="button" class="btn btn-primary btn-lg" onclick="download()"><i class="bi bi-download"></i>
+                    Download
+                </button>
+                <button type="button" class="btn btn-primary btn-lg dropdown-toggle" data-bs-toggle="dropdown"
+                        aria-expanded="false"></button>
                 <ul class="dropdown-menu">
-                  <li><button class="dropdown-item" onclick="download_windows()">Windows x64</button></li>
-                  <li><button class="dropdown-item" onclick="download_unix()">Unix </button></li>
+                    <li>
+                        <button class="dropdown-item" onclick="download_windows()">Windows x64</button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" onclick="download_unix()">Unix</button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -81,7 +92,8 @@
                 <div class="card" style="width: 18rem;" data-aos="fade-right">
                     <div class="card-body">
                         <h5 class="card-title">Less than 0.5 seconds from start to finish!</h5>
-                        <p class="card-text">Efficient threading and caching allow weathercli to quickly deliver results.</p>
+                        <p class="card-text">Efficient threading and caching allow weathercli to quickly deliver
+                            results.</p>
                     </div>
                 </div>
             </div>
@@ -89,7 +101,8 @@
                 <div class="card" style="width: 18rem;" data-aos="fade-up">
                     <div class="card-body">
                         <h5 class="card-title">Written in Rust</h5>
-                        <p class="card-text">Weathercli has been completely ported to rust, and is 6x faster when compared to the equivalent python version.</p>
+                        <p class="card-text">Weathercli has been completely ported to rust, and is 6x faster when
+                            compared to the equivalent python version.</p>
                     </div>
                 </div>
             </div>
@@ -113,7 +126,8 @@
     </div>
     <div class="page-view">
         <h1 data-aos="fade-right">Install</h1>
-        <p class="default-margin" data-aos="fade-up">Download the executable and place it in an empty directory that in on your path.</p>
+        <p class="default-margin" data-aos="fade-up">Download the executable and place it in an empty directory that in
+            on your path.</p>
     </div>
     <script>
         {% include 'index.js' %}

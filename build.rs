@@ -1,4 +1,5 @@
 use std::{env, io};
+
 use winresource::WindowsResource;
 
 fn main() -> io::Result<()> {

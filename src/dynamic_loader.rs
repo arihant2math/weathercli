@@ -6,15 +6,15 @@ use log::{debug, error, trace};
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::custom_backend;
 use crate::custom_backend::{InvocationError, PluginDeclaration, WeatherForecastPlugin};
-use crate::local::settings::Settings;
 use crate::error::Error;
+use crate::local::settings::Settings;
 
 pub fn load(paths: Vec<String>) -> ExternalBackends {
     let mut functions = ExternalBackends::new();
     unsafe {
         for path in paths {
             trace!("Loading {}", path);
-            let l  = functions.load(&path);
+            let l = functions.load(&path);
             match l {
                 Ok(()) => trace!("Loaded {} successfully", &path),
                 Err(e) => error!("Failed to load external backend at {}: {}", &path, e.to_string())
@@ -83,12 +83,12 @@ impl ExternalBackends {
         // version checks to prevent accidental ABI incompatibilities
         if decl.core_version != custom_backend::CORE_VERSION {
             return Err(io::Error::new(io::ErrorKind::Other,
-                                      format!("Plugin version mismatch, found {}, but expected {}", decl.core_version, custom_backend::CORE_VERSION)
+                                      format!("Plugin version mismatch, found {}, but expected {}", decl.core_version, custom_backend::CORE_VERSION),
             ))?;
         }
         if decl.rustc_version != custom_backend::RUSTC_VERSION {
             return Err(io::Error::new(io::ErrorKind::Other,
-                                      format!("Rustc version mismatch, found {}, but expected {}", decl.rustc_version, custom_backend::RUSTC_VERSION)
+                                      format!("Rustc version mismatch, found {}, but expected {}", decl.rustc_version, custom_backend::RUSTC_VERSION),
             ))?;
         }
 

@@ -1,8 +1,8 @@
 use serde_json::Value;
 
-use crate::layout::layout_json::ItemEnum;
-use crate::layout::layout_item::Item;
 use crate::error::{Error, LayoutErr};
+use crate::layout::layout_item::Item;
+use crate::layout::layout_json::ItemEnum;
 
 pub struct Row {
     items: Vec<Item>,
@@ -10,10 +10,10 @@ pub struct Row {
 
 fn reemit_layout_error(e: Error, count: usize) -> Error {
     match e {
-        Error::LayoutError(e ) => Error::LayoutError(LayoutErr {
+        Error::LayoutError(e) => Error::LayoutError(LayoutErr {
             message: e.message,
             row: None,
-            item: Some(count as u64)
+            item: Some(count as u64),
         }),
         _ => e
     }

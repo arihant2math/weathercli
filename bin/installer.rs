@@ -27,8 +27,8 @@ struct Cli {
 fn add_to_path(dir: String) -> weather_core::Result<()> {
     println!("Adding to Path ...");
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-    let environment = hklm
-        .open_subkey(r#"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"#)?;
+    let environment =
+        hklm.open_subkey(r#"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"#)?;
     let mut path: String = environment.get_value("Path")?;
     let append = fs::canonicalize(dir)?.display().to_string();
     if path.chars().last().unwrap_or(';') != ';' {
@@ -79,7 +79,7 @@ async fn main() -> weather_core::Result<()> {
         "Installed weathercli".to_string(),
         args.quiet,
     )
-    .await?;
+        .await?;
     let url = "https://arihant2math.github.io/weathercli/".to_string() + &CONFIG.weather_dfile_name;
     let mut path = dir_path.to_path_buf();
     path.push("internal");
@@ -91,7 +91,7 @@ async fn main() -> weather_core::Result<()> {
         "Installed daemon".to_string(),
         args.quiet,
     )
-    .await?;
+        .await?;
     if args.add_to_path {
         add_to_path(dir_path.display().to_string())?;
     }

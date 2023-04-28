@@ -12,7 +12,7 @@ pub fn nws_get_api_urls(location: [&str; 2], _metric: bool) -> crate::Result<Str
         None,
         None,
     )?
-    .text;
+        .text;
     let point_json: NWSPointJSON =
         serde_json::from_str(&get_point).expect("Deserialization of json failed");
     Ok(point_json.properties.forecast_grid_data)

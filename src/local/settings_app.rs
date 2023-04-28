@@ -1,4 +1,5 @@
 use std::fmt;
+
 use dark_light::Mode;
 use iced::{Alignment, Element, Length, Sandbox, Settings};
 use iced::theme::Theme;
@@ -99,59 +100,59 @@ impl Sandbox for App {
             DataSource::Nws,
             DataSource::TheWeatherChannel,
         ]
-        .iter()
-        .fold(
-            column![text("Default Backend:")].spacing(10),
-            |column, data_source| {
-                column.push(radio(
-                    format!("{data_source:?}"),
-                    *data_source,
-                    Some(match &*self.data.default_backend.clone().to_lowercase() {
-                        "openweathermap" => DataSource::OpenWeatherMap,
-                        "nws" => DataSource::Nws,
-                        "theweatherchannel" => DataSource::TheWeatherChannel,
-                        _ => DataSource::Meteo,
-                    }),
-                    Message::DataSource,
-                ))
-            },
-        );
+            .iter()
+            .fold(
+                column![text("Default Backend:")].spacing(10),
+                |column, data_source| {
+                    column.push(radio(
+                        format!("{data_source:?}"),
+                        *data_source,
+                        Some(match &*self.data.default_backend.clone().to_lowercase() {
+                            "openweathermap" => DataSource::OpenWeatherMap,
+                            "nws" => DataSource::Nws,
+                            "theweatherchannel" => DataSource::TheWeatherChannel,
+                            _ => DataSource::Meteo,
+                        }),
+                        Message::DataSource,
+                    ))
+                },
+            );
         let openweathermap_api_key_label = text("OpenWeatherMap API key: ");
         let openweathermap_api_key = text_input(
             "OpenWeatherMap API key",
             &self.data.open_weather_map_api_key.clone(),
         )
-        .on_input(Message::OpenWeatherMapAPIKey)
-        .padding(10)
-        .size(20);
+            .on_input(Message::OpenWeatherMapAPIKey)
+            .padding(10)
+            .size(20);
         let metric_default = toggler(
             String::from("Use Metric by default"),
             self.data.metric_default,
             Message::MetricDefault,
         )
-        .width(Length::Shrink)
-        .spacing(10);
+            .width(Length::Shrink)
+            .spacing(10);
         let show_alerts = toggler(
             String::from("Show Alerts"),
             self.data.show_alerts,
             Message::ShowAlerts,
         )
-        .width(Length::Shrink)
-        .spacing(10);
+            .width(Length::Shrink)
+            .spacing(10);
         let auto_update_internet_resources = toggler(
             String::from("Auto Update Internet Resources"),
             self.data.auto_update_internet_resources,
             Message::AutoUpdateInternetResources,
         )
-        .width(Length::Shrink)
-        .spacing(10);
+            .width(Length::Shrink)
+            .spacing(10);
         let enable_daemon = toggler(
             String::from("Enable Daemon"),
             self.data.enable_daemon,
             Message::EnableDaemon,
         )
-        .width(Length::Shrink)
-        .spacing(10);
+            .width(Length::Shrink)
+            .spacing(10);
 
         let save = button("Save").padding(10).on_press(Message::Save);
         let cancel = button("Cancel").padding(10).on_press(Message::Cancel);
@@ -184,9 +185,9 @@ impl Sandbox for App {
                 .spacing(10)
                 .align_items(Alignment::Center),
         ]
-        .spacing(20)
-        .padding(20)
-        .max_width(600);
+            .spacing(20)
+            .padding(20)
+            .max_width(600);
 
         container(content)
             .width(Length::Fill)

@@ -1,13 +1,16 @@
 use std::collections::HashMap;
-use weather_core::backend::weather_forecast::{get_location, WeatherForecastRS};
-use weather_core::custom_backend::WeatherForecastPlugin;
-use weather_core::local::settings::Settings;
-use weather_core::custom_backend::PluginRegistrar;
+
+use scraper::Html;
+
 use weather_core::{export_plugin, networking};
 use weather_core::backend::weather_data::WeatherDataRS;
-use scraper::Html;
+use weather_core::backend::weather_forecast::{get_location, WeatherForecastRS};
 use weather_core::backend::WindData;
+use weather_core::custom_backend::PluginRegistrar;
+use weather_core::custom_backend::WeatherForecastPlugin;
+use weather_core::local::settings::Settings;
 use weather_core::now;
+
 // pub static CORE_VERSION: &str = "0";
 
 fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_quality_soup: Html) -> WeatherDataRS {
@@ -18,7 +21,7 @@ fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_
         max_temp: 0.0,
         wind: WindData {
             speed: 0.0,
-            heading: 0
+            heading: 0,
         },
         raw_data: String::new(),
         dewpoint: 0.0,
@@ -35,19 +38,18 @@ fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) 
     let mut cookies = HashMap::new();
     if !settings.internal.metric_default {
         cookies.insert("unitOfMeasurement".to_string(), "e".to_string());
-    }
-    else {
+    } else {
         cookies.insert("unitOfMeasurement".to_string(), "m".to_string());
     }
     let r1 = networking::get_url("https://weather.com/weather/today/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
                                  None, None, Some(cookies.clone()))?;
     let r2 = networking::get_url("https://weather.com/weather/hourbyhour/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
-                             None, None, Some(cookies.clone()))?;
+                                 None, None, Some(cookies.clone()))?;
     let r3 = networking::get_url("https://weather.com/weather/air-quality/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
-                             None, None, Some(cookies.clone()))?;
-    let weather_soup =  Html::parse_document(&r1.text);
-    let forecast_soup =  Html::parse_document(&r2.text);
-    let air_quality_soup =  Html::parse_document(&r3.text);
+                                 None, None, Some(cookies.clone()))?;
+    let weather_soup = Html::parse_document(&r1.text);
+    let forecast_soup = Html::parse_document(&r2.text);
+    let air_quality_soup = Html::parse_document(&r3.text);
     let current = get_the_weather_channel_current(weather_soup, forecast_soup, air_quality_soup);
     let forecast = vec![current.clone()];
     let region = &region_country.clone()[0];

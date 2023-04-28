@@ -76,17 +76,21 @@ async fn main() -> weather_core::Result<()> {
     let resp = reqwest::get("https://arihant2math.github.io/weathercli/index.json")
         .await
         .expect("Network request failed");
-    let json: IndexStruct = serde_json::from_str(&resp.text().await.expect("Failed to receive text"))?;
+    let json: IndexStruct =
+        serde_json::from_str(&resp.text().await.expect("Failed to receive text"))?;
     if args.version && !args.quiet {
         println!("{}", weather_core::version());
         return Ok(());
     }
     let install_dir = std::env::current_dir()?;
     let parent = install_dir.parent().unwrap_or(&*install_dir);
-    let install_type_folders = fs::read_dir(parent)?
-        .any(|f| {
-            f.expect("Dir Entry failed").file_name().to_str().unwrap_or("") == CONFIG.weather_file_name
-        });
+    let install_type_folders = fs::read_dir(parent)?.any(|f| {
+        f.expect("Dir Entry failed")
+            .file_name()
+            .to_str()
+            .unwrap_or("")
+            == CONFIG.weather_file_name
+    });
     let d_install_path = install_dir.clone();
     let w_install_path = if install_type_folders {
         parent.to_path_buf()
@@ -127,7 +131,7 @@ async fn main() -> weather_core::Result<()> {
             "Updated weathercli".to_string(),
             args.quiet,
         )
-        .await?;
+            .await?;
     }
     if to_update.contains(&Component::Daemon) {
         let url =
@@ -141,7 +145,7 @@ async fn main() -> weather_core::Result<()> {
             "Updated daemon".to_string(),
             args.quiet,
         )
-        .await?;
+            .await?;
     }
     Ok(())
 }
