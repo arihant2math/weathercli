@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fs;
+use std::{env, fs};
 use std::io::{BufReader, BufWriter, Write};
 
 
@@ -18,8 +18,9 @@ fn get_artifact_urls(h: HashMap<String, String>, run_id: &str) -> weather_core::
 }
 
 fn download_artifact(artifact_list: &Vec<Value>, h: HashMap<String, String>, name: &str, file: &str) -> weather_core::Result<()> {
+    println!("Downloading {name} to {file}");
     let artifacts: Vec<&Value> = artifact_list.iter().filter(|a| a["name"].as_str().unwrap() == name).collect();
-    let artifact_id = artifacts[0]["id"].as_str().unwrap();
+    let artifact_id = artifacts.get(0).expect(&*format!("Could not find artifact {name}"))["id"].as_str().unwrap();
     let download =
         weather_core::networking::get_url(format!("https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/{}/zip", artifact_id), None, Some(h), None)?;
     let mut tmp_zip_file = fs::OpenOptions::new().create(true).write(true).open("./tmp".to_string() + file + ".zip")?;
@@ -37,7 +38,8 @@ fn filter_by_file(runs: &Vec<Value>, file: &str) -> Vec<Value> {
 }
 
 pub fn update_docs(gh_token: &str) -> weather_core::Result<()> {
-    fs::create_dir_all("./tmp")?;
+    let working_dir = env::current_dir()?;
+    fs::create_dir_all(working_dir.join("tmp"))?;
     let mut headers = HashMap::new();
     headers.insert("Authorization".to_string(), format!("Bearer {}", gh_token));
     let get_run_id = weather_core::networking::get_url("https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=10&status=completed",
@@ -50,20 +52,14 @@ pub fn update_docs(gh_token: &str) -> weather_core::Result<()> {
     let binding = get_artifact_urls(headers.clone(), &latest_updater_run_id.to_string())?;
     let rust_artifacts = binding.as_array().unwrap();
     let mut tasks = vec![];
-    println!("Starting Unix Download");
     tasks.push(["weather (Linux)", "weather"]);
-    println!("Starting Windows Download");
     tasks.push(["weather (Windows)", "weather.exe"]);
-    println!("Starting Unix Download (Updater)");
     tasks.push(["updater (Linux)", "updater"]);
-    println!("Starting Windows Download (Updater)");
     tasks.push(["updater (Windows)", "updater.exe"]);
-    println!("Starting Unix Download (Daemon)");
     tasks.push(["weatherd (Linux)", "weatherd"]);
-    println!("Starting Windows Download (Daemon)");
     tasks.push(["weatherd (Windows)", "weatherd.exe"]);
-    let _ = tasks.par_iter().map(|s| download_artifact(&rust_artifacts, headers.clone(), s[0], s[1]).unwrap());
-    fs::remove_dir_all("./tmp")?; // TODO: Implement index hash updates
+    tasks.iter().for_each(|&s| download_artifact(&rust_artifacts, headers.clone(), s[0], s[1]).unwrap());
+    fs::remove_dir_all(working_dir.join("tmp"))?; // TODO: Implement index hash updates
     update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")?;
     update_hash("./docs_templates/weather", "weather-exe-hash-unix")?;
     update_hash("./docs_templates/updater.exe", "updater-exe-hash-windows")?;
