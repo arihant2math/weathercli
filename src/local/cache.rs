@@ -26,7 +26,7 @@ struct Row {
 
 fn calculate_power(row: &Row) -> f64 {
     let offset = now().abs_diff(u128::from_str(&row.date).unwrap_or(u128::MAX)) as f64;
-    (row.hits as f64) / (offset / 86400000.0)
+    (row.hits as f64) / (offset / 86_400_000.0)
 }
 
 pub fn prune_cache() -> crate::Result<()> {

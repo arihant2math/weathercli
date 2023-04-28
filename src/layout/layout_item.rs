@@ -229,7 +229,7 @@ impl Item {
             if is_url {
                 let response = crate::networking::get_url(&source, None, None, None)?;
                 let mut f = fs::OpenOptions::new().write(true).truncate(true).create(true).open("temp.img")?;
-                f.write(&response.bytes)?;
+                f.write_all(&response.bytes)?;
                 return Ok(crate::layout::image_to_text::ascii_image("temp.img", self.data.scale.unwrap_or(1.0)));
             }
             Err("source is not a url".to_string())? // TODO: Fix

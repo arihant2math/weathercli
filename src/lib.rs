@@ -89,10 +89,10 @@ pub fn get_data_from_datasource(
         });
     }
     let conv_coords = [&*coordinates[0], &*coordinates[1]];
-    return Ok(match datasource {
-        Datasource::Openweathermap => get_openweathermap_forecast(conv_coords, settings)?,
-        Datasource::NWS => get_nws_forecast(conv_coords, settings)?,
-        Datasource::Meteo => get_meteo_forecast(conv_coords, settings)?,
-        Datasource::Other(s) => custom_backends.call(s, conv_coords, settings)?
-    });
+    match datasource {
+        Datasource::Openweathermap => get_openweathermap_forecast(conv_coords, settings),
+        Datasource::NWS => get_nws_forecast(conv_coords, settings),
+        Datasource::Meteo => get_meteo_forecast(conv_coords, settings),
+        Datasource::Other(s) => custom_backends.call(s, conv_coords, settings)
+    }
 }

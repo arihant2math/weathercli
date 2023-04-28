@@ -39,15 +39,14 @@ fn get_forecast_sentence(forecast: Vec<WeatherDataRS>) -> String {
             t += 1;
         }
         return format!("It will continue snowing for {} hours.", t * 3);
-    } else {
-        let t = rain.iter().position(|&b| b);
-        if let Some(h) = t {
-            return format!("It will rain in {} hours", h * 3);
-        }
-        let t_s = snow.iter().position(|&b| b);
-        if let Some(h_s) = t_s {
-            return format!("It will snow in {} hours", h_s * 3);
-        }
+    }
+    let t = rain.iter().position(|&b| b);
+    if let Some(h) = t {
+        return format!("It will rain in {} hours", h * 3);
+    }
+    let t_s = snow.iter().position(|&b| b);
+    if let Some(h_s) = t_s {
+        return format!("It will snow in {} hours", h_s * 3);
     }
     "Conditions are predicted to be clear for the next 3 days.".to_string()
 }

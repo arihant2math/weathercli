@@ -40,7 +40,7 @@ fn get_forecast_sentence(
             }
             t += 1;
         }
-        return format!("It will continue raining for {} hours.", t);
+        return format!("It will continue raining for {t} hours.");
     }
     if data[0]
         .conditions
@@ -51,39 +51,38 @@ fn get_forecast_sentence(
         .contains(&true)
     {
         let t = snow.iter().position(|&b| b).unwrap_or(0);
-        return format!("It will continue snowing for {} hours.", t);
-    } else {
-        let rain_start = rain.clone().into_iter().position(|x| x);
-        let snow_start = snow.clone().into_iter().position(|x| x);
+        return format!("It will continue snowing for {t} hours.");
+    }
+    let rain_start = rain.clone().into_iter().position(|x| x);
+    let snow_start = snow.clone().into_iter().position(|x| x);
 
-        if rain_start.is_none() && snow_start.is_none() {
-            return "Conditions are predicted to be clear for the next 7 days.".to_string();
-        }
-        rain.reverse();
-        snow.reverse();
-        let rain_end = rain.into_iter().position(|x| x);
-        let snow_end = snow.into_iter().position(|x| x);
-        if rain_start.is_some() {
-            return format!(
-                "It will rain in {} hours for {} hours",
-                rain_start.unwrap(),
-                rain_end.unwrap() - rain_start.unwrap()
-            );
-        }
-        if snow_start.is_some() {
-            return format!(
-                "It will snow in {} hours for {} hours",
-                snow_start.unwrap(),
-                snow_end.unwrap() - snow_start.unwrap()
-            );
-        }
+    if rain_start.is_none() && snow_start.is_none() {
+        return "Conditions are predicted to be clear for the next 7 days.".to_string();
+    }
+    rain.reverse();
+    snow.reverse();
+    let rain_end = rain.into_iter().position(|x| x);
+    let snow_end = snow.into_iter().position(|x| x);
+    if rain_start.is_some() {
+        return format!(
+            "It will rain in {} hours for {} hours",
+            rain_start.unwrap(),
+            rain_end.unwrap() - rain_start.unwrap()
+        );
+    }
+    if snow_start.is_some() {
+        return format!(
+            "It will snow in {} hours for {} hours",
+            snow_start.unwrap(),
+            snow_end.unwrap() - snow_start.unwrap()
+        );
     }
     String::from("Conditions are predicted to be clear for the next 7 days.")
 }
 
 pub fn get_meteo_forecast(coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecastRS> {
     let data =
-        meteo_get_combined_data_formatted(coordinates.clone(), settings.internal.metric_default)?;
+        meteo_get_combined_data_formatted(coordinates, settings.internal.metric_default)?;
     let mut forecast: Vec<WeatherDataRS> = Vec::new();
     let now = data
         .weather

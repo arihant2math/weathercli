@@ -103,7 +103,7 @@ pub fn get_location(no_sys_loc: bool, constant_location: bool) -> crate::Result<
             }
             Some(ca) => {
                 thread::spawn(|| {
-                    cache::update_hits("current_location".to_string());
+                    cache::update_hits("current_location".to_string()).unwrap_or(());
                 });
                 let splt = ca.split(',');
                 let split_vec: Vec<&str> = splt.into_iter().collect();
@@ -145,7 +145,7 @@ pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> cr
         Some(real_cache) => {
             let cache_string = "location".to_string() + &location_string.to_lowercase();
             thread::spawn(move || {
-                cache::update_hits(cache_string);
+                cache::update_hits(cache_string).unwrap_or(());
             });
             let vec_collect: Vec<&str> = real_cache.split(',').collect();
             Ok([vec_collect[0].to_string(), vec_collect[1].to_string()])
