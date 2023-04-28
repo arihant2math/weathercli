@@ -7,7 +7,7 @@ mod nws_json;
 
 pub fn nws_get_api_urls(location: [&str; 2], _metric: bool) -> crate::Result<String> {
     let get_point = networking::get_url(
-        "https://api.weather.gov/points/".to_string() + &location[0] + "," + &location[1],
+        "https://api.weather.gov/points/".to_string() + location[0] + "," + location[1],
         None,
         None,
         None,

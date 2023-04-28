@@ -20,7 +20,7 @@ pub fn weather(
     json: bool,
     custom_backends: ExternalBackends
 ) -> crate::Result<()> {
-    debug!("Coordinates: {:?}", coordinates.clone());
+    debug!("Coordinates: {:?}", coordinates);
     debug!("Metric: {}", true_metric);
     debug!("json: {}", json);
     let mut s = settings.clone();

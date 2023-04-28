@@ -22,7 +22,7 @@ impl WeatherFile {
         path.push(file_name);
         if !path.exists() {
             exists = false;
-            let parent_dir = path.parent().ok_or_else(|| "Parent dir not found")?;
+            let parent_dir = path.parent().ok_or("Parent dir not found")?;
             fs::create_dir_all(parent_dir)?;
             let mut file = File::create(path.display().to_string())?;
             file.write_all(b"{}")?;

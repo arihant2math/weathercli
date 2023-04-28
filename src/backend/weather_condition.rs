@@ -16,12 +16,12 @@ impl WeatherCondition {
         let sentence = code[3]
             .clone()
             .as_str()
-            .ok_or_else(|| "Sentence expected")?
+            .ok_or("Sentence expected")?
             .to_string();
         let image_url = String::from("https://openweathermap.org/img/wn/")
-            + code[2].clone().as_str().ok_or_else(|| "image_url expected")?
+            + code[2].clone().as_str().ok_or("image_url expected")?
             + "@4x.png";
-        let image_ascii = code[4].clone().as_str().ok_or_else(|| "image_ascii expected")?.to_string();
+        let image_ascii = code[4].clone().as_str().ok_or("image_ascii expected")?.to_string();
         Ok(WeatherCondition {
             condition_id,
             image_url,

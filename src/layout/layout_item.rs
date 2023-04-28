@@ -225,7 +225,7 @@ impl Item {
         }
         else if self.data.item_type == "image" {
             let source = Item::from_str(&self.data.value).get_value(data)?;
-            let is_url = url_validator(&source.clone());
+            let is_url = url_validator(&source);
             if is_url {
                 let response = crate::networking::get_url(&source, None, None, None)?;
                 let mut f = fs::OpenOptions::new().write(true).truncate(true).create(true).open("temp.img")?;

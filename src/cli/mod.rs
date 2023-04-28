@@ -113,7 +113,7 @@ fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: b
         }
         println!("{}", out?.to_string(data, metric)?);
     }
-    return Ok(());
+    Ok(())
 }
 
 #[derive(Clone, Eq, PartialEq)]

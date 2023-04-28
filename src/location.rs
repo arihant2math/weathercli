@@ -45,8 +45,8 @@ fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> crate::Re
     let j: Value = serde_json::from_str(&r.text)?;
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
     Ok([
-        j_data[0].as_f64().ok_or_else(|| "latitude not found")?.to_string(),
-        j_data[1].as_f64().ok_or_else(|| "longitude not found")?.to_string(),
+        j_data[0].as_f64().ok_or("latitude not found")?.to_string(),
+        j_data[1].as_f64().ok_or("longitude not found")?.to_string(),
     ])
 }
 
@@ -56,8 +56,8 @@ fn nominatim_geocode(query: &str) -> crate::Result<[String; 2]> {
             query
         ), None, None, None)?;
     let j: Value = serde_json::from_str(&r.text)?;
-    let lat = j[0]["lat"].as_f64().ok_or_else(|| "latitude not found")?.to_string();
-    let lon = j[0]["lon"].as_f64().ok_or_else(|| "longitude not found")?.to_string();
+    let lat = j[0]["lat"].as_f64().ok_or("latitude not found")?.to_string();
+    let lon = j[0]["lon"].as_f64().ok_or("longitude not found")?.to_string();
     Ok([lat, lon])
 }
 
@@ -160,7 +160,7 @@ pub fn reverse_location(latitude: &str, longitude: &str) -> crate::Result<[Strin
         None => {
             let data = nominatim_reverse_geocode(latitude, longitude)?;
             let place: Value = serde_json::from_str(&data)?;
-            let country = place["address"]["country"].as_str().ok_or_else(|| "country not found")?.to_string();
+            let country = place["address"]["country"].as_str().ok_or("country not found")?.to_string();
             let mut region = "";
             if let Some(city) = place["address"]["city"].as_str() {
                 region = city;

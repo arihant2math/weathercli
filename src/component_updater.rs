@@ -24,7 +24,7 @@ fn update_web_resource(
     let mut f = WeatherFile::new(&local_path)?;
     let file_hash = hash_file(&f.path.display().to_string())?;
     let web_json: Value = web_resp;
-    let web_hash: String = web_json[name].as_str().ok_or_else(|| "Failed to get hash from web")?.to_string();
+    let web_hash: String = web_json[name].as_str().ok_or("Failed to get hash from web")?.to_string();
     if web_hash != file_hash {
         debug!("name: {} web: {} file: {}", name, web_hash, file_hash);
         if !quiet {
@@ -81,7 +81,7 @@ pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
         )?;
         return Ok(());
     }
-    return Err(crate::error::Error::NetworkError("Status not 200".to_string()));
+    Err(crate::error::Error::NetworkError("Status not 200".to_string()))
 }
 
 pub fn get_latest_version() -> crate::Result<String> {

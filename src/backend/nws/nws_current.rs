@@ -85,5 +85,5 @@ pub fn get_nws_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData
         conditions: vec![],
         condition_sentence: get_conditions_sentence(conditions),
     };
-    return Ok(d);
+    Ok(d)
 }

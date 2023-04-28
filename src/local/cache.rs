@@ -49,7 +49,7 @@ pub fn prune_cache() -> crate::Result<()> {
         .write(true)
         .open(path.display().to_string())?;
     file.write_all(&new_bytes)?;
-    return Ok(());
+    Ok(())
 }
 
 pub fn get_date_string() -> String {

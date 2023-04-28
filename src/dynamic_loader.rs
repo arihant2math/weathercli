@@ -56,7 +56,7 @@ impl ExternalBackends {
         debug!("Calling function {}", name);
         self.functions
             .get(&*name)
-            .ok_or_else(|| Error::InvocationError(InvocationError::NotFound))?
+            .ok_or(Error::InvocationError(InvocationError::NotFound))?
             .call(coordinates, settings)
     }
 
@@ -70,9 +70,9 @@ impl ExternalBackends {
     /// a plugin without going through that macro will result in undefined
     /// behaviour.
     pub unsafe fn load<P: AsRef<OsStr>>(&mut self, library_path: P) -> crate::Result<()> {
-        let path = library_path.as_ref().to_str().ok_or_else(|| "Failed to get library path")?;
+        let path = library_path.as_ref().to_str().ok_or("Failed to get library path")?;
         // load the library into memory
-        let library = Rc::new(Library::new(path).map_err(|e| format!("Could not load library at {}, details: {}", path, e.to_string()))?);
+        let library = Rc::new(Library::new(path).map_err(|e| format!("Could not load library at {}, details: {}", path, e))?);
 
         // get a pointer to the plugin_declaration symbol.
         let decl = library
