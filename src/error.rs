@@ -1,5 +1,5 @@
-use std::fs;
-use std::path::Path;
+
+
 use std::fmt;
 use std::fmt::Debug;
 
@@ -51,7 +51,7 @@ impl fmt::Display for Error {
             Error::NetworkError(e) => write!(f, "Network Error: {}", e),
             Error::JsonError(e) => write!(f, "JSON Error: {}", e), // TODO: Fix
             Error::IoError(e) => write!(f, "I/O Error: {}", e), // TODO: Fix
-            Error::InvocationError(e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
+            Error::InvocationError(_e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
             Error::Other(s) => write!(f, "{}", s)
         }
     }
