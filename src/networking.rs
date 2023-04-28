@@ -58,7 +58,7 @@ pub fn get_url<S: AsRef<str>>(
         }
     };
     if real_resp.is_err() {
-        return Err(crate::error::Error::NetworkError(format!("Get to {} failed", url)))
+        return Err(crate::error::Error::NetworkError(format!("Get to {url} failed")))
     }
     let data = real_resp.unwrap();
     let status = data.status();
@@ -66,7 +66,7 @@ pub fn get_url<S: AsRef<str>>(
     data.into_reader()
         .take(10_000_000)
         .read_to_end(&mut bytes)?;
-    let mut text = String::from("");
+    let mut text = String::new();
     for byte in &bytes {
         text += &(*byte as char).to_string();
     }
@@ -79,7 +79,7 @@ pub fn get_url<S: AsRef<str>>(
 
 /// Async retrival of multiple urls
 /// :param urls: the urls to retrieve
-/// :param user_agent: the user agent to use, weathercli/1 by default
+/// :param `user_agent`: the user agent to use, weathercli/1 by default
 /// :param headers: optional dictionary with headers in it
 /// :param cookies: optional list of cookies
 pub fn get_urls(

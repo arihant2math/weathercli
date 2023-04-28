@@ -109,7 +109,7 @@ pub fn update(force: bool) -> crate::Result<()> {
     println!("Checking for updates ...");
     let latest_version = component_updater::get_latest_version()?;
     let application_path = std::env::current_exe()?;
-    println!("Latest Version: {}", latest_version);
+    println!("Latest Version: {latest_version}");
     println!("Current Version: {}", version());
     if latest_version != version() || force {
         println!("Updating weather.exe at {}", application_path.display());

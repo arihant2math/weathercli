@@ -69,7 +69,7 @@ pub fn get_openweathermap_forecast(
         data.weather.clone(),
         data.air_quality.clone(),
     )?);
-    for item in data.forecast.list.into_iter() {
+    for item in data.forecast.list {
         forecast.push(get_openweathermap_future(item)?);
     }
     let forecast_sentence = get_forecast_sentence(forecast.clone());

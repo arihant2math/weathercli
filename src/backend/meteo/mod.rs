@@ -23,7 +23,7 @@ pub fn meteo_get_api_urls(location: [&str; 2], metric: bool) -> [String; 2] {
     }
 }
 
-/// Gets the urls from the meteo api server and returns a FormattedData struct with the data
+/// Gets the urls from the meteo api server and returns a `FormattedData` struct with the data
 pub fn meteo_get_combined_data_formatted(
     coordinates: [&str; 2],
     metric: bool,

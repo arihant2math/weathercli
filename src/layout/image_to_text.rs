@@ -21,8 +21,8 @@ pub fn ascii_image(input_path: &str, scale: f64) -> String {
     let img_width = img.dimensions().0;
     let img_height = img.dimensions().1;
     let new_img = img.resize(
-        (img_width as f64 * scale) as u32,
-        (img_height as f64 * scale) as u32,
+        (f64::from(img_width) * scale) as u32,
+        (f64::from(img_height) * scale) as u32,
         imageops::FilterType::Nearest,
     );
     let mut text = String::new();

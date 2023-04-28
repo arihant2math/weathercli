@@ -32,8 +32,7 @@ fn get_location_web() -> crate::Result<[String; 2]> {
 fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> crate::Result<[String; 2]> {
     let r = networking::get_url(
         format!(
-            "https://dev.virtualearth.net/REST/v1/Locations?query=\"{}\"&maxResults=5&key={}",
-            query, bing_maps_api_key
+            "https://dev.virtualearth.net/REST/v1/Locations?query=\"{query}\"&maxResults=5&key={bing_maps_api_key}"
         ),
         None,
         None,
@@ -49,8 +48,7 @@ fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> crate::Re
 
 fn nominatim_geocode(query: &str) -> crate::Result<[String; 2]> {
     let r = networking::get_url(format!(
-            "https://nominatim.openstreetmap.org/search?q=\"{}\"&format=jsonv2",
-            query
+            "https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"
         ), None, None, None)?;
     let j: Value = serde_json::from_str(&r.text)?;
     let lat = j[0]["lat"].as_f64().ok_or("latitude not found")?.to_string();
@@ -61,8 +59,7 @@ fn nominatim_geocode(query: &str) -> crate::Result<[String; 2]> {
 fn nominatim_reverse_geocode(lat: &str, lon: &str) -> crate::Result<String> {
     let r = networking::get_url(
         format!(
-            "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
-            lat, lon
+            "https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=jsonv2"
         ),
         None,
         None,
@@ -71,7 +68,7 @@ fn nominatim_reverse_geocode(lat: &str, lon: &str) -> crate::Result<String> {
     Ok(r?.text)
 }
 
-/// :param no_sys_loc: if true the location will not be retrieved with the OS location api,
+/// :param `no_sys_loc`: if true the location will not be retrieved with the OS location api,
 /// by default the location is retrieved with the OS api whenever possible
 #[cfg(target_os = "windows")]
 fn get_location_core(no_sys_loc: bool) -> crate::Result<[String; 2]> {

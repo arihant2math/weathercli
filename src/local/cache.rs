@@ -26,7 +26,7 @@ struct Row {
 
 fn calculate_power(row: &Row) -> f64 {
     let offset = now().abs_diff(u128::from_str(&row.date).unwrap_or(u128::MAX)) as f64;
-    (row.hits as f64) / (offset / 86_400_000.0)
+    f64::from(row.hits) / (offset / 86_400_000.0)
 }
 
 pub fn prune_cache() -> crate::Result<()> {
@@ -39,8 +39,7 @@ pub fn prune_cache() -> crate::Result<()> {
             .iter()
             .enumerate()
             .min_by(|(_, a), (_, b)| a.total_cmp(b))
-            .map(|(index, _)| index)
-            .unwrap_or(0);
+            .map_or(0, |(index, _)| index);
         rows.remove(sort);
     }
     let new_bytes = update_cache(rows);
@@ -79,7 +78,7 @@ fn read_bytes_from_file() -> Vec<u8> {
     buffer
 }
 
-/// Reads the value of a key from the cache. This does not update the count value, use update_hits to do that
+/// Reads the value of a key from the cache. This does not update the count value, use `update_hits` to do that
 /// Returns None if the key does not exist and returns a string otherwise
 pub fn read(key: &str) -> Option<String> {
     let path = get_cache_path();
@@ -97,9 +96,9 @@ pub fn read(key: &str) -> Option<String> {
                 if current_key == key {
                     return Some(current_value.to_string());
                 }
-                current_key = String::from("");
-                current_value = String::from("");
-                current_date = String::from("");
+                current_key = String::new();
+                current_value = String::new();
+                current_date = String::new();
                 place = Place::Key;
             }
             29 => place = Place::Value,
@@ -128,9 +127,9 @@ fn update_cache(rows: Vec<Row>) -> Vec<u8> {
             response.append(&mut row.date.into_bytes());
             response.push(31);
             let mut count_now = row.hits;
-            while count_now > u8::MAX as i32 {
+            while count_now > i32::from(u8::MAX) {
                 response.push(u8::MAX);
-                count_now -= u8::MAX as i32;
+                count_now -= i32::from(u8::MAX);
             }
             response.push(count_now as u8)
         }
@@ -185,7 +184,7 @@ fn to_rows(bytes: Vec<u8>) -> Vec<Row> {
     let mut current_date = String::new();
     let mut current_count = 0;
     let mut place = Place::Key;
-    for b in bytes.into_iter() {
+    for b in bytes {
         if b == 28 {
             rows.push(Row {
                 key: current_key,
@@ -209,7 +208,7 @@ fn to_rows(bytes: Vec<u8>) -> Vec<Row> {
                 Place::Key => current_key += &*u8_to_string(b),
                 Place::Value => current_value += &*u8_to_string(b),
                 Place::Date => current_date += &*u8_to_string(b),
-                Place::Hits => current_count += b as i32,
+                Place::Hits => current_count += i32::from(b),
             }
         }
     }
@@ -236,7 +235,7 @@ pub fn update_hits(key: String) -> crate::Result<()> {
         }
     }
     if key_index == -1 {
-        return Err(format!("Key not found, {}", key))?;
+        return Err(format!("Key not found, {key}"))?;
     }
     let key_index_usize = key_index as usize;
     let row = rows.get(key_index_usize).expect("row not found");

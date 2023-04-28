@@ -36,7 +36,7 @@ pub fn open_weather_map_get_api_urls(
     [weather_string, air_quality, forecast]
 }
 
-/// Gets the urls from the openweathermap api server and returns a FormattedData struct with the data
+/// Gets the urls from the openweathermap api server and returns a `FormattedData` struct with the data
 pub fn open_weather_map_get_combined_data_formatted(
     open_weather_map_api_url: &str,
     open_weather_map_api_key: String,
