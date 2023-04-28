@@ -1,5 +1,4 @@
-use std::{fs, process};
-use std::path::Path;
+use std::{env, fs, process};
 
 use clap::{Args, Parser, Subcommand};
 
@@ -31,12 +30,13 @@ pub struct UpdateDocsOpts {
 }
 
 fn build_docs() -> weather_core::Result<()> {
-    fs::create_dir_all(Path::new("./docs"))?;
-    fs::OpenOptions::new().create(true).open(Path::new("./docs/index.html"))?;
-    fs::OpenOptions::new().create(true).open(Path::new("./docs/config.html"))?;
-    let mut jc = Path::new("./jc");
+    let working_dir = env::current_dir()?;
+    fs::create_dir_all(working_dir.join("docs"))?;
+    fs::OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("index.html"))?;
+    fs::OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("config.html"))?;
+    let mut jc = working_dir.join("/jc");
     if cfg!(windows) {
-        jc = Path::new("./jc.exe");
+        jc = working_dir.join("./jc.exe");
     }
     let mut p1 = process::Command::new(jc.display().to_string()).arg("index.html").arg("./docs/index.html").arg("--template-dir").arg("./docs_templates").spawn().expect("spawn failed");
     p1.wait().expect("waiting failed");

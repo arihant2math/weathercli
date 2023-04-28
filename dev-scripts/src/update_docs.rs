@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fs;
 use std::io::{BufReader, BufWriter, Write};
-use std::time::UNIX_EPOCH;
+
 
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
@@ -33,21 +33,21 @@ fn download_artifact(artifact_list: &Vec<Value>, h: HashMap<String, String>, nam
 }
 
 fn filter_by_file(runs: &Vec<Value>, file: &str) -> Vec<Value> {
-    return runs.iter().filter(|&run| run["path"] == file).map(|r| r.clone()).collect();
+    return runs.iter().filter(|&run| run["path"].as_str().unwrap() == file).map(|r| r.clone()).collect();
 }
 
 pub fn update_docs(gh_token: &str) -> weather_core::Result<()> {
     fs::create_dir_all("./tmp")?;
     let mut headers = HashMap::new();
     headers.insert("Authorization".to_string(), format!("Bearer {}", gh_token));
-    let get_run_id = weather_core::networking::get_url("https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=100&status=completed",
+    let get_run_id = weather_core::networking::get_url("https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=10&status=completed",
                                                        None, Some(headers.clone()), None)?;
     let runs_json: Value = serde_json::from_str(&get_run_id.text)?;
     let runs = runs_json["workflow_runs"].as_array()
         .ok_or_else(|| "not an array")?;
     let rust_ci = filter_by_file(runs, ".github/workflows/build.yml");
-    let latest_updater_run_id = rust_ci[0]["id"].as_str().unwrap();
-    let binding = get_artifact_urls(headers.clone(), latest_updater_run_id)?;
+    let latest_updater_run_id = rust_ci[0]["id"].as_i64().unwrap();
+    let binding = get_artifact_urls(headers.clone(), &latest_updater_run_id.to_string())?;
     let rust_artifacts = binding.as_array().unwrap();
     let mut tasks = vec![];
     println!("Starting Unix Download");
