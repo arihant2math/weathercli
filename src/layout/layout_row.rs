@@ -2,7 +2,7 @@ use serde_json::Value;
 
 use crate::layout::layout_json::ItemEnum;
 use crate::layout::layout_item::Item;
-use crate::util::{Error, LayoutErr};
+use crate::error::{Error, LayoutErr};
 
 pub struct Row {
     items: Vec<Item>,

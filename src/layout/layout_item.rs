@@ -8,7 +8,7 @@ use serde_json::Value;
 use crate::color;
 use crate::layout::util;
 use crate::layout::layout_json::{ItemJSON, ItemEnum};
-use crate::util::LayoutErr;
+use crate::error::LayoutErr;
 
 pub struct Item {
     data: ItemJSON,
@@ -133,7 +133,7 @@ impl Item {
                 if !current.is_null() {
                     current = &current[split[0]];
                 } else {
-                    return Err(crate::util::Error::LayoutError(LayoutErr {
+                    return Err(crate::error::Error::LayoutError(LayoutErr {
                         message: "Variable not found in data".to_string(),
                         row: None,
                         item: None,
@@ -146,7 +146,7 @@ impl Item {
             Some(t) => Ok(t.to_string()),
             None => match current.as_f64() {
                 Some(t) => Ok(round(t)),
-                None => Ok(current.as_i64().ok_or_else(|| crate::util::Error::LayoutError(LayoutErr {
+                None => Ok(current.as_i64().ok_or_else(|| crate::error::Error::LayoutError(LayoutErr {
                     message: "Json type not supported".to_string(),
                     row: None,
                     item: None,
@@ -165,7 +165,7 @@ impl Item {
                     .parse()
                     .unwrap_or(0),
             ),
-            _ => Err(crate::util::Error::LayoutError(LayoutErr {
+            _ => Err(crate::error::Error::LayoutError(LayoutErr {
                 message: "Function not found".to_string(),
                 row: None,
                 item: None,

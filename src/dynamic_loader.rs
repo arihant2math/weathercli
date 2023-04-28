@@ -7,7 +7,7 @@ use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::custom_backend;
 use crate::custom_backend::{InvocationError, PluginDeclaration, WeatherForecastPlugin};
 use crate::local::settings::Settings;
-use crate::util::Error;
+use crate::error::Error;
 
 pub fn load(paths: Vec<String>) -> ExternalBackends {
     let mut functions = ExternalBackends::new();

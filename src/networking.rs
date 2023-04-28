@@ -58,7 +58,7 @@ pub fn get_url<S: AsRef<str>>(
         }
     };
     if real_resp.is_err() {
-        return Err(crate::util::Error::NetworkError(format!("Get to {} failed", url)))
+        return Err(crate::error::Error::NetworkError(format!("Get to {} failed", url)))
     }
     let data = real_resp.unwrap();
     let status = data.status();

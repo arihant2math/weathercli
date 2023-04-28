@@ -82,7 +82,7 @@ pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
         return Ok(());
     }
     else {
-        return Err(crate::util::Error::NetworkError("Status not 200".to_string()));
+        return Err(crate::error::Error::NetworkError("Status not 200".to_string()));
     }
 }
 

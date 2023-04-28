@@ -4,7 +4,7 @@ use crate::layout::layout_row::Row;
 use crate::layout::layout_json::{LayoutJSON, LayoutDefaultsJSON};
 use crate::layout::layout_json::RowEnum::{RowString, RowVec};
 use crate::local::weather_file::WeatherFile;
-use crate::util::{Error, LayoutErr};
+use crate::error::{Error, LayoutErr};
 
 mod image_to_text;
 mod layout_item;
