@@ -45,7 +45,7 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Error::LayoutError(e) => write!(f, "Layout Error: {}", e.to_string()),
+            Error::LayoutError(e) => write!(f, "Layout Error: {}", e),
             Error::NetworkError(e) => write!(f, "Network Error: {e}"),
             Error::JsonError(e) => write!(f, "JSON Error: {e}"), // TODO: Fix
             Error::IoError(e) => write!(f, "I/O Error: {e}"), // TODO: Fix
