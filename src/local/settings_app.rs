@@ -1,3 +1,4 @@
+use std::fmt;
 use dark_light::Mode;
 use iced::{Alignment, Element, Length, Sandbox, Settings};
 use iced::theme::Theme;
@@ -42,14 +43,15 @@ enum DataSource {
     TheWeatherChannel,
 }
 
-impl ToString for DataSource {
-    fn to_string(&self) -> String {
-        match self {
+impl fmt::Display for DataSource {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
             DataSource::Meteo => "meteo".to_string(),
             DataSource::OpenWeatherMap => "openweathermap".to_string(),
             DataSource::Nws => "nws".to_string(),
             DataSource::TheWeatherChannel => "theweatherchannel".to_string(),
-        }
+        };
+        write!(f, "{s}")
     }
 }
 
