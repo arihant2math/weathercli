@@ -20,7 +20,7 @@ fn get_artifact_urls(h: HashMap<String, String>, run_id: &str) -> weather_core::
 fn download_artifact(artifact_list: &Vec<Value>, h: HashMap<String, String>, name: &str, file: &str) -> weather_core::Result<()> {
     println!("Downloading {name} to {file}");
     let artifacts: Vec<&Value> = artifact_list.iter().filter(|a| a["name"].as_str().unwrap() == name).collect();
-    let artifact_id = artifacts.get(0).expect(&*format!("Could not find artifact {name}"))["id"].as_str().unwrap();
+    let artifact_id = artifacts.get(0).expect(&*format!("Could not find artifact {name}"))["id"].as_str().expect(&*format!("Could not find artifact {name}"));
     let download =
         weather_core::networking::get_url(format!("https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/{}/zip", artifact_id), None, Some(h), None)?;
     let mut tmp_zip_file = fs::OpenOptions::new().create(true).write(true).open("./tmp".to_string() + file + ".zip")?;

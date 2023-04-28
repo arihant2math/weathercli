@@ -34,7 +34,7 @@ fn build_docs() -> weather_core::Result<()> {
     fs::create_dir_all(working_dir.join("docs"))?;
     fs::OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("index.html"))?;
     fs::OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("config.html"))?;
-    let mut jc = working_dir.join("/jc");
+    let mut jc = working_dir.join("./jc");
     if cfg!(windows) {
         jc = working_dir.join("./jc.exe");
     }
