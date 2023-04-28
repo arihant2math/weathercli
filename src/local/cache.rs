@@ -198,11 +198,11 @@ fn to_rows(bytes: Vec<u8>) -> Vec<Row> {
             current_count = 0;
             place = Place::Key;
         } else if b == 29 {
-            place = Place::Value
+            place = Place::Value;
         } else if b == 30 {
-            place = Place::Date
+            place = Place::Date;
         } else if b == 31 {
-            place = Place::Hits
+            place = Place::Hits;
         } else {
             match place {
                 Place::Key => current_key += &*u8_to_string(b),

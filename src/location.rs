@@ -114,14 +114,14 @@ pub fn get_coordinates(location_string: String, bing_maps_api_key: String) -> cr
     match attempt_cache {
         None => {
             let mut coordinates: crate::Result<[String; 2]>;
-            if bing_maps_api_key != *"" {
+            if bing_maps_api_key == "" {
+                coordinates = nominatim_geocode(&location_string);
+            } else {
                 coordinates = bing_maps_location_query(&location_string, bing_maps_api_key);
                 if coordinates.is_err() {
                     println!("Bing maps geocoding failed");
                     coordinates = nominatim_geocode(&location_string);
                 }
-            } else {
-                coordinates = nominatim_geocode(&location_string);
             }
             let real_coordinate = coordinates?;
             let v = real_coordinate.join(",");

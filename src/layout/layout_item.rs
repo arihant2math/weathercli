@@ -68,15 +68,16 @@ impl Item {
                 let mut args: Vec<ItemEnum> = Vec::new();
                 let mut kwargs: HashMap<String, ItemEnum> = HashMap::new();
                 for item in split {
-                    if !item.contains('=') {
-                        args.push(ItemEnum::ItemString(item.to_string()))
-                    } else {
+                    if item.contains('=') {
                         let temp_item = item.to_string();
                         let kwarg: Vec<&str> = temp_item.split('=').collect();
                         kwargs.insert(
                             kwarg[0].to_string(),
                             ItemEnum::ItemString(kwarg[1].to_string()),
                         );
+
+                    } else {
+                        args.push(ItemEnum::ItemString(item.to_string()));
                     }
                 }
                 let item: ItemJSON = ItemJSON {
@@ -130,15 +131,14 @@ impl Item {
                 current = &current[place];
             } else {
                 // normal variable
-                if !current.is_null() {
-                    current = &current[split[0]];
-                } else {
+                if current.is_null() {
                     return Err(crate::error::Error::LayoutError(LayoutErr {
                         message: "Variable not found in data".to_string(),
                         row: None,
                         item: None,
                     }));
                 }
+                current = &current[split[0]];
             }
             split.remove(0);
         }
@@ -231,7 +231,7 @@ impl Item {
                 f.write_all(&response.bytes)?;
                 return Ok(crate::layout::image_to_text::ascii_image("temp.img", self.data.scale.unwrap_or(1.0)));
             }
-            Err("source is not a url".to_string())? // TODO: Fix
+            Err("source is not a url".to_string())?; // TODO: Fix
         }
         Ok(String::new())
     }

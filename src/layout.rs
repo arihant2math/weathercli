@@ -150,7 +150,7 @@ impl LayoutFile {
                 self.text_bg_color.clone(),
                 self.unit_bg_color.clone(),
                 metric,
-            ).map_err(|e| reemit_layout_error(e, count))?)
+            ).map_err(|e| reemit_layout_error(e, count))?);
         }
         Ok(s.join("\n"))
     }

@@ -89,10 +89,10 @@ pub fn get_urls(
     cookies: Option<HashMap<String, String>>,
 ) -> crate::Result<Vec<Resp>> {
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
-    for (key, value) in cookies.clone().unwrap_or(HashMap::new()) {
+    for (key, value) in cookies.clone().unwrap_or(HashMap::default()).iter() {
         for url in &urls {
             cookies_vec.push(cookie_store::Cookie::parse(
-                key.clone() + "=" + &value,
+                key.to_string() + "=" + value,
                 &url::Url::parse(url).expect("parse failed"),
             ));
         }
@@ -104,7 +104,7 @@ pub fn get_urls(
             CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"),
         );
     }
-    for (key, value) in headers.unwrap_or(HashMap::new()) {
+    for (key, value) in headers.unwrap_or(HashMap::default()) {
         client_pre = client_pre.add_header(&key, &value);
     }
     let client = client_pre.build();

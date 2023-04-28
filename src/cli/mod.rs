@@ -104,7 +104,7 @@ pub struct GlobalOpts {
 
 fn print_out(layout_file: String, data: WeatherForecastRS, json: bool, metric: bool) -> crate::Result<()> {
     if json {
-        println!("{:#?}", data.raw_data.expect("No raw data to print"))
+        println!("{:#?}", data.raw_data.expect("No raw data to print"));
     } else {
         let mut out = LayoutFile::new(layout_file);
         if out.is_err() {

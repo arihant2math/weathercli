@@ -12,7 +12,7 @@ pub fn get_openweathermap_future(data: OpenWeatherMapForecastItemJson) -> crate:
         conditions.push(WeatherCondition::new(
             condition.id as u16,
             &weather_file.data,
-        )?)
+        )?);
     }
     Ok(WeatherDataRS {
         time: now() as i128,
