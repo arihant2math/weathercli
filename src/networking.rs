@@ -120,7 +120,7 @@ pub fn get_urls(
                 .read_to_end(&mut bytes)
                 .expect("read failed");
 
-            let mut text = String::from("");
+            let mut text = String::new();
             for byte in &bytes {
                 text += &(*byte as char).to_string();
             }

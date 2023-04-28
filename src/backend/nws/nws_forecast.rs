@@ -13,7 +13,7 @@ pub fn get_nws_forecast(coordinates: [&str; 2], settings: Settings) -> crate::Re
         country: region_country[1].clone(),
         forecast: vec![current.clone()],
         current_weather: current,
-        forecast_sentence: "".to_string(),
+        forecast_sentence: String::new(),
         raw_data: None,
     })
 }

@@ -15,7 +15,7 @@ pub struct Item {
 }
 
 fn round(f: f64) -> String {
-    format!("{:.1}", f)
+    format!("{f:.1}")
 }
 
 fn url_validator(u: &str) -> bool {
@@ -196,31 +196,31 @@ impl Item {
         if self.data.item_type == "text" {
             return Ok(text_color
                 + &text_bg_color
-                + &self.data.color.clone().unwrap_or("".to_string())
-                + &self.data.bg_color.clone().unwrap_or("".to_string())
+                + &self.data.color.clone().unwrap_or(String::new())
+                + &self.data.bg_color.clone().unwrap_or(String::new())
                 + &self.data.value);
         } else if self.data.item_type == "variable" {
             let value = self.get_variable_value(data)?;
             let s = variable_color
                 + &variable_bg_color
-                + &color::from_string(self.data.color.clone().unwrap_or("".to_string()))
-                    .unwrap_or("".to_string())
-                + &color::from_string(self.data.bg_color.clone().unwrap_or("".to_string()))
-                    .unwrap_or("".to_string())
+                + &color::from_string(self.data.color.clone().unwrap_or(String::new()))
+                    .unwrap_or(String::new())
+                + &color::from_string(self.data.bg_color.clone().unwrap_or(String::new()))
+                    .unwrap_or(String::new())
                 + &value
                 + &unit_color
                 + &unit_bg_color
-                + &self.data.unit_color.clone().unwrap_or("".to_string());
+                + &self.data.unit_color.clone().unwrap_or(String::new());
             return if metric {
                 // TODO: Fix color mess
-                Ok(s + &self.data.metric.clone().unwrap_or("".to_string()))
+                Ok(s + &self.data.metric.clone().unwrap_or(String::new()))
             } else {
-                Ok(s + &self.data.imperial.clone().unwrap_or("".to_string()))
+                Ok(s + &self.data.imperial.clone().unwrap_or(String::new()))
             };
         } else if self.data.item_type == "function" {
             let value = self.get_function_value(data)?;
-            return Ok(self.data.color.clone().unwrap_or("".to_string())
-                + &self.data.bg_color.clone().unwrap_or("".to_string())
+            return Ok(self.data.color.clone().unwrap_or(String::new())
+                + &self.data.bg_color.clone().unwrap_or(String::new())
                 + &value);
         }
         else if self.data.item_type == "image" {
@@ -234,6 +234,6 @@ impl Item {
             }
             Err("source is not a url".to_string())? // TODO: Fix
         }
-        Ok("".to_string())
+        Ok(String::new())
     }
 }

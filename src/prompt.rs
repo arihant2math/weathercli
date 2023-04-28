@@ -9,10 +9,11 @@ fn draw(options: &[&str], choice: usize, multiline: bool) -> String {
     let mut result = String::new();
     if multiline {
         for (count, option) in options.iter().enumerate() {
-            if count != choice {
-                result += "\x1b[34m  ";
+            if count == choice {
+                                result += "\x1b[35m> \x1b[32m";
+
             } else {
-                result += "\x1b[35m> \x1b[32m";
+                                result += "\x1b[34m  ";
             }
             result += option;
             result += "\x1b[39m";
@@ -41,7 +42,7 @@ pub fn choice(options: &[&str], default: usize, multiline: Option<bool>) -> crat
     // entering raw mode
     enable_raw_mode()?;
     let start_msg = draw(options, default, multiline_standard);
-    print!("{}", start_msg);
+    print!("{start_msg}");
     let mut choice = default;
     //key detection
     loop {
@@ -56,25 +57,17 @@ pub fn choice(options: &[&str], default: usize, multiline: Option<bool>) -> crat
         // matching the key
         match read()? {
             Event::Key(KeyEvent {
-                code: KeyCode::Up, ..
-            })
-            | Event::Key(KeyEvent {
-                code: KeyCode::Left,
-                ..
+                code: KeyCode::Up | KeyCode::Left, ..
             }) => choice = choice.saturating_sub(1),
             Event::Key(KeyEvent {
-                code: KeyCode::Down,
-                ..
-            })
-            | Event::Key(KeyEvent {
-                code: KeyCode::Right,
+                code: KeyCode::Down | KeyCode::Right,
                 ..
             }) => choice = choice.saturating_add(1),
             Event::Key(KeyEvent {
                 code: KeyCode::Char('c'),
                 modifiers: KeyModifiers::CONTROL,
                 ..
-            }) => break,
+            }) => panic!("Control-C pressed"),
             Event::Key(KeyEvent {
                 code: KeyCode::Enter,
                 ..

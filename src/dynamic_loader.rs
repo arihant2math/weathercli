@@ -26,7 +26,7 @@ pub fn load(paths: Vec<String>) -> ExternalBackends {
 
 pub fn run(
     functions: ExternalBackends,
-    name: String,
+    name: &str,
     coordinates: [&str; 2],
     settings: Settings,
 ) -> WeatherForecastRS {
@@ -49,13 +49,13 @@ impl ExternalBackends {
 
     pub fn call(
         &self,
-        name: String,
+        name: &str,
         coordinates: [&str; 2],
         settings: Settings,
     ) -> crate::Result<WeatherForecastRS> {
         debug!("Calling function {}", name);
         self.functions
-            .get(&*name)
+            .get(name)
             .ok_or(Error::InvocationError(InvocationError::NotFound))?
             .call(coordinates, settings)
     }
@@ -72,7 +72,7 @@ impl ExternalBackends {
     pub unsafe fn load<P: AsRef<OsStr>>(&mut self, library_path: P) -> crate::Result<()> {
         let path = library_path.as_ref().to_str().ok_or("Failed to get library path")?;
         // load the library into memory
-        let library = Rc::new(Library::new(path).map_err(|e| format!("Could not load library at {}, details: {}", path, e))?);
+        let library = Rc::new(Library::new(path).map_err(|e| format!("Could not load library at {path}, details: {e}"))?);
 
         // get a pointer to the plugin_declaration symbol.
         let decl = library

@@ -98,23 +98,23 @@ impl LayoutFile {
             retrieved_settings
                 .clone()
                 .variable_bg_color
-                .unwrap_or("".to_string()),
+                .unwrap_or(String::new()),
         )
-        .unwrap_or("".to_string());
+        .unwrap_or(String::new());
         let text_bg_color = color::from_string(
             retrieved_settings
                 .clone()
                 .variable_bg_color
-                .unwrap_or("".to_string()),
+                .unwrap_or(String::new()),
         )
-        .unwrap_or("".to_string());
+        .unwrap_or(String::new());
         let unit_bg_color = color::from_string(
             retrieved_settings
                 
                 .variable_bg_color
-                .unwrap_or("".to_string()),
+                .unwrap_or(String::new()),
         )
-        .unwrap_or("".to_string());
+        .unwrap_or(String::new());
         if file_data.layout.is_none() {
             return Err(LayoutErr {message: "Layout key not found".to_string(), row: None, item: None})?;
         }

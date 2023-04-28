@@ -87,9 +87,9 @@ pub fn read(key: &str) -> Option<String> {
         return None;
     }
     let buffer = read_bytes_from_file();
-    let mut current_key = "".to_string();
-    let mut current_value = "".to_string();
-    let mut current_date = "".to_string();
+    let mut current_key = String::new();
+    let mut current_value = String::new();
+    let mut current_date = String::new();
     let mut place = Place::Key;
     for b in buffer {
         match b {
@@ -180,9 +180,9 @@ pub fn write(key: &str, value: &str) {
 
 fn to_rows(bytes: Vec<u8>) -> Vec<Row> {
     let mut rows: Vec<Row> = Vec::new();
-    let mut current_key = "".to_string();
-    let mut current_value = "".to_string();
-    let mut current_date = "".to_string();
+    let mut current_key = String::new();
+    let mut current_value = String::new();
+    let mut current_date = String::new();
     let mut current_count = 0;
     let mut place = Place::Key;
     for b in bytes.into_iter() {
@@ -193,9 +193,9 @@ fn to_rows(bytes: Vec<u8>) -> Vec<Row> {
                 date: current_date,
                 hits: current_count,
             });
-            current_key = "".to_string();
-            current_value = "".to_string();
-            current_date = "".to_string();
+            current_key = String::new();
+            current_value = String::new();
+            current_date = String::new();
             current_count = 0;
             place = Place::Key;
         } else if b == 29 {

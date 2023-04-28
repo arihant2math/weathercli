@@ -1,5 +1,3 @@
-
-
 use std::fmt;
 use std::fmt::Debug;
 
@@ -17,14 +15,14 @@ pub struct LayoutErr {
 //
 // Note that we don't store any extra info about the errors. This means we can't state
 // which string failed to parse without modifying our types to carry that information.
-impl LayoutErr {
-    fn to_string(&self) -> String {
+impl fmt::Display for LayoutErr {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.row {
             Some(row) => match self.item {
-                Some(item) => format!("Error at row {}, item {}: {}", row, item, self.message),
-                None => format!("Error at row {}: {}", row, self.message),
+                Some(item) => write!(f, "Error at row {}, item {}: {}", row, item, self.message),
+                None => write!(f, "Error at row {}: {}", row, self.message),
             },
-            None => format!("Error: {}", &self.message),
+            None => write!(f, "Error: {}", &self.message),
         }
     }
 }
@@ -48,11 +46,11 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Error::LayoutError(e) => write!(f, "Layout Error: {}", e.to_string()),
-            Error::NetworkError(e) => write!(f, "Network Error: {}", e),
-            Error::JsonError(e) => write!(f, "JSON Error: {}", e), // TODO: Fix
-            Error::IoError(e) => write!(f, "I/O Error: {}", e), // TODO: Fix
+            Error::NetworkError(e) => write!(f, "Network Error: {e}"),
+            Error::JsonError(e) => write!(f, "JSON Error: {e}"), // TODO: Fix
+            Error::IoError(e) => write!(f, "I/O Error: {e}"), // TODO: Fix
             Error::InvocationError(_e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
-            Error::Other(s) => write!(f, "{}", s)
+            Error::Other(s) => write!(f, "{s}")
         }
     }
 }

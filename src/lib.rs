@@ -29,7 +29,7 @@ pub mod prompt;
 pub mod util;
 pub mod error;
 
-pub type Result<T> = std::result::Result<T, crate::error::Error>;
+pub type Result<T> = std::result::Result<T, error::Error>;
 
 
 pub fn now() -> u128 {
@@ -93,6 +93,6 @@ pub fn get_data_from_datasource(
         Datasource::Openweathermap => get_openweathermap_forecast(conv_coords, settings),
         Datasource::NWS => get_nws_forecast(conv_coords, settings),
         Datasource::Meteo => get_meteo_forecast(conv_coords, settings),
-        Datasource::Other(s) => custom_backends.call(s, conv_coords, settings)
+        Datasource::Other(s) => custom_backends.call(&s, conv_coords, settings)
     }
 }

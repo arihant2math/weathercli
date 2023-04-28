@@ -26,10 +26,7 @@ fn get_location_web() -> crate::Result<[String; 2]> {
     let resp = networking::get_url("https://ipinfo.io", None, None, None)?.text;
     let json: HashMap<String, String> = serde_json::from_str(&resp)?;
     let location_vec: Vec<&str> = json.get("loc").ok_or_else(|| "No loc section".to_string())?.split(',').collect();
-    let mut location_list = ["".to_string(), "".to_string()];
-    location_list[0] = location_vec[0].to_string();
-    location_list[1] = location_vec[1].to_string();
-    Ok(location_list)
+    Ok([location_vec[0].to_string(), location_vec[1].to_string()])
 }
 
 fn bing_maps_location_query(query: &str, bing_maps_api_key: String) -> crate::Result<[String; 2]> {
@@ -176,7 +173,7 @@ pub fn reverse_location(latitude: &str, longitude: &str) -> crate::Result<[Strin
         Some(real_cache) => {
             let cache_string = "coordinates".to_string() + &k;
             thread::spawn(move || {
-                cache::update_hits(cache_string);
+                cache::update_hits(cache_string).unwrap_or(());
             });
             let vec_collect: Vec<&str> = real_cache.split(",?`|").collect();
             Ok([vec_collect[0].to_string(), vec_collect[1].to_string()])

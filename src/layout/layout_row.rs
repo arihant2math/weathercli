@@ -23,11 +23,11 @@ impl Row {
     pub fn from_str(data: &str) -> Self {
         let mut item_list = Vec::new();
         let mut previous_char = '\0';
-        let mut current = "".to_string();
+        let mut current = String::new();
         for c in data.to_string().chars() {
             if (c == '{' || c == '}') && previous_char != '\\' {
                 item_list.push(Item::from_str(&current));
-                current = "".to_string();
+                current = String::new();
                 previous_char = '\0';
             } else {
                 current += &c.to_string();
@@ -59,7 +59,7 @@ impl Row {
         unit_bg_color: String,
         metric: bool,
     ) -> crate::Result<String> {
-        let mut s = "".to_string();
+        let mut s = String::new();
         for (count, i) in self.items.iter().enumerate() {
             s += &*i.to_string(
                 data,

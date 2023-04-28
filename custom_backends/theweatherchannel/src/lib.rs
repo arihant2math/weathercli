@@ -20,7 +20,7 @@ fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_
             speed: 0.0,
             heading: 0
         },
-        raw_data: "".to_string(),
+        raw_data: String::new(),
         dewpoint: 0.0,
         feels_like: 0.0,
         aqi: 0,

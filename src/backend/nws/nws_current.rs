@@ -74,7 +74,7 @@ pub fn get_nws_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData
             speed: convert_speed(data.properties.wind_speed.values[0].value, metric),
             heading: data.properties.wind_direction.values[0].value as i16,
         },
-        raw_data: "".to_string(),
+        raw_data: String::new(),
         dewpoint: convert_temp(data.properties.dewpoint.values[0].value, metric) as f32,
         feels_like: convert_temp(
             data.properties.apparent_temperature.values[0].value,

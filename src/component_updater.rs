@@ -26,12 +26,12 @@ fn update_web_resource(
     let web_json: Value = web_resp;
     let web_hash: String = web_json[name].as_str().ok_or("Failed to get hash from web")?.to_string();
     if web_hash != file_hash {
-        debug!("name: {} web: {} file: {}", name, web_hash, file_hash);
+        debug!("name: {name} web: {web_hash} file: {file_hash}");
         if !quiet {
             if f.exists {
-                println!("\x1b[33mDownloading {} update", out_name);
+                println!("\x1b[33mDownloading {out_name} update");
             } else {
-                println!("\x1b[33mDownloading {}", out_name);
+                println!("\x1b[33mDownloading {out_name}");
             }
         }
         let data = networking::get_url(web_path, None, None, None)?.text;
@@ -42,7 +42,7 @@ fn update_web_resource(
 }
 
 /// Updates all the web resources, run on a separate thread as there is no return value
-/// :param dev: gets passed update_web_resource, if true update_web_resource will print the hashes if they don't match
+/// :param dev: gets passed `update_web_resource`, if true `update_web_resource` will print the hashes if they don't match
 pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
     debug!("updating web resources");
     let real_quiet = quiet.unwrap_or(false);
