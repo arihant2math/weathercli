@@ -9,11 +9,11 @@ use indicatif::{ProgressBar, ProgressStyle};
 use indicatif::style::TemplateError;
 use reqwest::Client;
 
-use crate::util;
+use crate::error;
 
-impl From<TemplateError> for util::Error {
+impl From<TemplateError> for error::Error {
     fn from(error: TemplateError) -> Self {
-        util::Error::Other(error.to_string())
+        error::Error::Other(error.to_string())
     }
 }
 
@@ -46,7 +46,7 @@ pub async fn update_component(
     let mut file_expect = File::create(path);
     while file_expect.is_err() {
         if retries > 30 {
-            return Err(util::Error::IoError(format!("Failed to create/open file '{}'", path)));
+            return Err(error::Error::IoError(format!("Failed to create/open file '{}'", path)));
         }
         file_expect = File::create(path);
         thread::sleep(Duration::from_millis(100));
