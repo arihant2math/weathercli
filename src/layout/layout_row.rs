@@ -8,7 +8,7 @@ pub struct Row {
     items: Vec<Item>,
 }
 
-const fn reemit_layout_error(e: Error, count: usize) -> Error {
+fn reemit_layout_error(e: Error, count: usize) -> Error {
     match e {
         Error::LayoutError(e) => Error::LayoutError(LayoutErr {
             message: e.message,
