@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::local::weather_file::WeatherFile;
 
-fn _true() -> bool {
+const fn _true() -> bool {
     true
 }
 
@@ -10,7 +10,7 @@ fn _default_layout() -> String {
     String::from("default.json")
 }
 
-fn _default_daemon_update_interval() -> i64 {
+const fn _default_daemon_update_interval() -> i64 {
     600
 }
 
@@ -20,6 +20,7 @@ fn _meteo() -> String {
 
 #[derive(Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[allow(clippy::struct_excessive_bools)]
 pub struct SettingsJson {
     #[serde(default)]
     pub open_weather_map_api_key: String,
@@ -47,7 +48,6 @@ pub struct SettingsJson {
     pub enable_daemon: bool,
     #[serde(default = "_default_daemon_update_interval")]
     pub daemon_update_interval: i64,
-    #[serde(default)]
     pub installed_components: Option<Vec<String>>,
     #[serde(default)]
     pub enable_custom_backends: bool,
@@ -63,7 +63,7 @@ impl Settings {
     pub fn new() -> crate::Result<Self> {
         let file = WeatherFile::settings()?;
         let parsed: SettingsJson = serde_json::from_str(&file.data)?;
-        Ok(Settings {
+        Ok(Self {
             internal: parsed,
             file,
         })
@@ -75,5 +75,10 @@ impl Settings {
         Ok(())
     }
 
-    pub fn reload(&self) {}
+    pub fn reload(&mut self) -> crate::Result<()> {
+        self.file = WeatherFile::settings()?;
+        let parsed: SettingsJson = serde_json::from_str(&self.file.data)?;
+        self.internal = parsed;
+        Ok(())
+    }
 }

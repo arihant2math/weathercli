@@ -5,12 +5,12 @@ use std::time::Duration;
 use log::debug;
 use serde_json::Value;
 
-use crate::{component_updater, get_data_from_datasource, networking, version};
-use crate::cli::{Datasource, print_out};
+use crate::cli::{print_out, Datasource};
 use crate::component_updater::get_updater;
 use crate::dynamic_loader::ExternalBackends;
 use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
+use crate::{component_updater, get_data_from_datasource, networking, version};
 
 pub fn weather(
     datasource: Datasource,
@@ -38,15 +38,10 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
             println!("{}: {}", &key_name, data[&key_name]);
         }
         Some(real_value) => {
-            println!(
-                "Writing {}={} ...",
-                key_name.to_lowercase(),
-                &real_value
-            );
+            println!("Writing {}={} ...", key_name.to_lowercase(), &real_value);
             let mut f = WeatherFile::settings()?;
             let mut data: Value = serde_json::from_str(&f.data)?;
-            data[key_name.to_uppercase()] =
-                Value::from_str(&real_value)?;
+            data[key_name.to_uppercase()] = Value::from_str(&real_value)?;
             f.data = serde_json::to_string(&data)?;
             f.write()?;
         }
@@ -56,16 +51,18 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
 
 pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
-    println!(
-        "{}===== Weather CLI Setup =====",
-        crate::color::FORE_CYAN
-    );
+    println!("{}===== Weather CLI Setup =====", crate::color::FORE_CYAN);
     component_updater::update_web_resources(None)?;
     println!(
         "{}Choose the default weather backend: ",
         crate::color::FORE_RED
     );
-    let options = ["Meteo", "Open Weather Map", "National Weather Service", "The Weather Channel"];
+    let options = [
+        "Meteo",
+        "Open Weather Map",
+        "National Weather Service",
+        "The Weather Channel",
+    ];
     let mut default = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"]
         .iter()
         .position(|&x| x == settings.internal.default_backend.clone())
@@ -84,8 +81,8 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
     } else {
         default = 1;
     }
-    let constant_location_setting = [true, false]
-        [crate::prompt::choice(&["yes", "no"], default, None)?];
+    let constant_location_setting =
+        [true, false][crate::prompt::choice(&["yes", "no"], default, None)?];
     settings.internal.constant_location = constant_location_setting;
     settings.write()?;
     thread::sleep(Duration::from_millis(100));
@@ -98,8 +95,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
     } else {
         default = 1;
     }
-    let auto_update_setting = [true, false]
-        [crate::prompt::choice(&["yes", "no"], default, None)?];
+    let auto_update_setting = [true, false][crate::prompt::choice(&["yes", "no"], default, None)?];
     settings.internal.auto_update_internet_resources = auto_update_setting;
     settings.write()?;
     Ok(())
@@ -133,7 +129,8 @@ pub fn update(force: bool) -> crate::Result<()> {
                     None,
                     None,
                     None,
-                )?.text,
+                )?
+                .text,
             )?;
             let mut web_hash = resp["updater-exe-hash-unix"]
                 .as_str()
@@ -143,8 +140,7 @@ pub fn update(force: bool) -> crate::Result<()> {
                     .as_str()
                     .expect("updater-exe-hash-windows key not found in index.json");
             }
-            if crate::util::hash_file(&updater_location.display().to_string())? != web_hash
-                || force
+            if crate::util::hash_file(&updater_location.display().to_string())? != web_hash || force
             {
                 get_updater(updater_location.display().to_string())?;
             }

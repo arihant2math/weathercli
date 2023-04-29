@@ -8,14 +8,14 @@ pub struct Row {
     items: Vec<Item>,
 }
 
-fn reemit_layout_error(e: Error, count: usize) -> Error {
+const fn reemit_layout_error(e: Error, count: usize) -> Error {
     match e {
         Error::LayoutError(e) => Error::LayoutError(LayoutErr {
             message: e.message,
             row: None,
             item: Some(count as u64),
         }),
-        _ => e
+        _ => e,
     }
 }
 
@@ -37,7 +37,7 @@ impl Row {
         if !current.is_empty() {
             item_list.push(Item::from_str(&current));
         }
-        Row { items: item_list }
+        Self { items: item_list }
     }
 
     pub fn from_vec(data: Vec<ItemEnum>) -> Self {
@@ -45,7 +45,7 @@ impl Row {
         for (_count, item) in data.iter().enumerate() {
             items.push(Item::new(item.clone()));
         }
-        Row { items }
+        Self { items }
     }
 
     pub fn to_string(
@@ -61,16 +61,18 @@ impl Row {
     ) -> crate::Result<String> {
         let mut s = String::new();
         for (count, i) in self.items.iter().enumerate() {
-            s += &*i.to_string(
-                data,
-                variable_color.clone(),
-                text_color.clone(),
-                unit_color.clone(),
-                variable_bg_color.clone(),
-                text_bg_color.clone(),
-                unit_bg_color.clone(),
-                metric,
-            ).map_err(|e| reemit_layout_error(e, count))?;
+            s += &*i
+                .to_string(
+                    data,
+                    variable_color.clone(),
+                    text_color.clone(),
+                    unit_color.clone(),
+                    variable_bg_color.clone(),
+                    text_bg_color.clone(),
+                    unit_bg_color.clone(),
+                    metric,
+                )
+                .map_err(|e| reemit_layout_error(e, count))?;
         }
         Ok(s)
     }

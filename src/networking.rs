@@ -14,10 +14,10 @@ pub struct Resp {
     pub text: String,
 }
 
-fn get_user_agent(custom: Option<String>) -> String {
+fn get_user_agent<S: AsRef<str>>(custom: Option<S>) -> String {
     let mut app_user_agent = "weathercli/1".to_string();
     if let Some(user_agent) = custom {
-        app_user_agent = user_agent
+        app_user_agent = user_agent.as_ref().to_string();
     }
     app_user_agent
 }
@@ -25,13 +25,13 @@ fn get_user_agent(custom: Option<String>) -> String {
 /// get a url
 pub fn get_url<S: AsRef<str>>(
     url_s: S,
-    user_agent: Option<String>,
+    user_agent: Option<S>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
 ) -> crate::Result<Resp> {
     let url = url_s.as_ref();
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
-    for (key, value) in cookies.clone().unwrap_or(HashMap::new()) {
+    for (key, value) in cookies.clone().unwrap_or_default() {
         cookies_vec.push(cookie_store::Cookie::parse(
             key.clone() + "=" + &value,
             &Url::parse(url).expect("parse failed"),
@@ -39,7 +39,7 @@ pub fn get_url<S: AsRef<str>>(
     }
     let app_user_agent = get_user_agent(user_agent);
     let mut client_pre = ureq::AgentBuilder::new().user_agent(&app_user_agent);
-    for (key, value) in headers.unwrap_or(HashMap::new()) {
+    for (key, value) in headers.unwrap_or_default() {
         client_pre = client_pre.add_header(&key, &value);
     }
     if cookies.is_some() {
@@ -54,11 +54,13 @@ pub fn get_url<S: AsRef<str>>(
         Ok(d) => Ok(d),
         Err(e) => match e {
             ureq::Error::Status(_s, d) => Ok(d),
-            ureq::Error::Transport(d) => Err(d)
-        }
+            ureq::Error::Transport(d) => Err(d),
+        },
     };
     if real_resp.is_err() {
-        return Err(crate::error::Error::NetworkError(format!("Get to {url} failed")));
+        return Err(crate::error::Error::NetworkError(format!(
+            "Get to {url} failed"
+        )));
     }
     let data = real_resp.unwrap();
     let status = data.status();
@@ -83,17 +85,17 @@ pub fn get_url<S: AsRef<str>>(
 /// :param headers: optional dictionary with headers in it
 /// :param cookies: optional list of cookies
 pub fn get_urls(
-    urls: Vec<String>,
+    urls: &[String],
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
 ) -> crate::Result<Vec<Resp>> {
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
-    for (key, value) in cookies.clone().unwrap_or(HashMap::default()).iter() {
-        for url in &urls {
+    for (key, value) in &cookies.clone().unwrap_or_default() {
+        for url in urls {
             cookies_vec.push(cookie_store::Cookie::parse(
                 key.to_string() + "=" + value,
-                &url::Url::parse(url).expect("parse failed"),
+                &Url::parse(url).expect("parse failed"),
             ));
         }
     }
@@ -104,7 +106,7 @@ pub fn get_urls(
             CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"),
         );
     }
-    for (key, value) in headers.unwrap_or(HashMap::default()) {
+    for (key, value) in headers.unwrap_or_default() {
         client_pre = client_pre.add_header(&key, &value);
     }
     let client = client_pre.build();

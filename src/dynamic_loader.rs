@@ -17,7 +17,11 @@ pub fn load(paths: Vec<String>) -> ExternalBackends {
             let l = functions.load(&path);
             match l {
                 Ok(()) => trace!("Loaded {} successfully", &path),
-                Err(e) => error!("Failed to load external backend at {}: {}", &path, e.to_string())
+                Err(e) => error!(
+                    "Failed to load external backend at {}: {}",
+                    &path,
+                    e.to_string()
+                ),
             }
         }
     }
@@ -70,9 +74,15 @@ impl ExternalBackends {
     /// a plugin without going through that macro will result in undefined
     /// behaviour.
     pub unsafe fn load<P: AsRef<OsStr>>(&mut self, library_path: P) -> crate::Result<()> {
-        let path = library_path.as_ref().to_str().ok_or("Failed to get library path")?;
+        let path = library_path
+            .as_ref()
+            .to_str()
+            .ok_or("Failed to get library path")?;
         // load the library into memory
-        let library = Rc::new(Library::new(path).map_err(|e| format!("Could not load library at {path}, details: {e}"))?);
+        let library = Rc::new(
+            Library::new(path)
+                .map_err(|e| format!("Could not load library at {path}, details: {e}"))?,
+        );
 
         // get a pointer to the plugin_declaration symbol.
         let decl = library
@@ -82,13 +92,23 @@ impl ExternalBackends {
 
         // version checks to prevent accidental ABI incompatibilities
         if decl.core_version != custom_backend::CORE_VERSION {
-            return Err(io::Error::new(io::ErrorKind::Other,
-                                      format!("Plugin version mismatch, found {}, but expected {}", decl.core_version, custom_backend::CORE_VERSION),
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!(
+                    "Plugin version mismatch, found {}, but expected {}",
+                    decl.core_version,
+                    custom_backend::CORE_VERSION
+                ),
             ))?;
         }
         if decl.rustc_version != custom_backend::RUSTC_VERSION {
-            return Err(io::Error::new(io::ErrorKind::Other,
-                                      format!("Rustc version mismatch, found {}, but expected {}", decl.rustc_version, custom_backend::RUSTC_VERSION),
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!(
+                    "Rustc version mismatch, found {}, but expected {}",
+                    decl.rustc_version,
+                    custom_backend::RUSTC_VERSION
+                ),
             ))?;
         }
 
@@ -137,11 +157,7 @@ pub struct BackendWrapper {
 }
 
 impl WeatherForecastPlugin for BackendWrapper {
-    fn call(
-        &self,
-        coordinates: [&str; 2],
-        settings: Settings,
-    ) -> crate::Result<WeatherForecastRS> {
+    fn call(&self, coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecastRS> {
         self.backend.call(coordinates, settings)
     }
 

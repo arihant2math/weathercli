@@ -13,8 +13,8 @@ fn test_write_read() {
         .take(7)
         .map(char::from)
         .collect();
-    weather_core::local::cache::write(&key, &value);
-    let r = weather_core::local::cache::read(&key);
+    weather_core::local::r#mod::write(&key, &value);
+    let r = weather_core::local::r#mod::read(&key);
     assert!(r.is_some());
     assert_eq!(r.unwrap(), value);
 }

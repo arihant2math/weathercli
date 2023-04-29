@@ -5,11 +5,7 @@ pub static RUSTC_VERSION: &str = env!("RUSTC_VERSION");
 pub static CORE_VERSION: &str = "0.1";
 
 pub trait WeatherForecastPlugin {
-    fn call(
-        &self,
-        coordinates: [&str; 2],
-        settings: Settings,
-    ) -> crate::Result<WeatherForecastRS>;
+    fn call(&self, coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecastRS>;
 
     fn name(&self) -> Option<&str> {
         None
@@ -51,10 +47,11 @@ pub trait PluginRegistrar {
 macro_rules! export_plugin {
     ($register:expr) => {
         #[no_mangle]
-        pub static plugin_declaration: weather_core::custom_backend::PluginDeclaration = weather_core::custom_backend::PluginDeclaration {
-            rustc_version: weather_core::custom_backend::RUSTC_VERSION,
-            core_version: weather_core::custom_backend::CORE_VERSION,
-            register: $register,
-        };
+        pub static plugin_declaration: weather_core::custom_backend::PluginDeclaration =
+            weather_core::custom_backend::PluginDeclaration {
+                rustc_version: weather_core::custom_backend::RUSTC_VERSION,
+                core_version: weather_core::custom_backend::CORE_VERSION,
+                register: $register,
+            };
     };
 }

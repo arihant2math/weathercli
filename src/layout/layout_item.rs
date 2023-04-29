@@ -75,7 +75,6 @@ impl Item {
                             kwarg[0].to_string(),
                             ItemEnum::ItemString(kwarg[1].to_string()),
                         );
-
                     } else {
                         args.push(ItemEnum::ItemString(item.to_string()));
                     }
@@ -120,7 +119,8 @@ impl Item {
         let mut current = data;
         while !split.is_empty() {
             if split[0]
-                .chars().next()
+                .chars()
+                .next()
                 .expect("0th element expected don't place two dots in a row, like: \"..\"")
                 == '['
             {
@@ -146,11 +146,16 @@ impl Item {
             Some(t) => Ok(t.to_string()),
             None => match current.as_f64() {
                 Some(t) => Ok(round(t)),
-                None => Ok(current.as_i64().ok_or_else(|| crate::error::Error::LayoutError(LayoutErr {
-                    message: "Json type not supported".to_string(),
-                    row: None,
-                    item: None,
-                }))?.to_string()),
+                None => Ok(current
+                    .as_i64()
+                    .ok_or(
+                        crate::error::Error::LayoutError(LayoutErr {
+                            message: "Json type not supported".to_string(),
+                            row: None,
+                            item: None,
+                        })
+                    )?
+                    .to_string()),
             },
         }
     }
@@ -204,9 +209,9 @@ impl Item {
             let s = variable_color
                 + &variable_bg_color
                 + &color::from_string(self.data.color.clone().unwrap_or(String::new()))
-                .unwrap_or(String::new())
+                    .unwrap_or(String::new())
                 + &color::from_string(self.data.bg_color.clone().unwrap_or(String::new()))
-                .unwrap_or(String::new())
+                    .unwrap_or(String::new())
                 + &value
                 + &unit_color
                 + &unit_bg_color
@@ -219,17 +224,24 @@ impl Item {
             };
         } else if self.data.item_type == "function" {
             let value = self.get_function_value(data)?;
-            return Ok(self.data.color.clone().unwrap_or(String::new())
-                + &self.data.bg_color.clone().unwrap_or(String::new())
+            return Ok(self.data.color.clone().unwrap_or_default()
+                + &self.data.bg_color.clone().unwrap_or_default()
                 + &value);
         } else if self.data.item_type == "image" {
-            let source = Item::from_str(&self.data.value).get_value(data)?;
+            let source = Self::from_str(&self.data.value).get_value(data)?;
             let is_url = url_validator(&source);
             if is_url {
                 let response = crate::networking::get_url(&source, None, None, None)?;
-                let mut f = fs::OpenOptions::new().write(true).truncate(true).create(true).open("temp.img")?;
+                let mut f = fs::OpenOptions::new()
+                    .write(true)
+                    .truncate(true)
+                    .create(true)
+                    .open("temp.img")?;
                 f.write_all(&response.bytes)?;
-                return Ok(crate::layout::image_to_text::ascii_image("temp.img", self.data.scale.unwrap_or(1.0)));
+                return crate::layout::image_to_text::ascii_image(
+                    "temp.img",
+                    self.data.scale.unwrap_or(1.0),
+                );
             }
             Err("source is not a url".to_string())?; // TODO: Fix
         }

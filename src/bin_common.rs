@@ -5,8 +5,8 @@ use std::thread;
 use std::time::Duration;
 
 use futures_util::StreamExt;
-use indicatif::{ProgressBar, ProgressStyle};
 use indicatif::style::TemplateError;
+use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::Client;
 
 use crate::error;
@@ -46,7 +46,10 @@ pub async fn update_component(
     let mut file_expect = File::create(path);
     while file_expect.is_err() {
         if retries > 30 {
-            return Err(error::Error::IoError(format!("Failed to create/open file '{}'", path)));
+            return Err(error::Error::IoError(format!(
+                "Failed to create/open file '{}'",
+                path
+            )));
         }
         file_expect = File::create(path);
         thread::sleep(Duration::from_millis(100));

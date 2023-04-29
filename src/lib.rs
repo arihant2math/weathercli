@@ -23,16 +23,15 @@ pub mod color;
 pub mod component_updater;
 pub mod custom_backend;
 pub mod dynamic_loader;
+pub mod error;
 mod layout;
 pub mod local;
 pub mod location;
 pub mod networking;
 pub mod prompt;
 pub mod util;
-pub mod error;
 
 pub type Result<T> = std::result::Result<T, error::Error>;
-
 
 pub fn now() -> u128 {
     let start = SystemTime::now();
@@ -95,6 +94,6 @@ pub fn get_data_from_datasource(
         Datasource::Openweathermap => get_openweathermap_forecast(conv_coords, settings),
         Datasource::NWS => get_nws_forecast(conv_coords, settings),
         Datasource::Meteo => get_meteo_forecast(conv_coords, settings),
-        Datasource::Other(s) => custom_backends.call(&s, conv_coords, settings)
+        Datasource::Other(s) => custom_backends.call(&s, conv_coords, settings),
     }
 }

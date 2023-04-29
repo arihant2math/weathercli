@@ -5,9 +5,9 @@ use std::io::Write;
 use log::{debug, trace};
 use serde_json::Value;
 
-use crate::{CONFIG, networking};
 use crate::local::weather_file::WeatherFile;
 use crate::util::hash_file;
+use crate::{networking, CONFIG};
 
 /// Updates the web resource at $`weathercli_dir/$local_path` if the hash of the local file does not match with
 /// the hash at index.json of the index name, if the hashes do not match it download a copy and replaces the existing file
@@ -24,7 +24,10 @@ fn update_web_resource(
     let mut f = WeatherFile::new(&local_path)?;
     let file_hash = hash_file(&f.path.display().to_string())?;
     let web_json: Value = web_resp;
-    let web_hash: String = web_json[name].as_str().ok_or("Failed to get hash from web")?.to_string();
+    let web_hash: String = web_json[name]
+        .as_str()
+        .ok_or("Failed to get hash from web")?
+        .to_string();
     if web_hash != file_hash {
         debug!("name: {name} web: {web_hash} file: {file_hash}");
         if !quiet {
@@ -81,7 +84,9 @@ pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
         )?;
         return Ok(());
     }
-    Err(crate::error::Error::NetworkError("Status not 200".to_string()))
+    Err(crate::error::Error::NetworkError(
+        "Status not 200".to_string(),
+    ))
 }
 
 pub fn get_latest_version() -> crate::Result<String> {
@@ -92,7 +97,10 @@ pub fn get_latest_version() -> crate::Result<String> {
         None,
     );
     let json: HashMap<String, String> = serde_json::from_str(&data?.text)?;
-    Ok(json.get("version").expect("").to_string())
+    Ok(json
+        .get("version")
+        .ok_or("getting version key failed")?
+        .to_string())
 }
 
 pub fn get_latest_updater_version() -> crate::Result<String> {
@@ -103,7 +111,10 @@ pub fn get_latest_updater_version() -> crate::Result<String> {
         None,
     );
     let json: HashMap<String, String> = serde_json::from_str(&data?.text)?;
-    Ok(json.get("updater-version").expect("").to_string())
+    Ok(json
+        .get("updater-version")
+        .ok_or("getting updater-version key failed")?
+        .to_string())
 }
 
 /// Downloads the OS specific updater

@@ -131,7 +131,7 @@ async fn main() -> weather_core::Result<()> {
             "Updated weathercli".to_string(),
             args.quiet,
         )
-            .await?;
+        .await?;
     }
     if to_update.contains(&Component::Daemon) {
         let url =
@@ -145,7 +145,7 @@ async fn main() -> weather_core::Result<()> {
             "Updated daemon".to_string(),
             args.quiet,
         )
-            .await?;
+        .await?;
     }
     Ok(())
 }

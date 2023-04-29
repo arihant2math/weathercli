@@ -48,9 +48,9 @@ impl fmt::Display for Error {
             Error::LayoutError(e) => write!(f, "Layout Error: {e}"),
             Error::NetworkError(e) => write!(f, "Network Error: {e}"),
             Error::JsonError(e) => write!(f, "JSON Error: {e}"), // TODO: Fix
-            Error::IoError(e) => write!(f, "I/O Error: {e}"), // TODO: Fix
+            Error::IoError(e) => write!(f, "I/O Error: {e}"),    // TODO: Fix
             Error::InvocationError(_e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
-            Error::Other(s) => write!(f, "{s}")
+            Error::Other(s) => write!(f, "{s}"),
         }
     }
 }
@@ -63,7 +63,11 @@ impl From<std::io::Error> for Error {
 
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
-        Error::JsonError(format!("JSON parsing error at line {}, column {}", error.line(), error.column()))
+        Error::JsonError(format!(
+            "JSON parsing error at line {}, column {}",
+            error.line(),
+            error.column()
+        ))
     }
 }
 
@@ -78,7 +82,6 @@ impl From<&str> for Error {
         Error::Other(value.to_string())
     }
 }
-
 
 impl From<LayoutErr> for Error {
     fn from(error: LayoutErr) -> Self {

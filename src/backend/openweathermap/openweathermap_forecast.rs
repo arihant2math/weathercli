@@ -56,7 +56,10 @@ pub fn get_openweathermap_forecast(
     settings: Settings,
 ) -> crate::Result<WeatherForecastRS> {
     if settings.internal.open_weather_map_api_key.is_empty() {
-        return Err(format!("Improper openweathermap api key, {}", settings.internal.open_weather_map_api_key))?;
+        return Err(format!(
+            "Improper openweathermap api key, {}",
+            settings.internal.open_weather_map_api_key
+        ))?;
     }
     let data = backend::openweathermap::open_weather_map_get_combined_data_formatted(
         "https://api.openweathermap.org/data/2.5/",

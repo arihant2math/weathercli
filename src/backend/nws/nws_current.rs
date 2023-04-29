@@ -14,7 +14,11 @@ fn convert_temp(value: f64, metric: bool) -> f64 {
 }
 
 fn convert_speed(value: f64, metric: bool) -> f64 {
-    if metric { value } else { value * 0.62 }
+    if metric {
+        value
+    } else {
+        value * 0.62
+    }
 }
 
 fn get_conditions(
@@ -60,26 +64,17 @@ pub fn get_nws_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData
     let conditions = get_conditions(data.clone(), metric, 0, cloud_cover)?;
     let d = WeatherDataRS {
         time: now() as i128,
-        temperature: convert_temp(data.properties.temperature.values[0].value, metric)
-            as f32,
-        min_temp: convert_temp(
-            data.properties.min_temperature.values[0].value,
-            metric,
-        ) as f32,
-        max_temp: convert_temp(
-            data.properties.max_temperature.values[0].value,
-            metric,
-        ) as f32,
+        temperature: convert_temp(data.properties.temperature.values[0].value, metric) as f32,
+        min_temp: convert_temp(data.properties.min_temperature.values[0].value, metric) as f32,
+        max_temp: convert_temp(data.properties.max_temperature.values[0].value, metric) as f32,
         wind: WindData {
             speed: convert_speed(data.properties.wind_speed.values[0].value, metric),
             heading: data.properties.wind_direction.values[0].value as i16,
         },
         raw_data: String::new(),
         dewpoint: convert_temp(data.properties.dewpoint.values[0].value, metric) as f32,
-        feels_like: convert_temp(
-            data.properties.apparent_temperature.values[0].value,
-            metric,
-        ) as f32,
+        feels_like: convert_temp(data.properties.apparent_temperature.values[0].value, metric)
+            as f32,
         aqi: 0,
         cloud_cover,
         conditions: vec![],

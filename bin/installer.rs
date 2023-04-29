@@ -79,7 +79,7 @@ async fn main() -> weather_core::Result<()> {
         "Installed weathercli".to_string(),
         args.quiet,
     )
-        .await?;
+    .await?;
     let url = "https://arihant2math.github.io/weathercli/".to_string() + &CONFIG.weather_dfile_name;
     let mut path = dir_path.to_path_buf();
     path.push("internal");
@@ -91,7 +91,7 @@ async fn main() -> weather_core::Result<()> {
         "Installed daemon".to_string(),
         args.quiet,
     )
-        .await?;
+    .await?;
     if args.add_to_path {
         add_to_path(dir_path.display().to_string())?;
     }

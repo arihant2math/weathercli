@@ -33,7 +33,6 @@ pub enum RowEnum {
     RowVec(Vec<ItemEnum>),
 }
 
-
 #[derive(Serialize, Deserialize, Clone)]
 pub struct LayoutDefaultsJSON {
     pub variable_color: Option<String>,

@@ -31,7 +31,7 @@ impl WeatherFile {
         let mut buf_reader = BufReader::new(file);
         let mut data = String::new();
         buf_reader.read_to_string(&mut data)?;
-        Ok(WeatherFile { path, data, exists })
+        Ok(Self { path, data, exists })
     }
 
     /// Writes self.data to the file at self.path
@@ -51,14 +51,14 @@ impl WeatherFile {
     }
 
     pub fn weather_codes() -> crate::Result<Self> {
-        WeatherFile::new("resources/weather_codes.json")
+        Self::new("resources/weather_codes.json")
     }
 
     pub fn settings() -> crate::Result<Self> {
-        WeatherFile::new("settings.json")
+        Self::new("settings.json")
     }
 
     pub fn weather_ascii_art() -> crate::Result<Self> {
-        WeatherFile::new("resources/weather_ascii_images.json")
+        Self::new("resources/weather_ascii_images.json")
     }
 }

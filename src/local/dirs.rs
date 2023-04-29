@@ -7,5 +7,5 @@ pub fn home_dir() -> crate::Result<PathBuf> {
 
 #[cfg(not(windows))]
 pub fn home_dir() -> crate::Result<PathBuf> {
-    Ok(dirs_sys::home_dir().ok_or_else(|| "Home dir not found")?)
+    Ok(dirs_sys::home_dir().ok_or("Home dir not found")?)
 }

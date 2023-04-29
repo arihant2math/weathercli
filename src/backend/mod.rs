@@ -12,4 +12,3 @@ pub struct WindData {
     pub speed: f64,
     pub heading: i16,
 }
-

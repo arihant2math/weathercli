@@ -46,7 +46,7 @@ pub fn update_docs(gh_token: &str) -> weather_core::Result<()> {
                                                        None, Some(headers.clone()), None)?;
     let runs_json: Value = serde_json::from_str(&get_run_id.text)?;
     let runs = runs_json["workflow_runs"].as_array()
-        .ok_or_else(|| "not an array")?;
+        .ok_or("not an array")?;
     let rust_ci = filter_by_file(runs, ".github/workflows/build.yml");
     let latest_updater_run_id = rust_ci[0]["id"].as_i64().unwrap();
     let binding = get_artifact_urls(headers.clone(), &latest_updater_run_id.to_string())?;

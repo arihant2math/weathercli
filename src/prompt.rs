@@ -1,7 +1,7 @@
 use std::thread;
 use std::time::Duration;
 
-use crossterm::event::{Event, KeyCode, KeyEvent, KeyModifiers, read};
+use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 
 fn draw(options: &[&str], choice: usize, multiline: bool) -> String {
@@ -55,21 +55,22 @@ pub fn choice(options: &[&str], default: usize, multiline: Option<bool>) -> crat
         // matching the key
         match read()? {
             Event::Key(KeyEvent {
-                           code: KeyCode::Up | KeyCode::Left, ..
-                       }) => choice = choice.saturating_sub(1),
+                code: KeyCode::Up | KeyCode::Left,
+                ..
+            }) => choice = choice.saturating_sub(1),
             Event::Key(KeyEvent {
-                           code: KeyCode::Down | KeyCode::Right,
-                           ..
-                       }) => choice = choice.saturating_add(1),
+                code: KeyCode::Down | KeyCode::Right,
+                ..
+            }) => choice = choice.saturating_add(1),
             Event::Key(KeyEvent {
-                           code: KeyCode::Char('c'),
-                           modifiers: KeyModifiers::CONTROL,
-                           ..
-                       }) => panic!("Control-C pressed"),
+                code: KeyCode::Char('c'),
+                modifiers: KeyModifiers::CONTROL,
+                ..
+            }) => panic!("Control-C pressed"),
             Event::Key(KeyEvent {
-                           code: KeyCode::Enter,
-                           ..
-                       }) => break,
+                code: KeyCode::Enter,
+                ..
+            }) => break,
             _ => (),
         }
         if choice >= options.len() {

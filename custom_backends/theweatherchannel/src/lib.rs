@@ -41,11 +41,11 @@ fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) 
     } else {
         cookies.insert("unitOfMeasurement".to_string(), "m".to_string());
     }
-    let r1 = networking::get_url("https://weather.com/weather/today/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
+    let r1 = networking::get_url(format!("https://weather.com/weather/today/l/{},{}", &coordinates[0], &coordinates[1]),
                                  None, None, Some(cookies.clone()))?;
-    let r2 = networking::get_url("https://weather.com/weather/hourbyhour/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
+    let r2 = networking::get_url(format!("https://weather.com/weather/hourbyhour/l/{},{}", &coordinates[0], &coordinates[1]),
                                  None, None, Some(cookies.clone()))?;
-    let r3 = networking::get_url("https://weather.com/weather/air-quality/l/".to_string() + &coordinates[0] + "," + &coordinates[1],
+    let r3 = networking::get_url(format!("https://weather.com/weather/air-quality/l/{},{}", &coordinates[0], &coordinates[1]) + &coordinates[0] + "," + &coordinates[1],
                                  None, None, Some(cookies.clone()))?;
     let weather_soup = Html::parse_document(&r1.text);
     let forecast_soup = Html::parse_document(&r2.text);

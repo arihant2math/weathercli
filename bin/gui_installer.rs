@@ -203,7 +203,7 @@ impl<'a> Step {
             Step::Install { completed } => Self::install(*completed),
             Step::End => Self::end(),
         }
-            .into()
+        .into()
     }
 
     fn container(title: &str) -> Column<'a, StepMessage> {
