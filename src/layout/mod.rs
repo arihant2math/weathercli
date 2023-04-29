@@ -102,16 +102,16 @@ impl LayoutFile {
             retrieved_settings
                 .clone()
                 .variable_bg_color
-                .unwrap_or(String::new()),
+                .unwrap_or_default(),
         )
-        .unwrap_or(String::new());
+        .unwrap_or_default();
         let text_bg_color = color::from_string(
             retrieved_settings
                 .clone()
                 .variable_bg_color
-                .unwrap_or(String::new()),
+                .unwrap_or_default(),
         )
-        .unwrap_or(String::new());
+        .unwrap_or_default();
         let unit_bg_color = color::from_string(
             retrieved_settings
                 .variable_bg_color
@@ -133,7 +133,7 @@ impl LayoutFile {
                 RowVec(payload) => internal_layout.push(Row::from_vec(payload)),
             }
         }
-        Ok(LayoutFile {
+        Ok(Self {
             layout: internal_layout,
             variable_color,
             text_color,

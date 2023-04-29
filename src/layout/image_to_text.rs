@@ -17,7 +17,7 @@ fn rgb(red: u8, green: u8, blue: u8) -> String {
 }
 
 pub fn ascii_image(input_path: &str, scale: f64) -> crate::Result<String> {
-    let img = image::open(Path::new(input_path)).map_err(|e| "Failed to open image")?;
+    let img = image::open(Path::new(input_path)).map_err(|_e| "Failed to open image")?;
     let img_width = img.dimensions().0;
     let img_height = img.dimensions().1;
     #[allow(clippy::cast_sign_loss)]

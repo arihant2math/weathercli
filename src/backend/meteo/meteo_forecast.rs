@@ -30,8 +30,7 @@ fn get_forecast_sentence(
         .clone()
         .into_iter()
         .map(|condition| condition.condition_id / 100 == 5)
-        .collect::<Vec<bool>>()
-        .contains(&true)
+        .any(|x| x)
     {
         let mut t: u8 = 0;
         for i in rain {
@@ -47,8 +46,7 @@ fn get_forecast_sentence(
         .clone()
         .into_iter()
         .map(|condition| condition.condition_id / 100 == 6)
-        .collect::<Vec<bool>>()
-        .contains(&true)
+        .any(|x| x)
     {
         let t = snow.iter().position(|&b| b).unwrap_or(0);
         return format!("It will continue snowing for {t} hours.");

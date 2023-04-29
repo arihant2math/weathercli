@@ -26,10 +26,10 @@ fn url_validator(u: &str) -> bool {
 impl Item {
     pub fn new(i: ItemEnum) -> Self {
         match i {
-            ItemEnum::ItemString(s) => Item::from_str(&s),
-            ItemEnum::ItemFloat(f) => Item::from_str(&f.to_string()),
-            ItemEnum::ItemInt(i) => Item::from_str(&i.to_string()),
-            ItemEnum::Item(i) => Item::from_item_json(i),
+            ItemEnum::ItemString(s) => Self::from_str(&s),
+            ItemEnum::ItemFloat(f) => Self::from_str(&f.to_string()),
+            ItemEnum::ItemInt(i) => Self::from_str(&i.to_string()),
+            ItemEnum::Item(i) => Self::from_item_json(i),
         }
     }
 
@@ -48,7 +48,7 @@ impl Item {
                     imperial = Some(splt[1].to_string());
                     metric = Some(splt[2].to_string());
                 }
-                return Item::from_item_json(ItemJSON {
+                return Self::from_item_json(ItemJSON {
                     item_type: "variable".to_string(),
                     color: None,
                     bg_color: None,
@@ -91,12 +91,12 @@ impl Item {
                     kwargs: Some(kwargs),
                     scale: None,
                 };
-                return Item::from_item_json(item);
+                return Self::from_item_json(item);
             } else if new_s.chars().next().expect("Oth char expected") == '\\' {
                 new_s = new_s[1..].to_string();
             }
         }
-        Item::from_item_json(ItemJSON {
+        Self::from_item_json(ItemJSON {
             item_type: "text".to_string(),
             color: None,
             bg_color: None,
@@ -111,7 +111,7 @@ impl Item {
     }
 
     pub fn from_item_json(i: ItemJSON) -> Self {
-        Item { data: i }
+        Self { data: i }
     }
 
     fn get_variable_value(&self, data: &Value) -> crate::Result<String> {
@@ -161,11 +161,11 @@ impl Item {
     }
 
     fn get_function_value(&self, data: &Value) -> crate::Result<String> {
-        let args = self.data.args.clone().unwrap_or(Vec::new());
-        let _kwargs = self.data.kwargs.clone().unwrap_or(HashMap::new());
+        let args = self.data.args.clone().unwrap_or_default();
+        let _kwargs = self.data.kwargs.clone().unwrap_or_default();
         match &*self.data.value {
             "color_aqi" => util::color_aqi(
-                Item::new(args[0].clone())
+                Self::new(args[0].clone())
                     .get_value(data)?
                     .parse()
                     .unwrap_or(0),
@@ -201,26 +201,26 @@ impl Item {
         if self.data.item_type == "text" {
             return Ok(text_color
                 + &text_bg_color
-                + &self.data.color.clone().unwrap_or(String::new())
-                + &self.data.bg_color.clone().unwrap_or(String::new())
+                + &self.data.color.clone().unwrap_or_default()
+                + &self.data.bg_color.clone().unwrap_or_default()
                 + &self.data.value);
         } else if self.data.item_type == "variable" {
             let value = self.get_variable_value(data)?;
             let s = variable_color
                 + &variable_bg_color
-                + &color::from_string(self.data.color.clone().unwrap_or(String::new()))
-                    .unwrap_or(String::new())
-                + &color::from_string(self.data.bg_color.clone().unwrap_or(String::new()))
-                    .unwrap_or(String::new())
+                + &color::from_string(self.data.color.clone().unwrap_or_default())
+                    .unwrap_or_default()
+                + &color::from_string(self.data.bg_color.clone().unwrap_or_default())
+                    .unwrap_or_default()
                 + &value
                 + &unit_color
                 + &unit_bg_color
-                + &self.data.unit_color.clone().unwrap_or(String::new());
+                + &self.data.unit_color.clone().unwrap_or_default();
             return if metric {
                 // TODO: Fix color mess
-                Ok(s + &self.data.metric.clone().unwrap_or(String::new()))
+                Ok(s + &self.data.metric.clone().unwrap_or_default())
             } else {
-                Ok(s + &self.data.imperial.clone().unwrap_or(String::new()))
+                Ok(s + &self.data.imperial.clone().unwrap_or_default())
             };
         } else if self.data.item_type == "function" {
             let value = self.get_function_value(data)?;

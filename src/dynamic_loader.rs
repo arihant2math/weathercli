@@ -47,8 +47,8 @@ pub struct ExternalBackends {
 }
 
 impl ExternalBackends {
-    pub fn new() -> ExternalBackends {
-        ExternalBackends::default()
+    pub fn new() -> Self {
+        Self::default()
     }
 
     pub fn call(
@@ -131,8 +131,8 @@ struct PluginRegistrar {
 }
 
 impl PluginRegistrar {
-    fn new(lib: Rc<Library>) -> PluginRegistrar {
-        PluginRegistrar {
+    fn new(lib: Rc<Library>) -> Self {
+        Self {
             lib,
             functions: HashMap::default(),
         }

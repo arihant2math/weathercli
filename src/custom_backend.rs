@@ -25,8 +25,8 @@ pub enum InvocationError {
 }
 
 impl<S: ToString> From<S> for InvocationError {
-    fn from(other: S) -> InvocationError {
-        InvocationError::Other {
+    fn from(other: S) -> Self {
+        Self::Other {
             msg: other.to_string(),
         }
     }

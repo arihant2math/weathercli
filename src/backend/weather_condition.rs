@@ -26,7 +26,7 @@ impl WeatherCondition {
             .as_str()
             .ok_or("image_ascii expected")?
             .to_string();
-        Ok(WeatherCondition {
+        Ok(Self {
             condition_id,
             image_url,
             sentence,

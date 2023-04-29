@@ -45,25 +45,25 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Error::LayoutError(e) => write!(f, "Layout Error: {e}"),
-            Error::NetworkError(e) => write!(f, "Network Error: {e}"),
-            Error::JsonError(e) => write!(f, "JSON Error: {e}"), // TODO: Fix
-            Error::IoError(e) => write!(f, "I/O Error: {e}"),    // TODO: Fix
-            Error::InvocationError(_e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
-            Error::Other(s) => write!(f, "{s}"),
+            Self::LayoutError(e) => write!(f, "Layout Error: {e}"),
+            Self::NetworkError(e) => write!(f, "Network Error: {e}"),
+            Self::JsonError(e) => write!(f, "JSON Error: {e}"), // TODO: Fix
+            Self::IoError(e) => write!(f, "I/O Error: {e}"),    // TODO: Fix
+            Self::InvocationError(_e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
+            Self::Other(s) => write!(f, "{s}"),
         }
     }
 }
 
 impl From<std::io::Error> for Error {
     fn from(error: std::io::Error) -> Self {
-        Error::IoError(error.to_string())
+        Self::IoError(error.to_string())
     }
 }
 
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
-        Error::JsonError(format!(
+        Self::JsonError(format!(
             "JSON parsing error at line {}, column {}",
             error.line(),
             error.column()
@@ -73,25 +73,25 @@ impl From<serde_json::Error> for Error {
 
 impl From<String> for Error {
     fn from(value: String) -> Self {
-        Error::Other(value)
+        Self::Other(value)
     }
 }
 
 impl From<&str> for Error {
     fn from(value: &str) -> Self {
-        Error::Other(value.to_string())
+        Self::Other(value.to_string())
     }
 }
 
 impl From<LayoutErr> for Error {
     fn from(error: LayoutErr) -> Self {
-        Error::LayoutError(error)
+        Self::LayoutError(error)
     }
 }
 
 #[cfg(target_os = "windows")]
 impl From<windows::core::Error> for Error {
     fn from(error: windows::core::Error) -> Self {
-        Error::Other(error.message().to_string_lossy())
+        Self::Other(error.message().to_string_lossy())
     }
 }
