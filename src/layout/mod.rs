@@ -112,12 +112,9 @@ impl LayoutFile {
                 .unwrap_or_default(),
         )
         .unwrap_or_default();
-        let unit_bg_color = color::from_string(
-            retrieved_settings
-                .variable_bg_color
-                .unwrap_or_default(),
-        )
-        .unwrap_or_default();
+        let unit_bg_color =
+            color::from_string(retrieved_settings.variable_bg_color.unwrap_or_default())
+                .unwrap_or_default();
         if file_data.layout.is_none() {
             return Err(LayoutErr {
                 message: "Layout key not found".to_string(),

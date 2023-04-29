@@ -2,9 +2,9 @@ use crate::backend::meteo::meteo_current::get_meteo_weather_data;
 use crate::backend::meteo::meteo_get_combined_data_formatted;
 use crate::backend::meteo::meteo_json::MeteoForecastJson;
 use crate::backend::weather_data::WeatherDataRS;
-use crate::location;
 use crate::backend::weather_forecast::WeatherForecastRS;
 use crate::local::settings::Settings;
+use crate::location;
 
 fn get_forecast_sentence(
     data: Vec<WeatherDataRS>,

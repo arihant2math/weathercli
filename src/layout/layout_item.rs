@@ -148,13 +148,11 @@ impl Item {
                 Some(t) => Ok(round(t)),
                 None => Ok(current
                     .as_i64()
-                    .ok_or(
-                        crate::error::Error::LayoutError(LayoutErr {
-                            message: "Json type not supported".to_string(),
-                            row: None,
-                            item: None,
-                        })
-                    )?
+                    .ok_or(crate::error::Error::LayoutError(LayoutErr {
+                        message: "Json type not supported".to_string(),
+                        row: None,
+                        item: None,
+                    }))?
                     .to_string()),
             },
         }

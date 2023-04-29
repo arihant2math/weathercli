@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use crate::backend::weather_data::WeatherDataRS;
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct WeatherForecastRS {

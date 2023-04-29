@@ -119,10 +119,7 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<[String; 
     get_location_core(no_sys_loc)
 }
 
-pub fn geocode(
-    location_string: String,
-    bing_maps_api_key: String,
-) -> crate::Result<[String; 2]> {
+pub fn geocode(location_string: String, bing_maps_api_key: String) -> crate::Result<[String; 2]> {
     let attempt_cache = cache::read(&("location".to_string() + &location_string));
 
     match attempt_cache {
