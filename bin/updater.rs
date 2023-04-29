@@ -136,8 +136,7 @@ async fn main() -> weather_core::Result<()> {
     if to_update.contains(&Component::Daemon) {
         let url =
             "https://arihant2math.github.io/weathercli/".to_string() + CONFIG.weather_dfile_name;
-        let mut path = d_install_path.to_path_buf();
-        path.push(CONFIG.weather_dfile_name);
+        let path = d_install_path.to_path_buf().join(CONFIG.weather_dfile_name);
         update_component(
             &url,
             &path.display().to_string(),

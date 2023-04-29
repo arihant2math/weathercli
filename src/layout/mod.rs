@@ -1,4 +1,4 @@
-use crate::backend::weather_forecast::WeatherForecastRS;
+use crate::backend::weather_forecast::WeatherForecast;
 use crate::color;
 use crate::error::{Error, LayoutErr};
 use crate::layout::layout_json::RowEnum::{RowString, RowVec};
@@ -141,7 +141,7 @@ impl LayoutFile {
         })
     }
 
-    pub fn to_string(&self, data: WeatherForecastRS, metric: bool) -> crate::Result<String> {
+    pub fn to_string(&self, data: WeatherForecast, metric: bool) -> crate::Result<String> {
         let mut s = Vec::new();
         let data_value = serde_json::to_value(data)?;
         for (count, row) in self.layout.iter().enumerate() {

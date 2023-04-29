@@ -1,6 +1,6 @@
 use crate::backend::nws::nws_json::NWSJSON;
 use crate::backend::weather_condition::WeatherCondition;
-use crate::backend::weather_data::{get_conditions_sentence, WeatherDataRS};
+use crate::backend::weather_data::{get_conditions_sentence, WeatherData};
 use crate::backend::WindData;
 use crate::local::weather_file::WeatherFile;
 use crate::now;
@@ -59,10 +59,10 @@ fn get_conditions(
     Ok(conditions)
 }
 
-pub fn get_nws_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherDataRS> {
+pub fn get_nws_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData> {
     let cloud_cover = data.properties.sky_cover.values[0].value as u8;
     let conditions = get_conditions(data.clone(), metric, 0, cloud_cover)?;
-    let d = WeatherDataRS {
+    let d = WeatherData {
         time: now() as i128,
         temperature: convert_temp(data.properties.temperature.values[0].value, metric) as f32,
         min_temp: convert_temp(data.properties.min_temperature.values[0].value, metric) as f32,

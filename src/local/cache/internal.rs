@@ -1,3 +1,8 @@
+use std::fs;
+use std::fs::File;
+use std::io::{Read, Write};
+use std::path::PathBuf;
+use crate::local::dirs::weathercli_dir;
 use crate::now;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -16,11 +21,43 @@ pub struct Row {
     pub hits: u32,
 }
 
-fn u8_to_string(i: u8) -> String {
+pub fn u8_to_string(i: u8) -> String {
     String::from(i as char)
 }
 
-pub fn bytes_to_rows(bytes: Vec<u8>) -> Vec<Row> {
+pub fn get_path() -> crate::Result<PathBuf> {
+    Ok(weathercli_dir()?.join("f.cache"))
+}
+
+fn read_from_file() -> crate::Result<Vec<u8>> {
+    let path = get_path()?;
+    if !path.exists() {
+        let mut f = File::create(path.display().to_string())?;
+        let to_write: [u8; 0] = [];
+        f.write_all(&to_write)?;
+    }
+    let mut f = File::options()
+        .read(true)
+        .open(path.display().to_string())?;
+    let metadata = fs::metadata(path.display().to_string())?;
+    let mut buffer = vec![0; metadata.len() as usize];
+    f.read_exact(&mut buffer)?;
+    Ok(buffer)
+}
+
+fn write_to_file(bytes: &Vec<u8>) -> crate::Result<()> {
+    let path = get_path()?;
+    let mut file = File::options()
+        .truncate(true)
+        .write(true)
+        .open(path.display().to_string())
+        .expect("File opening failed");
+    file.write_all(bytes)?;
+    Ok(())
+}
+
+pub fn read_cache() -> crate::Result<Vec<Row>> {
+    let bytes = read_from_file()?;
     let mut rows: Vec<Row> = Vec::new();
     let mut current_key = String::new();
     let mut current_value = String::new();
@@ -63,10 +100,10 @@ pub fn bytes_to_rows(bytes: Vec<u8>) -> Vec<Row> {
             hits: current_count,
         });
     }
-    rows
+    Ok(rows)
 }
 
-pub fn rows_to_bytes(rows: Vec<Row>) -> Vec<u8> {
+pub fn write_cache(rows: Vec<Row>) -> crate::Result<()> {
     let mut response: Vec<u8> = vec![];
     for row in rows {
         if !row.key.is_empty() {
@@ -86,7 +123,8 @@ pub fn rows_to_bytes(rows: Vec<Row>) -> Vec<u8> {
         }
     }
     response.push(28);
-    response
+    write_to_file(&response)?;
+    Ok(())
 }
 
 pub fn get_date_string() -> String {

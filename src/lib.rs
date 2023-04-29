@@ -7,7 +7,7 @@ use log::warn;
 use crate::backend::meteo::meteo_forecast::get_meteo_forecast;
 use crate::backend::nws::nws_forecast::get_nws_forecast;
 use crate::backend::openweathermap::openweathermap_forecast::get_openweathermap_forecast;
-use crate::backend::weather_forecast::WeatherForecastRS;
+use crate::backend::weather_forecast::WeatherForecast;
 use crate::cli::Datasource;
 use crate::dynamic_loader::ExternalBackends;
 use crate::local::settings::Settings;
@@ -74,13 +74,10 @@ pub fn get_data_from_datasource(
     coordinates: [String; 2],
     settings: Settings,
     custom_backends: ExternalBackends,
-) -> Result<WeatherForecastRS> {
-    let mut dir = local::dirs::home_dir()?;
-    dir.push(".weathercli/resources");
-    let mut f1 = dir.clone();
-    f1.push("weather_codes.json");
-    let mut f2 = dir.clone();
-    f2.push("weather_ascii_images.json");
+) -> Result<WeatherForecast> {
+    let dir = local::dirs::weathercli_dir()?.join("resources");
+    let f1 = dir.join("weather_codes.json");
+    let f2 = dir.join("weather_ascii_images.json");
     if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
         warn!("Forcing downloading of web resources");
         component_updater::update_web_resources(None)?;

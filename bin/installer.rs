@@ -70,8 +70,7 @@ async fn main() -> weather_core::Result<()> {
         return Err("Directory is not empty".to_string())?;
     }
     let url = "https://arihant2math.github.io/weathercli/".to_string() + &CONFIG.weather_file_name;
-    let mut path = dir_path.to_path_buf();
-    path.push(CONFIG.weather_file_name);
+    let path = dir_path.to_path_buf().join(CONFIG.weather_file_name);
     update_component(
         &url,
         &path.display().to_string(),
@@ -81,9 +80,7 @@ async fn main() -> weather_core::Result<()> {
     )
     .await?;
     let url = "https://arihant2math.github.io/weathercli/".to_string() + &CONFIG.weather_dfile_name;
-    let mut path = dir_path.to_path_buf();
-    path.push("internal");
-    path.push(CONFIG.weather_dfile_name);
+    let path = dir_path.to_path_buf().join("internal").join(CONFIG.weather_dfile_name);
     update_component(
         &url,
         &path.display().to_string(),

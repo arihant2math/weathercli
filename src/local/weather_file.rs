@@ -3,9 +3,7 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::PathBuf;
 
-use local::dirs::home_dir;
-
-use crate::local;
+use crate::local::dirs::weathercli_dir;
 
 #[derive(Clone)]
 pub struct WeatherFile {
@@ -16,9 +14,8 @@ pub struct WeatherFile {
 
 impl WeatherFile {
     pub fn new(file_name: &str) -> crate::Result<Self> {
-        let mut path = home_dir().expect("expect home dir");
+        let mut path = weathercli_dir().expect("expect home dir");
         let mut exists = true;
-        path.push(".weathercli");
         path.push(file_name);
         if !path.exists() {
             exists = false;

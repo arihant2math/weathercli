@@ -2,7 +2,7 @@ use crate::backend::openweathermap::openweathermap_json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapJson,
 };
 use crate::backend::weather_condition::WeatherCondition;
-use crate::backend::weather_data::{get_conditions_sentence, WeatherDataRS};
+use crate::backend::weather_data::{get_conditions_sentence, WeatherData};
 use crate::backend::WindData;
 use crate::local::weather_file::WeatherFile;
 use crate::now;
@@ -10,7 +10,7 @@ use crate::now;
 pub fn get_openweathermap_current(
     data: OpenWeatherMapJson,
     aqi: OpenWeatherMapAirQualityJson,
-) -> crate::Result<WeatherDataRS> {
+) -> crate::Result<WeatherData> {
     let weather_file = WeatherFile::weather_codes()?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     for condition in data.weather.clone() {
@@ -19,7 +19,7 @@ pub fn get_openweathermap_current(
             &weather_file.data,
         )?);
     }
-    Ok(WeatherDataRS {
+    Ok(WeatherData {
         time: now() as i128,
         temperature: data.main.temp as f32,
         min_temp: data.main.temp_min as f32,

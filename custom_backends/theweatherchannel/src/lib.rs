@@ -4,7 +4,7 @@ use scraper::Html;
 
 use weather_core::{export_plugin, networking};
 use weather_core::backend::weather_data::WeatherDataRS;
-use weather_core::backend::weather_forecast::{get_location, WeatherForecastRS};
+use weather_core::backend::weather_forecast::{get_location, WeatherForecast};
 use weather_core::backend::WindData;
 use weather_core::custom_backend::PluginRegistrar;
 use weather_core::custom_backend::WeatherForecastPlugin;
@@ -33,7 +33,7 @@ fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_
     }
 }
 
-fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecastRS> {
+fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecast> {
     let region_country = get_location(coordinates)?;
     let mut cookies = HashMap::new();
     if !settings.internal.metric_default {
@@ -54,7 +54,7 @@ fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) 
     let forecast = vec![current.clone()];
     let region = &region_country.clone()[0];
     let country = &region_country.clone()[1];
-    Ok(WeatherForecastRS {
+    Ok(WeatherForecast {
         region: region.to_string(),
         country: country.to_string(),
         forecast,
@@ -74,7 +74,7 @@ extern "C" fn register(registrar: &mut dyn PluginRegistrar) {
 pub struct TheWeatherChannel;
 
 impl WeatherForecastPlugin for TheWeatherChannel {
-    fn call(&self, coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecastRS> {
+    fn call(&self, coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecast> {
         get_the_weather_channel_forecast(coordinates, settings)
     }
 

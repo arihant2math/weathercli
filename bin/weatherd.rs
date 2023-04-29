@@ -7,6 +7,7 @@ use auto_launch::{AutoLaunchBuilder, Error};
 use clap::Parser;
 
 use weather_core::cli::datasource_from_str;
+use weather_core::dynamic_loader::ExternalBackends;
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
 
@@ -71,12 +72,12 @@ fn main() -> weather_core::Result<()> {
             if default_datasource.to_lowercase() == "openweathermap" {
                 let data = weather_core::get_data_from_datasource(
                     datasource_from_str(default_datasource),
-                    weather_core::location::get_location(
+                    weather_core::location::get(
                         false,
                         settings.internal.constant_location,
                     )?,
                     settings.clone(),
-                    Default::default(),
+                    ExternalBackends::default(),
                 )?;
                 let bytes = bincode::serialize(&data).expect("Serialization Failed");
                 let out = WeatherFile::new("d.cache")?;

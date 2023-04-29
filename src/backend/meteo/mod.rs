@@ -4,7 +4,7 @@ use crate::backend::meteo::meteo_json::{MeteoAirQualityJson, MeteoForecastJson};
 use crate::networking;
 use crate::networking::Resp;
 
-mod meteo_current;
+mod meteo_weather_data;
 pub mod meteo_forecast;
 mod meteo_json;
 

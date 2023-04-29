@@ -101,12 +101,12 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<[String; 
     if constant_location {
         let attempt_cache = cache::read("current_location");
         return Ok(match attempt_cache {
-            None => {
+            Err(_e) => {
                 let location = get_location_core(no_sys_loc)?;
                 cache::write("current_location", location.join(",").as_str());
                 location
             }
-            Some(ca) => {
+            Ok(ca) => {
                 thread::spawn(|| {
                     cache::update_hits("current_location".to_string()).unwrap_or(());
                 });
@@ -119,26 +119,26 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<[String; 
     get_location_core(no_sys_loc)
 }
 
-pub fn geocode(location_string: String, bing_maps_api_key: String) -> crate::Result<[String; 2]> {
-    let attempt_cache = cache::read(&("location".to_string() + &location_string));
+pub fn geocode(query: String, bing_maps_api_key: String) -> crate::Result<[String; 2]> {
+    let attempt_cache = cache::read(&("location".to_string() + &query));
 
     match attempt_cache {
-        None => {
+        Err(_e) => {
             let mut coordinates: crate::Result<[String; 2]>;
             if bing_maps_api_key.is_empty() {
-                coordinates = nominatim_geocode(&location_string);
+                coordinates = nominatim_geocode(&query);
             } else {
-                coordinates = bing_maps_geocode(&location_string, bing_maps_api_key);
+                coordinates = bing_maps_geocode(&query, bing_maps_api_key);
                 if coordinates.is_err() {
                     println!("Bing maps geocoding failed");
-                    coordinates = nominatim_geocode(&location_string);
+                    coordinates = nominatim_geocode(&query);
                 }
             }
             let real_coordinate = coordinates?;
             let v = real_coordinate.join(",");
             thread::spawn(move || {
                 cache::write(
-                    &("location".to_string() + &location_string.to_lowercase()),
+                    &("location".to_string() + &query.to_lowercase()),
                     &v,
                 );
             });
@@ -147,8 +147,8 @@ pub fn geocode(location_string: String, bing_maps_api_key: String) -> crate::Res
                 real_coordinate[1].to_string(),
             ])
         }
-        Some(real_cache) => {
-            let cache_string = "location".to_string() + &location_string.to_lowercase();
+        Ok(real_cache) => {
+            let cache_string = "location".to_string() + &query.to_lowercase();
             thread::spawn(move || {
                 cache::update_hits(cache_string).unwrap_or(());
             });
@@ -162,7 +162,7 @@ pub fn reverse_geocode(latitude: &str, longitude: &str) -> crate::Result<[String
     let k = "coordinates".to_string() + latitude + "," + longitude;
     let attempt_cache = cache::read(&k);
     match attempt_cache {
-        None => {
+        Err(_e) => {
             let data = nominatim_reverse_geocode(latitude, longitude)?;
             let place: Value = serde_json::from_str(&data)?;
             let country = place["address"]["country"]
@@ -181,7 +181,7 @@ pub fn reverse_geocode(latitude: &str, longitude: &str) -> crate::Result<[String
             });
             Ok([region.to_string(), country])
         }
-        Some(real_cache) => {
+        Ok(real_cache) => {
             let cache_string = "coordinates".to_string() + &k;
             thread::spawn(move || {
                 cache::update_hits(cache_string).unwrap_or(());

@@ -1,6 +1,6 @@
 use clap::{Args, Parser, Subcommand};
 
-use crate::backend::weather_forecast::WeatherForecastRS;
+use crate::backend::weather_forecast::WeatherForecast;
 use crate::layout::LayoutFile;
 
 pub mod commands;
@@ -105,7 +105,7 @@ pub struct GlobalOpts {
 
 fn print_out(
     layout_file: String,
-    data: WeatherForecastRS,
+    data: WeatherForecast,
     json: bool,
     metric: bool,
 ) -> crate::Result<()> {

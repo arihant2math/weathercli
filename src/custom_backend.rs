@@ -1,11 +1,11 @@
-use crate::backend::weather_forecast::WeatherForecastRS;
+use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
 
 pub static RUSTC_VERSION: &str = env!("RUSTC_VERSION");
 pub static CORE_VERSION: &str = "0.1";
 
 pub trait WeatherForecastPlugin {
-    fn call(&self, coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecastRS>;
+    fn call(&self, coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecast>;
 
     fn name(&self) -> Option<&str> {
         None

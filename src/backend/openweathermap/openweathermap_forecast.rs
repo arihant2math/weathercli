@@ -1,11 +1,11 @@
 use crate::backend;
 use crate::backend::openweathermap::openweathermap_current::get_openweathermap_current;
 use crate::backend::openweathermap::openweathermap_future::get_openweathermap_future;
-use crate::backend::weather_data::WeatherDataRS;
-use crate::backend::weather_forecast::WeatherForecastRS;
+use crate::backend::weather_data::WeatherData;
+use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
 
-fn get_forecast_sentence(forecast: Vec<WeatherDataRS>) -> String {
+fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {
     let data = forecast;
     let mut rain: Vec<bool> = Vec::with_capacity(16);
     let mut snow: Vec<bool> = Vec::with_capacity(16);
@@ -54,7 +54,7 @@ fn get_forecast_sentence(forecast: Vec<WeatherDataRS>) -> String {
 pub fn get_openweathermap_forecast(
     coordinates: [&str; 2],
     settings: Settings,
-) -> crate::Result<WeatherForecastRS> {
+) -> crate::Result<WeatherForecast> {
     if settings.internal.open_weather_map_api_key.is_empty() {
         return Err(format!(
             "Improper openweathermap api key, {}",
@@ -67,7 +67,7 @@ pub fn get_openweathermap_forecast(
         coordinates,
         settings.internal.metric_default,
     )?;
-    let mut forecast: Vec<WeatherDataRS> = Vec::new();
+    let mut forecast: Vec<WeatherData> = Vec::new();
     forecast.push(get_openweathermap_current(
         data.weather.clone(),
         data.air_quality.clone(),
@@ -76,7 +76,7 @@ pub fn get_openweathermap_forecast(
         forecast.push(get_openweathermap_future(item)?);
     }
     let forecast_sentence = get_forecast_sentence(forecast.clone());
-    Ok(WeatherForecastRS {
+    Ok(WeatherForecast {
         region: data.weather.name,
         country: data.weather.sys.country,
         forecast: forecast.clone(),

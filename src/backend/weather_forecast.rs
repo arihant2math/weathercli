@@ -1,12 +1,12 @@
-use crate::backend::weather_data::WeatherDataRS;
+use crate::backend::weather_data::WeatherData;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct WeatherForecastRS {
+pub struct WeatherForecast {
     pub region: String,
     pub country: String,
-    pub forecast: Vec<WeatherDataRS>,
-    pub current_weather: WeatherDataRS,
+    pub forecast: Vec<WeatherData>,
+    pub current_weather: WeatherData,
     pub forecast_sentence: String,
     pub raw_data: Option<Vec<String>>,
 }

@@ -3,7 +3,7 @@ use std::{collections::HashMap, ffi::OsStr, io, rc::Rc};
 use libloading::Library;
 use log::{debug, error, trace};
 
-use crate::backend::weather_forecast::WeatherForecastRS;
+use crate::backend::weather_forecast::WeatherForecast;
 use crate::custom_backend;
 use crate::custom_backend::{InvocationError, PluginDeclaration, WeatherForecastPlugin};
 use crate::error::Error;
@@ -33,7 +33,7 @@ pub fn run(
     name: &str,
     coordinates: [&str; 2],
     settings: Settings,
-) -> WeatherForecastRS {
+) -> WeatherForecast {
     functions
         .call(name, coordinates, settings)
         .expect("Invocation failed")
@@ -56,7 +56,7 @@ impl ExternalBackends {
         name: &str,
         coordinates: [&str; 2],
         settings: Settings,
-    ) -> crate::Result<WeatherForecastRS> {
+    ) -> crate::Result<WeatherForecast> {
         debug!("Calling function {}", name);
         self.functions
             .get(name)
@@ -157,7 +157,7 @@ pub struct BackendWrapper {
 }
 
 impl WeatherForecastPlugin for BackendWrapper {
-    fn call(&self, coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecastRS> {
+    fn call(&self, coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecast> {
         self.backend.call(coordinates, settings)
     }
 

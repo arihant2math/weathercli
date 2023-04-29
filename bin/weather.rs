@@ -10,14 +10,14 @@ use log4rs::Config;
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 
-use weather_core::cli::{App, Command, Datasource, datasource_from_str};
+use weather_core::cli::{App, CacheOpts, Command, Datasource, datasource_from_str};
 use weather_core::cli::commands::{credits, setup, update, weather};
 use weather_core::dynamic_loader::ExternalBackends;
-use weather_core::local::dirs::home_dir;
-use weather_core::local::r#mod::prune_cache;
+use weather_core::local::cache::prune;
+use weather_core::local::dirs::weathercli_dir;
 use weather_core::local::settings::Settings;
 use weather_core::local::weather_file::WeatherFile;
-use weather_core::location::{get_coordinates, get_location};
+use weather_core::location;
 use weather_core::now;
 
 #[cfg(target_family = "windows")]
@@ -42,7 +42,7 @@ fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
             {
                 return true;
             }
-            return false;
+            false
         }
     }
 }
@@ -52,9 +52,7 @@ fn main() -> weather_core::Result<()> {
     let settings = Settings::new()?;
     if settings.internal.debug || args.global_opts.debug {
         let level = LevelFilter::Info;
-        let mut file_path = crate::home_dir().unwrap();
-        file_path.push(".weathercli");
-        file_path.push("logs");
+        let mut file_path = weathercli_dir()?.join("logs");
         file_path.push(format!("{}.log", now().to_string()));
         // Build a stderr logger.
         let stderr = ConsoleAppender::builder()
@@ -109,9 +107,7 @@ fn main() -> weather_core::Result<()> {
         && discriminant(&datasource) == discriminant(&Datasource::Other(String::new()))
     {
         debug!("Detecting external dlls");
-        let mut path = home_dir()?;
-        path.push(".weathercli");
-        path.push("custom_backends");
+        let path = weathercli_dir()?.join("custom_backends");
         if path.exists() {
             let plugins: Vec<String> = path
                 .read_dir()
@@ -128,7 +124,7 @@ fn main() -> weather_core::Result<()> {
             match command {
                 Command::Place(opts) => weather(
                     datasource,
-                    get_coordinates(opts.query, settings.internal.bing_maps_api_key.clone())
+                    location::geocode(opts.query, settings.internal.bing_maps_api_key.clone())
                         .expect("Location not found"),
                     settings,
                     true_metric,
@@ -137,15 +133,19 @@ fn main() -> weather_core::Result<()> {
                 )?,
                 Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value)?,
                 Command::Settings => weather_core::open_settings_app(),
-                Command::ClearCache => {
-                    let mut f = WeatherFile::new("d.cache")?;
-                    f.data = String::new();
-                    f.write()?;
-                    let mut f = WeatherFile::new("f.cache")?;
-                    f.data = String::new();
-                    f.write()?;
-                }
-                Command::PruneCache => prune_cache()?,
+                Command::Cache(opts) => {
+                    match opts {
+                         CacheOpts::Clear => {
+                            let mut f = WeatherFile::new("d.cache")?;
+                            f.data = String::new();
+                            f.write()?;
+                            let mut f = WeatherFile::new("f.cache")?;
+                            f.data = String::new();
+                            f.write()?;
+                        }
+                        CacheOpts::Prune => prune()?,
+                    }
+                },
                 Command::Setup => setup(settings)?,
                 Command::Update(opts) => update(opts.force)?,
                 Command::Credits => credits(),
@@ -153,7 +153,7 @@ fn main() -> weather_core::Result<()> {
         }
         None => weather(
             datasource,
-            get_location(
+            location::get(
                 args.global_opts.no_sys_loc,
                 settings.internal.constant_location,
             )?,

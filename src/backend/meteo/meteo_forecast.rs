@@ -1,13 +1,13 @@
-use crate::backend::meteo::meteo_current::get_meteo_weather_data;
+use crate::backend::meteo::meteo_weather_data::get_meteo_weather_data;
 use crate::backend::meteo::meteo_get_combined_data_formatted;
 use crate::backend::meteo::meteo_json::MeteoForecastJson;
-use crate::backend::weather_data::WeatherDataRS;
-use crate::backend::weather_forecast::WeatherForecastRS;
+use crate::backend::weather_data::WeatherData;
+use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
 use crate::location;
 
 fn get_forecast_sentence(
-    data: Vec<WeatherDataRS>,
+    data: Vec<WeatherData>,
     raw_data: MeteoForecastJson,
     start: usize,
 ) -> String {
@@ -81,9 +81,9 @@ fn get_forecast_sentence(
 pub fn get_meteo_forecast(
     coordinates: [&str; 2],
     settings: Settings,
-) -> crate::Result<WeatherForecastRS> {
+) -> crate::Result<WeatherForecast> {
     let data = meteo_get_combined_data_formatted(coordinates, settings.internal.metric_default)?;
-    let mut forecast: Vec<WeatherDataRS> = Vec::new();
+    let mut forecast: Vec<WeatherData> = Vec::new();
     let now = data
         .weather
         .hourly
@@ -108,7 +108,7 @@ pub fn get_meteo_forecast(
     }
     let region_country = location::reverse_geocode(coordinates[0], coordinates[1])?;
     let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather, now);
-    let f = WeatherForecastRS {
+    let f = WeatherForecast {
         region: region_country[0].clone(),
         country: region_country[1].clone(),
         forecast: forecast.clone(),

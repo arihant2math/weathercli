@@ -21,7 +21,7 @@ pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct WeatherDataRS {
+pub struct WeatherData {
     pub time: i128,
     pub temperature: f32,
     pub min_temp: f32,
