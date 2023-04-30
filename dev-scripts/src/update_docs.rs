@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::{env, fs};
+use std::fs::{File, OpenOptions};
 use std::io::{BufReader, BufWriter, Write};
 
 
@@ -19,17 +20,20 @@ fn get_artifact_urls(h: HashMap<String, String>, run_id: &str) -> weather_core::
 
 fn download_artifact(artifact_list: &Vec<Value>, h: HashMap<String, String>, name: &str, file: &str) -> weather_core::Result<()> {
     println!("Downloading {name} to {file}");
-    let artifacts: Vec<&Value> = artifact_list.iter().filter(|a| a["name"].as_str().unwrap() == name).collect();
-    let artifact_id = artifacts.get(0).expect(&*format!("Could not find artifact {name}"))["id"].as_str().expect(&*format!("Could not find artifact {name}"));
+    let artifacts: Option<&Value> = artifact_list.iter().find(|a| a["name"].as_str().unwrap() == name);
+    let artifact_id = artifacts.expect(&*format!("Could not find artifact {name}"))["id"].as_i64().expect(&*format!("Could not find artifact {name} key id"));
     let download =
         weather_core::networking::get_url(format!("https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/{}/zip", artifact_id), None, Some(h), None)?;
-    let mut tmp_zip_file = fs::OpenOptions::new().create(true).write(true).open("./tmp".to_string() + file + ".zip")?;
+    let mut tmp_zip_file = OpenOptions::new().create(true).write(true).open(format!("./tmp/{file}.zip"))?;
     tmp_zip_file.write_all(&*download.bytes)?;
-    let reader = BufReader::new(tmp_zip_file.try_clone()?);
-    let mut zip = zip::ZipArchive::new(reader).unwrap();
-    let mut file = zip.by_index(0).expect("");
-    let mut writer = BufWriter::new(tmp_zip_file);
-    std::io::copy(&mut file, &mut writer)?;
+    let reader = BufReader::new(File::open(format!("./tmp/{file}.zip"))?);
+    let mut zip = zip::ZipArchive::new(reader).expect("zip read failed");
+    let mut file_zip = zip.by_index(0).unwrap();
+    println!("Extracting {}", file_zip.name());
+    let mut writer = BufWriter::new(
+        OpenOptions::new().write(true).truncate(true)
+            .open(format!("./docs_templates/{file}"))?);
+    std::io::copy(&mut file_zip, &mut writer)?;
     Ok(())
 }
 
@@ -51,15 +55,15 @@ pub fn update_docs(gh_token: &str) -> weather_core::Result<()> {
     let latest_updater_run_id = rust_ci[0]["id"].as_i64().unwrap();
     let binding = get_artifact_urls(headers.clone(), &latest_updater_run_id.to_string())?;
     let rust_artifacts = binding.as_array().unwrap();
-    let mut tasks = vec![];
-    tasks.push(["weather (Linux)", "weather"]);
-    tasks.push(["weather (Windows)", "weather.exe"]);
-    tasks.push(["updater (Linux)", "updater"]);
-    tasks.push(["updater (Windows)", "updater.exe"]);
-    tasks.push(["weatherd (Linux)", "weatherd"]);
-    tasks.push(["weatherd (Windows)", "weatherd.exe"]);
-    tasks.iter().for_each(|&s| download_artifact(&rust_artifacts, headers.clone(), s[0], s[1]).unwrap());
-    fs::remove_dir_all(working_dir.join("tmp"))?; // TODO: Implement index hash updates
+    let tasks = vec![
+   ["weather (Windows)", "weather.exe"],
+   ["updater (Windows)", "updater.exe"],
+   ["weatherd (Windows)", "weatherd.exe"],
+   ["weather (Linux)", "weather"],
+   ["updater (Linux)", "updater"],
+   ["weatherd (Linux)", "weatherd"]];
+    tasks.par_iter().for_each(|&s| download_artifact(&rust_artifacts, headers.clone(), s[0], s[1]).unwrap());
+    fs::remove_dir_all(working_dir.join("tmp"))?; // TODO: Implement index version updates
     update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")?;
     update_hash("./docs_templates/weather", "weather-exe-hash-unix")?;
     update_hash("./docs_templates/updater.exe", "updater-exe-hash-windows")?;
