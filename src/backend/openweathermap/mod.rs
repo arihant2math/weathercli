@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::backend::openweathermap::openweathermap_json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
 };
+use crate::location::Coordinates;
 use crate::networking;
 use crate::networking::Resp;
 
@@ -15,11 +16,11 @@ pub mod openweathermap_json;
 pub fn open_weather_map_get_api_urls(
     url: &str,
     api_key: String,
-    location: [&str; 2],
+    location: Coordinates,
     metric: bool,
 ) -> [String; 3] {
-    let longitude = location[0];
-    let latitude = location[1];
+    let longitude = location.longitude;
+    let latitude = location.latitude;
     let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
     let mut air_quality =
         format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}");
@@ -40,7 +41,7 @@ pub fn open_weather_map_get_api_urls(
 pub fn open_weather_map_get_combined_data_formatted(
     open_weather_map_api_url: &str,
     open_weather_map_api_key: String,
-    coordinates: [&str; 2],
+    coordinates: Coordinates,
     metric: bool,
 ) -> crate::Result<OpenWeatherMapFormattedData> {
     let urls = open_weather_map_get_api_urls(

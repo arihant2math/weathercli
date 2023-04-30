@@ -4,6 +4,7 @@ use crate::backend::openweathermap::openweathermap_future::get_openweathermap_fu
 use crate::backend::weather_data::WeatherData;
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
+use crate::location::Coordinates;
 
 fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {
     let data = forecast;
@@ -52,7 +53,7 @@ fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {
 }
 
 pub fn get_openweathermap_forecast(
-    coordinates: [&str; 2],
+    coordinates: Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
     if settings.internal.open_weather_map_api_key.is_empty() {

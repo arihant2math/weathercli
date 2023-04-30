@@ -137,10 +137,10 @@ fn main() -> weather_core::Result<()> {
                     match opts {
                          CacheOpts::Clear => {
                             let mut f = WeatherFile::new("d.cache")?;
-                            f.data = String::new();
+                            f.data = Vec::new();
                             f.write()?;
                             let mut f = WeatherFile::new("f.cache")?;
-                            f.data = String::new();
+                            f.data = Vec::new();
                             f.write()?;
                         }
                         CacheOpts::Prune => prune()?,

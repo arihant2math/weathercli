@@ -5,6 +5,7 @@ use crate::backend::weather_data::WeatherData;
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
 use crate::location;
+use crate::location::Coordinates;
 
 fn get_forecast_sentence(
     data: Vec<WeatherData>,
@@ -79,7 +80,7 @@ fn get_forecast_sentence(
 }
 
 pub fn get_meteo_forecast(
-    coordinates: [&str; 2],
+    coordinates: Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
     let data = meteo_get_combined_data_formatted(coordinates, settings.internal.metric_default)?;
@@ -106,7 +107,7 @@ pub fn get_meteo_forecast(
             settings.internal.metric_default,
         )?);
     }
-    let region_country = location::reverse_geocode(coordinates[0], coordinates[1])?;
+    let region_country = location::reverse_geocode(coordinates)?;
     let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather, now);
     let f = WeatherForecast {
         region: region_country[0].clone(),

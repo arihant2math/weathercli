@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::backend::openweathermap::openweathermap_json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapJson,
 };
@@ -12,11 +13,12 @@ pub fn get_openweathermap_current(
     aqi: OpenWeatherMapAirQualityJson,
 ) -> crate::Result<WeatherData> {
     let weather_file = WeatherFile::weather_codes()?;
+    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&*weather_file.data)?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     for condition in data.weather.clone() {
         conditions.push(WeatherCondition::new(
             condition.id as u16,
-            &weather_file.data,
+            &weather_codes,
         )?);
     }
     Ok(WeatherData {

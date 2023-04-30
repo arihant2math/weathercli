@@ -10,6 +10,7 @@ use weather_core::backend::WindData;
 use weather_core::custom_backend::PluginRegistrar;
 use weather_core::custom_backend::WeatherForecastPlugin;
 use weather_core::local::settings::Settings;
+use weather_core::location::Coordinates;
 use weather_core::now;
 
 fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_quality_soup: Html) -> WeatherData {
@@ -33,7 +34,10 @@ fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_
 }
 
 fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecast> {
-    let region_country = location::reverse_geocode(coordinates[0], coordinates[1])?;
+    let region_country = location::reverse_geocode(Coordinates {
+        latitude: coordinates[0].parse().unwrap(),
+        longitude: coordinates[1].parse().unwrap()
+    })?;
     let mut cookies = HashMap::new();
     if !settings.internal.metric_default {
         cookies.insert("unitOfMeasurement".to_string(), "e".to_string());

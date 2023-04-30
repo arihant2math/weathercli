@@ -11,16 +11,17 @@ use crate::dynamic_loader::ExternalBackends;
 use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
 use crate::{component_updater, get_data_from_datasource, networking, version};
+use crate::location::Coordinates;
 
 pub fn weather(
     datasource: Datasource,
-    coordinates: [String; 2],
+    coordinates: Coordinates,
     settings: Settings,
     true_metric: bool,
     json: bool,
     custom_backends: ExternalBackends,
 ) -> crate::Result<()> {
-    debug!("Coordinates: {:?}", coordinates);
+    debug!("Coordinates: {} {}", coordinates.latitude, coordinates.longitude);
     debug!("Metric: {}", true_metric);
     debug!("json: {}", json);
     let mut s = settings.clone();
@@ -34,15 +35,15 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
     match value {
         None => {
             let f = WeatherFile::settings()?;
-            let data: Value = serde_json::from_str(&f.data)?;
+            let data: Value = serde_json::from_str(&f.get_text()?)?;
             println!("{}: {}", &key_name, data[&key_name]);
         }
         Some(real_value) => {
             println!("Writing {}={} ...", key_name.to_lowercase(), &real_value);
             let mut f = WeatherFile::settings()?;
-            let mut data: Value = serde_json::from_str(&f.data)?;
+            let mut data: Value = serde_json::from_str(&f.get_text()?)?;
             data[key_name.to_uppercase()] = Value::from_str(&real_value)?;
-            f.data = serde_json::to_string(&data)?;
+            f.data = Vec::from(serde_json::to_string(&data)?);
             f.write()?;
         }
     };

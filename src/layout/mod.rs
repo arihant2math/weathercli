@@ -47,7 +47,7 @@ impl LayoutFile {
     pub fn new(path: String) -> crate::Result<Self> {
         // Error here means default unless its default.json
         let file = WeatherFile::new(&("layouts/".to_string() + &path))?;
-        let file_data: LayoutJSON = serde_json::from_str(&file.data)?;
+        let file_data: LayoutJSON = serde_json::from_str(&file.get_text()?)?;
         if file_data.version.is_none() {
             return Err(Error::LayoutError(LayoutErr {
                 message: "Invalid Layout, missing key 'version'".to_string(),

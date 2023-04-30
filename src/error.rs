@@ -1,5 +1,6 @@
 use std::fmt;
 use std::fmt::Debug;
+use bincode::ErrorKind;
 
 use crate::custom_backend::InvocationError;
 
@@ -31,7 +32,7 @@ impl fmt::Display for LayoutErr {
 pub enum Error {
     LayoutError(LayoutErr),
     NetworkError(String),
-    JsonError(String),
+    SerializationError(String),
     IoError(String),
     InvocationError(InvocationError),
     Other(String),
@@ -47,7 +48,7 @@ impl fmt::Display for Error {
         match self {
             Self::LayoutError(e) => write!(f, "Layout Error: {e}"),
             Self::NetworkError(e) => write!(f, "Network Error: {e}"),
-            Self::JsonError(e) => write!(f, "JSON Error: {e}"), // TODO: Fix
+            Self::SerializationError(e) => write!(f, "Serialization Error: {e}"), // TODO: Fix
             Self::IoError(e) => write!(f, "I/O Error: {e}"),    // TODO: Fix
             Self::InvocationError(_e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
             Self::Other(s) => write!(f, "{s}"),
@@ -63,11 +64,17 @@ impl From<std::io::Error> for Error {
 
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
-        Self::JsonError(format!(
+        Self::SerializationError(format!(
             "JSON parsing error at line {}, column {}",
             error.line(),
             error.column()
         ))
+    }
+}
+
+impl From<Box<bincode::ErrorKind>> for Error {
+    fn from(value: Box<ErrorKind>) -> Self {
+        Self::SerializationError(format!("Bincode error")) // TODO: Use value
     }
 }
 

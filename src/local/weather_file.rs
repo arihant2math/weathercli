@@ -8,7 +8,7 @@ use crate::local::dirs::weathercli_dir;
 #[derive(Clone)]
 pub struct WeatherFile {
     pub path: PathBuf,
-    pub data: String,
+    pub data: Vec<u8>,
     pub exists: bool,
 }
 
@@ -26,8 +26,8 @@ impl WeatherFile {
         }
         let file = File::open(path.display().to_string())?;
         let mut buf_reader = BufReader::new(file);
-        let mut data = String::new();
-        buf_reader.read_to_string(&mut data)?;
+        let mut data = Vec::new();
+        buf_reader.read_to_end(&mut data)?;
         Ok(Self { path, data, exists })
     }
 
@@ -38,24 +38,24 @@ impl WeatherFile {
             .truncate(true)
             .open(self.path.display().to_string())?;
         let mut f = BufWriter::new(f);
-        f.write_all(self.data.as_bytes())?;
+        f.write_all(&*self.data)?;
         f.flush()?;
         Ok(())
     }
 
-    pub fn get_path(&self) -> String {
-        self.path.display().to_string()
-    }
-
-    pub fn weather_codes() -> crate::Result<Self> {
-        Self::new("resources/weather_codes.json")
+    pub fn get_text(&self) -> crate::Result<String> {
+        return Ok(String::from_utf8(self.data.clone()).unwrap()); // TODO: Fix
     }
 
     pub fn settings() -> crate::Result<Self> {
         Self::new("settings.json")
     }
 
+    pub fn weather_codes() -> crate::Result<Self> {
+        Self::new("resources/weather_codes.res")
+    }
+
     pub fn weather_ascii_art() -> crate::Result<Self> {
-        Self::new("resources/weather_ascii_images.json")
+        Self::new("resources/weather_ascii_images.res")
     }
 }

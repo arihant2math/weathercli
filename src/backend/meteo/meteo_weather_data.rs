@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::backend::meteo::meteo_json::{MeteoAirQualityJson, MeteoForecastJson};
 use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherData};
@@ -45,33 +46,34 @@ fn get_conditions(
     cloud_cover: u8,
 ) -> crate::Result<Vec<WeatherCondition>> {
     let weather_file = WeatherFile::weather_codes()?;
+    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&*weather_file.data)?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     if cloud_cover == 0 {
-        conditions.push(WeatherCondition::new(800, &weather_file.data)?);
+        conditions.push(WeatherCondition::new(800, &weather_codes)?);
     } else if cloud_cover < 25 {
-        conditions.push(WeatherCondition::new(801, &weather_file.data)?);
+        conditions.push(WeatherCondition::new(801, &weather_codes)?);
     } else if cloud_cover < 50 {
-        conditions.push(WeatherCondition::new(802, &weather_file.data)?);
+        conditions.push(WeatherCondition::new(802, &weather_codes)?);
     } else if cloud_cover < 85 {
-        conditions.push(WeatherCondition::new(803, &weather_file.data)?);
+        conditions.push(WeatherCondition::new(803, &weather_codes)?);
     } else {
-        conditions.push(WeatherCondition::new(804, &weather_file.data)?);
+        conditions.push(WeatherCondition::new(804, &weather_codes)?);
     }
     if data.hourly.rain[index] != 0.0 {
         let rain = data.hourly.rain[index];
         let metric = metric;
         if (0.0 < rain && rain < 0.098 && !metric) || (0.0 < rain && rain < 2.5 && metric) {
-            conditions.push(WeatherCondition::new(500, &weather_file.data)?);
+            conditions.push(WeatherCondition::new(500, &weather_codes)?);
         } else if (rain < 0.39 && !metric) || (rain < 10.0 && metric) {
-            conditions.push(WeatherCondition::new(501, &weather_file.data)?);
+            conditions.push(WeatherCondition::new(501, &weather_codes)?);
         } else if (rain < 2.0 && !metric) || (rain < 50.0 && metric) {
-            conditions.push(WeatherCondition::new(502, &weather_file.data)?);
+            conditions.push(WeatherCondition::new(502, &weather_codes)?);
         } else if rain != 0.0 {
-            conditions.push(WeatherCondition::new(503, &weather_file.data)?);
+            conditions.push(WeatherCondition::new(503, &weather_codes)?);
         }
     }
     if data.hourly.snowfall[index] != 0.0 {
-        conditions.push(WeatherCondition::new(601, &weather_file.data)?);
+        conditions.push(WeatherCondition::new(601, &weather_codes)?);
     }
     Ok(conditions)
 }

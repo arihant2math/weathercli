@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::backend::meteo::meteo_json::{MeteoAirQualityJson, MeteoForecastJson};
+use crate::location::Coordinates;
 use crate::networking;
 use crate::networking::Resp;
 
@@ -9,9 +10,9 @@ pub mod meteo_forecast;
 mod meteo_json;
 
 /// Gets the urls from the openweathermap api server
-pub fn meteo_get_api_urls(location: [&str; 2], metric: bool) -> [String; 2] {
-    let latitude = location[0];
-    let longitude = location[1];
+pub fn meteo_get_api_urls(location: Coordinates, metric: bool) -> [String; 2] {
+    let latitude = location.latitude;
+    let longitude = location.longitude;
     if metric {
         [format!("https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true&hourly=temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,visibility,windspeed_10m,winddirection_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto"),
             format!("https://air-quality-api.open-meteo.com/v1/air-quality?latitude={latitude}&longitude={longitude}&hourly=european_aqi"),
@@ -25,7 +26,7 @@ pub fn meteo_get_api_urls(location: [&str; 2], metric: bool) -> [String; 2] {
 
 /// Gets the urls from the meteo api server and returns a `FormattedData` struct with the data
 pub fn meteo_get_combined_data_formatted(
-    coordinates: [&str; 2],
+    coordinates: Coordinates,
     metric: bool,
 ) -> crate::Result<MeteoFormattedData> {
     let urls = meteo_get_api_urls(coordinates, metric);

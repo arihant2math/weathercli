@@ -13,6 +13,7 @@ use crate::dynamic_loader::ExternalBackends;
 use crate::local::settings::Settings;
 #[cfg(feature = "gui")]
 use crate::local::settings_app;
+use crate::location::Coordinates;
 use crate::util::Config;
 
 pub mod backend;
@@ -71,13 +72,13 @@ pub const CONFIG: Config<'static> = Config {
 
 pub fn get_data_from_datasource(
     datasource: Datasource,
-    coordinates: [String; 2],
+    coordinates: Coordinates,
     settings: Settings,
     custom_backends: ExternalBackends,
 ) -> Result<WeatherForecast> {
     let dir = local::dirs::weathercli_dir()?.join("resources");
-    let f1 = dir.join("weather_codes.json");
-    let f2 = dir.join("weather_ascii_images.json");
+    let f1 = dir.join("weather_codes.res");
+    let f2 = dir.join("weather_ascii_images.res");
     if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
         warn!("Forcing downloading of web resources");
         component_updater::update_web_resources(None)?;
@@ -86,11 +87,11 @@ pub fn get_data_from_datasource(
             component_updater::update_web_resources(None).unwrap_or(());
         });
     }
-    let conv_coords = [&*coordinates[0], &*coordinates[1]];
+    let conv_coords = [&*coordinates.latitude.to_string(), &*coordinates.longitude.to_string()];
     match datasource {
-        Datasource::Openweathermap => get_openweathermap_forecast(conv_coords, settings),
-        Datasource::NWS => get_nws_forecast(conv_coords, settings),
-        Datasource::Meteo => get_meteo_forecast(conv_coords, settings),
+        Datasource::Openweathermap => get_openweathermap_forecast(coordinates, settings),
+        Datasource::NWS => get_nws_forecast(coordinates, settings),
+        Datasource::Meteo => get_meteo_forecast(coordinates, settings),
         Datasource::Other(s) => custom_backends.call(&s, conv_coords, settings),
     }
 }

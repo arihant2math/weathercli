@@ -38,7 +38,7 @@ fn update_web_resource(
             }
         }
         let data = networking::get_url(web_path, None, None, None)?.text;
-        f.data = data;
+        f.data = Vec::from(data);
         f.write()?;
     }
     Ok(())
@@ -61,7 +61,7 @@ pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
         update_web_resource(
             String::from("resources/weather_codes.json"),
             web_json.clone(),
-            "https://arihant2math.github.io/weathercli/weather_codes.json",
+            "https://arihant2math.github.io/weathercli/weather_codes.res",
             "weather-codes-hash",
             "weather codes",
             real_quiet,
@@ -69,7 +69,7 @@ pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
         update_web_resource(
             "resources/weather_ascii_images.json".to_string(),
             web_json.clone(),
-            "https://arihant2math.github.io/weathercli/weather_ascii_images.json",
+            "https://arihant2math.github.io/weathercli/weather_ascii_images.res",
             "weather-ascii-images-hash",
             "ascii images",
             real_quiet,
