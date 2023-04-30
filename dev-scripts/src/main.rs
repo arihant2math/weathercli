@@ -1,4 +1,7 @@
 use std::{env, fs, process};
+use std::collections::HashMap;
+use std::fs::OpenOptions;
+use std::io::Write;
 
 use clap::{Args, Parser, Subcommand};
 
@@ -20,6 +23,7 @@ pub enum Command {
     Docs,
     #[command(about = "Bump docs executable")]
     UpdateDocs(UpdateDocsOpts),
+    CompileJSON,
     #[command(about = "Update index hashes")]
     IndexHashes,
 }
@@ -32,8 +36,8 @@ pub struct UpdateDocsOpts {
 fn build_docs() -> weather_core::Result<()> {
     let working_dir = env::current_dir()?;
     fs::create_dir_all(working_dir.join("docs"))?;
-    fs::OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("index.html"))?;
-    fs::OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("config.html"))?;
+    OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("index.html"))?;
+    OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("config.html"))?;
     let mut jc = working_dir.join("./jc");
     if cfg!(windows) {
         jc = working_dir.join("./jc.exe");
@@ -52,7 +56,26 @@ fn build_docs() -> weather_core::Result<()> {
     fs::copy("./docs_templates/weatherd.exe", "./docs/weatherd.exe")?;
     fs::copy("./docs_templates/weatherd", "./docs/weatherd")?;
     fs::copy("./docs_templates/theme.js", "./docs/theme.js")?;
+    fs::copy("./docs_templates/weather_ascii_images.json", "./docs/weather_ascii_images.json")?;
+    fs::copy("./docs_templates/weather_ascii_images.res", "./docs/weather_ascii_images.res")?;
+    fs::copy("./docs_templates/weather_codes.json", "./docs/weather_codes.json")?;
+    fs::copy("./docs_templates/weather_codes.res", "./docs/weather_codes.res")?;
     println!("Done!");
+    Ok(())
+}
+
+
+fn compile_json() -> weather_core::Result<()> {
+    let path = "./docs_templates/weather_codes";
+    let d: HashMap<String, Vec<String>> = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
+    let v = bincode::serialize(&d)?;
+    let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
+    f.write_all(&*v)?;
+    let path = "./docs_templates/weather_ascii_images";
+    let d: HashMap<String, Vec<String>> = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
+    let v = bincode::serialize(&d)?;
+    let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
+    f.write_all(&*v)?;
     Ok(())
 }
 
@@ -75,6 +98,7 @@ fn main() -> weather_core::Result<()> {
     match args.command {
         Command::Docs => build_docs(),
         Command::UpdateDocs(opts) => update_docs::update_docs(&*opts.github_api_token),
+        Command::CompileJSON => compile_json(),
         Command::IndexHashes => index_hashes()
     }
 }
