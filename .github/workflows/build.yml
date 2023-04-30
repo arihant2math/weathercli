@@ -4,11 +4,11 @@ on:
   push:
     branches: [ "main" ]
     paths-ignore:
-      - 'scripts/**'
+      - 'custom_backends/**'
+      - 'dev-scripts/**'
       - 'icon/**'
       - 'docs_templates/**'
       - 'tests/**'
-      - 'scripts/**'
   pull_request:
     branches: [ "main" ]
   workflow_dispatch:

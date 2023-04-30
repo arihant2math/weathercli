@@ -59,7 +59,7 @@ pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
         let web_text = resp.text;
         let web_json: Value = serde_json::from_str(&web_text)?;
         update_web_resource(
-            String::from("resources/weather_codes.json"),
+            String::from("resources/weather_codes.res"),
             web_json.clone(),
             "https://arihant2math.github.io/weathercli/weather_codes.res",
             "weather-codes-hash",
@@ -67,7 +67,7 @@ pub fn update_web_resources(quiet: Option<bool>) -> crate::Result<()> {
             real_quiet,
         )?;
         update_web_resource(
-            "resources/weather_ascii_images.json".to_string(),
+            "resources/weather_ascii_images.res".to_string(),
             web_json.clone(),
             "https://arihant2math.github.io/weathercli/weather_ascii_images.res",
             "weather-ascii-images-hash",

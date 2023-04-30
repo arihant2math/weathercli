@@ -56,9 +56,7 @@ fn build_docs() -> weather_core::Result<()> {
     fs::copy("./docs_templates/weatherd.exe", "./docs/weatherd.exe")?;
     fs::copy("./docs_templates/weatherd", "./docs/weatherd")?;
     fs::copy("./docs_templates/theme.js", "./docs/theme.js")?;
-    fs::copy("./docs_templates/weather_ascii_images.json", "./docs/weather_ascii_images.json")?;
     fs::copy("./docs_templates/weather_ascii_images.res", "./docs/weather_ascii_images.res")?;
-    fs::copy("./docs_templates/weather_codes.json", "./docs/weather_codes.json")?;
     fs::copy("./docs_templates/weather_codes.res", "./docs/weather_codes.res")?;
     println!("Done!");
     Ok(())
@@ -80,8 +78,8 @@ fn compile_json() -> weather_core::Result<()> {
 }
 
 fn index_hashes() -> weather_core::Result<()> {
-    update_hash("./docs_templates/weather_codes.json", "weather-codes-hash")?;
-    update_hash("./docs_templates/weather_ascii_images.json", "weather-ascii-images-hash")?;
+    update_hash("./docs_templates/weather_codes.res", "weather-codes-hash")?;
+    update_hash("./docs_templates/weather_ascii_images.res", "weather-ascii-images-hash")?;
     update_hash("./docs_templates/default_layout.json", "default-layout-hash")?;
     update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")?;
     update_hash("./docs_templates/weather", "weather-exe-hash-unix")?;
