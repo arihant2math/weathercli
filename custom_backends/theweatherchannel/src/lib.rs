@@ -3,18 +3,17 @@ use std::collections::HashMap;
 use scraper::Html;
 
 use weather_core::{export_plugin, networking};
-use weather_core::backend::weather_data::WeatherDataRS;
-use weather_core::backend::weather_forecast::{get_location, WeatherForecast};
+use weather_core::backend::weather_data::WeatherData;
+use weather_core::location;
+use weather_core::backend::weather_forecast::WeatherForecast;
 use weather_core::backend::WindData;
 use weather_core::custom_backend::PluginRegistrar;
 use weather_core::custom_backend::WeatherForecastPlugin;
 use weather_core::local::settings::Settings;
 use weather_core::now;
 
-// pub static CORE_VERSION: &str = "0";
-
-fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_quality_soup: Html) -> WeatherDataRS {
-    WeatherDataRS {
+fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_quality_soup: Html) -> WeatherData {
+    WeatherData {
         time: now() as i128,
         temperature: 0.0,
         min_temp: 0.0,
@@ -34,7 +33,7 @@ fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_
 }
 
 fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecast> {
-    let region_country = get_location(coordinates)?;
+    let region_country = location::reverse_geocode(coordinates[0], coordinates[1])?;
     let mut cookies = HashMap::new();
     if !settings.internal.metric_default {
         cookies.insert("unitOfMeasurement".to_string(), "e".to_string());
