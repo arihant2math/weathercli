@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
+use crate::error;
 
 fn draw<S: AsRef<str>>(options: &[S], choice: usize, multiline: bool) -> String {
     assert!(options.len() > choice);
@@ -66,7 +67,7 @@ pub fn choice<S: AsRef<str>>(options: &[S], default: usize, multiline: Option<bo
                 code: KeyCode::Char('c'),
                 modifiers: KeyModifiers::CONTROL,
                 ..
-            }) => {disable_raw_mode()?; panic!("Control-C pressed")}, // TODO: return an error instead?
+            }) => {disable_raw_mode()?; return Err(error::Error::IoError("Control-C pressed".to_string()))?},
             Event::Key(KeyEvent {
                 code: KeyCode::Enter,
                 ..
