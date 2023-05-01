@@ -74,28 +74,6 @@ mod target_unix_not_redox {
 #[cfg(all(unix, not(target_os = "redox")))]
 pub use self::target_unix_not_redox::home_dir;
 
-#[cfg(target_os = "redox")]
-extern crate redox_users;
-
-#[cfg(target_os = "redox")]
-mod target_redox {
-
-    use std::path::PathBuf;
-
-    use super::redox_users::{All, AllUsers, Config};
-
-    pub fn home_dir() -> Option<PathBuf> {
-        let current_uid = redox_users::get_uid().ok()?;
-        let users = AllUsers::basic(Config::default()).ok()?;
-        let user = users.get_by_id(current_uid)?;
-
-        Some(PathBuf::from(user.home.clone()))
-    }
-}
-
-#[cfg(target_os = "redox")]
-pub use self::target_redox::home_dir;
-
 #[cfg(all(unix, not(any(target_os = "macos", target_os = "ios"))))]
 mod xdg_user_dirs;
 
@@ -159,13 +137,13 @@ mod target_windows {
                 &mut path_ptr,
             );
             if result == 0 {
-                let len = windows::Win32::Globalization::lstrlenW(path_ptr) as usize;
+                let len = Win32::Globalization::lstrlenW(path_ptr) as usize;
                 let path = slice::from_raw_parts(path_ptr, len);
                 let ostr: OsString = OsStringExt::from_wide(path);
-                windows::Win32::System::Com::CoTaskMemFree(path_ptr as *const c_void);
+                Win32::System::Com::CoTaskMemFree(path_ptr as *const c_void);
                 Some(PathBuf::from(ostr))
             } else {
-                windows::Win32::System::Com::CoTaskMemFree(path_ptr as *const c_void);
+                Win32::System::Com::CoTaskMemFree(path_ptr as *const c_void);
                 None
             }
         }
