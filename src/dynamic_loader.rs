@@ -70,7 +70,7 @@ impl ExternalBackends {
     /// # Safety
     ///
     /// A plugin library **must** be implemented using the
-    /// [`plugins_core::plugin_declaration!()`] macro. Trying manually implement
+    /// [`weather_core::backend::custom_backends::plugin_declaration!()`] macro. Trying manually implement
     /// a plugin without going through that macro will result in undefined
     /// behaviour.
     pub unsafe fn load<P: AsRef<OsStr>>(&mut self, library_path: P) -> crate::Result<()> {

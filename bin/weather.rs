@@ -19,16 +19,22 @@ use weather_core::local::settings::Settings;
 use weather_core::location;
 use weather_core::now;
 
-#[cfg(target_family = "windows")]
+#[cfg(target_os = "windows")]
 fn is_valid_ext(f: &str) -> bool {
     let len = f.len();
     &f[len - 4..] == ".dll"
 }
 
-#[cfg(target_family = "unix")]
+#[cfg(target_os = "linux")]
 fn is_valid_ext(f: &str) -> bool {
     let len = f.len();
     &f[len - 3..] == ".so"
+}
+
+#[cfg(target_os = "macos")]
+fn is_valid_ext(f: &str) -> bool {
+    let len = f.len();
+    &f[len - 6..] == ".dylib"
 }
 
 fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
@@ -133,8 +139,8 @@ fn main() -> weather_core::Result<()> {
                 Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value)?,
                 Command::Settings => weather_core::open_settings_app(),
                 Command::Cache(arg) => cache(arg)?,
-                Command::Layout(arg) => layout(arg)?,
-                Command::CustomBackend(arg) => custom_backend(arg)?,
+                Command::Layout(arg) => layout(arg, settings)?,
+                Command::CustomBackend(arg) => custom_backend(arg, settings)?,
                 Command::Setup => setup(settings)?,
                 Command::Update(opts) => update(opts.force)?,
                 Command::Credits => credits(),

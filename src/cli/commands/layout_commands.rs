@@ -16,9 +16,8 @@ pub fn install(path: String) -> crate::Result<()> { // TODO: Add validity checks
     Ok(())
 }
 
-pub fn list() -> crate::Result<()> {
+pub fn list(settings: Settings) -> crate::Result<()> {
     let paths = fs::read_dir(layouts_dir()?)?;
-    let settings = Settings::new()?; // TODO: Optimize excess read
     let current_layout = settings.internal.layout_file;
     for path in paths {
         let tmp = path?.file_name();
@@ -33,27 +32,26 @@ pub fn list() -> crate::Result<()> {
     Ok(())
 }
 
-pub fn select() -> crate::Result<()> {
+pub fn select(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
-    let mut settings = Settings::new()?; // TODO: Optimize excess read
     let current = &*settings.internal.layout_file;
     let current_index = paths.iter().position(|c| c == current).unwrap_or(0); // TODO: make it default.res
     let choice = crate::prompt::choice(&*paths, current_index, None)?;
+    let mut settings = Settings::new()?; // TODO: Fix excess read 
     settings.internal.layout_file = paths[choice].to_string();
     settings.write()?;
     Ok(())
 }
 
-pub fn delete() -> crate::Result<()> {
+pub fn delete(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
-    let settings = Settings::new()?; // TODO: Optimize excess read
     let current = &*settings.internal.layout_file;
     let current_index = paths.iter().position(|c| c == current).unwrap_or(0); // TODO: make it default.res
     let choice = paths[crate::prompt::choice(&*paths, current_index, None)?].to_string();
     fs::remove_file(layouts_dir()?.join(&*choice))?;
     if choice == current {
         println!("Please select a new default layout");
-        select()?;
+        select(settings)?;
     }
     Ok(())
 }

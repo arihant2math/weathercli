@@ -188,20 +188,20 @@ pub fn credits() {
     }
 }
 
-pub fn layout(arg: LayoutOpts) -> crate::Result<()> {
+pub fn layout(arg: LayoutOpts, settings: Settings) -> crate::Result<()> {
     match arg {
         LayoutOpts::Install(opts) => layout_commands::install(opts.path)?,
-        LayoutOpts::List => layout_commands::list()?,
-        LayoutOpts::Select => layout_commands::select()?,
-        LayoutOpts::Delete => layout_commands::delete()?
+        LayoutOpts::List => layout_commands::list(settings)?,
+        LayoutOpts::Select => layout_commands::select(settings)?,
+        LayoutOpts::Delete => layout_commands::delete(settings)?
     };
     Ok(())
 }
 
-pub fn custom_backend(arg: BackendOpts) -> crate::Result<()> {
+pub fn custom_backend(arg: BackendOpts, settings: Settings) -> crate::Result<()> {
     match arg {
         BackendOpts::Install(opts) => backend::install(opts.path)?,
-        BackendOpts::List => backend::list()?,
+        BackendOpts::List => backend::list(settings)?,
         BackendOpts::Delete => backend::delete()?
     }
     Ok(())

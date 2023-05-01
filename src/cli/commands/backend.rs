@@ -13,9 +13,8 @@ pub fn install(path: String) -> crate::Result<()> { // TODO: Add validity checks
     Ok(())
 }
 
-pub fn list() -> crate::Result<()> {
+pub fn list(settings: Settings) -> crate::Result<()> {
     let paths = fs::read_dir(weathercli_dir()?.join("custom_backends"))?;
-    let settings = Settings::new()?; // TODO: Optimize excess read
     for path in paths { // TODO: Check which ones are valid
         let tmp = path?.file_name();
         let file_name = tmp.to_str().unwrap();
