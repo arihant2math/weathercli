@@ -11,14 +11,10 @@ pub fn hash_file(filename: &str) -> crate::Result<String> {
     Ok(hex::encode(sha2::Sha256::digest(bytes)))
 }
 
-pub fn list_dir(dir: PathBuf) -> crate::Result<Vec<String>> { // TODO: clean up when i'm not insane trying to deal with rust's type system
-    let mut paths_dir: Vec<DirEntry> = Vec::new();
+pub fn list_dir(dir: PathBuf) -> crate::Result<Vec<String>> {
+    let mut paths: Vec<String> = Vec::new(); // TODO: use iter() instead
     for path in fs::read_dir(dir)? {
-        paths_dir.push(path?);
-    }
-    let mut paths: Vec<String> = Vec::new();
-    for path in paths_dir {
-        let tmp = path.file_name().into_string().unwrap();
+        let tmp = path?.file_name().into_string().unwrap();
         paths.push(tmp);
     }
     Ok(paths)
