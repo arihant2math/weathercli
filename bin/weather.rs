@@ -19,6 +19,7 @@ use weather_core::local::settings::Settings;
 use weather_core::location;
 use weather_core::now;
 
+/// TODO: Move this all elsewhere
 #[cfg(target_os = "windows")]
 fn is_valid_ext(f: &str) -> bool {
     let len = f.len();
@@ -55,7 +56,7 @@ fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
 fn main() -> weather_core::Result<()> {
     let args = App::parse();
     let settings = Settings::new()?;
-    if settings.internal.debug || args.global_opts.debug {
+    if settings.internal.debug || args.global_opts.debug { // TODO: move to seperate function
         let level = LevelFilter::Info;
         let mut file_path = weathercli_dir()?.join("logs");
         file_path.push(format!("{}.log", now()));
