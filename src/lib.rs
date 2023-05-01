@@ -21,16 +21,15 @@ pub mod backend;
 pub mod bin_common;
 pub mod cli;
 pub mod color;
-pub mod component_updater;
-pub mod custom_backend;
 pub mod dynamic_loader;
 pub mod error;
-mod layout;
+pub mod layout;
 pub mod local;
 pub mod location;
 pub mod networking;
 pub mod prompt;
 pub mod util;
+pub mod updater;
 
 pub type Result<T> = std::result::Result<T, error::Error>;
 
@@ -81,10 +80,10 @@ pub fn get_data_from_datasource(
     let f2 = dir.join("weather_ascii_images.res");
     if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
         warn!("Forcing downloading of web resources");
-        component_updater::update_web_resources(None)?;
+        updater::resource_updater::update_web_resources(None)?;
     } else if settings.internal.auto_update_internet_resources {
         thread::spawn(move || {
-            component_updater::update_web_resources(None).unwrap_or(());
+            updater::resource_updater::update_web_resources(None).unwrap_or(());
         });
     }
     let conv_coords = [&*coordinates.latitude.to_string(), &*coordinates.longitude.to_string()];

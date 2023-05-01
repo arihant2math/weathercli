@@ -9,11 +9,6 @@ name = "updater"
 path = "bin/updater.rs"
 
 [[bin]]
-required-features = ["support", "installer", "gui"]
-name = "gui_installer"
-path = "bin/gui_installer.rs"
-
-[[bin]]
 required-features = ["support", "installer"]
 name = "installer"
 path = "bin/installer.rs"

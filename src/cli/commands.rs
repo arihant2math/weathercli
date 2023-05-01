@@ -1,16 +1,20 @@
+mod layout_commands;
+mod backend;
+
 use std::str::FromStr;
-use std::thread;
+use std::{fs, thread};
 use std::time::Duration;
 
 use log::debug;
 use serde_json::Value;
 
 use crate::cli::{print_out, Datasource};
-use crate::component_updater::get_updater;
+use crate::cli::arguments::{CacheOpts, LayoutOpts, BackendOpts};
 use crate::dynamic_loader::ExternalBackends;
 use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
-use crate::{component_updater, get_data_from_datasource, networking, version};
+use crate::{updater, get_data_from_datasource, networking, version};
+use crate::local::cache::prune;
 use crate::location::Coordinates;
 
 pub fn weather(
@@ -53,7 +57,7 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
 pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
     println!("{}===== Weather CLI Setup =====", crate::color::FORE_CYAN);
-    component_updater::update_web_resources(None)?;
+    updater::resource_updater::update_web_resources(None)?;
     println!(
         "{}Choose the default weather backend: ",
         crate::color::FORE_RED
@@ -102,9 +106,24 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
     Ok(())
 }
 
+pub fn cache(opts: CacheOpts) -> crate::Result<()> {
+    match opts {
+         CacheOpts::Clear => {
+            let mut f = WeatherFile::new("d.cache")?;
+            f.data = Vec::new();
+            f.write()?;
+            let mut f = WeatherFile::new("f.cache")?;
+            f.data = Vec::new();
+            f.write()?;
+        }
+        CacheOpts::Prune => prune()?,
+    }
+    Ok(())
+}
+
 pub fn update(force: bool) -> crate::Result<()> {
     println!("Checking for updates ...");
-    let latest_version = component_updater::get_latest_version()?;
+    let latest_version = updater::get_latest_version()?;
     let application_path = std::env::current_exe()?;
     println!("Latest Version: {latest_version}");
     println!("Current Version: {}", version());
@@ -113,17 +132,16 @@ pub fn update(force: bool) -> crate::Result<()> {
         let mut updater_location = application_path
             .parent()
             .expect("no parent dir")
-            .to_path_buf();
+            .to_path_buf().join("components");
+        fs::create_dir_all(&updater_location)?;
         if cfg!(windows) {
-            updater_location.push("components");
             updater_location.push("updater.exe");
         } else {
-            updater_location.push("components");
             updater_location.push("updater");
         }
         if !updater_location.exists() {
             println!("Updater not found, downloading updater");
-            get_updater(updater_location.display().to_string())?;
+            updater::get_updater(updater_location.display().to_string())?;
             let resp: Value = serde_json::from_str(
                 &networking::get_url(
                     "https://arihant2math.github.io/weathercli/index.json",
@@ -143,25 +161,49 @@ pub fn update(force: bool) -> crate::Result<()> {
             }
             if crate::util::hash_file(&updater_location.display().to_string())? != web_hash || force
             {
-                get_updater(updater_location.display().to_string())?;
+                updater::get_updater(updater_location.display().to_string())?;
             }
+            drop(resp); // Dropping to reduce memory leakage
             println!("Starting updater and exiting");
+            let mut command = std::process::Command::new(updater_location.as_os_str());
             if force {
-                std::process::Command::new(updater_location.display().to_string())
-                    .arg("--force")
-                    .spawn()
-                    .expect("spawn failed");
-            } else {
-                std::process::Command::new(updater_location.display().to_string())
-                    .spawn()
-                    .expect("spawn failed");
+                command.arg("--force").spawn()?;
             }
+            else {
+                command.spawn()?;
+            }
+            std::process::abort();
         }
     }
     Ok(())
 }
 
 pub fn credits() {
-    println!("Backends:\nMeteo - https://open-meteo.com\nOpen Weather Map - https://openweathermap.org/\nNWS - weather.gov");
-    println!("Icons from Icons8: https://icons8.com/");
+    println!("Backends:
+    Meteo - https://open-meteo.com
+    Open Weather Map - https://openweathermap.org/
+    NWS - https://weather.gov");
+    if cfg!(feature = "gui") || cfg!(windows) {
+        println!("Icons from Icons8: https://icons8.com/");
+    }
 }
+
+pub fn layout(arg: LayoutOpts) -> crate::Result<()> {
+    match arg {
+        LayoutOpts::Install(opts) => layout_commands::install(opts.path)?,
+        LayoutOpts::List => layout_commands::list()?,
+        LayoutOpts::Select => layout_commands::select()?,
+        LayoutOpts::Delete => layout_commands::delete()?
+    };
+    Ok(())
+}
+
+pub fn custom_backend(arg: BackendOpts) -> crate::Result<()> {
+    match arg {
+        BackendOpts::Install(opts) => backend::install(opts.path)?,
+        BackendOpts::List => backend::list()?,
+        BackendOpts::Delete => backend::delete()?
+    }
+    Ok(())
+}
+

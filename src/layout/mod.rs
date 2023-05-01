@@ -8,7 +8,7 @@ use crate::local::weather_file::WeatherFile;
 
 mod image_to_text;
 mod layout_item;
-mod layout_json;
+pub mod layout_json;
 mod layout_row;
 pub mod util;
 
@@ -43,11 +43,18 @@ fn reemit_layout_error(e: Error, count: usize) -> Error {
     }
 }
 
+fn deserialize_file(file: WeatherFile) -> crate::Result<LayoutJSON> {
+    Ok(match file.path.extension().unwrap_or("res".as_ref()).to_str().unwrap() {
+        "json" => serde_json::from_str(&*file.get_text()?)?,
+        _ => bincode::deserialize(&*file.data)?
+    })
+}
+
 impl LayoutFile {
     pub fn new(path: String) -> crate::Result<Self> {
         // Error here means default unless its default.json
         let file = WeatherFile::new(&("layouts/".to_string() + &path))?;
-        let file_data: LayoutJSON = serde_json::from_str(&file.get_text()?)?;
+        let file_data: LayoutJSON = deserialize_file(file)?;
         if file_data.version.is_none() {
             return Err(Error::LayoutError(LayoutErr {
                 message: "Invalid Layout, missing key 'version'".to_string(),

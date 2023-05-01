@@ -113,7 +113,7 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<Coordinat
         return Ok(match attempt_cache {
             Err(_e) => {
                 let location = get_location_core(no_sys_loc)?;
-                cache::write("current_location", &format!("{},{}", location.latitude, location.longitude));
+                cache::write("current_location", &format!("{},{}", location.latitude, location.longitude)).unwrap();
                 location
             }
             Ok(ca) => {
@@ -153,7 +153,7 @@ pub fn geocode(query: String, bing_maps_api_key: String) -> crate::Result<Coordi
                 cache::write(
                     &("location".to_string() + &query.to_lowercase()),
                     &v,
-                );
+                ).unwrap();
             });
             Ok(real_coordinate)
         }

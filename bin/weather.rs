@@ -10,13 +10,12 @@ use log4rs::Config;
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 
-use weather_core::cli::{App, CacheOpts, Command, Datasource, datasource_from_str};
-use weather_core::cli::commands::{credits, setup, update, weather};
+use weather_core::cli::{Datasource, datasource_from_str};
+use weather_core::cli::arguments::{App, Command};
+use weather_core::cli::commands::{cache, credits, custom_backend, layout, setup, update, weather};
 use weather_core::dynamic_loader::ExternalBackends;
-use weather_core::local::cache::prune;
 use weather_core::local::dirs::weathercli_dir;
 use weather_core::local::settings::Settings;
-use weather_core::local::weather_file::WeatherFile;
 use weather_core::location;
 use weather_core::now;
 
@@ -53,7 +52,7 @@ fn main() -> weather_core::Result<()> {
     if settings.internal.debug || args.global_opts.debug {
         let level = LevelFilter::Info;
         let mut file_path = weathercli_dir()?.join("logs");
-        file_path.push(format!("{}.log", now().to_string()));
+        file_path.push(format!("{}.log", now()));
         // Build a stderr logger.
         let stderr = ConsoleAppender::builder()
             .target(Target::Stderr)
@@ -100,7 +99,7 @@ fn main() -> weather_core::Result<()> {
         &args
             .global_opts
             .datasource
-            .unwrap_or(settings.internal.default_backend.clone()),
+            .unwrap_or_else(|| settings.internal.default_backend.clone()),
     );
     let mut custom_backends = ExternalBackends::default();
     if settings.internal.enable_custom_backends
@@ -133,19 +132,9 @@ fn main() -> weather_core::Result<()> {
                 )?,
                 Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value)?,
                 Command::Settings => weather_core::open_settings_app(),
-                Command::Cache(opts) => {
-                    match opts {
-                         CacheOpts::Clear => {
-                            let mut f = WeatherFile::new("d.cache")?;
-                            f.data = Vec::new();
-                            f.write()?;
-                            let mut f = WeatherFile::new("f.cache")?;
-                            f.data = Vec::new();
-                            f.write()?;
-                        }
-                        CacheOpts::Prune => prune()?,
-                    }
-                },
+                Command::Cache(arg) => cache(arg)?,
+                Command::Layout(arg) => layout(arg)?,
+                Command::CustomBackend(arg) => custom_backend(arg)?,
                 Command::Setup => setup(settings)?,
                 Command::Update(opts) => update(opts.force)?,
                 Command::Credits => credits(),

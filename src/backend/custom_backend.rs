@@ -47,10 +47,10 @@ pub trait PluginRegistrar {
 macro_rules! export_plugin {
     ($register:expr) => {
         #[no_mangle]
-        pub static plugin_declaration: weather_core::custom_backend::PluginDeclaration =
+        pub static plugin_declaration: weather_core::backend::custom_backend::PluginDeclaration =
             weather_core::custom_backend::PluginDeclaration {
-                rustc_version: weather_core::custom_backend::RUSTC_VERSION,
-                core_version: weather_core::custom_backend::CORE_VERSION,
+                rustc_version: weather_core::backend::custom_backend::RUSTC_VERSION,
+                core_version: weather_core::backend::custom_backend::CORE_VERSION,
                 register: $register,
             };
     };

@@ -4,8 +4,8 @@ use libloading::Library;
 use log::{debug, error, trace};
 
 use crate::backend::weather_forecast::WeatherForecast;
-use crate::custom_backend;
-use crate::custom_backend::{InvocationError, PluginDeclaration, WeatherForecastPlugin};
+use crate::backend::custom_backend;
+use crate::backend::custom_backend::{InvocationError, PluginDeclaration, WeatherForecastPlugin};
 use crate::error::Error;
 use crate::local::settings::Settings;
 

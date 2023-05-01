@@ -2,7 +2,7 @@ use std::fmt;
 use std::fmt::Debug;
 use bincode::ErrorKind;
 
-use crate::custom_backend::InvocationError;
+use crate::backend::custom_backend::InvocationError;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct LayoutErr {

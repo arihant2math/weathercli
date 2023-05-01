@@ -7,7 +7,7 @@ const fn _true() -> bool {
 }
 
 fn _default_layout() -> String {
-    String::from("default.json")
+    String::from("default.res")
 }
 
 const fn _default_daemon_update_interval() -> i64 {

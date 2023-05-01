@@ -74,18 +74,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'windows')
         with:
-          name: GUI installer (Windows)
-          path: ./target/release/gui_installer.exe
-
-      - uses: actions/upload-artifact@v3
-        if: startsWith(matrix.os, 'ubuntu')
-        with:
-          name: GUI installer (Linux)
-          path: ./target/release/gui_installer
-
-      - uses: actions/upload-artifact@v3
-        if: startsWith(matrix.os, 'windows')
-        with:
           name: weather (Windows)
           path: ./target/release/weather.exe
 

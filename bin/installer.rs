@@ -8,8 +8,8 @@ use winreg::enums::*;
 use winreg::RegKey;
 
 use weather_core::bin_common::update_component;
-use weather_core::component_updater::update_web_resources;
 use weather_core::CONFIG;
+use weather_core::updater::resource_updater::update_web_resources;
 
 #[derive(Clone, Parser)]
 struct Cli {

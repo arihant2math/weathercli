@@ -15,9 +15,7 @@ impl WeatherCondition {
         let code = weather_codes
             .get(&condition_id.to_string()).ok_or("No such condition")?;
         let sentence = code[3].clone();
-        let image_url = String::from("https://openweathermap.org/img/wn/")
-            + &code[2]
-            + "@4x.png";
+        let image_url = format!("https://openweathermap.org/img/wn/{}@4x.png", &code[2]);
         let image_ascii = code[4].clone();
         Ok(Self {
             condition_id,

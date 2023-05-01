@@ -6,6 +6,7 @@ use std::io::Write;
 use clap::{Args, Parser, Subcommand};
 
 use crate::update_hash::update_hash;
+use weather_core::layout::layout_json::LayoutJSON;
 
 mod update_docs;
 mod update_hash;
@@ -58,6 +59,7 @@ fn build_docs() -> weather_core::Result<()> {
     fs::copy("./docs_templates/theme.js", "./docs/theme.js")?;
     fs::copy("./docs_templates/weather_ascii_images.res", "./docs/weather_ascii_images.res")?;
     fs::copy("./docs_templates/weather_codes.res", "./docs/weather_codes.res")?;
+    fs::copy("./docs_templates/default_layout.res", "./docs/default_layout.res")?;
     println!("Done!");
     Ok(())
 }
@@ -71,6 +73,11 @@ fn compile_json() -> weather_core::Result<()> {
     f.write_all(&*v)?;
     let path = "./docs_templates/weather_ascii_images";
     let d: HashMap<String, Vec<String>> = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
+    let v = bincode::serialize(&d)?;
+    let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
+    f.write_all(&*v)?;
+    let path = "./docs_templates/default_layout";
+    let d: LayoutJSON = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
     let v = bincode::serialize(&d)?;
     let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
     f.write_all(&*v)?;

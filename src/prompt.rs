@@ -4,7 +4,7 @@ use std::time::Duration;
 use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 
-fn draw(options: &[&str], choice: usize, multiline: bool) -> String {
+fn draw<S: AsRef<str>>(options: &[S], choice: usize, multiline: bool) -> String {
     assert!(options.len() > choice);
     let mut result = String::new();
     if multiline {
@@ -14,7 +14,7 @@ fn draw(options: &[&str], choice: usize, multiline: bool) -> String {
             } else {
                 result += "\x1b[34m  ";
             }
-            result += option;
+            result += option.as_ref();
             result += "\x1b[39m";
             result += "\n";
         }
@@ -25,7 +25,7 @@ fn draw(options: &[&str], choice: usize, multiline: bool) -> String {
             } else {
                 result += "\x1b[34m";
             }
-            result += option;
+            result += option.as_ref();
             result += "\x1b[39m";
             result += " ";
         }
@@ -33,7 +33,7 @@ fn draw(options: &[&str], choice: usize, multiline: bool) -> String {
     result
 }
 
-pub fn choice(options: &[&str], default: usize, multiline: Option<bool>) -> crate::Result<usize> {
+pub fn choice<S: AsRef<str>>(options: &[S], default: usize, multiline: Option<bool>) -> crate::Result<usize> {
     read()?;
     let multiline_standard = multiline.unwrap_or(true);
     thread::sleep(Duration::from_millis(100));
@@ -66,7 +66,7 @@ pub fn choice(options: &[&str], default: usize, multiline: Option<bool>) -> crat
                 code: KeyCode::Char('c'),
                 modifiers: KeyModifiers::CONTROL,
                 ..
-            }) => panic!("Control-C pressed"),
+            }) => {disable_raw_mode()?; panic!("Control-C pressed")}, // TODO: return an error instead?
             Event::Key(KeyEvent {
                 code: KeyCode::Enter,
                 ..
