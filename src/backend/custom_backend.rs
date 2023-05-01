@@ -10,7 +10,7 @@ pub trait WeatherForecastPlugin {
     fn name(&self) -> Option<&str> {
         None
     }
-
+    // TODO: Use all this data
     /// Help text that may be used to display information about this function.
     fn help(&self) -> Option<&str> {
         None

@@ -85,7 +85,7 @@ impl WeatherForecastPlugin for TheWeatherChannel {
         Some("theweatherchannel")
     }
 
-    fn help(&self) -> Option<&str> { // TODO: Fix
-        Some("A weather channel scraper")
+    fn help(&self) -> Option<&str> {
+        Some("A weather channel scraper (weather.com)")
     }
 }

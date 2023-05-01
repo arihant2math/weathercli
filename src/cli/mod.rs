@@ -1,5 +1,3 @@
-use clap::{Args, Parser, Subcommand};
-
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::layout::LayoutFile;
 

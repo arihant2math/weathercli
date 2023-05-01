@@ -1,4 +1,4 @@
-use clap::{Args, Parser, Subcommand};
+use clap::Args;
 
 #[derive(Clone, Args)]
 pub struct GlobalOpts {
