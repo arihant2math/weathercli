@@ -1,3 +1,4 @@
+use base64::Engine;
 use crate::error::{Error, ErrorKind};
 
 /// Proxy protocol
@@ -131,7 +132,7 @@ impl Proxy {
 
     pub(crate) fn connect<S: AsRef<str>>(&self, host: S, port: u16) -> String {
         let authorization = if self.use_authorization() {
-            let creds = base64::encode(format!(
+            let creds = base64::engine::general_purpose::STANDARD.encode(format!(
                 "{}:{}",
                 self.user.clone().unwrap_or_default(),
                 self.password.clone().unwrap_or_default()
