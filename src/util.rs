@@ -11,9 +11,8 @@ pub fn hash_file(filename: &str) -> crate::Result<String> {
 }
 
 pub fn list_dir(dir: PathBuf) -> crate::Result<Vec<String>> {
-    let mut paths: Vec<String> = fs::read_dir(dir)?
-        .map(|f| f.unwrap().file_name().into_string().unwrap()).collect();
-    Ok(paths)
+    Ok(fs::read_dir(dir)?
+        .map(|f| f.unwrap().file_name().into_string().unwrap()).collect())
 }
 
 pub struct Config<'a> {

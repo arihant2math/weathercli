@@ -1,9 +1,11 @@
+use std::collections::HashMap;
 use crate::backend::meteo::meteo_weather_data::get_meteo_weather_data;
 use crate::backend::meteo::meteo_get_combined_data_formatted;
 use crate::backend::meteo::meteo_json::MeteoForecastJson;
 use crate::backend::weather_data::WeatherData;
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
+use crate::local::weather_file::WeatherFile;
 use crate::location;
 use crate::location::Coordinates;
 
@@ -92,11 +94,14 @@ pub fn get_meteo_forecast(
         .iter()
         .position(|r| *r == data.weather.current_weather.time)
         .expect("now not found");
+    let weather_file = WeatherFile::weather_codes()?;
+    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&*weather_file.data)?;
     let current = get_meteo_weather_data(
         data.weather.clone(),
         data.air_quality.clone(),
         now,
         settings.internal.metric_default,
+        weather_codes.clone()
     )?;
     forecast.push(current);
     for i in now + 1..data.weather.hourly.time.len() - 1 {
@@ -105,6 +110,7 @@ pub fn get_meteo_forecast(
             data.air_quality.clone(),
             i,
             settings.internal.metric_default,
+            weather_codes.clone()
         )?);
     }
     let region_country = location::reverse_geocode(coordinates)?;

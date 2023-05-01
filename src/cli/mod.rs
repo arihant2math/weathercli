@@ -1,4 +1,6 @@
+use crate::error;
 use crate::backend::weather_forecast::WeatherForecast;
+use crate::error::LayoutErr;
 use crate::layout::LayoutFile;
 
 pub mod commands;
@@ -34,7 +36,11 @@ fn print_out(
         if out.is_err() {
             out = LayoutFile::new("default.res".to_string());
         }
-        println!("{}", out?.to_string(data, metric)?);
+        println!("{}", out.map_err(|e| error::Error::LayoutError(LayoutErr {
+            message: e.to_string(),
+            row: None,
+            item: None
+        }))?.to_string(data, metric)?);
     }
     Ok(())
 }

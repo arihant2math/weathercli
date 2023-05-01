@@ -1,3 +1,6 @@
+// TODO: Arguments to add
+// - alternative to weather config
+// - warnings and downloads in weather config
 mod global;
 
 use clap::{Args, Parser, Subcommand};
@@ -35,6 +38,7 @@ pub enum Command {
 
 #[derive(Clone, Subcommand)]
 pub enum LayoutOpts {
+    #[command(about = "Install a layout")]
     Install(InstallOpts),
     List,
     Select,
@@ -43,8 +47,11 @@ pub enum LayoutOpts {
 
 #[derive(Clone, Subcommand)]
 pub enum BackendOpts {
+    #[command(about = "Install a custom backend")]
     Install(InstallOpts),
+    #[command(about = "List all installed custom backends")]
     List,
+    #[command(about = "Delete an installed custom backend")]
     Delete
 }
 

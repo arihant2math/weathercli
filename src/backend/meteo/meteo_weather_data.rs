@@ -11,9 +11,11 @@ pub fn get_meteo_weather_data(
     aqi: MeteoAirQualityJson,
     index: usize,
     metric: bool,
+    weather_codes: HashMap<String, Vec<String>>
 ) -> crate::Result<WeatherData> {
     let cloud_cover = data.hourly.cloudcover[index];
-    let conditions = get_conditions(data.clone(), metric, index, cloud_cover)?;
+    let conditions = get_conditions(
+        data.clone(), metric, index, cloud_cover, weather_codes)?;
     let d = WeatherData {
         time: now() as i128,
         temperature: data.current_weather.temperature,
@@ -44,9 +46,8 @@ fn get_conditions(
     metric: bool,
     index: usize,
     cloud_cover: u8,
+    weather_codes: HashMap<String, Vec<String>>
 ) -> crate::Result<Vec<WeatherCondition>> {
-    let weather_file = WeatherFile::weather_codes()?;
-    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&*weather_file.data)?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     if cloud_cover == 0 {
         conditions.push(WeatherCondition::new(800, &weather_codes)?);

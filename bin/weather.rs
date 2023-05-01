@@ -56,7 +56,7 @@ fn main() -> weather_core::Result<()> {
             let plugins: Vec<String> = path
                 .read_dir()
                 .expect("Reading the custom_backends dir failed")
-                .filter(|f| is_ext(f)) // We only care about files
+                .filter(is_ext) // We only care about files
                 .map(|f| f.unwrap().path().display().to_string())
                 .collect();
             debug!("Loading: {:?}", plugins);

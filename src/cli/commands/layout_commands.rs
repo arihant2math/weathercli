@@ -11,11 +11,11 @@ pub fn install(path: String) -> crate::Result<()> {
     let real_path = PathBuf::from_str(&*path).unwrap();
     let file_name = real_path.file_name().ok_or_else(|| "Not a file")?.to_str().unwrap();
     let ext = real_path.extension().unwrap_or("".as_ref());
-    if ext != ".res" && ext != ".json" {
-        return Err("File has to have an extension of either .res or .json")?;
+    if ext != ".res" {
+        return Err("File has to have an extension of .res")?;
     }
-    if file_name == "default.json" || file_name == "default.res" {
-        return Err("File name cannot be default.json or default.res,\
+    if file_name == "default.res" {
+        return Err("File name cannot be default.res,\
         as it conflicts with the default layout filename,\
         please rename the file and try again.")?; // TODO: Prompt for a new name?
     }

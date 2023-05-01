@@ -45,7 +45,7 @@ fn read_from_file() -> crate::Result<Vec<u8>> {
     Ok(buffer)
 }
 
-fn write_to_file(bytes: &Vec<u8>) -> crate::Result<()> {
+fn write_to_file(bytes: &[u8]) -> crate::Result<()> {
     let path = get_path()?;
     let mut file = File::options()
         .truncate(true)

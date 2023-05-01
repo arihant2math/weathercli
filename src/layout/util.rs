@@ -1,3 +1,6 @@
+use std::fs;
+use std::io::Write;
+use regex::Regex;
 use crate::color;
 
 pub fn color_aqi(aqi: u8) -> crate::Result<String> {
@@ -7,4 +10,28 @@ pub fn color_aqi(aqi: u8) -> crate::Result<String> {
         _ => color::FORE_GREEN.to_string() + &aqi.to_string(),
     })
 }
+
+fn url_validator(u: &str) -> bool {
+    let r = Regex::new(r"https?://(www\d?\.)?\w+\.\w+").expect("Regex failed (bug)");
+    r.is_match(u)
+}
+
+pub fn image(source: String, scale: f64) -> crate::Result<String> {
+    let is_url = url_validator(&source);
+    if is_url {
+        let response = crate::networking::get_url(&source, None, None, None)?;
+        let mut f = fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open("temp.img")?;
+        f.write_all(&response.bytes)?;
+        return crate::layout::image_to_text::ascii_image(
+            "temp.img",
+            scale,
+        );
+    }
+    Err("source is not a url".to_string())? // TODO: Fix
+}
+
 // TODO: Implement to_ascii and rainbow

@@ -6,13 +6,14 @@ use std::io::Write;
 use clap::{Args, Parser, Subcommand};
 
 use crate::update_hash::update_hash;
-use weather_core::layout::layout_json::LayoutJSON;
 
 mod update_docs;
 mod update_hash;
+mod default_layout;
+mod layout;
 
 #[derive(Clone, Parser)]
-#[command(version, author, about, name = "weathercli")]
+#[command(version, author, about, name = "dev-scripts")]
 pub struct App {
     #[command(subcommand)]
     pub command: Command,
@@ -66,19 +67,22 @@ fn build_docs() -> weather_core::Result<()> {
 
 
 fn compile_json() -> weather_core::Result<()> {
+    println!("Compile weather_codes");
     let path = "./docs_templates/weather_codes";
     let d: HashMap<String, Vec<String>> = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
     let v = bincode::serialize(&d)?;
     let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
     f.write_all(&*v)?;
+    println!("Compiling weather_ascii_images");
     let path = "./docs_templates/weather_ascii_images";
     let d: HashMap<String, Vec<String>> = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
     let v = bincode::serialize(&d)?;
     let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
     f.write_all(&*v)?;
+    println!("Compiling default_layout");
     let path = "./docs_templates/default_layout";
-    let d: LayoutJSON = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
-    let v = bincode::serialize(&d)?;
+    let d = default_layout::get_default_layout();
+    let v = bincode::serialize(&layout::compile_layout(d)?)?;
     let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
     f.write_all(&*v)?;
     Ok(())
@@ -87,7 +91,7 @@ fn compile_json() -> weather_core::Result<()> {
 fn index_hashes() -> weather_core::Result<()> {
     update_hash("./docs_templates/weather_codes.res", "weather-codes-hash")?;
     update_hash("./docs_templates/weather_ascii_images.res", "weather-ascii-images-hash")?;
-    update_hash("./docs_templates/default_layout.json", "default-layout-hash")?;
+    update_hash("./docs_templates/default_layout.res", "default-layout-hash")?;
     update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")?;
     update_hash("./docs_templates/weather", "weather-exe-hash-unix")?;
     update_hash("./docs_templates/updater.exe", "updater-exe-hash-windows")?;

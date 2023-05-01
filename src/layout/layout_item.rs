@@ -1,14 +1,9 @@
-use std::collections::HashMap;
-use std::fs;
-use std::io::Write;
-
-use regex::Regex;
 use serde_json::Value;
 
 use crate::color;
 use crate::error::LayoutErr;
-use crate::layout::layout_json::{ItemEnum, ItemJSON};
 use crate::layout::{LayoutSettings, util};
+use crate::layout::layout_serde::ItemJSON;
 
 pub struct Item {
     data: ItemJSON,
@@ -18,100 +13,11 @@ fn round(f: f64) -> String {
     format!("{f:.1}")
 }
 
-fn url_validator(u: &str) -> bool {
-    let r = Regex::new(r"https?://(www\d?\.)?\w+\.\w+").expect("Regex failed (bug)");
-    r.is_match(u)
-}
-
 impl Item {
-    pub fn new(i: ItemEnum) -> Self {
-        match i {
-            ItemEnum::ItemString(s) => Self::from_str(&s),
-            ItemEnum::ItemFloat(f) => Self::from_str(&f.to_string()),
-            ItemEnum::ItemInt(i) => Self::from_str(&i.to_string()),
-            ItemEnum::Item(i) => Self::from_item_json(i),
+    pub fn new(i: ItemJSON) -> Self {
+        Self {
+            data: i
         }
-    }
-
-    pub fn from_str(s: &str) -> Self {
-        let mut new_s: String = s.to_string();
-        if !new_s.is_empty() {
-            if new_s.chars().next().expect("Oth char expected") == '@' {
-                new_s = new_s[1..].to_string();
-                let splt: Vec<&str> = new_s.split('|').collect();
-                let mut metric: Option<String> = None;
-                let mut imperial: Option<String> = None;
-                if splt.len() == 2 {
-                    metric = Some(splt[1].to_string());
-                    imperial = Some(splt[1].to_string());
-                } else if splt.len() == 3 {
-                    imperial = Some(splt[1].to_string());
-                    metric = Some(splt[2].to_string());
-                }
-                return Self::from_item_json(ItemJSON {
-                    item_type: "variable".to_string(),
-                    color: None,
-                    bg_color: None,
-                    metric,
-                    imperial,
-                    unit_color: None,
-                    value: splt[0].to_string(),
-                    args: None,
-                    kwargs: None,
-                    scale: None,
-                });
-            } else if new_s.chars().next().expect("Oth char expected") == '#' {
-                new_s = new_s[1..].to_string();
-                let mut split: Vec<&str> = new_s.split('|').collect();
-                let value = split[0];
-                split.remove(0);
-                let mut args: Vec<ItemEnum> = Vec::new();
-                let mut kwargs: HashMap<String, ItemEnum> = HashMap::new();
-                for item in split {
-                    if item.contains('=') {
-                        let temp_item = item.to_string();
-                        let kwarg: Vec<&str> = temp_item.split('=').collect();
-                        kwargs.insert(
-                            kwarg[0].to_string(),
-                            ItemEnum::ItemString(kwarg[1].to_string()),
-                        );
-                    } else {
-                        args.push(ItemEnum::ItemString(item.to_string()));
-                    }
-                }
-                let item: ItemJSON = ItemJSON {
-                    item_type: "function".to_string(),
-                    color: None,
-                    bg_color: None,
-                    metric: None,
-                    imperial: None,
-                    unit_color: None,
-                    value: value.to_string(),
-                    args: Some(args),
-                    kwargs: Some(kwargs),
-                    scale: None,
-                };
-                return Self::from_item_json(item);
-            } else if new_s.chars().next().expect("Oth char expected") == '\\' {
-                new_s = new_s[1..].to_string();
-            }
-        }
-        Self::from_item_json(ItemJSON {
-            item_type: "text".to_string(),
-            color: None,
-            bg_color: None,
-            metric: None,
-            imperial: None,
-            unit_color: None,
-            value: new_s,
-            args: None,
-            kwargs: None,
-            scale: None,
-        })
-    }
-
-    pub fn from_item_json(i: ItemJSON) -> Self {
-        Self { data: i }
     }
 
     fn get_variable_value(&self, data: &Value) -> crate::Result<String> {
@@ -168,6 +74,10 @@ impl Item {
                     .parse()
                     .unwrap_or(0),
             ),
+            "image" => util::image(
+                Self::new(args[0].clone()).get_value(data)?.parse().unwrap(),
+                Self::new(args[1].clone()).get_value(data)?.parse().unwrap_or(1.),
+            ),
             _ => Err(crate::error::Error::LayoutError(LayoutErr {
                 message: "Function not found".to_string(),
                 row: None,
@@ -215,23 +125,6 @@ impl Item {
         } else if self.data.item_type == "function" {
             let value = self.get_function_value(data)?;
             return Ok(format!("{item_color_string}{value}"));
-        } else if self.data.item_type == "image" {
-            let source = Self::from_str(&self.data.value).get_value(data)?;
-            let is_url = url_validator(&source);
-            if is_url {
-                let response = crate::networking::get_url(&source, None, None, None)?;
-                let mut f = fs::OpenOptions::new()
-                    .write(true)
-                    .truncate(true)
-                    .create(true)
-                    .open("temp.img")?;
-                f.write_all(&response.bytes)?;
-                return crate::layout::image_to_text::ascii_image(
-                    "temp.img",
-                    self.data.scale.unwrap_or(1.0),
-                );
-            }
-            Err("source is not a url".to_string())?; // TODO: Fix
         }
         Ok(String::new())
     }

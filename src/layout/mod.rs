@@ -1,26 +1,17 @@
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::color;
 use crate::error::{Error, LayoutErr};
-use crate::layout::layout_json::RowEnum::{RowString, RowVec};
-use crate::layout::layout_json::{LayoutDefaultsJSON, LayoutJSON};
 use crate::layout::layout_row::Row;
+use crate::layout::layout_serde::LayoutDefaultsJSON;
 use crate::local::weather_file::WeatherFile;
 
 mod image_to_text;
-mod layout_item;
-pub mod layout_json;
+pub mod layout_item;
 mod layout_row;
 pub mod util;
+pub mod layout_serde;
 
-pub const VERSION: u64 = 10;
-pub const DEFAULT_LAYOUT_SETTINGS: LayoutDefaultsJSON = LayoutDefaultsJSON {
-    variable_color: None,
-    text_color: None,
-    unit_color: None,
-    variable_bg_color: None,
-    text_bg_color: None,
-    unit_bg_color: None,
-};
+pub const VERSION: u64 = 20;
 
 #[derive(Clone)]
 pub struct LayoutSettings {
@@ -48,110 +39,79 @@ fn reemit_layout_error(e: Error, count: usize) -> Error {
     }
 }
 
-fn deserialize_file(file: WeatherFile) -> crate::Result<LayoutJSON> {
-    Ok(match file.path.extension().unwrap_or("res".as_ref()).to_str().unwrap() {
-        "json" => serde_json::from_str(&*file.get_text()?)?,
-        _ => bincode::deserialize(&*file.data)?
-    })
+fn check_version(version: u64) -> crate::Result<()> {
+    if version > VERSION {
+        return Err(Error::LayoutError(LayoutErr {
+            message: format!(
+                "Version of layout file, {version}, is greater than the highest supported version {}",
+                VERSION
+            ),
+            row: None,
+            item: None,
+        }));
+    }
+    else if version <= 10  {
+        return Err(Error::LayoutError(LayoutErr {
+            message: "Layout Version too old (version 10 or earlier is not supported), defaulting"
+                .to_string(),
+            row: None,
+            item: None,
+        }));
+    }
+    Ok(())
 }
+
+fn get_layout_settings(data: LayoutDefaultsJSON) -> LayoutSettings {
+    let retrieved_settings = data;
+    let variable_color = color::from_string(
+        retrieved_settings.clone().variable_color
+    ).unwrap_or_default();
+    let text_color = color::from_string(
+        retrieved_settings.clone().text_color
+    ).unwrap_or_default();
+    let unit_color = color::from_string(
+        retrieved_settings.clone().unit_color
+    ).unwrap_or_default();
+    let variable_bg_color = color::from_string(
+        retrieved_settings.clone().variable_bg_color
+    ).unwrap_or_default();
+    let text_bg_color = color::from_string(
+        retrieved_settings.clone().text_bg_color
+    ).unwrap_or_default();
+    let unit_bg_color = color::from_string(
+            retrieved_settings.unit_bg_color
+        ).unwrap_or_default();
+    LayoutSettings {
+        variable_color,
+        text_color,
+        unit_color,
+        variable_bg_color,
+        text_bg_color,
+        unit_bg_color,
+    }
+}
+
 
 impl LayoutFile {
     pub fn new(path: String) -> crate::Result<Self> {
-        // Error here means default unless its default.json
         let file = WeatherFile::new(&("layouts/".to_string() + &path))?;
-        let file_data: LayoutJSON = deserialize_file(file)?;
-        if file_data.version.is_none() {
-            return Err(Error::LayoutError(LayoutErr {
-                message: "Invalid Layout, missing key 'version'".to_string(),
-                row: None,
-                item: None,
-            }));
-            // trace!("Invalid Layout, missing Key 'version', add it like this {\n\t... // Your json here\n\t"version": ' + str(self.version) + "\n}"")
-        } else if file_data.version.expect("version not found") > VERSION {
-            return Err(Error::LayoutError(LayoutErr {
-                message: format!(
-                    "Version of layout file, {}, is greater than the highest supported version {}",
-                    file_data.version.unwrap_or(0),
-                    VERSION
-                ),
-                row: None,
-                item: None,
-            }));
-        } else if file_data.version.expect("version not found") < 1 {
-            return Err(Error::LayoutError(LayoutErr {
-                message: "Layout Version too old (version 0 is not supported), defaulting"
-                    .to_string(),
-                row: None,
-                item: None,
-            }));
+        let ext = file.path.extension().unwrap_or_else(|| "res".as_ref()).to_str().unwrap();
+        if ext == "res" {
+            return Self::from_serde(bincode::deserialize(&file.data)?);
         }
-        let retrieved_settings = file_data
-            .defaults
-            .clone()
-            .unwrap_or(DEFAULT_LAYOUT_SETTINGS);
-        let variable_color = color::from_string(
-            retrieved_settings
-                .clone()
-                .variable_bg_color
-                .unwrap_or("FORE_LIGHTGREEN".to_string()),
-        )
-        .expect("Invalid color");
-        let text_color = color::from_string(
-            retrieved_settings
-                .clone()
-                .variable_bg_color
-                .unwrap_or("FORE_LIGHTBLUE".to_string()),
-        )
-        .expect("Invalid color");
-        let unit_color = color::from_string(
-            retrieved_settings
-                .clone()
-                .variable_bg_color
-                .unwrap_or("FORE_MAGENTA".to_string()),
-        )
-        .expect("Invalid color");
-        let variable_bg_color = color::from_string(
-            retrieved_settings
-                .clone()
-                .variable_bg_color
-                .unwrap_or("BACK_RESET".to_string())
-        )
-        .unwrap_or_default();
-        let text_bg_color = color::from_string(
-            retrieved_settings
-                .clone()
-                .variable_bg_color
-                .unwrap_or("BACK_RESET".to_string()),
-        )
-        .unwrap_or_default();
-        let unit_bg_color =
-            color::from_string(retrieved_settings.variable_bg_color.unwrap_or_default())
-                .unwrap_or("BACK_RESET".to_string());
-        if file_data.layout.is_none() {
-            return Err(LayoutErr {
-                message: "Layout key not found".to_string(),
-                row: None,
-                item: None,
-            })?;
-        }
-        let layout = file_data.layout.unwrap();
+        Err("Layout file does not have an extension of .res")?
+    }
+
+    fn from_serde(file_data: layout_serde::LayoutJSON) -> crate::Result<Self> {
+        check_version(file_data.version)?;
+        let layout = file_data.layout;
         let mut internal_layout: Vec<Row> = Vec::new();
         for (_count, row) in layout.iter().enumerate() {
-            match row.clone() {
-                RowString(payload) => internal_layout.push(Row::from_str(&payload)),
-                RowVec(payload) => internal_layout.push(Row::from_vec(payload)),
-            }
+            internal_layout.push(Row::new(row));
         }
         Ok(Self {
             layout: internal_layout,
-            settings: LayoutSettings {
-                variable_color,
-                text_color,
-                unit_color,
-                variable_bg_color,
-                text_bg_color,
-                unit_bg_color,
-            }
+            settings: get_layout_settings(file_data.defaults)
         })
     }
 

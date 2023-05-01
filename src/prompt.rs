@@ -1,9 +1,10 @@
-use std::thread;
+use std::{io, thread};
+use std::io::Write;
 use std::time::Duration;
 
 use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-use crate::error;
+use crate::{color, error};
 
 fn draw<S: AsRef<str>>(options: &[S], choice: usize, multiline: bool) -> String {
     assert!(options.len() > choice);
@@ -11,7 +12,8 @@ fn draw<S: AsRef<str>>(options: &[S], choice: usize, multiline: bool) -> String 
     if multiline {
         for (count, option) in options.iter().enumerate() {
             if count == choice {
-                result += "\x1b[35m> \x1b[32m";
+                result += color::FORE_MAGENTA;
+                result += "> \x1b[32m";
             } else {
                 result += "\x1b[34m  ";
             }
@@ -22,9 +24,9 @@ fn draw<S: AsRef<str>>(options: &[S], choice: usize, multiline: bool) -> String 
     } else {
         for (count, option) in options.iter().enumerate() {
             if count == choice {
-                result += "\x1b[32m";
+                result += color::FORE_GREEN;
             } else {
-                result += "\x1b[34m";
+                result += color::FORE_BLUE;
             }
             result += option.as_ref();
             result += "\x1b[39m";
@@ -35,15 +37,16 @@ fn draw<S: AsRef<str>>(options: &[S], choice: usize, multiline: bool) -> String 
 }
 
 pub fn choice<S: AsRef<str>>(options: &[S], default: usize, multiline: Option<bool>) -> crate::Result<usize> {
-    read()?;
-    let multiline_standard = multiline.unwrap_or(true);
+    let multiline_standard = multiline.unwrap_or(true); // TODO: Fix occasional no display bug
     thread::sleep(Duration::from_millis(100));
-    // entering raw mode
-    enable_raw_mode()?;
+    read()?;
     let start_msg = draw(options, default, multiline_standard);
     print!("{start_msg}");
+    io::stdout().flush()?;
+    // entering raw mode
+    enable_raw_mode()?;
     let mut choice = default;
-    //key detection
+    // key detection
     loop {
         print!("\x1b[1000D");
         if multiline_standard {
@@ -52,6 +55,7 @@ pub fn choice<S: AsRef<str>>(options: &[S], default: usize, multiline: Option<bo
             print!("\x1b[1A");
         }
         print!("{}", draw(options, choice, multiline_standard));
+        io::stdout().flush()?;
         read()?;
         // matching the key
         match read()? {

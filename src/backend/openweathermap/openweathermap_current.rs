@@ -5,15 +5,13 @@ use crate::backend::openweathermap::openweathermap_json::{
 use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherData};
 use crate::backend::WindData;
-use crate::local::weather_file::WeatherFile;
 use crate::now;
 
 pub fn get_openweathermap_current(
     data: OpenWeatherMapJson,
     aqi: OpenWeatherMapAirQualityJson,
+    weather_codes: HashMap<String, Vec<String>>
 ) -> crate::Result<WeatherData> {
-    let weather_file = WeatherFile::weather_codes()?;
-    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&*weather_file.data)?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     for condition in data.weather.clone() {
         conditions.push(WeatherCondition::new(

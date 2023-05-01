@@ -8,9 +8,8 @@ use crate::now;
 
 pub fn get_openweathermap_future(
     data: OpenWeatherMapForecastItemJson,
+    weather_codes: HashMap<String, Vec<String>>
 ) -> crate::Result<WeatherData> {
-    let weather_file = WeatherFile::weather_codes()?;
-    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&*weather_file.data)?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     for condition in data.weather.clone() {
         conditions.push(WeatherCondition::new(

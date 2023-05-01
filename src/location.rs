@@ -189,7 +189,7 @@ pub fn reverse_geocode(coordinates: Coordinates) -> crate::Result<[String; 2]> {
             }
             let v = region.to_string() + ",?`|" + &country;
             thread::spawn(move || {
-                cache::write(&k, &v);
+                cache::write(&k, &v).unwrap_or_default();
             });
             Ok([region.to_string(), country])
         }

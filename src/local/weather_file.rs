@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::PathBuf;
+use log::trace;
 
 use crate::local::dirs::weathercli_dir;
 
@@ -14,6 +15,7 @@ pub struct WeatherFile {
 
 impl WeatherFile {
     pub fn new(file_name: &str) -> crate::Result<Self> {
+        trace!("Opening {file_name}");
         let mut path = weathercli_dir().expect("expect home dir");
         let mut exists = true;
         path.push(file_name);
@@ -38,13 +40,13 @@ impl WeatherFile {
             .truncate(true)
             .open(self.path.display().to_string())?;
         let mut f = BufWriter::new(f);
-        f.write_all(&*self.data)?;
+        f.write_all(&self.data)?;
         f.flush()?;
         Ok(())
     }
 
     pub fn get_text(&self) -> crate::Result<String> {
-        return Ok(String::from_utf8(self.data.clone()).map_err(|_e| "Failed to convert bytes to string")?);
+        Ok(String::from_utf8(self.data.clone()).map_err(|_e| "Failed to convert bytes to string")?)
     }
 
     pub fn settings() -> crate::Result<Self> {

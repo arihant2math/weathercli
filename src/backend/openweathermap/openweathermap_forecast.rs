@@ -1,9 +1,11 @@
+use std::collections::HashMap;
 use crate::backend;
 use crate::backend::openweathermap::openweathermap_current::get_openweathermap_current;
 use crate::backend::openweathermap::openweathermap_future::get_openweathermap_future;
 use crate::backend::weather_data::WeatherData;
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
+use crate::local::weather_file::WeatherFile;
 use crate::location::Coordinates;
 
 fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {
@@ -69,12 +71,15 @@ pub fn get_openweathermap_forecast(
         settings.internal.metric_default,
     )?;
     let mut forecast: Vec<WeatherData> = Vec::new();
+    let weather_file = WeatherFile::weather_codes()?;
+    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&*weather_file.data)?;
     forecast.push(get_openweathermap_current(
         data.weather.clone(),
         data.air_quality.clone(),
+        weather_codes.clone()
     )?);
     for item in data.forecast.list {
-        forecast.push(get_openweathermap_future(item)?);
+        forecast.push(get_openweathermap_future(item, weather_codes.clone())?);
     }
     let forecast_sentence = get_forecast_sentence(forecast.clone());
     Ok(WeatherForecast {

@@ -4,7 +4,7 @@ use serde_json::Value;
 
 use crate::local::weather_file::WeatherFile;
 use crate::util::hash_file;
-use crate::networking;
+use crate::{color, networking};
 
 /// Updates the web resource at `$weathercli_dir/$local_path` if the hash of the local file does not match with
 /// the hash at index.json of the index name, if the hashes do not match it download a copy and replaces the existing file
@@ -29,9 +29,9 @@ fn update_web_resource(
         debug!("name: {name} web: {web_hash} file: {file_hash}");
         if !quiet {
             if f.exists {
-                println!("\x1b[33mDownloading {out_name} update");
+                println!("{}Downloading update for{out_name}", color::FORE_YELLOW);
             } else {
-                println!("\x1b[33mDownloading {out_name}");
+                println!("{}Downloading {out_name}", color::FORE_YELLOW);
             }
         }
         let data = networking::get_url(web_path, None, None, None)?.text;
