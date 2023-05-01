@@ -2,28 +2,33 @@ use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use crate::color;
+use crate::dynamic_loader::is_valid_ext;
 use crate::local::dirs::{custom_backends_dir, weathercli_dir};
 use crate::local::settings::Settings;
 use crate::util::list_dir;
 
-pub fn install(path: String) -> crate::Result<()> { // TODO: Add validity checks
+pub fn install(path: String) -> crate::Result<()> { // TODO: Add validity checks (prompt user for permission first)
     let real_path = PathBuf::from_str(&*path).unwrap();
     let file_name = real_path.file_name().ok_or_else(|| "Not a file")?.to_str().unwrap();
+    if !is_valid_ext(file_name) {
+        return Err("Not a valid system extension, aborting")?
+    }
     fs::copy(&real_path, weathercli_dir()?.join("custom_backends").join(file_name))?;
     Ok(())
 }
 
 pub fn list(settings: Settings) -> crate::Result<()> {
     let paths = fs::read_dir(weathercli_dir()?.join("custom_backends"))?;
-    for path in paths { // TODO: Check which ones are valid
+    for path in paths { // TODO: Check which ones are valid (hard to do)
         let tmp = path?.file_name();
         let file_name = tmp.to_str().unwrap();
-        let valid = settings.internal.enable_custom_backends;
-        if valid {
-            println!("{}{file_name}", color::FORE_GREEN)
-        }
-        else {
-            println!("{}{file_name}", color::FORE_RED)
+        if is_valid_ext(file_name) {
+            let valid = settings.internal.enable_custom_backends;
+            if valid {
+                println!("{}{file_name}", color::FORE_GREEN)
+            } else {
+                println!("{}{file_name}", color::FORE_RED)
+            }
         }
     }
     Ok(())

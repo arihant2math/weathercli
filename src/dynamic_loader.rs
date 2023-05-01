@@ -9,6 +9,24 @@ use crate::backend::custom_backend::{InvocationError, PluginDeclaration, Weather
 use crate::error::Error;
 use crate::local::settings::Settings;
 
+#[cfg(target_os = "windows")]
+pub fn is_valid_ext(f: &str) -> bool {
+    let len = f.len();
+    &f[len - 4..] == ".dll"
+}
+
+#[cfg(target_os = "linux")]
+pub fn is_valid_ext(f: &str) -> bool {
+    let len = f.len();
+    &f[len - 3..] == ".so"
+}
+
+#[cfg(target_os = "macos")]
+pub fn is_valid_ext(f: &str) -> bool {
+    let len = f.len();
+    &f[len - 6..] == ".dylib"
+}
+
 pub fn load(paths: Vec<String>) -> ExternalBackends {
     let mut functions = ExternalBackends::new();
     unsafe {

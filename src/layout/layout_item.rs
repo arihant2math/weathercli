@@ -8,7 +8,7 @@ use serde_json::Value;
 use crate::color;
 use crate::error::LayoutErr;
 use crate::layout::layout_json::{ItemEnum, ItemJSON};
-use crate::layout::util;
+use crate::layout::{LayoutSettings, util};
 
 pub struct Item {
     data: ItemJSON,
@@ -188,43 +188,33 @@ impl Item {
     pub fn to_string(
         &self,
         data: &Value,
-        variable_color: String,
-        text_color: String,
-        unit_color: String,
-        variable_bg_color: String,
-        text_bg_color: String,
-        unit_bg_color: String,
+        settings: LayoutSettings,
         metric: bool,
     ) -> crate::Result<String> {
+        let text_color = settings.text_color;
+        let text_bg_color = settings.text_bg_color;
+        let variable_color = settings.variable_color;
+        let variable_bg_color = settings.variable_bg_color;
+        let unit_color = settings.unit_color;
+        let unit_bg_color = settings.unit_bg_color;
+        let item_color = color::from_string(self.data.color.clone().unwrap_or_default())
+            .unwrap_or_default();
+        let item_bg_color = color::from_string(self.data.bg_color.clone().unwrap_or_default())
+            .unwrap_or_default();
+        let item_color_string = item_color + &item_bg_color;
         if self.data.item_type == "text" {
-            return Ok(text_color
-                + &text_bg_color
-                + &self.data.color.clone().unwrap_or_default()
-                + &self.data.bg_color.clone().unwrap_or_default()
-                + &self.data.value);
+            return Ok(format!("{text_color}{text_bg_color}{item_color_string}{}", &self.data.value));
         } else if self.data.item_type == "variable" {
             let value = self.get_variable_value(data)?;
-            let s = variable_color
-                + &variable_bg_color
-                + &color::from_string(self.data.color.clone().unwrap_or_default())
-                    .unwrap_or_default()
-                + &color::from_string(self.data.bg_color.clone().unwrap_or_default())
-                    .unwrap_or_default()
-                + &value
-                + &unit_color
-                + &unit_bg_color
-                + &self.data.unit_color.clone().unwrap_or_default();
+            let s = format!("{variable_color}{variable_bg_color}{item_color_string}{value}{unit_color}{unit_bg_color}");
             return if metric {
-                // TODO: Fix color mess
                 Ok(s + &self.data.metric.clone().unwrap_or_default())
             } else {
                 Ok(s + &self.data.imperial.clone().unwrap_or_default())
             };
         } else if self.data.item_type == "function" {
             let value = self.get_function_value(data)?;
-            return Ok(self.data.color.clone().unwrap_or_default()
-                + &self.data.bg_color.clone().unwrap_or_default()
-                + &value);
+            return Ok(format!("{item_color_string}{value}"));
         } else if self.data.item_type == "image" {
             let source = Self::from_str(&self.data.value).get_value(data)?;
             let is_url = url_validator(&source);

@@ -2,45 +2,19 @@ use std::{fs, io};
 use std::mem::discriminant;
 
 use clap::Parser;
-use log::{debug, LevelFilter};
-use log4rs::append::console::{ConsoleAppender, Target};
-use log4rs::append::file::FileAppender;
-use log4rs::config::{Appender, Root};
-use log4rs::Config;
-use log4rs::encode::pattern::PatternEncoder;
-use log4rs::filter::threshold::ThresholdFilter;
+use log::debug;
 
+use weather_core::{init_logging, location};
 use weather_core::cli::{Datasource, datasource_from_str};
 use weather_core::cli::arguments::{App, Command};
 use weather_core::cli::commands::{cache, credits, custom_backend, layout, setup, update, weather};
-use weather_core::dynamic_loader::ExternalBackends;
+use weather_core::dynamic_loader::{ExternalBackends, is_valid_ext};
 use weather_core::local::dirs::weathercli_dir;
 use weather_core::local::settings::Settings;
-use weather_core::location;
-use weather_core::now;
-
-/// TODO: Move this all elsewhere
-#[cfg(target_os = "windows")]
-fn is_valid_ext(f: &str) -> bool {
-    let len = f.len();
-    &f[len - 4..] == ".dll"
-}
-
-#[cfg(target_os = "linux")]
-fn is_valid_ext(f: &str) -> bool {
-    let len = f.len();
-    &f[len - 3..] == ".so"
-}
-
-#[cfg(target_os = "macos")]
-fn is_valid_ext(f: &str) -> bool {
-    let len = f.len();
-    &f[len - 6..] == ".dylib"
-}
 
 fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
     match f {
-        Err(_e) => false, // TODO: Re-emit error if needed
+        Err(_e) => false,
         Ok(dir) => {
             if dir.metadata().is_ok()
                 && dir.metadata().unwrap().is_file()
@@ -56,44 +30,8 @@ fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
 fn main() -> weather_core::Result<()> {
     let args = App::parse();
     let settings = Settings::new()?;
-    if settings.internal.debug || args.global_opts.debug { // TODO: move to seperate function
-        let level = LevelFilter::Info;
-        let mut file_path = weathercli_dir()?.join("logs");
-        file_path.push(format!("{}.log", now()));
-        // Build a stderr logger.
-        let stderr = ConsoleAppender::builder()
-            .target(Target::Stderr)
-            .encoder(Box::new(PatternEncoder::new("{m}\n")))
-            .build();
-        // Logging to log file.
-        let logfile = FileAppender::builder()
-            // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
-            .encoder(Box::new(PatternEncoder::new("[{l} {M} {d}] {m}\n")))
-            .build(file_path.as_os_str().to_str().unwrap())
-            .unwrap();
-
-        // Log Trace level output to file where trace is the default level
-        // and the programmatically specified level to stderr.
-        let config = Config::builder()
-            .appender(Appender::builder().build("logfile", Box::new(logfile)))
-            .appender(
-                Appender::builder()
-                    .filter(Box::new(ThresholdFilter::new(level)))
-                    .build("stderr", Box::new(stderr)),
-            )
-            .build(
-                Root::builder()
-                    .appender("logfile")
-                    .appender("stderr")
-                    .build(LevelFilter::Trace),
-            )
-            .unwrap();
-
-        // Use this to change log levels at runtime.
-        // This means you can change the default log level to trace
-        // if you are trying to debug an issue and need more logs on then turn it off
-        // once you are done.
-        let _handle = log4rs::init_config(config).unwrap();
+    if settings.internal.debug || args.global_opts.debug {
+        let _handle = init_logging();
     }
     let mut true_metric = settings.internal.metric_default;
     if args.global_opts.metric {

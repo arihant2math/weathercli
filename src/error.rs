@@ -48,8 +48,8 @@ impl fmt::Display for Error {
         match self {
             Self::LayoutError(e) => write!(f, "Layout Error: {e}"),
             Self::NetworkError(e) => write!(f, "Network Error: {e}"),
-            Self::SerializationError(e) => write!(f, "Serialization Error: {e}"), // TODO: Fix
-            Self::IoError(e) => write!(f, "I/O Error: {e}"),    // TODO: Fix
+            Self::SerializationError(e) => write!(f, "Serialization Error: {e}"),
+            Self::IoError(e) => write!(f, "I/O Error: {e}"),
             Self::InvocationError(_e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
             Self::Other(s) => write!(f, "{s}"),
         }

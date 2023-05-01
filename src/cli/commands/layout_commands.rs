@@ -2,17 +2,33 @@ use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use crate::color;
+use crate::layout::LayoutFile;
 use crate::local::dirs::layouts_dir;
 use crate::local::settings::Settings;
 use crate::util::list_dir;
 
-pub fn install(path: String) -> crate::Result<()> { // TODO: Add validity checks
+pub fn install(path: String) -> crate::Result<()> {
     let real_path = PathBuf::from_str(&*path).unwrap();
     let file_name = real_path.file_name().ok_or_else(|| "Not a file")?.to_str().unwrap();
+    let ext = real_path.extension().unwrap_or("".as_ref());
+    if ext != ".res" && ext != ".json" {
+        return Err("File has to have an extension of either .res or .json")?;
+    }
     if file_name == "default.json" || file_name == "default.res" {
-        return Err("File name cannot be default.json or default.res")?;
+        return Err("File name cannot be default.json or default.res,\
+        as it conflicts with the default layout filename,\
+        please rename the file and try again.")?; // TODO: Prompt for a new name?
     }
     fs::copy(&real_path, layouts_dir()?.join(file_name))?;
+    println!("Checking validity ..."); // TODO: Tech debt (don't copy, check first)
+    let test = LayoutFile::new(file_name.to_string());
+    match test {
+        Err(e) => {
+            println!("Invalid layout, {}", e.to_string());
+            fs::remove_file(layouts_dir()?.join(file_name))?;
+        },
+        Ok(_) => println!("Valid layout!")
+    }
     Ok(())
 }
 
@@ -23,7 +39,7 @@ pub fn list(settings: Settings) -> crate::Result<()> {
         let tmp = path?.file_name();
         let file_name = tmp.to_str().unwrap();
         if file_name == current_layout {
-            println!("{}*{} {file_name}{}", color::FORE_MAGENTA, color::FORE_GREEN, color::FORE_RESET)
+            println!("{}*{} {file_name}{}", color::FORE_MAGENTA, color::FORE_GREEN, color::RESET)
         }
         else {
             println!("{}  {file_name}", color::FORE_BLUE)

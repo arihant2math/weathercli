@@ -1,5 +1,4 @@
 use std::fs;
-use std::fs::DirEntry;
 use std::path::{Path, PathBuf};
 
 use sha2::Digest;
@@ -12,16 +11,13 @@ pub fn hash_file(filename: &str) -> crate::Result<String> {
 }
 
 pub fn list_dir(dir: PathBuf) -> crate::Result<Vec<String>> {
-    let mut paths: Vec<String> = Vec::new(); // TODO: use iter() instead
-    for path in fs::read_dir(dir)? {
-        let tmp = path?.file_name().into_string().unwrap();
-        paths.push(tmp);
-    }
+    let mut paths: Vec<String> = fs::read_dir(dir)?
+        .map(|f| f.unwrap().file_name().into_string().unwrap()).collect();
     Ok(paths)
 }
 
 pub struct Config<'a> {
     pub weather_file_name: &'a str,
-    pub weather_dfile_name: &'a str,
+    pub weather_d_file_name: &'a str,
     pub updater_file_name: &'a str,
 }

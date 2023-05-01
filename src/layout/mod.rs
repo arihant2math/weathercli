@@ -22,14 +22,19 @@ pub const DEFAULT_LAYOUT_SETTINGS: LayoutDefaultsJSON = LayoutDefaultsJSON {
     unit_bg_color: None,
 };
 
-pub struct LayoutFile {
-    layout: Vec<Row>,
+#[derive(Clone)]
+pub struct LayoutSettings {
     variable_color: String,
     text_color: String,
     unit_color: String,
     variable_bg_color: String,
     text_bg_color: String,
     unit_bg_color: String,
+}
+
+pub struct LayoutFile {
+    layout: Vec<Row>,
+    settings: LayoutSettings
 }
 
 fn reemit_layout_error(e: Error, count: usize) -> Error {
@@ -109,19 +114,19 @@ impl LayoutFile {
             retrieved_settings
                 .clone()
                 .variable_bg_color
-                .unwrap_or_default(),
+                .unwrap_or("BACK_RESET".to_string())
         )
         .unwrap_or_default();
         let text_bg_color = color::from_string(
             retrieved_settings
                 .clone()
                 .variable_bg_color
-                .unwrap_or_default(),
+                .unwrap_or("BACK_RESET".to_string()),
         )
         .unwrap_or_default();
         let unit_bg_color =
             color::from_string(retrieved_settings.variable_bg_color.unwrap_or_default())
-                .unwrap_or_default();
+                .unwrap_or("BACK_RESET".to_string());
         if file_data.layout.is_none() {
             return Err(LayoutErr {
                 message: "Layout key not found".to_string(),
@@ -139,12 +144,14 @@ impl LayoutFile {
         }
         Ok(Self {
             layout: internal_layout,
-            variable_color,
-            text_color,
-            unit_color,
-            variable_bg_color,
-            text_bg_color,
-            unit_bg_color,
+            settings: LayoutSettings {
+                variable_color,
+                text_color,
+                unit_color,
+                variable_bg_color,
+                text_bg_color,
+                unit_bg_color,
+            }
         })
     }
 
@@ -155,12 +162,7 @@ impl LayoutFile {
             s.push(
                 row.to_string(
                     &data_value,
-                    self.variable_color.clone(),
-                    self.text_color.clone(),
-                    self.unit_color.clone(),
-                    self.variable_bg_color.clone(),
-                    self.text_bg_color.clone(),
-                    self.unit_bg_color.clone(),
+                        self.settings.clone(),
                     metric,
                 )
                 .map_err(|e| reemit_layout_error(e, count))?,

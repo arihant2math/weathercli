@@ -44,7 +44,7 @@ impl WeatherFile {
     }
 
     pub fn get_text(&self) -> crate::Result<String> {
-        return Ok(String::from_utf8(self.data.clone()).unwrap()); // TODO: Fix
+        return Ok(String::from_utf8(self.data.clone()).map_err(|_e| "Failed to convert bytes to string")?);
     }
 
     pub fn settings() -> crate::Result<Self> {

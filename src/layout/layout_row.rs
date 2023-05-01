@@ -3,6 +3,7 @@ use serde_json::Value;
 use crate::error::{Error, LayoutErr};
 use crate::layout::layout_item::Item;
 use crate::layout::layout_json::ItemEnum;
+use crate::layout::LayoutSettings;
 
 pub struct Row {
     items: Vec<Item>,
@@ -51,12 +52,7 @@ impl Row {
     pub fn to_string(
         &self,
         data: &Value,
-        variable_color: String,
-        text_color: String,
-        unit_color: String,
-        variable_bg_color: String,
-        text_bg_color: String,
-        unit_bg_color: String,
+        settings: LayoutSettings,
         metric: bool,
     ) -> crate::Result<String> {
         let mut s = String::new();
@@ -64,12 +60,7 @@ impl Row {
             s += &*i
                 .to_string(
                     data,
-                    variable_color.clone(),
-                    text_color.clone(),
-                    unit_color.clone(),
-                    variable_bg_color.clone(),
-                    text_bg_color.clone(),
-                    unit_bg_color.clone(),
+                    settings.clone(),
                     metric,
                 )
                 .map_err(|e| reemit_layout_error(e, count))?;
