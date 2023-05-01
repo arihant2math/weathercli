@@ -72,9 +72,11 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-impl From<Box<bincode::ErrorKind>> for Error {
+impl From<Box<ErrorKind>> for Error {
     fn from(value: Box<ErrorKind>) -> Self {
-        Self::SerializationError(format!("Bincode error")) // TODO: Use value
+        match value {
+            _ => Self::SerializationError(format!("Bincode error")) // TODO: use error in match
+        }
     }
 }
 
