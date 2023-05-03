@@ -1,6 +1,7 @@
 use clap::Args;
 
 #[derive(Clone, Args)]
+#[allow(clippy::struct_excessive_bools)]
 pub struct GlobalOpts {
     #[arg(
         long,

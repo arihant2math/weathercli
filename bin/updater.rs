@@ -5,8 +5,9 @@ use clap::Parser;
 use serde::Deserialize;
 use serde::Serialize;
 
-use weather_core::bin_common::update_component;
 use weather_core::CONFIG;
+use weather_core::local::settings::Settings;
+use weather_core::updater::component::update_component;
 use weather_core::util::hash_file;
 
 #[derive(Clone, Parser)]
@@ -73,7 +74,8 @@ async fn is_update_needed(index: IndexStruct, component: Component) -> weather_c
 async fn main() -> weather_core::Result<()> {
     print!("\x1b[0J");
     let args = Cli::parse();
-    let resp = reqwest::get("https://arihant2math.github.io/weathercli/index.json")
+    let settings = Settings::new()?;
+    let resp = reqwest::get(settings.internal.update_server.clone() + "index.json")
         .await
         .expect("Network request failed");
     let json: IndexStruct =
@@ -97,7 +99,7 @@ async fn main() -> weather_core::Result<()> {
     } else {
         install_dir
     };
-    weather_core::updater::resource_updater::update_web_resources(Some(args.quiet))?;
+    weather_core::updater::resource::update_web_resources(settings.internal.update_server, Some(args.quiet))?;
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {
@@ -135,8 +137,8 @@ async fn main() -> weather_core::Result<()> {
     }
     if to_update.contains(&Component::Daemon) {
         let url =
-            "https://arihant2math.github.io/weathercli/".to_string() + CONFIG.weather_dfile_name;
-        let path = d_install_path.to_path_buf().join(CONFIG.weather_dfile_name);
+            "https://arihant2math.github.io/weathercli/".to_string() + CONFIG.weather_d_file_name;
+        let path = d_install_path.to_path_buf().join(CONFIG.weather_d_file_name);
         update_component(
             &url,
             &path.display().to_string(),

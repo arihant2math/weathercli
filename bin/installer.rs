@@ -3,13 +3,14 @@ use std::path::Path;
 
 use clap::Parser;
 #[cfg(target_os = "windows")]
-use winreg::enums::*;
+use winreg::enums::HKEY_LOCAL_MACHINE;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
-use weather_core::bin_common::update_component;
 use weather_core::CONFIG;
-use weather_core::updater::resource_updater::update_web_resources;
+use weather_core::local::settings::Settings;
+use weather_core::updater::component::update_component;
+use weather_core::updater::resource::update_web_resources;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -47,6 +48,7 @@ fn add_to_path(dir: String) -> weather_core::Result<()> {
 #[tokio::main]
 async fn main() -> weather_core::Result<()> {
     let args = Cli::parse();
+    let settings = Settings::new()?;
     if args.guided {
         println!("WeatherCLI installer");
         return Ok(());
@@ -69,7 +71,7 @@ async fn main() -> weather_core::Result<()> {
     if !is_empty {
         return Err("Directory is not empty".to_string())?;
     }
-    let url = "https://arihant2math.github.io/weathercli/".to_string() + &CONFIG.weather_file_name;
+    let url = settings.internal.update_server.clone() + &CONFIG.weather_file_name;
     let path = dir_path.to_path_buf().join(CONFIG.weather_file_name);
     update_component(
         &url,
@@ -79,8 +81,8 @@ async fn main() -> weather_core::Result<()> {
         args.quiet,
     )
     .await?;
-    let url = "https://arihant2math.github.io/weathercli/".to_string() + &CONFIG.weather_dfile_name;
-    let path = dir_path.to_path_buf().join("internal").join(CONFIG.weather_dfile_name);
+    let url = settings.internal.update_server.clone() + &CONFIG.weather_d_file_name;
+    let path = dir_path.to_path_buf().join("internal").join(CONFIG.weather_d_file_name);
     update_component(
         &url,
         &path.display().to_string(),
@@ -92,6 +94,6 @@ async fn main() -> weather_core::Result<()> {
     if args.add_to_path {
         add_to_path(dir_path.display().to_string())?;
     }
-    update_web_resources(Some(false))?;
+    update_web_resources(settings.internal.update_server, Some(false))?;
     Ok(())
 }

@@ -40,7 +40,7 @@ pub fn rgb(red: u8, green: u8, blue: u8) -> String {
 }
 
 pub fn string_to_rgb(s: String) -> Option<String> { // TODO: This is Foreground only
-    let split: Vec<&str> = s.split(",").collect();
+    let split: Vec<&str> = s.split(',').collect();
     if split.len() != 3 {
         return None;
     }

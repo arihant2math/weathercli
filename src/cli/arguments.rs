@@ -27,7 +27,7 @@ pub enum Command {
     #[command(subcommand)]
     Layout(LayoutOpts),
     #[command(subcommand)]
-    CustomBackend(BackendOpts),
+    Backend(BackendOpts),
     #[command(about = "Run the interactive terminal setup")]
     Setup,
     #[command(about = "Update weathercli")]
@@ -49,10 +49,11 @@ pub enum LayoutOpts {
 pub enum BackendOpts {
     #[command(about = "Install a custom backend")]
     Install(InstallOpts),
-    #[command(about = "List all installed custom backends")]
+    #[command(about = "List all installed backends")]
     List,
+    Select,
     #[command(about = "Delete an installed custom backend")]
-    Delete
+    Delete,
 }
 
 #[derive(Clone, Args)]

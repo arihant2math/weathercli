@@ -4,6 +4,7 @@ use std::ops::Range;
 use std::time;
 use base64::Engine;
 
+#[cfg(feature = "logging")]
 use log::debug;
 use url::Url;
 
@@ -208,6 +209,7 @@ pub(crate) fn connect(
             &new_url,
         );
 
+        #[cfg(feature = "logging")]
         debug!("redirect {} {} -> {}", resp.status(), url, new_url);
         history.push(unit.url);
         body = Payload::Empty.into_read();
@@ -247,21 +249,25 @@ fn connect_inner(
         .host_str()
         // This unwrap is ok because Request::parse_url() ensure there is always a host present.
         .unwrap();
+    #[cfg(feature = "logging")]
     let url = &unit.url;
-    let method = &unit.method;
     // open socket
     let (mut stream, is_recycled) = connect_socket(unit, host, use_pooled)?;
-
-    if is_recycled {
-        debug!("sending request (reused connection) {} {}", method, url);
-    } else {
-        debug!("sending request {} {}", method, url);
+    #[cfg(feature = "logging")]
+    {
+        let method = &unit.method;
+        if is_recycled {
+            debug!("sending request (reused connection) {} {}", method, url);
+        } else {
+            debug!("sending request {} {}", method, url);
+        }
     }
 
     let send_result = send_prelude(unit, &mut stream);
 
     if let Err(err) = send_result {
         if is_recycled {
+            #[cfg(feature = "logging")]
             debug!("retrying request early {} {}: {}", method, url, err);
             // we try open a new connection, this time there will be
             // no connection in the pool. don't use it.
@@ -295,6 +301,7 @@ fn connect_inner(
     // up to N+1 total tries, where N is max_idle_connections_per_host.
     let resp = match result {
         Err(err) if err.connection_closed() && retryable && is_recycled => {
+            #[cfg(feature = "logging")]
             debug!("retrying request {} {}: {}", method, url, err);
             let empty = Payload::Empty.into_read();
             // NOTE: this recurses at most once because `use_pooled` is `false`.
@@ -308,6 +315,7 @@ fn connect_inner(
     #[cfg(feature = "cookies")]
     save_cookies(unit, &resp);
 
+    #[cfg(feature = "logging")]
     debug!("response {} to {} {}", resp.status(), method, url);
 
     // release the response
@@ -326,6 +334,7 @@ fn extract_cookies(agent: &Agent, url: &Url) -> Option<Header> {
         .filter(|c| {
             let is_ok = is_cookie_rfc_compliant(c);
             if !is_ok {
+                #[cfg(feature = "logging")]
                 debug!("do not send non compliant cookie: {:?}", c);
             }
             is_ok
@@ -360,6 +369,7 @@ fn connect_socket(unit: &Unit, hostname: &str, use_pooled: bool) -> Result<(Stre
             if !server_closed {
                 return Ok((stream, true));
             }
+            #[cfg(feature = "logging")]
             debug!("dropping stream from pool; closed by server: {:?}", stream);
         }
     }
@@ -453,6 +463,7 @@ fn send_prelude(unit: &Unit, stream: &mut Stream) -> io::Result<()> {
     // finish
     prelude.finish()?;
 
+    #[cfg(feature = "logging")]
     debug!("writing prelude: {}", prelude);
     // write all to the wire
     stream.write_all(prelude.as_slice())?;
@@ -542,6 +553,7 @@ fn save_cookies(unit: &Unit, resp: &Response) {
         return;
     }
     let cookies = headers.into_iter().flat_map(|header_value| {
+        #[cfg(feature = "logging")]
         debug!(
             "received 'set-cookie: {}' from {} {}",
             header_value, unit.method, unit.url
@@ -553,6 +565,7 @@ fn save_cookies(unit: &Unit, resp: &Response) {
                 if is_cookie_rfc_compliant(&c) {
                     Some(c)
                 } else {
+                    #[cfg(feature = "logging")]
                     debug!("ignore incoming non compliant cookie: {:?}", c);
                     None
                 }
@@ -610,6 +623,7 @@ fn is_cookie_rfc_compliant(cookie: &Cookie) -> bool {
     let valid_name = name.iter().all(is_valid_name);
 
     if !valid_name {
+        #[cfg(feature = "logging")]
         log::trace!("cookie name is not valid: {:?}", cookie.name());
         return false;
     }
@@ -619,6 +633,7 @@ fn is_cookie_rfc_compliant(cookie: &Cookie) -> bool {
     let valid_value = value.iter().all(is_valid_value);
 
     if !valid_value {
+        #[cfg(feature = "logging")]
         log::trace!("cookie value is not valid: {:?}", cookie.value());
         return false;
     }

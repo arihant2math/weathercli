@@ -1,8 +1,8 @@
 use serde_json::Value;
 
 use crate::error::{Error, LayoutErr};
-use crate::layout::layout_item::Item;
-use crate::layout::layout_serde::ItemJSON;
+use crate::layout::item::Item;
+use crate::layout::layout_serde::ItemSerde;
 use crate::layout::LayoutSettings;
 
 pub struct Row {
@@ -21,7 +21,7 @@ fn reemit_layout_error(e: Error, count: usize) -> Error {
 }
 
 impl Row {
-    pub fn new(data: &Vec<ItemJSON>) -> Self {
+    pub fn new(data: &[ItemSerde]) -> Self {
         let mut items: Vec<Item> = Vec::new();
         for (_count, item) in data.iter().enumerate() {
             items.push(Item::new(item.clone()));

@@ -3,10 +3,10 @@ use serde_json::Value;
 use crate::color;
 use crate::error::LayoutErr;
 use crate::layout::{LayoutSettings, util};
-use crate::layout::layout_serde::ItemJSON;
+use crate::layout::layout_serde::ItemSerde;
 
 pub struct Item {
-    data: ItemJSON,
+    data: ItemSerde,
 }
 
 fn round(f: f64) -> String {
@@ -14,7 +14,7 @@ fn round(f: f64) -> String {
 }
 
 impl Item {
-    pub fn new(i: ItemJSON) -> Self {
+    pub fn new(i: ItemSerde) -> Self {
         Self {
             data: i
         }

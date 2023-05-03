@@ -3,7 +3,6 @@ use crate::backend::meteo::meteo_json::{MeteoAirQualityJson, MeteoForecastJson};
 use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherData};
 use crate::backend::WindData;
-use crate::local::weather_file::WeatherFile;
 use crate::now;
 
 pub fn get_meteo_weather_data(

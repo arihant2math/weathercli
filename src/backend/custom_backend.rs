@@ -1,3 +1,4 @@
+use std::fmt;
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
 
@@ -24,10 +25,12 @@ pub enum InvocationError {
     Other { msg: String },
 }
 
-impl<S: ToString> From<S> for InvocationError {
-    fn from(other: S) -> Self {
-        Self::Other {
-            msg: other.to_string(),
+impl fmt::Display for InvocationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::CoordinatesError => write!(f, "Invalid Coordinates"),
+            Self::NotFound => write!(f, "Not found"),
+            Self::Other { msg } => write!(f, "{msg}")
         }
     }
 }

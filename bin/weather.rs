@@ -9,7 +9,7 @@ use weather_core::cli::{Datasource, datasource_from_str};
 use weather_core::cli::arguments::{App, Command};
 use weather_core::cli::commands::{cache, credits, custom_backend, layout, setup, update, weather};
 use weather_core::dynamic_loader::{ExternalBackends, is_valid_ext};
-use weather_core::local::dirs::weathercli_dir;
+use weather_core::local::dirs::custom_backends_dir;
 use weather_core::local::settings::Settings;
 
 fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
@@ -51,7 +51,7 @@ fn main() -> weather_core::Result<()> {
         && discriminant(&datasource) == discriminant(&Datasource::Other(String::new()))
     {
         debug!("Detecting external dlls");
-        let path = weathercli_dir()?.join("custom_backends");
+        let path = custom_backends_dir()?;
         if path.exists() {
             let plugins: Vec<String> = path
                 .read_dir()
@@ -59,7 +59,7 @@ fn main() -> weather_core::Result<()> {
                 .filter(is_ext) // We only care about files
                 .map(|f| f.unwrap().path().display().to_string())
                 .collect();
-            debug!("Loading: {:?}", plugins);
+            debug!("Loading: {plugins:?}");
             custom_backends = weather_core::dynamic_loader::load(plugins);
         }
     }
@@ -75,14 +75,14 @@ fn main() -> weather_core::Result<()> {
                     args.global_opts.json,
                     custom_backends,
                 )?,
-                Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value)?,
-                Command::Settings => weather_core::open_settings_app(),
+                Command::Backend(arg) => custom_backend(arg, settings)?,
                 Command::Cache(arg) => cache(arg)?,
+                Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value)?,
+                Command::Credits => credits(),
+                Command::Settings => weather_core::open_settings_app(),
                 Command::Layout(arg) => layout(arg, settings)?,
-                Command::CustomBackend(arg) => custom_backend(arg, settings)?,
                 Command::Setup => setup(settings)?,
                 Command::Update(opts) => update(opts.force)?,
-                Command::Credits => credits(),
             };
         }
         None => weather(
@@ -97,5 +97,5 @@ fn main() -> weather_core::Result<()> {
             custom_backends,
         )?,
     };
-    return Ok(());
+    Ok(())
 }

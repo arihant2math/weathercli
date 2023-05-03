@@ -18,6 +18,10 @@ fn _meteo() -> String {
     String::from("meteo")
 }
 
+fn _update_server() -> String {
+    String::from("https://arihant2math.github.io/weathercli/")
+}
+
 #[derive(Serialize, Deserialize, Clone, Default)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 #[allow(clippy::struct_excessive_bools)]
@@ -34,8 +38,6 @@ pub struct SettingsJson {
     pub default_backend: String,
     #[serde(default)]
     pub constant_location: bool,
-    #[serde(default = "_true")]
-    pub auto_update_internet_resources: bool,
     #[serde(default)]
     pub debug: bool,
     #[serde(default)]
@@ -48,7 +50,11 @@ pub struct SettingsJson {
     pub enable_daemon: bool,
     #[serde(default = "_default_daemon_update_interval")]
     pub daemon_update_interval: i64,
+    #[serde(default = "_true")]
+    pub auto_update_internet_resources: bool,
     pub installed_components: Option<Vec<String>>,
+    #[serde(default = "_update_server")]
+    pub update_server: String,
     #[serde(default)]
     pub enable_custom_backends: bool,
 }

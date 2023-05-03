@@ -58,7 +58,7 @@ serde = { version = "1.0.*", features = ["derive"] }
 reqwest = { version = "0.11.*", features = ["stream"], optional = true }
 hex = "0.4.*"
 image = "0.24.6"
-ureq = { version = "2.6.2", features = ["cookies", "json"], path = "./lib/ureq" }
+ureq = { version = "2.6.2", default-features = false, features = ["tls", "gzip", "cookies", "json"], path = "./lib/ureq" }
 cookie_store = "0.19.0"
 url = "2.3.1"
 dark-light = "1.0.0"

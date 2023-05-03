@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
-pub struct ItemJSON {
+pub struct ItemSerde {
     #[serde(rename = "type")]
     pub item_type: String,
     pub color: Option<String>,
@@ -12,13 +12,13 @@ pub struct ItemJSON {
     pub imperial: Option<String>,
     pub unit_color: Option<String>,
     pub value: String,
-    pub args: Option<Vec<ItemJSON>>,
-    pub kwargs: Option<HashMap<String, ItemJSON>>,
+    pub args: Option<Vec<ItemSerde>>,
+    pub kwargs: Option<HashMap<String, ItemSerde>>,
     pub scale: Option<f64>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct LayoutDefaultsJSON {
+pub struct LayoutDefaultsSerde {
     pub variable_color: String,
     pub text_color: String,
     pub unit_color: String,
@@ -28,8 +28,8 @@ pub struct LayoutDefaultsJSON {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct LayoutJSON {
+pub struct LayoutSerde {
     pub version: u64,
-    pub defaults: LayoutDefaultsJSON,
-    pub layout: Vec<Vec<ItemJSON>>,
+    pub defaults: LayoutDefaultsSerde,
+    pub layout: Vec<Vec<ItemSerde>>,
 }

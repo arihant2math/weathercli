@@ -1,4 +1,7 @@
-pub mod resource_updater;
+#[cfg(feature = "support")]
+pub mod component;
+pub mod resource;
+mod update_server_json;
 
 use std::collections::HashMap;
 use std::fs::OpenOptions;

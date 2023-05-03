@@ -4,6 +4,7 @@ use std::num::NonZeroUsize;
 use std::str::FromStr;
 use std::{fmt, io::BufRead};
 
+#[cfg(feature = "logging")]
 use log::debug;
 use url::Url;
 
@@ -337,6 +338,7 @@ impl Response {
             // marker. When we encounter the marker, we can return the underlying stream
             // to the connection pool.
             BodyType::Chunked => {
+                #[cfg(feature = "logging")]
                 debug!("Chunked body in response");
                 Box::new(PoolReturnRead::new(ChunkDecoder::new(stream)))
             }
@@ -346,6 +348,7 @@ impl Response {
             BodyType::LengthDelimited(len) => {
                 match NonZeroUsize::new(len) {
                     None => {
+                        #[cfg(feature = "logging")]
                         debug!("zero-length body returning stream directly to pool");
                         let stream: Stream = stream.into();
                         // TODO: This expect can actually panic if we get an error when
@@ -358,6 +361,7 @@ impl Response {
                         let mut limited_read = LimitedRead::new(stream, len);
 
                         if len.get() <= buffer_len {
+                            #[cfg(feature = "logging")]
                             debug!("Body entirely buffered (length: {})", len);
                             let mut buf = vec![0; len.get()];
                             // TODO: This expect can actually panic if we get an error when
@@ -368,6 +372,7 @@ impl Response {
                                 .expect("failed to read exact buffer length from stream");
                             Box::new(Cursor::new(buf))
                         } else {
+                            #[cfg(feature = "logging")]
                             debug!("Streaming body until content-length: {}", len);
                             Box::new(limited_read)
                         }
@@ -375,6 +380,7 @@ impl Response {
                 }
             }
             BodyType::CloseDelimited => {
+                #[cfg(feature = "logging")]
                 debug!("Body of unknown size - read until socket close");
                 Box::new(stream)
             }

@@ -1,13 +1,13 @@
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::color;
 use crate::error::{Error, LayoutErr};
-use crate::layout::layout_row::Row;
-use crate::layout::layout_serde::LayoutDefaultsJSON;
+use crate::layout::row::Row;
+use crate::layout::layout_serde::LayoutDefaultsSerde;
 use crate::local::weather_file::WeatherFile;
 
 mod image_to_text;
-pub mod layout_item;
-mod layout_row;
+pub mod item;
+mod row;
 pub mod util;
 pub mod layout_serde;
 
@@ -61,7 +61,7 @@ fn check_version(version: u64) -> crate::Result<()> {
     Ok(())
 }
 
-fn get_layout_settings(data: LayoutDefaultsJSON) -> LayoutSettings {
+fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
     let retrieved_settings = data;
     let variable_color = color::from_string(
         retrieved_settings.clone().variable_color
@@ -102,7 +102,7 @@ impl LayoutFile {
         Err("Layout file does not have an extension of .res")?
     }
 
-    fn from_serde(file_data: layout_serde::LayoutJSON) -> crate::Result<Self> {
+    fn from_serde(file_data: layout_serde::LayoutSerde) -> crate::Result<Self> {
         check_version(file_data.version)?;
         let layout = file_data.layout;
         let mut internal_layout: Vec<Row> = Vec::new();

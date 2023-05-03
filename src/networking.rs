@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::io::Read;
 
 use cookie_store::{CookieResult, CookieStore};
+use log::trace;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use ureq;
@@ -30,6 +31,7 @@ pub fn get_url<S: AsRef<str>>(
     cookies: Option<HashMap<String, String>>,
 ) -> crate::Result<Resp> {
     let url = url_s.as_ref();
+    trace!("Retrieving {url}");
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
     for (key, value) in cookies.clone().unwrap_or_default() {
         cookies_vec.push(cookie_store::Cookie::parse(
@@ -90,6 +92,7 @@ pub fn get_urls(
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
 ) -> crate::Result<Vec<Resp>> {
+    trace!("Retrieving {urls:?}");
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
     for (key, value) in &cookies.clone().unwrap_or_default() {
         for url in urls {

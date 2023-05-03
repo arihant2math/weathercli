@@ -15,16 +15,19 @@ pub struct WeatherFile {
 
 impl WeatherFile {
     pub fn new(file_name: &str) -> crate::Result<Self> {
-        trace!("Opening {file_name}");
-        let mut path = weathercli_dir().expect("expect home dir");
-        let mut exists = true;
-        path.push(file_name);
-        if !path.exists() {
-            exists = false;
+        let path = weathercli_dir()?.join(file_name);
+        trace!("Opening {}", path.display());
+        let exists = path.exists();
+        if !exists {
             let parent_dir = path.parent().ok_or("Parent dir not found")?;
             fs::create_dir_all(parent_dir)?;
             let mut file = File::create(path.display().to_string())?;
-            file.write_all(b"{}")?;
+            if path.extension().unwrap_or("".as_ref()) == "json" {
+                file.write_all(b"{}")?;
+            }
+            else {
+                file.write_all(b"")?;
+            }
         }
         let file = File::open(path.display().to_string())?;
         let mut buf_reader = BufReader::new(file);
@@ -35,6 +38,7 @@ impl WeatherFile {
 
     /// Writes self.data to the file at self.path
     pub fn write(&self) -> crate::Result<()> {
+        println!("Writing to {}", self.path.display());
         let f = File::options()
             .write(true)
             .truncate(true)

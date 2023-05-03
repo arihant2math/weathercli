@@ -75,7 +75,7 @@ impl ExternalBackends {
         coordinates: [&str; 2],
         settings: Settings,
     ) -> crate::Result<WeatherForecast> {
-        debug!("Calling function {}", name);
+        debug!("Calling function {name}");
         self.functions
             .get(name)
             .ok_or(Error::InvocationError(InvocationError::NotFound))?

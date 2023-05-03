@@ -50,7 +50,7 @@ impl fmt::Display for Error {
             Self::NetworkError(e) => write!(f, "Network Error: {e}"),
             Self::SerializationError(e) => write!(f, "Serialization Error: {e}"),
             Self::IoError(e) => write!(f, "I/O Error: {e}"),
-            Self::InvocationError(_e) => write!(f, "Custom Backend Invocation failed"), // TODO: Fix
+            Self::InvocationError(e) => write!(f, "Custom Backend Invocation failed, {e}"), // TODO: Fix
             Self::Other(s) => write!(f, "{s}"),
         }
     }

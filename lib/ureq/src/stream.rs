@@ -1,3 +1,4 @@
+#[cfg(feature = "logging")]
 use log::debug;
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::net::SocketAddr;
@@ -192,6 +193,7 @@ impl Stream {
     }
 
     fn logged_create(stream: Stream) -> Stream {
+        #[cfg(feature = "logging")]
         debug!("created stream: {:?}", stream);
         stream
     }
@@ -213,12 +215,13 @@ impl Stream {
     // If this returns WouldBlock (aka EAGAIN),
     // that means the connection is still open: return false. Otherwise
     // return an error.
-    fn serverclosed_stream(stream: &std::net::TcpStream) -> io::Result<bool> {
+    fn serverclosed_stream(stream: &TcpStream) -> io::Result<bool> {
         let mut buf = [0; 1];
         stream.set_nonblocking(true)?;
 
         let result = match stream.peek(&mut buf) {
             Ok(n) => {
+                #[cfg(feature = "logging")]
                 debug!(
                     "peek on reused connection returned {}, not WouldBlock; discarding",
                     n
@@ -308,6 +311,7 @@ impl Write for Stream {
 
 impl Drop for Stream {
     fn drop(&mut self) {
+        #[cfg(feature = "logging")]
         debug!("dropping stream: {:?}", self);
     }
 }
@@ -373,6 +377,7 @@ pub(crate) fn connect_host(
             None => None,
         };
 
+        #[cfg(feature = "logging")]
         debug!("connecting to {} at {}", netloc, &sock_addr);
 
         // connect with a configured timeout.

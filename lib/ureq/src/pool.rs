@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use crate::agent::AgentState;
 use crate::stream::Stream;
 use crate::{Agent, Proxy};
-
+#[cfg(feature = "logging")]
 use log::debug;
 use url::Url;
 
@@ -116,6 +116,7 @@ impl ConnectionPool {
                 remove_last_match(&mut inner.lru, key)
                     .expect("invariant failed: key in recycle but not in lru");
 
+                #[cfg(feature = "logging")]
                 debug!("pulling stream from pool: {:?} -> {:?}", key, stream);
                 Some(stream)
             }
@@ -127,6 +128,7 @@ impl ConnectionPool {
         if self.noop() {
             return;
         }
+        #[cfg(feature = "logging")]
         debug!("adding stream to pool: {:?} -> {:?}", key, stream);
 
         let mut inner = self.inner.lock().unwrap();
@@ -136,13 +138,17 @@ impl ConnectionPool {
                 streams.push_back(stream);
                 if streams.len() > self.max_idle_connections_per_host {
                     // Remove the oldest entry
-                    let stream = streams.pop_front().expect("empty streams list");
-                    debug!(
-                        "host {:?} has {} conns, dropping oldest: {:?}",
-                        key,
-                        streams.len(),
-                        stream
-                    );
+                    #[cfg(feature = "logging")]
+                    {
+                        let stream = streams.pop_front().expect("empty streams list");
+
+                        debug!(
+                            "host {:?} has {} conns, dropping oldest: {:?}",
+                            key,
+                            streams.len(),
+                            stream
+                        );
+                    }
                     remove_first_match(&mut inner.lru, key)
                         .expect("invariant failed: key in recycle but not in lru");
                 }
@@ -168,10 +174,13 @@ impl ConnectionPool {
         match inner.recycle.entry(key) {
             Entry::Occupied(mut occupied_entry) => {
                 let streams = occupied_entry.get_mut();
-                let stream = streams
-                    .pop_front()
-                    .expect("invariant failed: key existed in recycle but no streams available");
-                debug!("dropping oldest stream in pool: {:?}", stream);
+                #[cfg(feature = "logging")]
+                {
+                    let stream = streams
+                        .pop_front()
+                        .expect("invariant failed: key existed in recycle but no streams available");
+                    debug!("dropping oldest stream in pool: {:?}", stream);
+                }
                 if streams.is_empty() {
                     occupied_entry.remove();
                 }

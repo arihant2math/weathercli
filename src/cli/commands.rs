@@ -26,8 +26,8 @@ pub fn weather(
     custom_backends: ExternalBackends,
 ) -> crate::Result<()> {
     debug!("Coordinates: {} {}", coordinates.latitude, coordinates.longitude);
-    debug!("Metric: {}", true_metric);
-    debug!("json: {}", json);
+    debug!("Metric: {true_metric}");
+    debug!("json: {json}");
     let mut s = settings.clone();
     s.internal.metric_default = true_metric;
     let data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
@@ -57,7 +57,7 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
 pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
     println!("{}===== Weather CLI Setup =====", crate::color::FORE_CYAN);
-    updater::resource_updater::update_web_resources(None)?;
+    updater::resource::update_web_resources(settings.internal.update_server.clone(), None)?;
     println!(
         "{}Choose the default weather backend: ",
         crate::color::FORE_RED
@@ -202,6 +202,7 @@ pub fn custom_backend(arg: BackendOpts, settings: Settings) -> crate::Result<()>
     match arg {
         BackendOpts::Install(opts) => backend::install(opts.path)?,
         BackendOpts::List => backend::list(settings)?,
+        BackendOpts::Select => backend::select(settings)?,
         BackendOpts::Delete => backend::delete()?
     }
     Ok(())

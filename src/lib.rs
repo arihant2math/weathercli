@@ -24,8 +24,6 @@ use crate::location::Coordinates;
 use crate::util::Config;
 
 pub mod backend;
-#[cfg(feature = "support")]
-pub mod bin_common;
 pub mod cli;
 pub mod color;
 pub mod dynamic_loader;
@@ -82,15 +80,16 @@ pub fn get_data_from_datasource(
     settings: Settings,
     custom_backends: ExternalBackends,
 ) -> Result<WeatherForecast> {
-    let dir = local::dirs::weathercli_dir()?.join("resources");
+    let dir = weathercli_dir()?.join("resources");
     let f1 = dir.join("weather_codes.res");
     let f2 = dir.join("weather_ascii_images.res");
+    let update_server = settings.internal.update_server.clone();
     if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
         warn!("Forcing downloading of web resources");
-        updater::resource_updater::update_web_resources(None)?;
+        updater::resource::update_web_resources(update_server, None)?;
     } else if settings.internal.auto_update_internet_resources {
         thread::spawn(move || {
-            updater::resource_updater::update_web_resources(None).unwrap_or(());
+            updater::resource::update_web_resources(update_server, None).unwrap_or(());
         });
     }
     let conv_coords = [&*coordinates.latitude.to_string(), &*coordinates.longitude.to_string()];
