@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use weather_core::layout::layout_serde::{ItemJSON, LayoutDefaultsJSON, LayoutJSON};
+use weather_core::layout::layout_serde::{ItemSerde, LayoutDefaultsSerde, LayoutSerde};
 
 fn strip(line: &str) -> &str { // TODO: Fix stripper (its actually good for now, but it can be better)
     return line.trim_end();
