@@ -5,7 +5,7 @@ fn strip(line: &str) -> &str { // TODO: Fix stripper (its actually good for now,
     return line.trim_end();
 }
 
-pub fn string_to_item(s: &str) -> ItemJSON {
+pub fn string_to_item(s: &str) -> ItemSerde {
     let mut new_s: String = s.to_string();
     if !new_s.is_empty() {
         let mut color = None;
@@ -31,7 +31,7 @@ pub fn string_to_item(s: &str) -> ItemJSON {
                 imperial = Some(splt[1].to_string());
                 metric = Some(splt[2].to_string());
             }
-            return ItemJSON {
+            return ItemSerde {
                 item_type: "variable".to_string(),
                 color,
                 bg_color: None,
@@ -48,8 +48,8 @@ pub fn string_to_item(s: &str) -> ItemJSON {
             let mut split: Vec<&str> = new_s.split('|').collect();
             let value = split[0];
             split.remove(0);
-            let mut args: Vec<ItemJSON> = Vec::new();
-            let mut kwargs: HashMap<String, ItemJSON> = HashMap::new();
+            let mut args: Vec<ItemSerde> = Vec::new();
+            let mut kwargs: HashMap<String, ItemSerde> = HashMap::new();
             for item in split {
                 if item.contains('=') {
                     let temp_item = item.to_string();
@@ -62,7 +62,7 @@ pub fn string_to_item(s: &str) -> ItemJSON {
                     args.push(string_to_item(item));
                 }
             }
-            let item: ItemJSON = ItemJSON {
+            let item: ItemSerde = ItemSerde {
                 item_type: "function".to_string(),
                 color,
                 bg_color: None,
@@ -79,7 +79,7 @@ pub fn string_to_item(s: &str) -> ItemJSON {
             new_s = new_s[1..].to_string();
         }
     }
-    ItemJSON {
+    ItemSerde {
         item_type: "text".to_string(),
         color: None,
         bg_color: None,
@@ -94,7 +94,7 @@ pub fn string_to_item(s: &str) -> ItemJSON {
 }
 
 
-fn string_to_row(s: String) -> Vec<ItemJSON> {
+fn string_to_row(s: String) -> Vec<ItemSerde> {
     let mut item_list = Vec::new();
     let mut previous_char = '\0';
     let mut current = String::new();
@@ -114,9 +114,9 @@ fn string_to_row(s: String) -> Vec<ItemJSON> {
     item_list
 }
 
-pub fn compile_layout(s: String) -> weather_core::Result<LayoutJSON> {
+pub fn compile_layout(s: String) -> weather_core::Result<LayoutSerde> {
     let lines: Vec<&str> = s.split("\n").collect();
-    let mut rows: Vec<Vec<ItemJSON>> = Vec::new();
+    let mut rows: Vec<Vec<ItemSerde>> = Vec::new();
     let mut is_layout = false;
     let mut version: Option<u64> = None;
     let mut variable_color: Option<String> = None;
@@ -151,9 +151,9 @@ pub fn compile_layout(s: String) -> weather_core::Result<LayoutJSON> {
             }
         }
     }
-    Ok(LayoutJSON {
+    Ok(LayoutSerde {
         version: version.unwrap_or(weather_core::layout::VERSION),
-        defaults: LayoutDefaultsJSON {
+        defaults: LayoutDefaultsSerde {
             variable_color: variable_color.unwrap_or("FORE_LIGHTGREEN".to_string()),
             text_color: text_color.unwrap_or("FORE_LIGHTBLUE".to_string()),
             unit_color: unit_color.unwrap_or("FORE_MAGENTA".to_string()),
