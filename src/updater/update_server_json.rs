@@ -8,7 +8,7 @@ struct Index {
     updater_version: String,
     default_layout_hash: String,
     weather_ascii_images_hash: String,
-    weather_codes_hash:	String,
+    weather_codes_hash: String,
     weather_exe_hash_unix: String,
     weather_exe_hash_windows: String,
     weatherd_exe_hash_unix: String,

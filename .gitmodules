@@ -1,3 +1,0 @@
-[submodule "lib/rlbox-rs/rlbox"]
-	path = lib/rlbox-rs/rlbox
-	url = https://github.com/PLSysSec/rlbox.git

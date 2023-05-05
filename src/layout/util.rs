@@ -1,7 +1,7 @@
+use crate::color;
+use regex::Regex;
 use std::fs;
 use std::io::Write;
-use regex::Regex;
-use crate::color;
 
 pub fn color_aqi(aqi: u8) -> crate::Result<String> {
     Ok(match aqi {
@@ -26,10 +26,7 @@ pub fn image(source: String, scale: f64) -> crate::Result<String> {
             .create(true)
             .open("temp.img")?;
         f.write_all(&response.bytes)?;
-        return crate::layout::image_to_text::ascii_image(
-            "temp.img",
-            scale,
-        );
+        return crate::layout::image_to_text::ascii_image("temp.img", scale);
     }
     Err("source is not a url".to_string())? // TODO: Fix
 }

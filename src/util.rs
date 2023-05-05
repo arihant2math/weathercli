@@ -12,7 +12,8 @@ pub fn hash_file(filename: &str) -> crate::Result<String> {
 
 pub fn list_dir(dir: PathBuf) -> crate::Result<Vec<String>> {
     Ok(fs::read_dir(dir)?
-        .map(|f| f.unwrap().file_name().into_string().unwrap()).collect())
+        .map(|f| f.unwrap().file_name().into_string().unwrap())
+        .collect())
 }
 
 pub struct Config<'a> {

@@ -2,9 +2,8 @@ extern crate image;
 
 use std::path::Path;
 
-use image::{imageops, GenericImageView};
 use crate::color::rgb;
-
+use image::{imageops, GenericImageView};
 
 pub fn ascii_image(input_path: &str, scale: f64) -> crate::Result<String> {
     let img = image::open(Path::new(input_path)).map_err(|_e| "Failed to open image")?;

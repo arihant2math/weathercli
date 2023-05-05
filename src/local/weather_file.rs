@@ -1,8 +1,8 @@
+use log::trace;
 use std::fs;
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::PathBuf;
-use log::trace;
 
 use crate::local::dirs::weathercli_dir;
 
@@ -22,10 +22,9 @@ impl WeatherFile {
             let parent_dir = path.parent().ok_or("Parent dir not found")?;
             fs::create_dir_all(parent_dir)?;
             let mut file = File::create(path.display().to_string())?;
-            if path.extension().unwrap_or("".as_ref()) == "json" {
+            if path.extension().unwrap_or_else(|| "".as_ref()) == "json" {
                 file.write_all(b"{}")?;
-            }
-            else {
+            } else {
                 file.write_all(b"")?;
             }
         }
@@ -50,7 +49,8 @@ impl WeatherFile {
     }
 
     pub fn get_text(&self) -> crate::Result<String> {
-        Ok(String::from_utf8(self.data.clone()).map_err(|_e| "Failed to convert bytes to string")?)
+        Ok(String::from_utf8(self.data.clone())
+            .map_err(|_e| "Failed to convert bytes to string")?)
     }
 
     pub fn settings() -> crate::Result<Self> {

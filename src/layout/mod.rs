@@ -1,15 +1,15 @@
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::color;
 use crate::error::{Error, LayoutErr};
-use crate::layout::row::Row;
 use crate::layout::layout_serde::LayoutDefaultsSerde;
+use crate::layout::row::Row;
 use crate::local::weather_file::WeatherFile;
 
 mod image_to_text;
 pub mod item;
+pub mod layout_serde;
 mod row;
 pub mod util;
-pub mod layout_serde;
 
 pub const VERSION: u64 = 20;
 
@@ -25,7 +25,7 @@ pub struct LayoutSettings {
 
 pub struct LayoutFile {
     layout: Vec<Row>,
-    settings: LayoutSettings
+    settings: LayoutSettings,
 }
 
 fn reemit_layout_error(e: Error, count: usize) -> Error {
@@ -42,15 +42,11 @@ fn reemit_layout_error(e: Error, count: usize) -> Error {
 fn check_version(version: u64) -> crate::Result<()> {
     if version > VERSION {
         return Err(Error::LayoutError(LayoutErr {
-            message: format!(
-                "Version of layout file, {version}, is greater than the highest supported version {}",
-                VERSION
-            ),
+            message: format!("Version of layout file, {version}, is greater than the highest supported version {VERSION}"),
             row: None,
             item: None,
         }));
-    }
-    else if version <= 10  {
+    } else if version <= 10 {
         return Err(Error::LayoutError(LayoutErr {
             message: "Layout Version too old (version 10 or earlier is not supported), defaulting"
                 .to_string(),
@@ -63,24 +59,15 @@ fn check_version(version: u64) -> crate::Result<()> {
 
 fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
     let retrieved_settings = data;
-    let variable_color = color::from_string(
-        retrieved_settings.clone().variable_color
-    ).unwrap_or_default();
-    let text_color = color::from_string(
-        retrieved_settings.clone().text_color
-    ).unwrap_or_default();
-    let unit_color = color::from_string(
-        retrieved_settings.clone().unit_color
-    ).unwrap_or_default();
-    let variable_bg_color = color::from_string(
-        retrieved_settings.clone().variable_bg_color
-    ).unwrap_or_default();
-    let text_bg_color = color::from_string(
-        retrieved_settings.clone().text_bg_color
-    ).unwrap_or_default();
-    let unit_bg_color = color::from_string(
-            retrieved_settings.unit_bg_color
-        ).unwrap_or_default();
+    let variable_color =
+        color::from_string(retrieved_settings.clone().variable_color).unwrap_or_default();
+    let text_color = color::from_string(retrieved_settings.clone().text_color).unwrap_or_default();
+    let unit_color = color::from_string(retrieved_settings.clone().unit_color).unwrap_or_default();
+    let variable_bg_color =
+        color::from_string(retrieved_settings.clone().variable_bg_color).unwrap_or_default();
+    let text_bg_color =
+        color::from_string(retrieved_settings.clone().text_bg_color).unwrap_or_default();
+    let unit_bg_color = color::from_string(retrieved_settings.unit_bg_color).unwrap_or_default();
     LayoutSettings {
         variable_color,
         text_color,
@@ -91,11 +78,15 @@ fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
     }
 }
 
-
 impl LayoutFile {
     pub fn new(path: String) -> crate::Result<Self> {
         let file = WeatherFile::new(&("layouts/".to_string() + &path))?;
-        let ext = file.path.extension().unwrap_or_else(|| "res".as_ref()).to_str().unwrap();
+        let ext = file
+            .path
+            .extension()
+            .unwrap_or_else(|| "res".as_ref())
+            .to_str()
+            .unwrap();
         if ext == "res" {
             return Self::from_serde(bincode::deserialize(&file.data)?);
         }
@@ -111,7 +102,7 @@ impl LayoutFile {
         }
         Ok(Self {
             layout: internal_layout,
-            settings: get_layout_settings(file_data.defaults)
+            settings: get_layout_settings(file_data.defaults),
         })
     }
 
@@ -120,12 +111,8 @@ impl LayoutFile {
         let data_value = serde_json::to_value(data)?;
         for (count, row) in self.layout.iter().enumerate() {
             s.push(
-                row.to_string(
-                    &data_value,
-                        self.settings.clone(),
-                    metric,
-                )
-                .map_err(|e| reemit_layout_error(e, count))?,
+                row.to_string(&data_value, self.settings.clone(), metric)
+                    .map_err(|e| reemit_layout_error(e, count))?,
             );
         }
         Ok(s.join("\n"))

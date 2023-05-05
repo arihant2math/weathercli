@@ -45,12 +45,7 @@ fn update_web_resource(
 pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Result<()> {
     debug!("updating web resources");
     let real_quiet = quiet.unwrap_or(false);
-    let resp = networking::get_url(
-        format!("{server}index.json"),
-        None,
-        None,
-        None,
-    )?;
+    let resp = networking::get_url(format!("{server}index.json"), None, None, None)?;
     if resp.status == 200 {
         let web_text = resp.text;
         let web_json: Value = serde_json::from_str(&web_text)?;

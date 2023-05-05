@@ -82,7 +82,10 @@ async fn main() -> weather_core::Result<()> {
     )
     .await?;
     let url = settings.internal.update_server.clone() + &CONFIG.weather_d_file_name;
-    let path = dir_path.to_path_buf().join("internal").join(CONFIG.weather_d_file_name);
+    let path = dir_path
+        .to_path_buf()
+        .join("internal")
+        .join(CONFIG.weather_d_file_name);
     update_component(
         &url,
         &path.display().to_string(),

@@ -3,14 +3,18 @@ mod internal;
 use std::str::FromStr;
 use std::u128;
 
-use crate::local::cache::internal::{get_date_string, Row, read_cache, write_cache};
+use crate::local::cache::internal::{get_date_string, read_cache, write_cache, Row};
 use crate::now;
 
 /// Reads the value of a key from the cache. This does not update the count value, use `update_hits` to do that
 /// Returns None if the key does not exist and returns a string otherwise
 pub fn read(key: &str) -> crate::Result<String> {
     let rows = read_cache()?;
-    Ok(rows.into_iter().find(|row| row.key == key).ok_or("Key not found")?.value)
+    Ok(rows
+        .into_iter()
+        .find(|row| row.key == key)
+        .ok_or("Key not found")?
+        .value)
 }
 
 /// writes the key to the cache, overwriting it if it already exists

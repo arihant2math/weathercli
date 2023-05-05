@@ -1,10 +1,6 @@
 Cargo.lock
-build/*
 docs/*
-dist/*
-venv/*
 target/*
-updater/target/*
 .idea/*
 .vs/*
 *.pyc
@@ -16,4 +12,3 @@ test.http
 
 custom_backends/theweatherchannel/target/*
 dev-scripts/target/*
-lib/rlbox-rs/target/*

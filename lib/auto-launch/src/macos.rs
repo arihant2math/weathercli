@@ -183,7 +183,7 @@ impl AutoLaunch {
 
 /// Get the Launch Agent Dir
 fn get_dir() -> PathBuf {
-    dirs_sys::home_dir()
+    home::home_dir()
         .unwrap()
         .join("Library")
         .join("LaunchAgents")

@@ -1,9 +1,9 @@
+use crate::local::dirs::weathercli_dir;
+use crate::now;
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
-use crate::local::dirs::weathercli_dir;
-use crate::now;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum Place {

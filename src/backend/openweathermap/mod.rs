@@ -1,16 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-use crate::backend::openweathermap::openweathermap_json::{
+use crate::backend::openweathermap::json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
 };
 use crate::location::Coordinates;
 use crate::networking;
 use crate::networking::Resp;
 
-mod openweathermap_current;
-pub mod openweathermap_forecast;
-mod openweathermap_future;
-pub mod openweathermap_json;
+mod current;
+pub mod forecast;
+mod future;
+pub mod json;
 
 /// Gets the urls from the openweathermap api server
 pub fn open_weather_map_get_api_urls(

@@ -7,8 +7,9 @@ use log::debug;
 use weather_core::{init_logging, location};
 use weather_core::cli::{Datasource, datasource_from_str};
 use weather_core::cli::arguments::{App, Command};
-use weather_core::cli::commands::{cache, credits, custom_backend, layout, setup, update, weather};
-use weather_core::dynamic_loader::{ExternalBackends, is_valid_ext};
+use weather_core::cli::commands::{backend, cache, credits, layout_commands, weather};
+use weather_core::cli::commands::util::{setup, update};
+use weather_core::custom_backend::dynamic_library_loader::{ExternalBackends, is_valid_ext};
 use weather_core::local::dirs::custom_backends_dir;
 use weather_core::local::settings::Settings;
 
@@ -60,7 +61,7 @@ fn main() -> weather_core::Result<()> {
                 .map(|f| f.unwrap().path().display().to_string())
                 .collect();
             debug!("Loading: {plugins:?}");
-            custom_backends = weather_core::dynamic_loader::load(plugins);
+            custom_backends = weather_core::custom_backend::dynamic_library_loader::load(plugins);
         }
     }
     match args.command {
@@ -75,12 +76,12 @@ fn main() -> weather_core::Result<()> {
                     args.global_opts.json,
                     custom_backends,
                 )?,
-                Command::Backend(arg) => custom_backend(arg, settings)?,
+                Command::Backend(arg) => backend::subcommand(arg, settings)?,
                 Command::Cache(arg) => cache(arg)?,
                 Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value)?,
                 Command::Credits => credits(),
                 Command::Settings => weather_core::open_settings_app(),
-                Command::Layout(arg) => layout(arg, settings)?,
+                Command::Layout(arg) => layout_commands::subcommand(arg, settings)?,
                 Command::Setup => setup(settings)?,
                 Command::Update(opts) => update(opts.force)?,
             };

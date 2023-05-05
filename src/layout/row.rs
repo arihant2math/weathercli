@@ -38,11 +38,7 @@ impl Row {
         let mut s = String::new();
         for (count, i) in self.items.iter().enumerate() {
             s += &*i
-                .to_string(
-                    data,
-                    settings.clone(),
-                    metric,
-                )
+                .to_string(data, settings.clone(), metric)
                 .map_err(|e| reemit_layout_error(e, count))?;
         }
         Ok(s)

@@ -42,7 +42,7 @@ pub enum LayoutOpts {
     Install(InstallOpts),
     List,
     Select,
-    Delete
+    Delete,
 }
 
 #[derive(Clone, Subcommand)]
@@ -52,13 +52,15 @@ pub enum BackendOpts {
     #[command(about = "List all installed backends")]
     List,
     Select,
+    OpenWeatherMapApiKey,
+    BingMapsApiKey,
     #[command(about = "Delete an installed custom backend")]
     Delete,
 }
 
 #[derive(Clone, Args)]
 pub struct InstallOpts {
-    pub path: String
+    pub path: String,
 }
 
 #[derive(Clone, Subcommand)]

@@ -44,28 +44,29 @@ rustc_version = "0.4.0"
 [dependencies]
 auto-launch = { version = "0.4.0", optional = true, path = "./lib/auto-launch" }
 bincode = "1.3.3"
-dirs-sys = { version = "0.4.0", path = "./lib/dirs-sys" }
-rayon = "1.7.*"
-serde_json = "1.0.*"
-sha2 = "0.10.*"
-crossterm = "0.26.*"
-futures-util = { version = "0.3.*", optional = true }
-indicatif = { version = "0.17.*", optional = true }
-iced = { version = "0.9.*", optional = true }
-tokio = { version = "1.28.*", features = ["full"], optional = true }
-clap = { version = "4.2.*", features = ["derive"] }
-serde = { version = "1.0.*", features = ["derive"] }
-reqwest = { version = "0.11.*", features = ["stream"], optional = true }
-hex = "0.4.*"
-image = "0.24.6"
-ureq = { version = "2.6.2", default-features = false, features = ["tls", "gzip", "cookies", "json"], path = "./lib/ureq" }
+clap = { version = "4.2", features = ["derive"] }
 cookie_store = "0.19.0"
-url = "2.3.1"
+crossterm = "0.26"
 dark-light = "1.0.0"
-libloading = "0.8.0"
-log4rs = "1.2.0"
-log = "0.4.17"
-regex = "1.8.1"
+futures-util = { version = "0.3", optional = true }
+hex = "0.4.*"
+home = "0.5"
+iced = { version = "0.9", features = ["image"], optional = true }
+image = "0.24"
+indicatif = { version = "0.17", optional = true }
+libloading = "0.8"
+log = "0.4"
+log4rs = "1.2"
+rayon = "1.7"
+regex = "1.8"
+reqwest = { version = "0.11", features = ["stream"], optional = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+tokio = { version = "1.28", features = ["full"], optional = true }
+ureq = { version = "2.6.2", default-features = false, features = ["tls", "gzip", "cookies", "json"], path = "./lib/ureq" }
+url = "2.3"
+wasmer = "3.3"
 
 [dev-dependencies]
 rand = "0.8.5"

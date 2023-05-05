@@ -79,5 +79,5 @@ impl AutoLaunch {
 
 /// Get the autostart dir
 fn get_dir() -> PathBuf {
-    dirs_sys::home_dir().unwrap().join(".config").join("autostart")
+    home::home_dir().unwrap().join(".config").join("autostart")
 }

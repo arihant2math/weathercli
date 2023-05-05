@@ -1,15 +1,16 @@
-use crate::error;
 use crate::backend::weather_forecast::WeatherForecast;
+use crate::error;
 use crate::error::LayoutErr;
 use crate::layout::LayoutFile;
 
-pub mod commands;
 pub mod arguments;
+pub mod commands;
 
 #[derive(Clone, Eq, PartialEq)]
 pub enum Datasource {
     Meteo,
     Openweathermap,
+    OpenweathermapOneCall,
     NWS,
     Other(String),
 }
@@ -18,6 +19,7 @@ pub fn datasource_from_str(s: &str) -> Datasource {
     match &*s.to_lowercase() {
         "nws" => Datasource::NWS,
         "openweathermap" => Datasource::Openweathermap,
+        "openweathermap_onecall" => Datasource::OpenweathermapOneCall,
         "meteo" => Datasource::Meteo,
         _ => Datasource::Other(s.to_string()),
     }
@@ -36,11 +38,15 @@ fn print_out(
         if out.is_err() {
             out = LayoutFile::new("default.res".to_string());
         }
-        println!("{}", out.map_err(|e| error::Error::LayoutError(LayoutErr {
-            message: e.to_string(),
-            row: None,
-            item: None
-        }))?.to_string(data, metric)?);
+        println!(
+            "{}",
+            out.map_err(|e| error::Error::LayoutError(LayoutErr {
+                message: e.to_string(),
+                row: None,
+                item: None
+            }))?
+            .to_string(data, metric)?
+        );
     }
     Ok(())
 }

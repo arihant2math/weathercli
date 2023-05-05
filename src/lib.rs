@@ -2,7 +2,7 @@ use std::path::Path;
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use log::{LevelFilter, warn};
+use log::{warn, LevelFilter};
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
@@ -10,12 +10,13 @@ use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use log4rs::Handle;
 
-use crate::backend::meteo::meteo_forecast::get_meteo_forecast;
-use crate::backend::nws::nws_forecast::get_nws_forecast;
-use crate::backend::openweathermap::openweathermap_forecast::get_openweathermap_forecast;
+use crate::backend::meteo;
+use crate::backend::nws;
+use crate::backend::openweathermap;
+use crate::backend::openweathermap_onecall;
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::cli::Datasource;
-use crate::dynamic_loader::ExternalBackends;
+use crate::custom_backend::dynamic_library_loader::ExternalBackends;
 use crate::local::dirs::weathercli_dir;
 use crate::local::settings::Settings;
 #[cfg(feature = "gui")]
@@ -26,15 +27,15 @@ use crate::util::Config;
 pub mod backend;
 pub mod cli;
 pub mod color;
-pub mod dynamic_loader;
+pub mod custom_backend;
 pub mod error;
 pub mod layout;
 pub mod local;
 pub mod location;
 pub mod networking;
 pub mod prompt;
-pub mod util;
 pub mod updater;
+pub mod util;
 
 pub type Result<T> = std::result::Result<T, error::Error>;
 
@@ -92,11 +93,15 @@ pub fn get_data_from_datasource(
             updater::resource::update_web_resources(update_server, None).unwrap_or(());
         });
     }
-    let conv_coords = [&*coordinates.latitude.to_string(), &*coordinates.longitude.to_string()];
+    let conv_coords = [
+        &*coordinates.latitude.to_string(),
+        &*coordinates.longitude.to_string(),
+    ];
     match datasource {
-        Datasource::Openweathermap => get_openweathermap_forecast(coordinates, settings),
-        Datasource::NWS => get_nws_forecast(coordinates, settings),
-        Datasource::Meteo => get_meteo_forecast(coordinates, settings),
+        Datasource::Openweathermap => openweathermap::forecast::get_forecast(coordinates, settings),
+        Datasource::OpenweathermapOneCall => openweathermap_onecall::forecast::get_forecast(coordinates, settings),
+        Datasource::NWS => nws::forecast::get_forecast(coordinates, settings),
+        Datasource::Meteo => meteo::forecast::get_forecast(coordinates, settings),
         Datasource::Other(s) => custom_backends.call(&s, conv_coords, settings),
     }
 }
@@ -140,4 +145,3 @@ pub fn init_logging() -> crate::Result<Handle> {
     // once you are done.
     Ok(log4rs::init_config(config).unwrap())
 }
-

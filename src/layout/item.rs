@@ -2,8 +2,8 @@ use serde_json::Value;
 
 use crate::color;
 use crate::error::LayoutErr;
-use crate::layout::{LayoutSettings, util};
 use crate::layout::layout_serde::ItemSerde;
+use crate::layout::{util, LayoutSettings};
 
 pub struct Item {
     data: ItemSerde,
@@ -15,9 +15,7 @@ fn round(f: f64) -> String {
 
 impl Item {
     pub fn new(i: ItemSerde) -> Self {
-        Self {
-            data: i
-        }
+        Self { data: i }
     }
 
     fn get_variable_value(&self, data: &Value) -> crate::Result<String> {
@@ -76,7 +74,10 @@ impl Item {
             ),
             "image" => util::image(
                 Self::new(args[0].clone()).get_value(data)?.parse().unwrap(),
-                Self::new(args[1].clone()).get_value(data)?.parse().unwrap_or(1.),
+                Self::new(args[1].clone())
+                    .get_value(data)?
+                    .parse()
+                    .unwrap_or(1.),
             ),
             _ => Err(crate::error::Error::LayoutError(LayoutErr {
                 message: "Function not found".to_string(),
@@ -107,13 +108,16 @@ impl Item {
         let variable_bg_color = settings.variable_bg_color;
         let unit_color = settings.unit_color;
         let unit_bg_color = settings.unit_bg_color;
-        let item_color = color::from_string(self.data.color.clone().unwrap_or_default())
-            .unwrap_or_default();
-        let item_bg_color = color::from_string(self.data.bg_color.clone().unwrap_or_default())
-            .unwrap_or_default();
+        let item_color =
+            color::from_string(self.data.color.clone().unwrap_or_default()).unwrap_or_default();
+        let item_bg_color =
+            color::from_string(self.data.bg_color.clone().unwrap_or_default()).unwrap_or_default();
         let item_color_string = item_color + &item_bg_color;
         if self.data.item_type == "text" {
-            return Ok(format!("{text_color}{text_bg_color}{item_color_string}{}", &self.data.value));
+            return Ok(format!(
+                "{text_color}{text_bg_color}{item_color_string}{}",
+                &self.data.value
+            ));
         } else if self.data.item_type == "variable" {
             let value = self.get_variable_value(data)?;
             let s = format!("{variable_color}{variable_bg_color}{item_color_string}{value}{unit_color}{unit_bg_color}");

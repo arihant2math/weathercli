@@ -1,14 +1,17 @@
-use crate::backend::nws::nws_json::{NWSPointJSON, NWSJSON};
+use crate::backend::nws::json::{NWSPointJSON, NWSJSON};
 use crate::location::Coordinates;
 use crate::networking;
 
-mod nws_current;
-pub mod nws_forecast;
-mod nws_json;
+mod current;
+pub mod forecast;
+mod json;
 
 pub fn nws_get_api_url(location: Coordinates, _metric: bool) -> crate::Result<String> {
     let get_point = networking::get_url(
-        format!("https://api.weather.gov/points/{},{}", location.latitude, location.longitude),
+        format!(
+            "https://api.weather.gov/points/{},{}",
+            location.latitude, location.longitude
+        ),
         None,
         None,
         None,

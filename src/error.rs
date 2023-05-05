@@ -1,8 +1,8 @@
+use bincode::ErrorKind;
 use std::fmt;
 use std::fmt::Debug;
-use bincode::ErrorKind;
 
-use crate::backend::custom_backend::InvocationError;
+use crate::custom_backend::InvocationError;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct LayoutErr {
@@ -65,10 +65,15 @@ impl From<std::io::Error> for Error {
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
         Self::SerializationError(format!(
-            "JSON parsing error at line {}, column {}",
-            error.line(),
-            error.column()
+            "JSON parsing error: {}",
+            error.to_string()
         ))
+    }
+}
+
+impl From<wasmer::CompileError> for Error {
+    fn from(value: wasmer::CompileError) -> Self {
+        Self::Other("Failed to compile wasm".to_string())
     }
 }
 
@@ -76,13 +81,27 @@ impl From<Box<ErrorKind>> for Error {
     fn from(value: Box<ErrorKind>) -> Self {
         match *value {
             ErrorKind::Io(i) => Self::IoError(i.to_string()),
-            ErrorKind::InvalidUtf8Encoding(e) => Self::SerializationError("Bincode Error: Invalid Utf8 Encoding".to_string()),
-            ErrorKind::InvalidBoolEncoding(e) => Self::SerializationError("Bincode Error: Invalid bool encoding".to_string()),
-            ErrorKind::InvalidCharEncoding => Self::SerializationError("Bincode Error: Invalid char encoding".to_string()),
-            ErrorKind::InvalidTagEncoding(u) => Self::SerializationError("Bincode Error: Invalid Tag encoding (enum)".to_string()),
-            ErrorKind::DeserializeAnyNotSupported => Self::SerializationError("Bincode Error: Attempted to deserialize object with deserialize_any ".to_string()),
-            ErrorKind::SizeLimit => Self::SerializationError("Bincode Error: Size Limit Exceeded".to_string()),
-            ErrorKind::SequenceMustHaveLength => Self::SerializationError("Bincode Error: Sequence must have length".to_string()),
+            ErrorKind::InvalidUtf8Encoding(e) => {
+                Self::SerializationError("Bincode Error: Invalid Utf8 Encoding".to_string())
+            }
+            ErrorKind::InvalidBoolEncoding(e) => {
+                Self::SerializationError("Bincode Error: Invalid bool encoding".to_string())
+            }
+            ErrorKind::InvalidCharEncoding => {
+                Self::SerializationError("Bincode Error: Invalid char encoding".to_string())
+            }
+            ErrorKind::InvalidTagEncoding(u) => {
+                Self::SerializationError("Bincode Error: Invalid Tag encoding (enum)".to_string())
+            }
+            ErrorKind::DeserializeAnyNotSupported => Self::SerializationError(
+                "Bincode Error: Attempted to deserialize object with deserialize_any ".to_string(),
+            ),
+            ErrorKind::SizeLimit => {
+                Self::SerializationError("Bincode Error: Size Limit Exceeded".to_string())
+            }
+            ErrorKind::SequenceMustHaveLength => {
+                Self::SerializationError("Bincode Error: Sequence must have length".to_string())
+            }
             ErrorKind::Custom(s) => Self::SerializationError("Bincode Error: ".to_string() + &s),
         }
     }

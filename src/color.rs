@@ -39,12 +39,17 @@ pub fn rgb(red: u8, green: u8, blue: u8) -> String {
     format!("\x1b[38;2;{red};{green};{blue}m")
 }
 
-pub fn string_to_rgb(s: String) -> Option<String> { // TODO: This is Foreground only
+pub fn string_to_rgb(s: String) -> Option<String> {
+    // TODO: This is Foreground only
     let split: Vec<&str> = s.split(',').collect();
     if split.len() != 3 {
         return None;
     }
-    Some(rgb(split[0].parse().ok()?, split[1].parse().ok()?, split[2].parse().ok()?))
+    Some(rgb(
+        split[0].parse().ok()?,
+        split[1].parse().ok()?,
+        split[2].parse().ok()?,
+    ))
 }
 
 pub fn from_string(s: String) -> Option<String> {

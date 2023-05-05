@@ -36,7 +36,10 @@ fn get_web() -> crate::Result<Coordinates> {
         .ok_or("No loc section")?
         .split(',')
         .collect();
-    Ok(Coordinates { latitude: location_vec[0].parse().unwrap(), longitude: location_vec[1].parse().unwrap()})
+    Ok(Coordinates {
+        latitude: location_vec[0].parse().unwrap(),
+        longitude: location_vec[1].parse().unwrap(),
+    })
 }
 
 fn bing_maps_geocode(query: &str, bing_maps_api_key: String) -> crate::Result<Coordinates> {
@@ -51,8 +54,8 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: String) -> crate::Result<Co
     let j: Value = serde_json::from_str(&r.text)?;
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
     Ok(Coordinates {
-        latitude: j_data[0].as_f64().ok_or("latitude not found") ?,
-        longitude: j_data[1].as_f64().ok_or("longitude not found") ?,
+        latitude: j_data[0].as_f64().ok_or("latitude not found")?,
+        longitude: j_data[1].as_f64().ok_or("longitude not found")?,
     })
 }
 
@@ -80,7 +83,10 @@ fn nominatim_geocode(query: &str) -> crate::Result<Coordinates> {
 
 fn nominatim_reverse_geocode(coordinates: Coordinates) -> crate::Result<String> {
     let r = networking::get_url(
-        format!("https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2", coordinates.latitude, coordinates.longitude),
+        format!(
+            "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
+            coordinates.latitude, coordinates.longitude
+        ),
         None,
         None,
         None,
@@ -112,7 +118,11 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<Coordinat
         return Ok(match attempt_cache {
             Err(_e) => {
                 let location = get_location_core(no_sys_loc)?;
-                cache::write("current_location", &format!("{},{}", location.latitude, location.longitude)).unwrap();
+                cache::write(
+                    "current_location",
+                    &format!("{},{}", location.latitude, location.longitude),
+                )
+                .unwrap();
                 location
             }
             Ok(ca) => {
@@ -123,7 +133,7 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<Coordinat
                 let split_vec: Vec<&str> = splt.into_iter().collect();
                 Coordinates {
                     latitude: split_vec[0].to_string().parse().unwrap(),
-                    longitude: split_vec[1].to_string().parse().unwrap()
+                    longitude: split_vec[1].to_string().parse().unwrap(),
                 }
             }
         });
@@ -149,10 +159,7 @@ pub fn geocode(query: String, bing_maps_api_key: String) -> crate::Result<Coordi
             let real_coordinate = coordinates?;
             let v = format!("{},{}", real_coordinate.latitude, real_coordinate.longitude);
             thread::spawn(move || {
-                cache::write(
-                    &("location".to_string() + &query.to_lowercase()),
-                    &v,
-                ).unwrap();
+                cache::write(&("location".to_string() + &query.to_lowercase()), &v).unwrap();
             });
             Ok(real_coordinate)
         }
@@ -164,14 +171,17 @@ pub fn geocode(query: String, bing_maps_api_key: String) -> crate::Result<Coordi
             let vec_collect: Vec<&str> = real_cache.split(',').collect();
             Ok(Coordinates {
                 latitude: vec_collect[0].to_string().parse().unwrap(),
-                longitude: vec_collect[1].to_string().parse().unwrap()
+                longitude: vec_collect[1].to_string().parse().unwrap(),
             })
         }
     }
 }
 
 pub fn reverse_geocode(coordinates: Coordinates) -> crate::Result<[String; 2]> {
-    let k = "coordinates".to_string() + &coordinates.latitude.to_string() + "," + &coordinates.longitude.to_string();
+    let k = "coordinates".to_string()
+        + &coordinates.latitude.to_string()
+        + ","
+        + &coordinates.longitude.to_string();
     let attempt_cache = cache::read(&k);
     match attempt_cache {
         Err(_e) => {

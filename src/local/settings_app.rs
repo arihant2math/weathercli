@@ -1,14 +1,37 @@
 use std::fmt;
 
 use dark_light::Mode;
+use iced;
 use iced::theme::Theme;
 use iced::widget::{button, column, container, radio, row, text, text_input, toggler};
-use iced::{Alignment, Element, Length, Sandbox, Settings};
+use iced::{Alignment, Element, Length, Sandbox};
 
 use crate::local::settings;
 
 pub fn run_settings_app() -> iced::Result {
-    App::run(Settings::default())
+    App::run(iced::Settings {
+        id: None,
+        window: iced::window::Settings {
+            size: (500, 700),
+            position: Default::default(),
+            min_size: Some((250, 500)),
+            max_size: Some((600, 750)),
+            visible: true,
+            resizable: true,
+            decorations: true,
+            transparent: false,
+            always_on_top: false,
+            icon: None,
+            platform_specific: Default::default(),
+        },
+        flags: (),
+        default_font: None,
+        default_text_size: 20.0,
+        text_multithreading: true,
+        antialiasing: true,
+        exit_on_close_request: true,
+        try_opengles_first: false,
+    })
 }
 
 #[derive(Default)]
@@ -41,7 +64,6 @@ enum DataSource {
     Meteo,
     OpenWeatherMap,
     Nws,
-    TheWeatherChannel,
 }
 
 impl fmt::Display for DataSource {
@@ -50,7 +72,6 @@ impl fmt::Display for DataSource {
             DataSource::Meteo => "meteo".to_string(),
             DataSource::OpenWeatherMap => "openweathermap".to_string(),
             DataSource::Nws => "nws".to_string(),
-            DataSource::TheWeatherChannel => "theweatherchannel".to_string(),
         };
         write!(f, "{s}")
     }
@@ -102,7 +123,6 @@ impl Sandbox for App {
             DataSource::Meteo,
             DataSource::OpenWeatherMap,
             DataSource::Nws,
-            DataSource::TheWeatherChannel,
         ]
         .iter()
         .fold(
@@ -114,7 +134,6 @@ impl Sandbox for App {
                     Some(match &*self.data.default_backend.clone().to_lowercase() {
                         "openweathermap" => DataSource::OpenWeatherMap,
                         "nws" => DataSource::Nws,
-                        "theweatherchannel" => DataSource::TheWeatherChannel,
                         _ => DataSource::Meteo,
                     }),
                     Message::DataSource,

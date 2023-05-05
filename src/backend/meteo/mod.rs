@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-use crate::backend::meteo::meteo_json::{MeteoAirQualityJson, MeteoForecastJson};
+use crate::backend::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 use crate::location::Coordinates;
 use crate::networking;
 use crate::networking::Resp;
 
-mod meteo_weather_data;
-pub mod meteo_forecast;
-mod meteo_json;
+pub mod forecast;
+mod json;
+mod weather_data;
 
 /// Gets the urls from the openweathermap api server
 pub fn meteo_get_api_urls(location: Coordinates, metric: bool) -> [String; 2] {

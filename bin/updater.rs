@@ -86,20 +86,18 @@ async fn main() -> weather_core::Result<()> {
     }
     let install_dir = std::env::current_dir()?;
     let parent = install_dir.parent().unwrap_or(&*install_dir);
-    let install_type_folders = fs::read_dir(parent)?.any(|f| {
-        f.expect("Dir Entry failed")
-            .file_name()
-            .to_str()
-            .unwrap_or("")
-            == CONFIG.weather_file_name
-    });
+    let install_type_folders = fs::read_dir(parent)?
+        .any(|f| f.expect("Dir Entry failed").file_name() == CONFIG.weather_file_name);
     let d_install_path = install_dir.clone();
     let w_install_path = if install_type_folders {
         parent.to_path_buf()
     } else {
         install_dir
     };
-    weather_core::updater::resource::update_web_resources(settings.internal.update_server, Some(args.quiet))?;
+    weather_core::updater::resource::update_web_resources(
+        settings.internal.update_server,
+        Some(args.quiet),
+    )?;
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {
@@ -138,7 +136,9 @@ async fn main() -> weather_core::Result<()> {
     if to_update.contains(&Component::Daemon) {
         let url =
             "https://arihant2math.github.io/weathercli/".to_string() + CONFIG.weather_d_file_name;
-        let path = d_install_path.to_path_buf().join(CONFIG.weather_d_file_name);
+        let path = d_install_path
+            .to_path_buf()
+            .join(CONFIG.weather_d_file_name);
         update_component(
             &url,
             &path.display().to_string(),

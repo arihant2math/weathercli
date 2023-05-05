@@ -1,10 +1,10 @@
-use std::{io, thread};
 use std::io::Write;
 use std::time::Duration;
+use std::{io, thread};
 
+use crate::{color, error};
 use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-use crate::{color, error};
 
 fn draw<S: AsRef<str>>(options: &[S], choice: usize, multiline: bool) -> String {
     assert!(options.len() > choice);
@@ -36,7 +36,11 @@ fn draw<S: AsRef<str>>(options: &[S], choice: usize, multiline: bool) -> String 
     result
 }
 
-pub fn choice<S: AsRef<str>>(options: &[S], default: usize, multiline: Option<bool>) -> crate::Result<usize> {
+pub fn choice<S: AsRef<str>>(
+    options: &[S],
+    default: usize,
+    multiline: Option<bool>,
+) -> crate::Result<usize> {
     let multiline_standard = multiline.unwrap_or(true); // TODO: Fix occasional no display bug
     thread::sleep(Duration::from_millis(100));
     read()?;
@@ -71,7 +75,10 @@ pub fn choice<S: AsRef<str>>(options: &[S], default: usize, multiline: Option<bo
                 code: KeyCode::Char('c'),
                 modifiers: KeyModifiers::CONTROL,
                 ..
-            }) => {disable_raw_mode()?; return Err(error::Error::IoError("Control-C pressed".to_string()))?},
+            }) => {
+                disable_raw_mode()?;
+                return Err(error::Error::IoError("Control-C pressed".to_string()))?;
+            }
             Event::Key(KeyEvent {
                 code: KeyCode::Enter,
                 ..
