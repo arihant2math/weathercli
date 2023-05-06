@@ -1,10 +1,10 @@
 {
-  "daemon-version": "2023.5.1",
+  "daemon-version": "2023.5.6",
   "default-layout-hash": "350b9c9317453f748c77a18fb317c4bc924a041c666db7f5e280f87c9f4ae6fa",
   "updater-exe-hash-unix": "1f4d9e86187ddc13226103dc7efc2097a9d1e06482c7eae125f332287c742800",
   "updater-exe-hash-windows": "e33be6204597ad8910cefbbeea40748f65c527a67d344b209aea4cfa28a01470",
-  "updater-version": "2023.5.1",
-  "version": "2023.5.1",
+  "updater-version": "2023.5.6",
+  "version": "2023.5.6",
   "weather-ascii-images-hash": "14826ddeba3f90ac7d7abc5dc44ca2d888a89228f017670f8c82d49d3ae9e7e8",
   "weather-codes-hash": "8619aa20f190f2029c574edd2478345fa885564886f9b06c5a25839b979e073f",
   "weather-exe-hash-unix": "c26308ba7eb2b9eb3b5d8173a0ff0ab260c3fad1267ee7163deeb53a804aaffe",
