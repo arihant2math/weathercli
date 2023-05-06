@@ -73,7 +73,6 @@ async fn is_update_needed(index: IndexStruct, component: Component) -> weather_c
 #[tokio::main]
 async fn main() -> weather_core::Result<()> {
     print!("\x1b[0J");
-    print!("\x1b]9;4;3;0\x1b\\");
     let args = Cli::parse();
     let settings = Settings::new()?;
     let mut resp = reqwest::get(settings.internal.update_server.clone() + "index.json")
