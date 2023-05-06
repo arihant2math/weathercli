@@ -46,34 +46,36 @@ pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Resul
     debug!("updating web resources");
     let real_quiet = quiet.unwrap_or(false);
     let resp = networking::get_url(format!("{server}index.json"), None, None, None)?;
-    if resp.status == 200 {
-        let web_text = resp.text;
-        let web_json: Value = serde_json::from_str(&web_text)?;
-        update_web_resource(
-            String::from("resources/weather_codes.res"),
-            web_json.clone(),
-            &(server.clone() + "weather_codes.res"),
-            "weather-codes-hash",
-            "weather codes",
-            real_quiet,
-        )?;
-        update_web_resource(
-            "resources/weather_ascii_images.res".to_string(),
-            web_json.clone(),
-            &(server.clone() + "weather_ascii_images.res"),
-            "weather-ascii-images-hash",
-            "ascii images",
-            real_quiet,
-        )?;
-        update_web_resource(
-            "layouts/default.res".to_string(),
-            web_json,
-            &(server + "default_layout.res"),
-            "default-layout-hash",
-            "default layout",
-            real_quiet,
-        )?;
-        return Ok(());
+    unsafe {
+        if resp.status == 200 {
+            let mut web_text = resp.text;
+            let web_json: Value = simd_json::serde::from_str(&mut web_text)?; // Real unsafe here
+            update_web_resource(
+                String::from("resources/weather_codes.res"),
+                web_json.clone(),
+                &(server.clone() + "weather_codes.res"),
+                "weather-codes-hash",
+                "weather codes",
+                real_quiet,
+            )?;
+            update_web_resource(
+                "resources/weather_ascii_images.res".to_string(),
+                web_json.clone(),
+                &(server.clone() + "weather_ascii_images.res"),
+                "weather-ascii-images-hash",
+                "ascii images",
+                real_quiet,
+            )?;
+            update_web_resource(
+                "layouts/default.res".to_string(),
+                web_json,
+                &(server + "default_layout.res"),
+                "default-layout-hash",
+                "default layout",
+                real_quiet,
+            )?;
+            return Ok(());
+        }
     }
     Err(crate::error::Error::NetworkError(
         "Status not 200".to_string(),

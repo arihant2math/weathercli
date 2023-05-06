@@ -71,6 +71,15 @@ impl From<serde_json::Error> for Error {
     }
 }
 
+impl From<simd_json::Error> for Error {
+    fn from(error: simd_json::Error) -> Self {
+        Self::SerializationError(format!(
+            "JSON parsing error: {}",
+            error.to_string()
+        ))
+    }
+}
+
 impl From<wasmer::CompileError> for Error {
     fn from(value: wasmer::CompileError) -> Self {
         Self::Other("Failed to compile wasm".to_string())
@@ -115,7 +124,7 @@ impl From<String> for Error {
 
 impl From<&str> for Error {
     fn from(value: &str) -> Self {
-        Self::Other(value.to_string())
+        Self::Other(format!("{value}"))
     }
 }
 

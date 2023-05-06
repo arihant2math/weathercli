@@ -1,3 +1,4 @@
+// TODO: switch allocator to jebmalloc due to simd_json performance
 use std::path::Path;
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};

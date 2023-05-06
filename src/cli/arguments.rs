@@ -18,8 +18,10 @@ pub struct App {
 pub enum Command {
     #[command(about = "Get the weather for a specific place")]
     Place(PlaceOpts),
-    #[command(about = "Open the gui settings editor")]
+    #[command(about = "Open a partial settings editor")]
     Settings,
+    #[command(about = "Open the gui settings editor")]
+    GuiSettings,
     #[command(about = "Set a config variable via weather config [key] [value]")]
     Config(ConfigOpts),
     #[command(subcommand)]

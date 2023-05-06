@@ -37,7 +37,7 @@ impl WeatherFile {
 
     /// Writes self.data to the file at self.path
     pub fn write(&self) -> crate::Result<()> {
-        println!("Writing to {}", self.path.display());
+        trace!("Writing to {}", self.path.display());
         let f = File::options()
             .write(true)
             .truncate(true)

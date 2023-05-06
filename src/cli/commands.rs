@@ -10,7 +10,7 @@ use serde_json::Value;
 use crate::cli::arguments::CacheOpts;
 use crate::cli::{print_out, Datasource};
 use crate::custom_backend::dynamic_library_loader::ExternalBackends;
-use crate::get_data_from_datasource;
+use crate::{get_data_from_datasource, prompt};
 use crate::local::cache::prune;
 use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
@@ -41,16 +41,20 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
     match value {
         None => {
             let f = WeatherFile::settings()?;
-            let data: Value = serde_json::from_str(&f.get_text()?)?;
-            println!("{}: {}", &key_name, data[&key_name]);
+            unsafe {
+                let data: Value = simd_json::serde::from_str(&mut f.get_text()?)?;
+                println!("{}: {}", &key_name, data[&key_name]);
+            }
         }
         Some(real_value) => {
             println!("Writing {}={} ...", key_name.to_lowercase(), &real_value);
             let mut f = WeatherFile::settings()?;
-            let mut data: Value = serde_json::from_str(&f.get_text()?)?;
-            data[key_name.to_uppercase()] = Value::from_str(&real_value)?;
-            f.data = Vec::from(serde_json::to_string(&data)?);
-            f.write()?;
+            unsafe {
+                let mut data: Value = simd_json::serde::from_str(&mut f.get_text()?)?;
+                data[key_name.to_uppercase()] = Value::from_str(&real_value)?;
+                f.data = Vec::from(simd_json::serde::to_string(&data)?);
+                f.write()?;
+            }
         }
     };
     Ok(())
@@ -81,4 +85,9 @@ pub fn credits() {
     if cfg!(feature = "gui") || cfg!(windows) {
         println!("Icons from Icons8: https://icons8.com/");
     }
+}
+
+pub fn settings() -> crate::Result<()> {
+    prompt::multiselect(&["test1", "test2", "test3"], &[false, true, false], None)?;
+    Ok(())
 }

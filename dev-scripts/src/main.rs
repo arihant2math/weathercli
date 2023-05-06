@@ -2,8 +2,10 @@ use std::{env, fs, process};
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
+use std::path::Path;
 
 use clap::{Args, Parser, Subcommand};
+use crate::layout::compile_layout;
 
 use crate::update_hash::update_hash;
 
@@ -11,6 +13,10 @@ mod update_docs;
 mod update_hash;
 mod default_layout;
 mod layout;
+
+extern crate pest;
+#[macro_use]
+extern crate pest_derive;
 
 #[derive(Clone, Parser)]
 #[command(version, author, about, name = "dev-scripts")]
@@ -26,6 +32,7 @@ pub enum Command {
     #[command(about = "Bump docs executable")]
     UpdateDocs(UpdateDocsOpts),
     CompileJSON,
+    CompileCustomLayout(CompileCustomLayoutOpts),
     #[command(about = "Update index hashes")]
     IndexHashes,
 }
@@ -33,6 +40,11 @@ pub enum Command {
 #[derive(Clone, Args)]
 pub struct UpdateDocsOpts {
     github_api_token: String,
+}
+
+#[derive(Clone, Args)]
+pub struct CompileCustomLayoutOpts {
+    path: String,
 }
 
 fn build_docs() -> weather_core::Result<()> {
@@ -82,8 +94,16 @@ fn compile_json() -> weather_core::Result<()> {
     println!("Compiling default_layout");
     let path = "./docs_templates/default_layout";
     let d = default_layout::get_default_layout();
-    let v = bincode::serialize(&layout::compile_layout(d)?)?;
+    let v = bincode::serialize(&compile_layout(d)?)?;
     let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
+    f.write_all(&*v)?;
+    Ok(())
+}
+
+fn compile_layout_from_path(p: String) -> weather_core::Result<()> {
+    let bytes = fs::read(&p)?;
+    let v = bincode::serialize(&compile_layout(String::from_utf8(bytes).unwrap())?)?;
+    let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(format!("{p}.res"))?;
     f.write_all(&*v)?;
     Ok(())
 }
@@ -108,6 +128,7 @@ fn main() -> weather_core::Result<()> {
         Command::Docs => build_docs(),
         Command::UpdateDocs(opts) => update_docs::update_docs(&*opts.github_api_token),
         Command::CompileJSON => compile_json(),
+        Command::CompileCustomLayout(opts) => compile_layout_from_path(opts.path),
         Command::IndexHashes => index_hashes()
     }
 }

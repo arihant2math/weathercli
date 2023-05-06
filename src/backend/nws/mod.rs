@@ -18,7 +18,7 @@ pub fn nws_get_api_url(location: Coordinates, _metric: bool) -> crate::Result<St
     )?
     .text;
     let point_json: NWSPointJSON =
-        serde_json::from_str(&get_point).expect("Deserialization of json failed");
+        serde_json::from_str(&get_point)?;
     Ok(point_json.properties.forecast_grid_data)
 }
 
@@ -27,7 +27,6 @@ pub fn nws_get_combined_data_formatted(
     metric: bool,
 ) -> crate::Result<NWSJSON> {
     let raw_data = networking::get_url(nws_get_api_url(location, metric)?, None, None, None)?;
-    let data: NWSJSON =
-        serde_json::from_str(&raw_data.text).expect("Deserialization of json failed");
+    let data: NWSJSON = serde_json::from_str(&raw_data.text)?;
     Ok(data)
 }

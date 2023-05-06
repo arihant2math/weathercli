@@ -6,7 +6,9 @@ use crate::local::weather_file::WeatherFile;
 use crate::location::Coordinates;
 use std::collections::HashMap;
 use crate::backend::openweathermap_onecall::weather_data::get_weather_data;
+use crate::location;
 
+// TODO: add minute precision
 fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {
     let data = forecast;
     let mut rain: Vec<bool> = Vec::with_capacity(16);
@@ -66,14 +68,15 @@ pub fn get_forecast(
     let mut forecast: Vec<WeatherData> = Vec::new();
     let weather_file = WeatherFile::weather_codes()?;
     let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&weather_file.data)?;
-    forecast.push(get_weather_data(data.current, weather_codes.clone())?);
-    for item in data.hourly {
-        forecast.push(get_weather_data(item, weather_codes.clone())?);
+    forecast.push(get_weather_data(&data.current, &data.daily[0], weather_codes.clone())?);
+    for (count, item) in data.hourly.iter().enumerate() {
+        forecast.push(get_weather_data(item, &data.daily[count/24], weather_codes.clone())?); //TODO: Fix
     }
+    let region_country = location::reverse_geocode(coordinates)?;
     let forecast_sentence = get_forecast_sentence(forecast.clone());
     Ok(WeatherForecast {
-        region: "WIP".to_string(),
-        country: "WIP".to_string(),
+        region: region_country[0].clone(),
+        country: region_country[1].clone(),
         forecast: forecast.clone(),
         current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,

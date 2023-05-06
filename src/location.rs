@@ -29,8 +29,8 @@ fn get_windows() -> crate::Result<Coordinates> {
 }
 
 fn get_web() -> crate::Result<Coordinates> {
-    let resp = networking::get_url("https://ipinfo.io", None, None, None)?.text;
-    let json: HashMap<String, String> = serde_json::from_str(&resp)?;
+    let mut resp = networking::get_url("https://ipinfo.io", None, None, None)?.text;
+    let json: HashMap<String, String> = unsafe { simd_json::serde::from_str(&mut resp)? };
     let location_vec: Vec<&str> = json
         .get("loc")
         .ok_or("No loc section")?
@@ -43,7 +43,7 @@ fn get_web() -> crate::Result<Coordinates> {
 }
 
 fn bing_maps_geocode(query: &str, bing_maps_api_key: String) -> crate::Result<Coordinates> {
-    let r = networking::get_url(
+    let mut r = networking::get_url(
         format!(
             "https://dev.virtualearth.net/REST/v1/Locations?query=\"{query}\"&maxResults=5&key={bing_maps_api_key}"
         ),
@@ -51,7 +51,7 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: String) -> crate::Result<Co
         None,
         None,
     )?;
-    let j: Value = serde_json::from_str(&r.text)?;
+    let j: Value = unsafe { simd_json::serde::from_str(&mut r.text) }?;
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
     Ok(Coordinates {
         latitude: j_data[0].as_f64().ok_or("latitude not found")?,
@@ -60,13 +60,13 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: String) -> crate::Result<Co
 }
 
 fn nominatim_geocode(query: &str) -> crate::Result<Coordinates> {
-    let r = networking::get_url(
+    let mut r = networking::get_url(
         format!("https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"),
         None,
         None,
         None,
     )?;
-    let j: Value = serde_json::from_str(&r.text)?;
+    let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
     let latitude = j[0]["lat"]
         .as_f64()
         .ok_or("latitude not found")?
@@ -183,33 +183,35 @@ pub fn reverse_geocode(coordinates: Coordinates) -> crate::Result<[String; 2]> {
         + ","
         + &coordinates.longitude.to_string();
     let attempt_cache = cache::read(&k);
-    match attempt_cache {
-        Err(_e) => {
-            let data = nominatim_reverse_geocode(coordinates)?;
-            let place: Value = serde_json::from_str(&data)?;
-            let country = place["address"]["country"]
-                .as_str()
-                .ok_or("country not found")?
-                .to_string();
-            let mut region = "";
-            if let Some(city) = place["address"]["city"].as_str() {
-                region = city;
-            } else if let Some(county) = place["address"]["county"].as_str() {
-                region = county;
+    unsafe {
+        match attempt_cache {
+            Err(_e) => {
+                let mut data = nominatim_reverse_geocode(coordinates)?;
+                let place: Value = simd_json::serde::from_str(&mut data)?;
+                let country = place["address"]["country"]
+                    .as_str()
+                    .ok_or("country not found")?
+                    .to_string();
+                let mut region = "";
+                if let Some(city) = place["address"]["city"].as_str() {
+                    region = city;
+                } else if let Some(county) = place["address"]["county"].as_str() {
+                    region = county;
+                }
+                let v = region.to_string() + ",?`|" + &country;
+                thread::spawn(move || {
+                    cache::write(&k, &v).unwrap_or_default();
+                });
+                Ok([region.to_string(), country])
             }
-            let v = region.to_string() + ",?`|" + &country;
-            thread::spawn(move || {
-                cache::write(&k, &v).unwrap_or_default();
-            });
-            Ok([region.to_string(), country])
-        }
-        Ok(real_cache) => {
-            let cache_string = "coordinates".to_string() + &k;
-            thread::spawn(move || {
-                cache::update_hits(cache_string).unwrap_or(());
-            });
-            let vec_collect: Vec<&str> = real_cache.split(",?`|").collect();
-            Ok([vec_collect[0].to_string(), vec_collect[1].to_string()])
+            Ok(real_cache) => {
+                let cache_string = "coordinates".to_string() + &k;
+                thread::spawn(move || {
+                    cache::update_hits(cache_string).unwrap_or(());
+                });
+                let vec_collect: Vec<&str> = real_cache.split(",?`|").collect();
+                Ok([vec_collect[0].to_string(), vec_collect[1].to_string()])
+            }
         }
     }
 }

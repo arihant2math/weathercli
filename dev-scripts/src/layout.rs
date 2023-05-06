@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use weather_core::layout::layout_serde::{ItemSerde, LayoutDefaultsSerde, LayoutSerde};
+use regex::Regex;
 
-fn strip(line: &str) -> &str { // TODO: Fix stripper (its actually good for now, but it can be better)
+fn strip(line: &str) -> &str { // TODO: Fix function (its actually good for now, but it can be better)
     return line.trim_end();
 }
 
@@ -118,13 +119,7 @@ pub fn compile_layout(s: String) -> weather_core::Result<LayoutSerde> {
     let lines: Vec<&str> = s.split("\n").collect();
     let mut rows: Vec<Vec<ItemSerde>> = Vec::new();
     let mut is_layout = false;
-    let mut version: Option<u64> = None;
-    let mut variable_color: Option<String> = None;
-    let mut text_color: Option<String> = None;
-    let mut unit_color: Option<String> = None;
-    let mut variable_bg_color: Option<String> = None;
-    let mut text_bg_color: Option<String> = None;
-    let mut unit_bg_color: Option<String> = None;
+    let mut variables: HashMap<&str, String> = HashMap::new();
     for line in lines {
         let stripped_line = strip(line);
         if stripped_line.chars().find(|&x| x != '-' && x != ' ').is_none() {
@@ -134,32 +129,24 @@ pub fn compile_layout(s: String) -> weather_core::Result<LayoutSerde> {
             rows.push(string_to_row(stripped_line.to_string()));
         }
         else {
-            if line.contains("=") {
+            let variable = Regex::new(r#"\w*=\w*"#).unwrap();
+            if variable.is_match(line) {
                 let split: Vec<&str> = line.split("=").collect();
-                let variable = split[0].trim_end();
+                let variable = split[0].trim_end().trim_start();
                 let value = split[1].trim_end().trim_start();
-                match variable {
-                    "version" => { version = Some(value.parse().unwrap()) },
-                    "variable_color" => { variable_color = Some(value.parse().unwrap()) },
-                    "text_color" => { text_color = Some(value.parse().unwrap()) },
-                    "unit_color" => { unit_color = Some(value.parse().unwrap()) },
-                    "variable_bg_color" => { variable_bg_color = Some(value.parse().unwrap()) },
-                    "text_bg_color" => { text_bg_color = Some(value.parse().unwrap()) },
-                    "unit_bg_color" => { unit_bg_color = Some(value.parse().unwrap()) },
-                    _ => {}
-                }
+                variables.insert(variable, value.to_string());
             }
         }
     }
     Ok(LayoutSerde {
-        version: version.unwrap_or(weather_core::layout::VERSION),
+        version: variables.get("version").unwrap_or(&weather_core::layout::VERSION.to_string()).parse().unwrap(),
         defaults: LayoutDefaultsSerde {
-            variable_color: variable_color.unwrap_or("FORE_LIGHTGREEN".to_string()),
-            text_color: text_color.unwrap_or("FORE_LIGHTBLUE".to_string()),
-            unit_color: unit_color.unwrap_or("FORE_MAGENTA".to_string()),
-            variable_bg_color: variable_bg_color.unwrap_or("BACK_RESET".to_string()),
-            text_bg_color: text_bg_color.unwrap_or("BACK_RESET".to_string()),
-            unit_bg_color: unit_bg_color.unwrap_or("BACK_RESET".to_string()),
+            variable_color: variables.get("variable_color").unwrap_or(&"FORE_LIGHTGREEN".to_string()).to_string(),
+            text_color: variables.get("text_color").unwrap_or(&"FORE_LIGHTBLUE".to_string()).to_string(),
+            unit_color: variables.get("unit_color").unwrap_or(&"FORE_MAGENTA".to_string()).to_string(),
+            variable_bg_color: variables.get("variable_bg_color").unwrap_or(&"BACK_RESET".to_string()).to_string(),
+            text_bg_color: variables.get("text_bg_color").unwrap_or(&"BACK_RESET".to_string()).to_string(),
+            unit_bg_color: variables.get("unit_bg_color").unwrap_or(&"BACK_RESET".to_string()).to_string(),
         },
         layout: rows,
     })

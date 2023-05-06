@@ -75,11 +75,10 @@ async fn main() -> weather_core::Result<()> {
     print!("\x1b[0J");
     let args = Cli::parse();
     let settings = Settings::new()?;
-    let resp = reqwest::get(settings.internal.update_server.clone() + "index.json")
+    let mut resp = reqwest::get(settings.internal.update_server.clone() + "index.json")
         .await
         .expect("Network request failed");
-    let json: IndexStruct =
-        serde_json::from_str(&resp.text().await.expect("Failed to receive text"))?;
+    let json: IndexStruct = unsafe { simd_json::serde::from_str(&mut resp.text().await.expect("Failed to receive text")) }?;
     if args.version && !args.quiet {
         println!("{}", weather_core::version());
         return Ok(());

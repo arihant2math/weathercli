@@ -35,7 +35,7 @@ pub fn open_weather_map_get_combined_data_formatted(
         coordinates,
         metric,
     );
-    let n = networking::get_url(&url, None, None, None)?;
-    let r: MainJson = serde_json::from_str(&n.text)?;
+    let mut n = networking::get_url(&url, None, None, None)?;
+    let r: MainJson = unsafe { simd_json::serde::from_str(&mut n.text) }?;
     Ok(r)
 }

@@ -1,4 +1,4 @@
-use crate::color::{FORE_CYAN, FORE_RED};
+use crate::color::{FORE_CYAN, FORE_LIGHTMAGENTA};
 use crate::local::settings::Settings;
 use crate::{networking, updater, version};
 use serde_json::Value;
@@ -9,7 +9,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
     println!("{FORE_CYAN}===== Weather CLI Setup =====");
     updater::resource::update_web_resources(settings.internal.update_server.clone(), None)?;
-    println!("{FORE_RED}Choose the default weather backend: ");
+    println!("{FORE_LIGHTMAGENTA}Choose the default weather backend: ");
     let options = [
         "Meteo",
         "Open Weather Map",
@@ -20,13 +20,13 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
         .iter()
         .position(|&x| x == settings.internal.default_backend.clone())
         .unwrap_or(0);
-    let current = crate::prompt::choice(&options, default, None)?;
+    let current = crate::prompt::radio(&options, default, None)?;
     let weather_backend_setting = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"][current];
     settings.internal.default_backend = weather_backend_setting.to_string();
     settings.write()?;
     thread::sleep(Duration::from_millis(100));
     println!(
-        "{FORE_RED}Is your location constant (i.e. is this computer stationary at all times)?"
+        "{FORE_LIGHTMAGENTA}Is your location constant (i.e. is this computer stationary at all times)?"
     );
     if settings.internal.constant_location {
         default = 0;
@@ -34,17 +34,17 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
         default = 1;
     }
     let constant_location_setting =
-        [true, false][crate::prompt::choice(&["yes", "no"], default, None)?];
+        [true, false][crate::prompt::radio(&["yes", "no"], default, None)?];
     settings.internal.constant_location = constant_location_setting;
     settings.write()?;
     thread::sleep(Duration::from_millis(100));
-    println!("{FORE_RED}Should static resources (ascii art, weather code sentences, etc.) be auto-updated?");
+    println!("{FORE_LIGHTMAGENTA}Should static resources (ascii art, weather code sentences, etc.) be auto-updated?");
     if settings.internal.auto_update_internet_resources {
         default = 0;
     } else {
         default = 1;
     }
-    let auto_update_setting = [true, false][crate::prompt::choice(&["yes", "no"], default, None)?];
+    let auto_update_setting = [true, false][crate::prompt::radio(&["yes", "no"], default, None)?];
     settings.internal.auto_update_internet_resources = auto_update_setting;
     settings.write()?;
     Ok(())

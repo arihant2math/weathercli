@@ -30,14 +30,16 @@ pub fn meteo_get_combined_data_formatted(
     metric: bool,
 ) -> crate::Result<MeteoFormattedData> {
     let urls = meteo_get_api_urls(coordinates, metric);
-    let n = networking::get_urls(&urls, None, None, None)?;
-    let r1: MeteoForecastJson = serde_json::from_str(&n[0].text)?;
-    let r2: MeteoAirQualityJson = serde_json::from_str(&n[1].text)?;
-    Ok(MeteoFormattedData {
-        weather: r1,
-        air_quality: r2,
-        raw_data: n,
-    })
+    let mut n = networking::get_urls(&urls, None, None, None)?;
+    unsafe {
+        let r1: MeteoForecastJson = simd_json::serde::from_str(&mut n[0].text)?;
+        let r2: MeteoAirQualityJson = simd_json::serde::from_str(&mut n[1].text)?;
+        Ok(MeteoFormattedData {
+            weather: r1,
+            air_quality: r2,
+            raw_data: n,
+        })
+    }
 }
 
 #[derive(Clone, Serialize, Deserialize)]

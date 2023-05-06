@@ -68,23 +68,27 @@ pub struct Settings {
 impl Settings {
     pub fn new() -> crate::Result<Self> {
         let file = WeatherFile::settings()?;
-        let parsed: SettingsJson = serde_json::from_str(&file.get_text()?)?;
-        Ok(Self {
-            internal: parsed,
-            file,
-        })
+        unsafe {
+            let parsed: SettingsJson = simd_json::serde::from_str(&mut file.get_text()?)?;
+            Ok(Self {
+                internal: parsed,
+                file,
+            })
+        }
     }
 
     pub fn write(&mut self) -> crate::Result<()> {
-        self.file.data = Vec::from(serde_json::to_string(&self.internal)?);
+        self.file.data = Vec::from(simd_json::serde::to_string(&self.internal)?);
         self.file.write()?;
         Ok(())
     }
 
     pub fn reload(&mut self) -> crate::Result<()> {
         self.file = WeatherFile::settings()?;
-        let parsed: SettingsJson = serde_json::from_str(&self.file.get_text()?)?;
-        self.internal = parsed;
+        unsafe {
+            let parsed: SettingsJson = simd_json::serde::from_str(&mut self.file.get_text()?)?;
+            self.internal = parsed;
+        }
         Ok(())
     }
 }
