@@ -14,9 +14,6 @@ mod update_hash;
 mod default_layout;
 mod layout;
 
-extern crate pest;
-#[macro_use]
-extern crate pest_derive;
 
 #[derive(Clone, Parser)]
 #[command(version, author, about, name = "dev-scripts")]

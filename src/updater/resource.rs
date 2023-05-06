@@ -16,7 +16,7 @@ fn update_web_resource(
     out_name: &str,
     quiet: bool,
 ) -> crate::Result<()> {
-    trace!("updating {name} ");
+    trace!("Checking for update for {name} ");
     let mut f = WeatherFile::new(&local_path)?;
     let file_hash = hash_file(&f.path.display().to_string())?;
     let web_json: Value = web_resp;
@@ -25,7 +25,7 @@ fn update_web_resource(
         .ok_or("Failed to get hash from web")?
         .to_string();
     if web_hash != file_hash {
-        debug!("name: {name} web: {web_hash} file: {file_hash}");
+        debug!("updating {name} web: {web_hash} file: {file_hash}");
         if !quiet {
             if f.exists {
                 println!("{}Downloading update for{out_name}", color::FORE_YELLOW);
