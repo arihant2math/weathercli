@@ -1,4 +1,4 @@
-use crate::local::dirs::weathercli_dir;
+use weather_dirs::weathercli_dir;
 use crate::now;
 use std::fs;
 use std::fs::File;

@@ -1,6 +1,6 @@
 use crate::backend::weather_forecast::WeatherForecast;
-use crate::error;
-use crate::error::LayoutErr;
+use weather_error;
+use weather_error::LayoutErr;
 use crate::layout::LayoutFile;
 
 pub mod arguments;
@@ -40,7 +40,7 @@ fn print_out(
         }
         println!(
             "{}",
-            out.map_err(|e| error::Error::LayoutError(LayoutErr {
+            out.map_err(|e| weather_error::Error::LayoutError(LayoutErr {
                 message: e.to_string(),
                 row: None,
                 item: None

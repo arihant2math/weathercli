@@ -26,7 +26,7 @@ pub fn get_latest_version() -> crate::Result<String> {
 }
 
 pub fn get_latest_updater_version() -> crate::Result<String> {
-    let mut data = networking::get_url(
+    let data = networking::get_url(
         "https://arihant2math.github.io/weathercli/index.json",
         None,
         None,

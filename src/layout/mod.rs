@@ -1,6 +1,6 @@
 use crate::backend::weather_forecast::WeatherForecast;
-use ansi as color;
-use crate::error::{Error, LayoutErr};
+use terminal::color;
+use weather_error::{Error, LayoutErr};
 use crate::layout::layout_serde::LayoutDefaultsSerde;
 use crate::layout::row::Row;
 use crate::local::weather_file::WeatherFile;
@@ -80,7 +80,7 @@ fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
 
 impl LayoutFile {
     pub fn new(path: String) -> crate::Result<Self> {
-        let file = WeatherFile::new(&("layouts/".to_string() + &path))?;
+        let file = WeatherFile::new("layouts/".to_string() + &path)?;
         let ext = file
             .path
             .extension()

@@ -2,7 +2,7 @@ use crate::backend::openweathermap::json::OpenWeatherMapForecastItemJson;
 use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherData};
 use crate::backend::WindData;
-use crate::now;
+use now::now;
 use std::collections::HashMap;
 
 pub fn get_future(
@@ -11,7 +11,7 @@ pub fn get_future(
 ) -> crate::Result<WeatherData> {
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     for condition in data.weather.clone() {
-        conditions.push(WeatherCondition::new(condition.id as u16, &weather_codes)?);
+        conditions.push(WeatherCondition::new(condition.id, &weather_codes)?);
     }
     Ok(WeatherData {
         time: now() as i128,

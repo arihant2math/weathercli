@@ -7,7 +7,7 @@ use windows::Devices::Geolocation::Geolocator;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::PositionAccuracy;
 
-use crate::local::cache;
+use cache;
 use networking;
 
 #[derive(Clone, Copy)]

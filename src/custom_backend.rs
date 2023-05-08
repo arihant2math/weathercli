@@ -4,7 +4,6 @@ pub mod wasm_loader;
 
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
-use std::fmt;
 
 pub static RUSTC_VERSION: &str = env!("RUSTC_VERSION");
 pub static CORE_VERSION: &str = "0.0";
@@ -19,23 +18,6 @@ pub trait WeatherForecastPlugin {
     /// Help text that may be used to display information about this function.
     fn help(&self) -> Option<&str> {
         None
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum InvocationError {
-    CoordinatesError,
-    NotFound,
-    Other { msg: String },
-}
-
-impl fmt::Display for InvocationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::CoordinatesError => write!(f, "Invalid Coordinates"),
-            Self::NotFound => write!(f, "Not found"),
-            Self::Other { msg } => write!(f, "{msg}"),
-        }
     }
 }
 

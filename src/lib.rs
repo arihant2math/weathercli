@@ -1,5 +1,4 @@
 // TODO: switch allocator to jebmalloc due to simd_json performance
-use std::time::{SystemTime, UNIX_EPOCH};
 
 use log::LevelFilter;
 use log4rs::append::console::{ConsoleAppender, Target};
@@ -10,35 +9,25 @@ use log4rs::filter::threshold::ThresholdFilter;
 use log4rs::Handle;
 
 use crate::custom_backend::dynamic_library_loader::{is_valid_ext, ExternalBackends};
-use crate::local::dirs::weathercli_dir;
+use weather_dirs::weathercli_dir;
 #[cfg(feature = "gui")]
 use crate::local::settings_app;
 use crate::util::Config;
 
-use crate::local::dirs::custom_backends_dir;
+use weather_dirs::custom_backends_dir;
 use log::debug;
 use std::{fs, io};
 
 pub mod backend;
 pub mod cli;
 pub mod custom_backend;
-pub mod error;
 pub mod layout;
 pub mod local;
 pub mod location;
-pub mod prompt;
 pub mod updater;
 pub mod util;
 
-pub type Result<T> = std::result::Result<T, error::Error>;
-
-pub fn now() -> u128 {
-    let start = SystemTime::now();
-    let since_the_epoch = start.duration_since(UNIX_EPOCH).expect(
-        "Time went backwards :( or there is an overflow error of some sort and stuff broke",
-    );
-    since_the_epoch.as_millis()
-}
+pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
@@ -72,7 +61,7 @@ pub const CONFIG: Config<'static> = Config {
 pub fn init_logging() -> crate::Result<Handle> {
     let level = LevelFilter::Info;
     let mut file_path = weathercli_dir()?.join("logs");
-    file_path.push(format!("{}.log", now()));
+    file_path.push(format!("{}.log", now::now()));
     // Build a stderr logger.
     let stderr = ConsoleAppender::builder()
         .target(Target::Stderr)

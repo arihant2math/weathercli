@@ -1,4 +1,4 @@
-use ansi as color;
+use terminal::color;
 use regex::Regex;
 use std::fs;
 use std::io::Write;

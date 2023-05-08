@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::error::{Error, LayoutErr};
+use weather_error::{Error, LayoutErr};
 use crate::layout::item::Item;
 use crate::layout::layout_serde::ItemSerde;
 use crate::layout::LayoutSettings;

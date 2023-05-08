@@ -16,7 +16,7 @@ pub fn radio<S: AsRef<str>>(
     options: &[S],
     default: usize,
     multiline: Option<bool>,
-) -> crate::Result<usize> {
+) -> io::Result<usize> {
     let multiline_standard = multiline.unwrap_or(true);
     thread::sleep(Duration::from_millis(100));
     let start_msg = draw(options, default, multiline_standard);

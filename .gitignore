@@ -10,5 +10,12 @@ weatherd.exe
 weather.spec
 test.http
 
+internal/cache/target/*
+internal/networking/target/*
+internal/now/target/*
+internal/terminal/target/*
+internal/weather_dirs/target/*
+internal/weather_error/target/*
+
 custom_backends/theweatherchannel/target/*
 dev-scripts/target/*

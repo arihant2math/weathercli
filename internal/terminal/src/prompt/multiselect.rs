@@ -1,4 +1,4 @@
-use ansi::{FORE_BLUE, FORE_GREEN, FORE_LIGHTMAGENTA};
+use crate::color::{FORE_BLUE, FORE_GREEN, FORE_LIGHTMAGENTA};
 use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use std::io::Write;
@@ -47,7 +47,7 @@ pub fn multiselect<S: AsRef<str>>(
     options: &[S],
     defaults: &[bool],
     multiline: Option<bool>,
-) -> crate::Result<Vec<bool>> {
+) -> io::Result<Vec<bool>> {
     println!("Press ctrl-q when finished, red is not selected and green is selected");
     let multiline_standard = multiline.unwrap_or(true);
     thread::sleep(Duration::from_millis(100));

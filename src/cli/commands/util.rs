@@ -1,6 +1,6 @@
-use ansi::{FORE_CYAN, FORE_LIGHTMAGENTA};
+use terminal::color::{FORE_CYAN, FORE_LIGHTMAGENTA};
 use crate::local::settings::Settings;
-use crate::prompt::{input, yes_no};
+use terminal::prompt::{input, yes_no};
 use crate::{updater, version};
 use serde_json::Value;
 use std::time::Duration;
@@ -9,7 +9,7 @@ use std::{fs, thread};
 pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
     println!("{FORE_CYAN}===== Weather CLI Setup =====");
-    updater::resource::update_web_resources(settings.update_server.clone(), None);
+    updater::resource::update_web_resources(settings.update_server.clone(), None)?;
     println!("{FORE_LIGHTMAGENTA}Choose the default weather backend: ");
     let options = [
         "Meteo",
@@ -18,7 +18,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
         "National Weather Service",
         "The Weather Channel",
     ];
-    let mut default = [
+    let default = [
         "METEO",
         "OPENWEATHERMAP_ONECALL",
         "OPENWEATHERMAP",
@@ -28,7 +28,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
     .iter()
     .position(|&x| x == settings.default_backend.clone())
     .unwrap_or(0);
-    let current = crate::prompt::radio(&options, default, None)?;
+    let current = terminal::prompt::radio(&options, default, None)?;
     let weather_backend_setting = [
         "METEO",
         "OPENWEATHERMAP_ONECALL",

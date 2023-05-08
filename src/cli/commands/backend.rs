@@ -1,10 +1,10 @@
 use crate::cli::arguments::BackendOpts;
 use crate::custom_backend::dynamic_library_loader::is_valid_ext;
-use crate::local::dirs::custom_backends_dir;
+use weather_dirs::custom_backends_dir;
 use crate::local::settings::Settings;
 use crate::util::list_dir;
-use crate::prompt;
-use ansi as color;
+use terminal::prompt;
+use terminal::color;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;

@@ -3,7 +3,7 @@ use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherData};
 use crate::backend::WindData;
 use crate::local::weather_file::WeatherFile;
-use crate::now;
+use now::now;
 use std::collections::HashMap;
 
 fn convert_temp(value: f64, metric: bool) -> f64 {

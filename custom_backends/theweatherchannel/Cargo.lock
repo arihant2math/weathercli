@@ -59,10 +59,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ansi"
-version = "0.1.0"
-
-[[package]]
 name = "anstream"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -240,6 +236,15 @@ name = "bytes"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89b2fd2a0dcf38d7971e2194b6b6eebab45ae01067456a7fd93d5547a61b70be"
+
+[[package]]
+name = "cache"
+version = "0.1.0"
+dependencies = [
+ "now",
+ "weather_dirs",
+ "weather_error",
+]
 
 [[package]]
 name = "cc"
@@ -1583,6 +1588,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
 
 [[package]]
+name = "now"
+version = "0.1.0"
+
+[[package]]
 name = "num-integer"
 version = "0.1.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2530,6 +2539,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "terminal"
+version = "0.1.0"
+dependencies = [
+ "crossterm",
+]
+
+[[package]]
 name = "theweatherchannel"
 version = "0.1.0"
 dependencies = [
@@ -3077,29 +3093,50 @@ dependencies = [
 name = "weather"
 version = "2023.5.6"
 dependencies = [
- "ansi",
  "auto-launch",
  "bincode",
+ "cache",
  "clap",
- "crossterm",
  "futures",
  "hex",
- "home",
  "image",
  "libloading",
  "log",
  "log4rs",
  "networking",
+ "now",
  "regex",
  "rustc_version",
  "serde",
  "serde_json",
  "sha2",
  "simd-json",
+ "terminal",
  "wasmer",
+ "weather_dirs",
+ "weather_error",
  "windows",
  "winreg",
  "winresource",
+]
+
+[[package]]
+name = "weather_dirs"
+version = "0.1.0"
+dependencies = [
+ "home",
+ "weather_error",
+]
+
+[[package]]
+name = "weather_error"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "serde_json",
+ "simd-json",
+ "wasmer",
+ "windows",
 ]
 
 [[package]]

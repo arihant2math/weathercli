@@ -1,7 +1,7 @@
 use serde_json::Value;
 
-use ansi as color;
-use crate::error::LayoutErr;
+use terminal::color;
+use weather_error::LayoutErr;
 use crate::layout::layout_serde::ItemSerde;
 use crate::layout::{util, LayoutSettings};
 
@@ -36,7 +36,7 @@ impl Item {
             } else {
                 // normal variable
                 if current.is_null() {
-                    return Err(crate::error::Error::LayoutError(LayoutErr {
+                    return Err(weather_error::Error::LayoutError(LayoutErr {
                         message: "Variable not found in data".to_string(),
                         row: None,
                         item: None,
@@ -53,7 +53,7 @@ impl Item {
                 None => Ok(current
                     .as_i64()
                     .ok_or_else(|| {
-                        crate::error::Error::LayoutError(LayoutErr {
+                        weather_error::Error::LayoutError(LayoutErr {
                             message: "Json type not supported".to_string(),
                             row: None,
                             item: None,
@@ -81,7 +81,7 @@ impl Item {
                     .parse()
                     .unwrap_or(1.),
             ),
-            _ => Err(crate::error::Error::LayoutError(LayoutErr {
+            _ => Err(weather_error::Error::LayoutError(LayoutErr {
                 message: "Function not found".to_string(),
                 row: None,
                 item: None,

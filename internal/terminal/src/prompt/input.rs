@@ -1,4 +1,4 @@
-use ansi::{FORE_BLUE, FORE_GREEN, FORE_LIGHTMAGENTA, FORE_RESET};
+use crate::color::{FORE_BLUE, FORE_GREEN, FORE_LIGHTMAGENTA, FORE_RESET};
 use crossterm::event::{read, Event, KeyCode, KeyEvent, KeyModifiers};
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 use std::io::Write;
@@ -11,7 +11,7 @@ fn modify(choice: String, to_add: &str, position: usize) -> String {
     format!("{first}{to_add}{second}")
 }
 
-pub fn input(prompt: Option<String>, default: Option<String>) -> crate::Result<String> {
+pub fn input(prompt: Option<String>, default: Option<String>) -> io::Result<String> {
     let real_prompt = prompt.unwrap_or_else(|| "> ".to_string());
     read()?;
     print!("{real_prompt}");

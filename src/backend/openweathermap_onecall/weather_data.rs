@@ -2,7 +2,7 @@ use crate::backend::openweathermap_onecall::json::{DailyJson, MomentJson};
 use crate::backend::weather_condition::WeatherCondition;
 use crate::backend::weather_data::{get_conditions_sentence, WeatherData};
 use crate::backend::WindData;
-use crate::now;
+use now::now;
 use std::collections::HashMap;
 
 pub fn get_weather_data(

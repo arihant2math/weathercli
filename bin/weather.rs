@@ -2,14 +2,14 @@ use std::mem::discriminant;
 
 use clap::Parser;
 
-use ansi as color;
+use terminal::color;
 use weather_core::{init_logging, load_custom_backends, location};
 use weather_core::cli::{Datasource, datasource_from_str};
 use weather_core::cli::arguments::{App, Command};
 use weather_core::cli::commands::{backend, cache, credits, layout_commands, settings, weather};
 use weather_core::cli::commands::util::{setup, update};
 use weather_core::custom_backend::dynamic_library_loader::ExternalBackends;
-use weather_core::local::dirs::custom_backends_dir;
+use weather_dirs::custom_backends_dir;
 use weather_core::local::settings::Settings;
 
 fn main() {
@@ -41,13 +41,16 @@ fn run() -> weather_core::Result<()> {
             .datasource
             .unwrap_or_else(|| settings_s.default_backend.clone()),
     );
-    let mut custom_backends = ExternalBackends::default();
+    let custom_backends =
     if settings_s.enable_custom_backends
         && discriminant(&datasource) == discriminant(&Datasource::Other(String::new()))
         && custom_backends_dir()?.exists()
     {
-        custom_backends = load_custom_backends()?;
+        load_custom_backends()?
     }
+    else {
+        ExternalBackends::default()
+    };
     match args.command {
         Some(command) => {
             match command {

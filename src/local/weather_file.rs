@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::PathBuf;
 
-use crate::local::dirs::weathercli_dir;
+use weather_dirs::weathercli_dir;
 
 #[derive(Clone)]
 pub struct WeatherFile {

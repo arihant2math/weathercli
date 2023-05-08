@@ -5,8 +5,9 @@ use log::{debug, error, trace};
 
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::custom_backend;
-use crate::custom_backend::{InvocationError, PluginDeclaration, WeatherForecastPlugin};
-use crate::error::Error;
+use crate::custom_backend::{PluginDeclaration, WeatherForecastPlugin};
+use weather_error::InvocationError;
+use weather_error::Error;
 use crate::local::settings::Settings;
 
 #[cfg(target_os = "windows")]

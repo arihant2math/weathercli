@@ -11,12 +11,12 @@ use std::path::Path;
 use crate::cli::arguments::CacheOpts;
 use crate::cli::{print_out, Datasource};
 use crate::custom_backend::dynamic_library_loader::ExternalBackends;
-use crate::local::dirs::resources_dir;
-use crate::local::cache::prune;
+use weather_dirs::resources_dir;
+use cache::prune;
 use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
 use crate::location::Coordinates;
-use crate::prompt;
+use terminal::prompt;
 use crate::backend::{meteo, nws, openweathermap, openweathermap_onecall, weather_forecast::WeatherForecast };
 use crate::updater;
 

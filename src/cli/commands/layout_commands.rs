@@ -1,7 +1,7 @@
 use crate::cli::arguments::LayoutOpts;
-use ansi::{FORE_BLUE, FORE_GREEN, FORE_LIGHTMAGENTA, RESET};
+use terminal::color::{FORE_BLUE, FORE_GREEN, FORE_LIGHTMAGENTA, RESET};
 use crate::layout::LayoutFile;
-use crate::local::dirs::layouts_dir;
+use weather_dirs::layouts_dir;
 use crate::local::settings::Settings;
 use crate::util::list_dir;
 use std::fs;
@@ -52,7 +52,7 @@ fn select(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
     let current = &*settings.layout_file;
     let current_index = paths.iter().position(|c| c == current).unwrap_or(0); // TODO: make it default.res
-    let choice = crate::prompt::radio(&paths, current_index, None)?;
+    let choice = terminal::prompt::radio(&paths, current_index, None)?;
     let mut settings = Settings::new()?; // TODO: Fix excess read
     settings.layout_file = paths[choice].to_string();
     settings.write()?;
@@ -63,7 +63,7 @@ fn delete(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
     let current = &*settings.layout_file;
     let current_index = paths.iter().position(|c| c == current).unwrap_or(0); // TODO: make it default.res
-    let choice = paths[crate::prompt::radio(&paths, current_index, None)?].to_string();
+    let choice = paths[terminal::prompt::radio(&paths, current_index, None)?].to_string();
     fs::remove_file(layouts_dir()?.join(&*choice))?;
     if choice == current {
         println!("Please select a new default layout");

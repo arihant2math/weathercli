@@ -4,7 +4,7 @@ use serde_json::Value;
 use crate::local::weather_file::WeatherFile;
 use crate::util::hash_file;
 use networking;
-use ansi as color;
+use terminal::color;
 
 struct WebResource {
     local_path: &'static str,
@@ -87,15 +87,15 @@ pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Resul
                 real_quiet,
             )?;
             update_web_resource(
-                weather_ascii_images,
-                web_json.clone(),
-                server.clone(),
+                default_layout,
+                web_json,
+                server,
                 real_quiet,
             )?;
             return Ok(());
         }
     }
-    Err(crate::error::Error::NetworkError(
+    Err(weather_error::Error::NetworkError(
         "Status not 200".to_string(),
     ))
 }
