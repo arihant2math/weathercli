@@ -1,7 +1,5 @@
-use std::mem::discriminant;
 use std::{fs, io};
 
-use clap::Parser;
 
 use futures::{
     future::{BoxFuture, FutureExt},
@@ -14,23 +12,14 @@ use std::{
     task::Context,
 };
 
-use weather_core::cli::arguments::{App, Command};
-use weather_core::cli::commands::util::{setup, update};
-use weather_core::cli::commands::{backend, cache, credits, layout_commands, settings, weather};
-use weather_core::cli::{datasource_from_str, Datasource};
-use weather_core::custom_backend::dynamic_library_loader::ExternalBackends;
-use weather_core::local::dirs::custom_backends_dir;
-use weather_core::local::settings::Settings;
-use weather_core::{color, init_logging, load_custom_backends, location};
-
 /// Task executor that receives tasks off of a channel and runs them.
-struct Executor {
+pub struct Executor {
     ready_queue: Receiver<Arc<Task>>,
 }
 
 /// `Spawner` spawns new futures onto the task channel.
 #[derive(Clone)]
-struct Spawner {
+pub struct Spawner {
     task_sender: SyncSender<Arc<Task>>,
 }
 
@@ -96,7 +85,7 @@ impl Executor {
     }
 }
 
-fn new_executor_and_spawner() -> (Executor, Spawner) {
+pub fn new_executor_and_spawner() -> (Executor, Spawner) {
     // Maximum number of tasks to allow queueing in the channel at once.
     // This is just to make `sync_channel` happy, and wouldn't be present in
     // a real executor.

@@ -10,6 +10,7 @@ weatherd.exe
 weather.spec
 test.http
 
+internal/async_runner/target/*
 internal/cache/target/*
 internal/networking/target/*
 internal/now/target/*
