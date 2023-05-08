@@ -1,4 +1,5 @@
 use crate::backend;
+use crate::backend::openweathermap::current::get_current;
 use crate::backend::openweathermap::future::get_future;
 use crate::backend::weather_data::WeatherData;
 use crate::backend::weather_forecast::WeatherForecast;
@@ -6,7 +7,6 @@ use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
 use crate::location::Coordinates;
 use std::collections::HashMap;
-use crate::backend::openweathermap::current::get_current;
 
 fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {
     let data = forecast;
@@ -58,17 +58,17 @@ pub fn get_forecast(
     coordinates: Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
-    if settings.internal.open_weather_map_api_key.is_empty() {
+    if settings.open_weather_map_api_key.is_empty() {
         return Err(format!(
             "Improper openweathermap api key, {}",
-            settings.internal.open_weather_map_api_key
+            settings.open_weather_map_api_key
         ))?;
     }
-    let data = backend::openweathermap::open_weather_map_get_combined_data_formatted(
+    let data = backend::openweathermap::get_combined_data_formatted(
         "https://api.openweathermap.org/data/2.5/",
-        settings.internal.open_weather_map_api_key.clone(),
+        settings.open_weather_map_api_key.clone(),
         coordinates,
-        settings.internal.metric_default,
+        settings.metric_default,
     )?;
     let mut forecast: Vec<WeatherData> = Vec::new();
     let weather_file = WeatherFile::weather_codes()?;

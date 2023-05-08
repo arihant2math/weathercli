@@ -2,7 +2,7 @@ extern crate image;
 
 use std::path::Path;
 
-use crate::color::rgb;
+use ansi::rgb;
 use image::{imageops, GenericImageView};
 
 pub fn ascii_image(input_path: &str, scale: f64) -> crate::Result<String> {

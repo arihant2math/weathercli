@@ -29,7 +29,7 @@ pub fn get_url<S: AsRef<str>>(
     user_agent: Option<S>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
-) -> crate::Result<Resp> {
+) -> std::io::Result<Resp> {
     let url = url_s.as_ref();
     trace!("Retrieving {url}");
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
@@ -60,7 +60,7 @@ pub fn get_url<S: AsRef<str>>(
         },
     };
     if real_resp.is_err() {
-        return Err(crate::error::Error::NetworkError(format!(
+        return Err(std::io::Error::new(std::io::ErrorKind::ConnectionAborted, format!(
             "Get to {url} failed"
         )));
     }
@@ -91,7 +91,7 @@ pub fn get_urls(
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
-) -> crate::Result<Vec<Resp>> {
+) -> std::io::Result<Vec<Resp>> {
     trace!("Retrieving {urls:?}");
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
     for (key, value) in &cookies.clone().unwrap_or_default() {

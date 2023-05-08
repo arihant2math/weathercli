@@ -1,5 +1,5 @@
 use crate::backend::nws::current::get_current;
-use crate::backend::nws::nws_get_combined_data_formatted;
+use crate::backend::nws::get_combined_data_formatted;
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
 use crate::location;
@@ -9,8 +9,8 @@ pub fn get_forecast(
     coordinates: Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
-    let data = nws_get_combined_data_formatted(coordinates, settings.internal.metric_default)?;
-    let current = get_current(data, settings.internal.metric_default)?;
+    let data = get_combined_data_formatted(coordinates, settings.metric_default)?;
+    let current = get_current(data, settings.metric_default)?;
     let region_country = location::reverse_geocode(coordinates)?;
     Ok(WeatherForecast {
         region: region_country[0].clone(),

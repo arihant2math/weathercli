@@ -22,7 +22,7 @@ pub fn get_future(
             speed: data.wind.speed,
             heading: data.wind.deg,
         },
-        raw_data: serde_json::to_string_pretty(&data).expect("dump to string failed"),
+        raw_data: simd_json::to_string_pretty(&data).expect("dump to string failed"),
         dewpoint: data.main.humidity as f32,
         feels_like: data.main.feels_like as f32,
         aqi: 0,

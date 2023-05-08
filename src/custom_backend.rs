@@ -1,6 +1,6 @@
 pub mod dynamic_library_loader;
-pub mod wasm_loader;
 pub mod loader;
+pub mod wasm_loader;
 
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;

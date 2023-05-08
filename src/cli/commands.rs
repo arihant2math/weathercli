@@ -3,18 +3,55 @@ pub mod layout_commands;
 pub mod util;
 
 use std::str::FromStr;
+use std::thread;
 
-use log::debug;
+use log::{debug, warn};
 use serde_json::Value;
-
+use std::path::Path;
 use crate::cli::arguments::CacheOpts;
 use crate::cli::{print_out, Datasource};
 use crate::custom_backend::dynamic_library_loader::ExternalBackends;
-use crate::{get_data_from_datasource, prompt};
+use crate::local::dirs::resources_dir;
 use crate::local::cache::prune;
 use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
 use crate::location::Coordinates;
+use crate::prompt;
+use crate::backend::{meteo, nws, openweathermap, openweathermap_onecall, weather_forecast::WeatherForecast };
+use crate::updater;
+
+pub fn get_data_from_datasource(
+    datasource: Datasource,
+    coordinates: Coordinates,
+    settings: Settings,
+    custom_backends: ExternalBackends,
+) -> crate::Result<WeatherForecast> {
+    let dir = resources_dir()?;
+    let f1 = dir.join("weather_codes.res");
+    let f2 = dir.join("weather_ascii_images.res");
+    let update_server = settings.update_server.clone();
+    if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
+        warn!("Forcing downloading of web resources");
+        updater::resource::update_web_resources(update_server, None)?;
+    } else if settings.auto_update_internet_resources {
+        thread::spawn(move || {
+            updater::resource::update_web_resources(update_server, None).unwrap_or(());
+        });
+    }
+    let conv_coords = [
+        &*coordinates.latitude.to_string(),
+        &*coordinates.longitude.to_string(),
+    ];
+    match datasource {
+        Datasource::Openweathermap => openweathermap::forecast::get_forecast(coordinates, settings),
+        Datasource::OpenweathermapOneCall => {
+            openweathermap_onecall::forecast::get_forecast(coordinates, settings)
+        }
+        Datasource::NWS => nws::forecast::get_forecast(coordinates, settings),
+        Datasource::Meteo => meteo::forecast::get_forecast(coordinates, settings),
+        Datasource::Other(s) => custom_backends.call(&s, conv_coords, settings),
+    }
+}
 
 pub fn weather(
     datasource: Datasource,
@@ -31,9 +68,9 @@ pub fn weather(
     debug!("Metric: {true_metric}");
     debug!("json: {json}");
     let mut s = settings.clone();
-    s.internal.metric_default = true_metric;
+    s.metric_default = true_metric;
     let data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
-    print_out(settings.internal.layout_file, data, json, true_metric)?;
+    print_out(settings.layout_file, data, json, true_metric)?;
     Ok(())
 }
 
@@ -42,7 +79,7 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
         None => {
             let f = WeatherFile::settings()?;
             unsafe {
-                let data: Value = simd_json::serde::from_str(&mut f.get_text()?)?;
+                let data: Value = simd_json::from_str(&mut f.get_text()?)?;
                 println!("{}: {}", &key_name, data[&key_name]);
             }
         }
@@ -50,9 +87,9 @@ pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
             println!("Writing {}={} ...", key_name.to_lowercase(), &real_value);
             let mut f = WeatherFile::settings()?;
             unsafe {
-                let mut data: Value = simd_json::serde::from_str(&mut f.get_text()?)?;
+                let mut data: Value = simd_json::from_str(&mut f.get_text()?)?;
                 data[key_name.to_uppercase()] = Value::from_str(&real_value)?;
-                f.data = Vec::from(simd_json::serde::to_string(&data)?);
+                f.data = Vec::from(simd_json::to_string(&data)?);
                 f.write()?;
             }
         }
@@ -88,6 +125,26 @@ pub fn credits() {
 }
 
 pub fn settings() -> crate::Result<()> {
-    prompt::multiselect(&["test1", "test2", "test3"], &[false, true, false], None)?;
+    let mut settings = Settings::new()?;
+    let result = prompt::multiselect(
+        &[
+            "Metric",
+            "Show Alerts",
+            "Constant Location",
+            "Auto Update Resources",
+        ],
+        &[
+            settings.metric_default,
+            settings.show_alerts,
+            settings.constant_location,
+            settings.auto_update_internet_resources,
+        ],
+        None,
+    )?;
+    settings.metric_default = result[0];
+    settings.show_alerts = result[1];
+    settings.constant_location = result[2];
+    settings.auto_update_internet_resources = result[3];
+    settings.write()?;
     Ok(())
 }

@@ -8,7 +8,7 @@ use windows::Devices::Geolocation::Geolocator;
 use windows::Devices::Geolocation::PositionAccuracy;
 
 use crate::local::cache;
-use crate::networking;
+use networking;
 
 #[derive(Clone, Copy)]
 pub struct Coordinates {
@@ -30,7 +30,7 @@ fn get_windows() -> crate::Result<Coordinates> {
 
 fn get_web() -> crate::Result<Coordinates> {
     let mut resp = networking::get_url("https://ipinfo.io", None, None, None)?.text;
-    let json: HashMap<String, String> = unsafe { simd_json::serde::from_str(&mut resp)? };
+    let json: HashMap<String, String> = unsafe { simd_json::from_str(&mut resp)? };
     let location_vec: Vec<&str> = json
         .get("loc")
         .ok_or("No loc section")?
@@ -51,7 +51,7 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: String) -> crate::Result<Co
         None,
         None,
     )?;
-    let j: Value = unsafe { simd_json::serde::from_str(&mut r.text) }?;
+    let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
     Ok(Coordinates {
         latitude: j_data[0].as_f64().ok_or("latitude not found")?,
@@ -187,7 +187,7 @@ pub fn reverse_geocode(coordinates: Coordinates) -> crate::Result<[String; 2]> {
         match attempt_cache {
             Err(_e) => {
                 let mut data = nominatim_reverse_geocode(coordinates)?;
-                let place: Value = simd_json::serde::from_str(&mut data)?;
+                let place: Value = simd_json::from_str(&mut data)?;
                 let country = place["address"]["country"]
                     .as_str()
                     .ok_or("country not found")?

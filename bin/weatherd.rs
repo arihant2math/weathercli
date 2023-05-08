@@ -60,19 +60,19 @@ fn main() -> weather_core::Result<()> {
         register().expect("Registering failed");
     }
     if args.action == "start" {
-        let mut enabled = settings.internal.enable_daemon;
+        let mut enabled = settings.enable_daemon;
         while enabled {
             if !args.quiet {
                 println!("Updating Data ...");
             }
-            let sleep_duration =
-                time::Duration::from_secs(settings.internal.daemon_update_interval as u64);
-            enabled = settings.internal.enable_daemon;
-            let default_datasource = &*settings.internal.default_backend.clone();
+            #[allow(clippy::cast_sign_loss)]
+            let sleep_duration = time::Duration::from_secs(settings.daemon_update_interval as u64);
+            enabled = settings.enable_daemon;
+            let default_datasource = &*settings.default_backend.clone();
             if default_datasource.to_lowercase() == "openweathermap" {
-                let data = weather_core::get_data_from_datasource(
+                let data = weather_core::cli::commands::get_data_from_datasource(
                     datasource_from_str(default_datasource),
-                    weather_core::location::get(false, settings.internal.constant_location)?,
+                    weather_core::location::get(false, settings.constant_location)?,
                     settings.clone(),
                     ExternalBackends::default(),
                 )?;

@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::color;
+use ansi as color;
 use crate::error::LayoutErr;
 use crate::layout::layout_serde::ItemSerde;
 use crate::layout::{util, LayoutSettings};
@@ -52,11 +52,13 @@ impl Item {
                 Some(t) => Ok(round(t)),
                 None => Ok(current
                     .as_i64()
-                    .ok_or(crate::error::Error::LayoutError(LayoutErr {
-                        message: "Json type not supported".to_string(),
-                        row: None,
-                        item: None,
-                    }))?
+                    .ok_or_else(|| {
+                        crate::error::Error::LayoutError(LayoutErr {
+                            message: "Json type not supported".to_string(),
+                            row: None,
+                            item: None,
+                        })
+                    })?
                     .to_string()),
             },
         }

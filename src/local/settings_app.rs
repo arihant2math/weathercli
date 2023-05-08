@@ -37,7 +37,7 @@ pub fn run_settings_app() -> iced::Result {
 #[derive(Default)]
 struct App {
     theme: Theme,
-    data: settings::SettingsJson,
+    data: settings::Settings,
 }
 
 #[derive(Debug, Clone)]
@@ -50,13 +50,6 @@ enum Message {
     DataSource(DataSource),
     Cancel,
     Save,
-}
-
-fn save(data: settings::SettingsJson) -> crate::Result<()> {
-    let mut settings = settings::Settings::new()?;
-    settings.internal = data;
-    settings.write()?;
-    Ok(())
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -83,13 +76,12 @@ impl Sandbox for App {
     fn new() -> Self {
         let mut a = App::default();
         let mode = dark_light::detect();
-        let settings = settings::Settings::new().expect("Loading settings failed");
         a.theme = match mode {
             Mode::Default => Theme::default(),
             Mode::Light => Theme::Light,
             Mode::Dark => Theme::Dark,
         };
-        a.data = settings.internal;
+        a.data = settings::Settings::new().expect("Loading settings failed");
         a
     }
 
@@ -99,11 +91,9 @@ impl Sandbox for App {
 
     fn update(&mut self, message: Message) {
         match message {
-            Message::Save => save(self.data.clone()).unwrap_or(()),
+            Message::Save => self.data.write().unwrap_or(()),
             Message::Cancel => {
-                self.data = settings::Settings::new()
-                    .expect("Loading settings failed")
-                    .internal
+                self.data = settings::Settings::new().expect("Loading settings failed")
             }
             Message::MetricDefault(value) => self.data.metric_default = value,
             Message::ShowAlerts(value) => self.data.show_alerts = value,

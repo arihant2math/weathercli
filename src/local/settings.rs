@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
 
 use crate::local::weather_file::WeatherFile;
 
@@ -22,10 +23,40 @@ fn _update_server() -> String {
     String::from("https://arihant2math.github.io/weathercli/")
 }
 
-#[derive(Serialize, Deserialize, Clone, Default)]
+fn _file() -> WeatherFile {
+    WeatherFile::settings().unwrap()
+}
+
+#[cfg(not(windows))]
+fn _constant_location() -> bool {
+    false
+}
+
+#[cfg(windows)]
+unsafe fn _constant_location_base() -> crate::Result<bool> {
+    let mut power_status = SYSTEM_POWER_STATUS::default();
+    let success = windows::Win32::System::Power::GetSystemPowerStatus(&mut power_status).0;
+    match success {
+        0 => {
+            let error = windows::Win32::Foundation::GetLastError()
+                .to_hresult()
+                .message()
+                .to_string();
+            Err(error)?
+        }
+        _ => Ok(power_status.ACLineStatus == 255),
+    }
+}
+
+#[cfg(windows)]
+fn _constant_location() -> bool {
+    unsafe { _constant_location_base().unwrap_or(false) }
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 #[allow(clippy::struct_excessive_bools)]
-pub struct SettingsJson {
+pub struct Settings {
     #[serde(default)]
     pub open_weather_map_api_key: String,
     #[serde(default)]
@@ -36,7 +67,7 @@ pub struct SettingsJson {
     pub metric_default: bool,
     #[serde(default = "_meteo")]
     pub default_backend: String,
-    #[serde(default)]
+    #[serde(default = "_constant_location")]
     pub constant_location: bool,
     #[serde(default)]
     pub debug: bool,
@@ -57,38 +88,19 @@ pub struct SettingsJson {
     pub update_server: String,
     #[serde(default)]
     pub enable_custom_backends: bool,
-}
-
-#[derive(Clone)]
-pub struct Settings {
-    pub internal: SettingsJson,
+    #[serde(skip_serializing, skip_deserializing)]
+    #[serde(default = "_file")]
     file: WeatherFile,
 }
 
 impl Settings {
     pub fn new() -> crate::Result<Self> {
-        let file = WeatherFile::settings()?;
-        unsafe {
-            let parsed: SettingsJson = simd_json::serde::from_str(&mut file.get_text()?)?;
-            Ok(Self {
-                internal: parsed,
-                file,
-            })
-        }
+        unsafe { Ok(simd_json::from_str(&mut _file().get_text()?)?) }
     }
 
     pub fn write(&mut self) -> crate::Result<()> {
-        self.file.data = Vec::from(simd_json::serde::to_string(&self.internal)?);
+        self.file.data = Vec::from(simd_json::to_string(&self)?);
         self.file.write()?;
-        Ok(())
-    }
-
-    pub fn reload(&mut self) -> crate::Result<()> {
-        self.file = WeatherFile::settings()?;
-        unsafe {
-            let parsed: SettingsJson = simd_json::serde::from_str(&mut self.file.get_text()?)?;
-            self.internal = parsed;
-        }
         Ok(())
     }
 }

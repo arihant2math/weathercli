@@ -3,21 +3,50 @@ use serde_json::Value;
 
 use crate::local::weather_file::WeatherFile;
 use crate::util::hash_file;
-use crate::{color, networking};
+use networking;
+use ansi as color;
 
+struct WebResource {
+    local_path: &'static str,
+    pretty_name: &'static str,
+    hash_name: &'static str,
+    url: &'static str,
+}
+
+const weather_codes: WebResource = WebResource {
+    local_path: "resources/weather_codes.res",
+    pretty_name: "weather codes",
+    hash_name: "weather-ascii-images-hash",
+    url: "weather_codes.res",
+};
+
+const weather_ascii_images: WebResource = WebResource {
+    local_path: "resources/weather_ascii_images.res",
+    pretty_name: "ascii images",
+    hash_name: "weather-ascii-images-hash",
+    url: "weather_ascii_images.res",
+};
+
+const default_layout: WebResource = WebResource {
+    local_path: "layouts/default.res",
+    pretty_name: "default layout",
+    hash_name: "default-layout-hash",
+    url: "default_layout.res",
+};
 /// Updates the web resource at `$weathercli_dir/$local_path` if the hash of the local file does not match with
 /// the hash at index.json of the index name, if the hashes do not match it download a copy and replaces the existing file
 /// :param dev: if true the hashes will be printed if they do not match
 fn update_web_resource(
-    local_path: String,
+    resource: WebResource,
     web_resp: Value,
-    web_path: &str,
-    name: &str,
-    out_name: &str,
+    server: String,
     quiet: bool,
 ) -> crate::Result<()> {
+    let name = resource.hash_name; // TODO: remove stop-gap variables
+    let out_name = resource.pretty_name;
+    let web_path = server + resource.url;
     trace!("Checking for update for {name} ");
-    let mut f = WeatherFile::new(&local_path)?;
+    let mut f = WeatherFile::new(resource.local_path)?;
     let file_hash = hash_file(&f.path.display().to_string())?;
     let web_json: Value = web_resp;
     let web_hash: String = web_json[name]
@@ -28,7 +57,7 @@ fn update_web_resource(
         debug!("updating {name} web: {web_hash} file: {file_hash}");
         if !quiet {
             if f.exists {
-                println!("{}Downloading update for{out_name}", color::FORE_YELLOW);
+                println!("{}Downloading update for {out_name}", color::FORE_YELLOW);
             } else {
                 println!("{}Downloading {out_name}", color::FORE_YELLOW);
             }
@@ -49,29 +78,18 @@ pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Resul
     unsafe {
         if resp.status == 200 {
             let mut web_text = resp.text;
-            let web_json: Value = simd_json::serde::from_str(&mut web_text)?; // Real unsafe here
+            let web_json: Value = simd_json::from_str(&mut web_text)?; // Real unsafe here
+            update_web_resource(weather_codes, web_json.clone(), server.clone(), real_quiet)?;
             update_web_resource(
-                String::from("resources/weather_codes.res"),
+                weather_ascii_images,
                 web_json.clone(),
-                &(server.clone() + "weather_codes.res"),
-                "weather-codes-hash",
-                "weather codes",
+                server.clone(),
                 real_quiet,
             )?;
             update_web_resource(
-                "resources/weather_ascii_images.res".to_string(),
+                weather_ascii_images,
                 web_json.clone(),
-                &(server.clone() + "weather_ascii_images.res"),
-                "weather-ascii-images-hash",
-                "ascii images",
-                real_quiet,
-            )?;
-            update_web_resource(
-                "layouts/default.res".to_string(),
-                web_json,
-                &(server + "default_layout.res"),
-                "default-layout-hash",
-                "default layout",
+                server.clone(),
                 real_quiet,
             )?;
             return Ok(());

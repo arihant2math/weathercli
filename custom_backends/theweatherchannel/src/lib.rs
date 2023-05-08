@@ -39,7 +39,7 @@ fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) 
         longitude: coordinates[1].parse().unwrap()
     })?;
     let mut cookies = HashMap::new();
-    if !settings.internal.metric_default {
+    if !settings.metric_default {
         cookies.insert("unitOfMeasurement".to_string(), "e".to_string());
     } else {
         cookies.insert("unitOfMeasurement".to_string(), "m".to_string());

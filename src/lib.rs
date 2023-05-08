@@ -1,9 +1,7 @@
 // TODO: switch allocator to jebmalloc due to simd_json performance
-use std::path::Path;
-use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use log::{warn, LevelFilter};
+use log::LevelFilter;
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
@@ -11,29 +9,23 @@ use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use log4rs::Handle;
 
-use crate::backend::meteo;
-use crate::backend::nws;
-use crate::backend::openweathermap;
-use crate::backend::openweathermap_onecall;
-use crate::backend::weather_forecast::WeatherForecast;
-use crate::cli::Datasource;
-use crate::custom_backend::dynamic_library_loader::ExternalBackends;
+use crate::custom_backend::dynamic_library_loader::{is_valid_ext, ExternalBackends};
 use crate::local::dirs::weathercli_dir;
-use crate::local::settings::Settings;
 #[cfg(feature = "gui")]
 use crate::local::settings_app;
-use crate::location::Coordinates;
 use crate::util::Config;
+
+use crate::local::dirs::custom_backends_dir;
+use log::debug;
+use std::{fs, io};
 
 pub mod backend;
 pub mod cli;
-pub mod color;
 pub mod custom_backend;
 pub mod error;
 pub mod layout;
 pub mod local;
 pub mod location;
-pub mod networking;
 pub mod prompt;
 pub mod updater;
 pub mod util;
@@ -76,36 +68,6 @@ pub const CONFIG: Config<'static> = Config {
     updater_file_name: "updater",
 };
 
-pub fn get_data_from_datasource(
-    datasource: Datasource,
-    coordinates: Coordinates,
-    settings: Settings,
-    custom_backends: ExternalBackends,
-) -> Result<WeatherForecast> {
-    let dir = weathercli_dir()?.join("resources");
-    let f1 = dir.join("weather_codes.res");
-    let f2 = dir.join("weather_ascii_images.res");
-    let update_server = settings.internal.update_server.clone();
-    if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
-        warn!("Forcing downloading of web resources");
-        updater::resource::update_web_resources(update_server, None)?;
-    } else if settings.internal.auto_update_internet_resources {
-        thread::spawn(move || {
-            updater::resource::update_web_resources(update_server, None).unwrap_or(());
-        });
-    }
-    let conv_coords = [
-        &*coordinates.latitude.to_string(),
-        &*coordinates.longitude.to_string(),
-    ];
-    match datasource {
-        Datasource::Openweathermap => openweathermap::forecast::get_forecast(coordinates, settings),
-        Datasource::OpenweathermapOneCall => openweathermap_onecall::forecast::get_forecast(coordinates, settings),
-        Datasource::NWS => nws::forecast::get_forecast(coordinates, settings),
-        Datasource::Meteo => meteo::forecast::get_forecast(coordinates, settings),
-        Datasource::Other(s) => custom_backends.call(&s, conv_coords, settings),
-    }
-}
 
 pub fn init_logging() -> crate::Result<Handle> {
     let level = LevelFilter::Info;
@@ -145,4 +107,33 @@ pub fn init_logging() -> crate::Result<Handle> {
     // if you are trying to debug an issue and need more logs on then turn it off
     // once you are done.
     Ok(log4rs::init_config(config).unwrap())
+}
+
+fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
+    match f {
+        Err(_e) => false,
+        Ok(dir) => {
+            if dir.metadata().is_ok()
+                && dir.metadata().unwrap().is_file()
+                && is_valid_ext(dir.file_name().to_str().unwrap())
+            {
+                return true;
+            }
+            false
+        }
+    }
+}
+
+pub fn load_custom_backends() -> crate::Result<ExternalBackends> {
+    debug!("Detecting external dlls");
+    let path = custom_backends_dir()?;
+    let plugins: Vec<String> = path
+        .read_dir()
+        .expect("Reading the custom_backends dir failed")
+        .filter(is_ext) // We only care about files
+        .map(|f| f.unwrap().path().display().to_string())
+        .collect();
+    debug!("Loading: {plugins:?}");
+    let custom_backends = crate::custom_backend::dynamic_library_loader::load(plugins);
+    Ok(custom_backends)
 }

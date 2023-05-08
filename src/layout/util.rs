@@ -1,4 +1,4 @@
-use crate::color;
+use ansi as color;
 use regex::Regex;
 use std::fs;
 use std::io::Write;
@@ -19,7 +19,7 @@ fn url_validator(u: &str) -> bool {
 pub fn image(source: String, scale: f64) -> crate::Result<String> {
     let is_url = url_validator(&source);
     if is_url {
-        let response = crate::networking::get_url(&source, None, None, None)?;
+        let response = networking::get_url(&source, None, None, None)?;
         let mut f = fs::OpenOptions::new()
             .write(true)
             .truncate(true)

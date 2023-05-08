@@ -1,9 +1,10 @@
 use crate::cli::arguments::BackendOpts;
-use crate::{color, prompt};
 use crate::custom_backend::dynamic_library_loader::is_valid_ext;
 use crate::local::dirs::custom_backends_dir;
 use crate::local::settings::Settings;
 use crate::util::list_dir;
+use crate::prompt;
+use ansi as color;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
@@ -25,7 +26,7 @@ fn list(settings: Settings) -> crate::Result<()> {
         // TODO: Check which ones are valid (hard to do)
         let file_name = &*path;
         if is_valid_ext(file_name) {
-            let valid = settings.internal.enable_custom_backends;
+            let valid = settings.enable_custom_backends;
             if valid {
                 println!("{}{file_name}", color::FORE_GREEN);
             } else {
@@ -37,37 +38,45 @@ fn list(settings: Settings) -> crate::Result<()> {
 }
 
 fn select(settings: Settings) -> crate::Result<()> {
-    let selected = settings.internal.default_backend;
+    let selected = settings.default_backend;
     let mut settings = Settings::new()?;
     let choices = ["openweathermap", "meteo", "nws", "openweathermap_onecall"];
     let selected_usize = choices.iter().position(|&i| i == selected).unwrap_or(0);
     let choice = prompt::radio(&choices, selected_usize, None)?;
-    settings.internal.default_backend = choices[choice].to_string();
+    settings.default_backend = choices[choice].to_string();
     settings.write()?;
     Ok(())
 }
 
 fn open_weather_map_api_key(settings: Settings) -> crate::Result<()> {
-    let original = settings.internal.open_weather_map_api_key;
-    let mut s = prompt::input(Some("Enter your openweathermap api key: ".to_string()), Some(original))?;
+    let original = settings.open_weather_map_api_key;
+    let mut s = prompt::input(
+        Some("Enter your openweathermap api key: ".to_string()),
+        Some(original),
+    )?;
     s = s.trim().to_string();
     if s.len() != 32 {
-        return Err("Length of api key is not 32, this likely means you have entered an invalid api key.")?;
+        return Err(
+            "Length of api key is not 32, this likely means you have entered an invalid api key.",
+        )?;
     }
     println!("{}Saving api key as {s}", color::FORE_BLUE); // TODO: Fix
     let mut settings = Settings::new()?; // TODO: Fix excess read
-    settings.internal.open_weather_map_api_key = s;
+    settings.open_weather_map_api_key = s;
     settings.write()?;
     Ok(())
 }
 
 fn bing_maps_api_key(settings: Settings) -> crate::Result<()> {
-    let original = settings.internal.bing_maps_api_key;
-    let mut s = prompt::input(Some("Enter your bing maps api key: ".to_string()), Some(original))?;
+    let original = settings.bing_maps_api_key;
+    let mut s = prompt::input(
+        Some("Enter your bing maps api key: ".to_string()),
+        Some(original),
+    )?;
     s = s.trim().to_string();
     println!("{}Saving api key as {s}", color::FORE_BLUE);
     let mut settings = Settings::new()?; // TODO: Fix excess read
-    settings.internal.bing_maps_api_key = s;
+    settings.bing_maps_api_key = s;
     settings.write()?;
     Ok(())
 }

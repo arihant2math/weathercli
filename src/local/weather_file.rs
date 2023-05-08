@@ -14,8 +14,8 @@ pub struct WeatherFile {
 }
 
 impl WeatherFile {
-    pub fn new(file_name: &str) -> crate::Result<Self> {
-        let path = weathercli_dir()?.join(file_name);
+    pub fn new<S: AsRef<str>>(file_name: S) -> crate::Result<Self> {
+        let path = weathercli_dir()?.join(file_name.as_ref());
         trace!("Opening {}", path.display());
         let exists = path.exists();
         if !exists {

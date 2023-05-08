@@ -64,19 +64,13 @@ impl From<std::io::Error> for Error {
 
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
-        Self::SerializationError(format!(
-            "JSON parsing error: {}",
-            error.to_string()
-        ))
+        Self::SerializationError(format!("JSON parsing error: {error}"))
     }
 }
 
 impl From<simd_json::Error> for Error {
     fn from(error: simd_json::Error) -> Self {
-        Self::SerializationError(format!(
-            "JSON parsing error: {}",
-            error.to_string()
-        ))
+        Self::SerializationError(format!("JSON parsing error: {error}"))
     }
 }
 
@@ -124,7 +118,7 @@ impl From<String> for Error {
 
 impl From<&str> for Error {
     fn from(value: &str) -> Self {
-        Self::Other(format!("{value}"))
+        Self::Other(value.to_string())
     }
 }
 

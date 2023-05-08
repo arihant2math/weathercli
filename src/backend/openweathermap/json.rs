@@ -78,7 +78,7 @@ pub struct OpenWeatherMapForecastMainJson {
     pub pressure: i32,
     pub sea_level: i32,
     pub grnd_level: i32,
-    pub humidity: i64,
+    pub humidity: i32,
     pub temp_kf: f64,
 }
 

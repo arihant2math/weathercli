@@ -1,6 +1,7 @@
-use crate::color::{FORE_CYAN, FORE_LIGHTMAGENTA};
+use ansi::{FORE_CYAN, FORE_LIGHTMAGENTA};
 use crate::local::settings::Settings;
-use crate::{networking, updater, version};
+use crate::prompt::{input, yes_no};
+use crate::{updater, version};
 use serde_json::Value;
 use std::time::Duration;
 use std::{fs, thread};
@@ -8,44 +9,54 @@ use std::{fs, thread};
 pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
     println!("{FORE_CYAN}===== Weather CLI Setup =====");
-    updater::resource::update_web_resources(settings.internal.update_server.clone(), None)?;
+    updater::resource::update_web_resources(settings.update_server.clone(), None);
     println!("{FORE_LIGHTMAGENTA}Choose the default weather backend: ");
     let options = [
         "Meteo",
-        "Open Weather Map",
+        "Open Weather Map OneCall",
+        "Open Weather Map (API Key required)",
         "National Weather Service",
         "The Weather Channel",
     ];
-    let mut default = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"]
-        .iter()
-        .position(|&x| x == settings.internal.default_backend.clone())
-        .unwrap_or(0);
+    let mut default = [
+        "METEO",
+        "OPENWEATHERMAP_ONECALL",
+        "OPENWEATHERMAP",
+        "NWS",
+        "THEWEATHERCHANNEL",
+    ]
+    .iter()
+    .position(|&x| x == settings.default_backend.clone())
+    .unwrap_or(0);
     let current = crate::prompt::radio(&options, default, None)?;
-    let weather_backend_setting = ["METEO", "OPENWEATHERMAP", "NWS", "THEWEATHERCHANNEL"][current];
-    settings.internal.default_backend = weather_backend_setting.to_string();
+    let weather_backend_setting = [
+        "METEO",
+        "OPENWEATHERMAP_ONECALL",
+        "OPENWEATHERMAP",
+        "NWS",
+        "THEWEATHERCHANNEL",
+    ][current];
+    settings.default_backend = weather_backend_setting.to_string();
     settings.write()?;
+    if settings.default_backend == "OPENWEATHERMAP" {
+        println!("{FORE_LIGHTMAGENTA}Do you want to enter your openweathermap API key?");
+        let cont = yes_no(true, None)?;
+        if cont {
+            let resp = input(Some("Enter your openweathermap key: ".to_string()), None)?;
+            settings.open_weather_map_api_key = resp;
+            settings.write()?;
+        }
+    }
     thread::sleep(Duration::from_millis(100));
     println!(
         "{FORE_LIGHTMAGENTA}Is your location constant (i.e. is this computer stationary at all times)?"
     );
-    if settings.internal.constant_location {
-        default = 0;
-    } else {
-        default = 1;
-    }
-    let constant_location_setting =
-        [true, false][crate::prompt::radio(&["yes", "no"], default, None)?];
-    settings.internal.constant_location = constant_location_setting;
+    settings.constant_location = yes_no(settings.constant_location, None)?;
     settings.write()?;
     thread::sleep(Duration::from_millis(100));
     println!("{FORE_LIGHTMAGENTA}Should static resources (ascii art, weather code sentences, etc.) be auto-updated?");
-    if settings.internal.auto_update_internet_resources {
-        default = 0;
-    } else {
-        default = 1;
-    }
-    let auto_update_setting = [true, false][crate::prompt::radio(&["yes", "no"], default, None)?];
-    settings.internal.auto_update_internet_resources = auto_update_setting;
+    settings.auto_update_internet_resources =
+        yes_no(settings.auto_update_internet_resources, None)?;
     settings.write()?;
     Ok(())
 }
@@ -69,39 +80,43 @@ pub fn update(force: bool) -> crate::Result<()> {
         } else {
             updater_location.push("updater");
         }
-        if !updater_location.exists() {
-            println!("Updater not found, downloading updater");
-            updater::get_updater(updater_location.display().to_string())?;
-            let resp: Value = serde_json::from_str(
-                &networking::get_url(
-                    "https://arihant2math.github.io/weathercli/index.json",
-                    None,
-                    None,
-                    None,
-                )?
-                .text,
-            )?;
-            let mut web_hash = resp["updater-exe-hash-unix"]
-                .as_str()
-                .expect("updater-exe-hash-unix key not found in index.json");
-            if cfg!(windows) {
-                web_hash = resp["updater-exe-hash-windows"]
-                    .as_str()
-                    .expect("updater-exe-hash-windows key not found in index.json");
-            }
-            if crate::util::hash_file(&updater_location.display().to_string())? != web_hash || force
-            {
+        unsafe {
+            if !updater_location.exists() {
+                println!("Updater not found, downloading updater");
                 updater::get_updater(updater_location.display().to_string())?;
+                let resp: Value = simd_json::from_str(
+                    &mut networking::get_url(
+                        "https://arihant2math.github.io/weathercli/index.json",
+                        None,
+                        None,
+                        None,
+                    )?
+                    .text,
+                )?;
+                let web_hash = if cfg!(windows) {
+                    resp["updater-exe-hash-windows"]
+                        .as_str()
+                        .expect("updater-exe-hash-windows key not found in index.json")
+                } else {
+                    resp["updater-exe-hash-unix"]
+                        .as_str()
+                        .expect("updater-exe-hash-unix key not found in index.json")
+                };
+                if crate::util::hash_file(&updater_location.display().to_string())? != web_hash
+                    || force
+                {
+                    updater::get_updater(updater_location.display().to_string())?;
+                }
+                drop(resp); // Dropping to reduce memory leakage
+                println!("Starting updater and exiting");
+                let mut command = std::process::Command::new(updater_location.as_os_str());
+                if force {
+                    command.arg("--force").spawn()?;
+                } else {
+                    command.spawn()?;
+                }
+                std::process::abort();
             }
-            drop(resp); // Dropping to reduce memory leakage
-            println!("Starting updater and exiting");
-            let mut command = std::process::Command::new(updater_location.as_os_str());
-            if force {
-                command.arg("--force").spawn()?;
-            } else {
-                command.spawn()?;
-            }
-            std::process::abort();
         }
     }
     Ok(())

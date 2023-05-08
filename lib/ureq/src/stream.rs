@@ -219,13 +219,21 @@ impl Stream {
         let mut buf = [0; 1];
         stream.set_nonblocking(true)?;
 
+        #[cfg(feature = "logging")]
         let result = match stream.peek(&mut buf) {
             Ok(n) => {
-                #[cfg(feature = "logging")]
                 debug!(
                     "peek on reused connection returned {}, not WouldBlock; discarding",
                     n
                 );
+                Ok(true)
+            }
+            Err(e) if e.kind() == io::ErrorKind::WouldBlock => Ok(false),
+            Err(e) => Err(e),
+        };
+        #[cfg(not(feature = "logging"))]
+        let result = match stream.peek(&mut buf) {
+            Ok(..) => {
                 Ok(true)
             }
             Err(e) if e.kind() == io::ErrorKind::WouldBlock => Ok(false),

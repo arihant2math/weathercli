@@ -29,7 +29,7 @@ fn get_conditions(
     cloud_cover: u8,
 ) -> crate::Result<Vec<WeatherCondition>> {
     let weather_file = WeatherFile::weather_codes()?;
-    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&*weather_file.data)?;
+    let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&weather_file.data)?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
     if cloud_cover == 0 {
         conditions.push(WeatherCondition::new(800, &weather_codes)?);

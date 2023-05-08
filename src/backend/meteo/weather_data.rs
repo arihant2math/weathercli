@@ -23,7 +23,7 @@ pub fn get_weather_data(
             speed: data.current_weather.windspeed,
             heading: data.current_weather.winddirection as u16,
         },
-        raw_data: serde_json::to_string_pretty(&data)?,
+        raw_data: simd_json::to_string_pretty(&data)?,
         dewpoint: data.hourly.dewpoint_2m[index],
         feels_like: data.hourly.apparent_temperature[index],
         aqi: aqi

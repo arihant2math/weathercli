@@ -61,17 +61,16 @@ async fn main() -> weather_core::Result<()> {
         return Err("Install path is a file".to_string())?;
     }
     if !dir_path.exists() {
-        fs::create_dir(&args.install_dir).expect("Directory Creation Failed");
+        fs::create_dir(&args.install_dir)?;
     }
     let is_empty = dir_path
-        .read_dir()
-        .expect("Dir read failed, check if script has appropriate permissions")
+        .read_dir()?
         .next()
         .is_none();
     if !is_empty {
         return Err("Directory is not empty".to_string())?;
     }
-    let url = settings.internal.update_server.clone() + &CONFIG.weather_file_name;
+    let url = settings.update_server.clone() + &CONFIG.weather_file_name;
     let path = dir_path.to_path_buf().join(CONFIG.weather_file_name);
     update_component(
         &url,
@@ -81,7 +80,7 @@ async fn main() -> weather_core::Result<()> {
         args.quiet,
     )
     .await?;
-    let url = settings.internal.update_server.clone() + &CONFIG.weather_d_file_name;
+    let url = settings.update_server.clone() + &CONFIG.weather_d_file_name;
     let path = dir_path
         .to_path_buf()
         .join("internal")
@@ -97,6 +96,6 @@ async fn main() -> weather_core::Result<()> {
     if args.add_to_path {
         add_to_path(dir_path.display().to_string())?;
     }
-    update_web_resources(settings.internal.update_server, Some(false))?;
+    update_web_resources(settings.update_server, Some(false))?;
     Ok(())
 }

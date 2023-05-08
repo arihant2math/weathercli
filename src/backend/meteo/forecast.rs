@@ -1,12 +1,12 @@
+use crate::backend::meteo::get_combined_data_formatted;
 use crate::backend::meteo::json::MeteoForecastJson;
-use crate::backend::meteo::meteo_get_combined_data_formatted;
-use crate::meteo::weather_data::get_weather_data;
 use crate::backend::weather_data::WeatherData;
 use crate::backend::weather_forecast::WeatherForecast;
 use crate::local::settings::Settings;
 use crate::local::weather_file::WeatherFile;
 use crate::location;
 use crate::location::Coordinates;
+use crate::backend::meteo::weather_data::get_weather_data;
 use std::collections::HashMap;
 
 fn get_forecast_sentence(
@@ -85,7 +85,7 @@ pub fn get_forecast(
     coordinates: Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
-    let data = meteo_get_combined_data_formatted(coordinates, settings.internal.metric_default)?;
+    let data = get_combined_data_formatted(coordinates, settings.metric_default)?;
     let mut forecast: Vec<WeatherData> = Vec::new();
     let now = data
         .weather
@@ -100,7 +100,7 @@ pub fn get_forecast(
         data.weather.clone(),
         data.air_quality.clone(),
         now,
-        settings.internal.metric_default,
+        settings.metric_default,
         weather_codes.clone(),
     )?;
     forecast.push(current);
@@ -109,7 +109,7 @@ pub fn get_forecast(
             data.weather.clone(),
             data.air_quality.clone(),
             i,
-            settings.internal.metric_default,
+            settings.metric_default,
             weather_codes.clone(),
         )?);
     }

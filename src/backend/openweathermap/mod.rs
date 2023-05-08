@@ -4,8 +4,8 @@ use crate::backend::openweathermap::json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
 };
 use crate::location::Coordinates;
-use crate::networking;
-use crate::networking::Resp;
+use networking;
+use networking::Resp;
 
 mod current;
 pub mod forecast;
@@ -13,12 +13,7 @@ mod future;
 pub mod json;
 
 /// Gets the urls from the openweathermap api server
-pub fn open_weather_map_get_api_urls(
-    url: &str,
-    api_key: String,
-    location: Coordinates,
-    metric: bool,
-) -> [String; 3] {
+fn get_api_urls(url: &str, api_key: String, location: Coordinates, metric: bool) -> [String; 3] {
     let longitude = location.longitude;
     let latitude = location.latitude;
     let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
@@ -38,22 +33,22 @@ pub fn open_weather_map_get_api_urls(
 }
 
 /// Gets the urls from the openweathermap api server and returns a `FormattedData` struct with the data
-pub fn open_weather_map_get_combined_data_formatted(
+pub fn get_combined_data_formatted(
     open_weather_map_api_url: &str,
     open_weather_map_api_key: String,
     coordinates: Coordinates,
     metric: bool,
 ) -> crate::Result<OpenWeatherMapFormattedData> {
-    let urls = open_weather_map_get_api_urls(
+    let urls = get_api_urls(
         open_weather_map_api_url,
         open_weather_map_api_key,
         coordinates,
         metric,
     );
-    let n = networking::get_urls(&urls, None, None, None)?;
-    let r1: OpenWeatherMapJson = serde_json::from_str(&n[0].text)?;
-    let r2: OpenWeatherMapAirQualityJson = serde_json::from_str(&n[1].text)?;
-    let r3: OpenWeatherMapForecastJson = serde_json::from_str(&n[2].text)?;
+    let mut n = networking::get_urls(&urls, None, None, None)?;
+    let r1: OpenWeatherMapJson = unsafe { simd_json::from_str(&mut n[0].text) }?;
+    let r2: OpenWeatherMapAirQualityJson = unsafe { simd_json::from_str(&mut n[1].text) }?;
+    let r3: OpenWeatherMapForecastJson = unsafe { simd_json::from_str(&mut n[2].text) }?;
     Ok(OpenWeatherMapFormattedData {
         weather: r1,
         air_quality: r2,

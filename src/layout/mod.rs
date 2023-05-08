@@ -1,5 +1,5 @@
 use crate::backend::weather_forecast::WeatherForecast;
-use crate::color;
+use ansi as color;
 use crate::error::{Error, LayoutErr};
 use crate::layout::layout_serde::LayoutDefaultsSerde;
 use crate::layout::row::Row;
