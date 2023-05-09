@@ -11,10 +11,16 @@ weather.spec
 test.http
 
 internal/async_runner/target/*
-internal/cache/target/*
+internal/backend/target/*
+internal/cli/target/*
+internal/custom_backend/target/*
+internal/local/target/*
+internal/location/target/*
 internal/networking/target/*
 internal/now/target/*
+internal/settings_app/target/*
 internal/terminal/target/*
+internal/updater/target/*
 internal/weather_dirs/target/*
 internal/weather_error/target/*
 
