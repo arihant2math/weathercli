@@ -2,15 +2,15 @@ use std::mem::discriminant;
 
 use clap::Parser;
 
+use cli::{Datasource, datasource_from_str};
+use cli::arguments::{App, Command};
+use cli::commands::{backend_commands, cache, credits, layout_commands, open_settings_app, settings, weather};
+use cli::commands::util::{setup, update};
+use custom_backend::dynamic_library_loader::ExternalBackends;
+use local::settings::Settings;
 use terminal::color;
-use weather_core::{init_logging, load_custom_backends, location};
-use weather_core::cli::{Datasource, datasource_from_str};
-use weather_core::cli::arguments::{App, Command};
-use weather_core::cli::commands::{backend, cache, credits, layout_commands, settings, weather};
-use weather_core::cli::commands::util::{setup, update};
-use weather_core::custom_backend::dynamic_library_loader::ExternalBackends;
+use weather_core::{init_logging, load_custom_backends, version};
 use weather_dirs::custom_backends_dir;
-use weather_core::local::settings::Settings;
 
 fn main() {
     let r = run();
@@ -41,14 +41,12 @@ fn run() -> weather_core::Result<()> {
             .datasource
             .unwrap_or_else(|| settings_s.default_backend.clone()),
     );
-    let custom_backends =
-    if settings_s.enable_custom_backends
+    let custom_backends = if settings_s.enable_custom_backends
         && discriminant(&datasource) == discriminant(&Datasource::Other(String::new()))
         && custom_backends_dir()?.exists()
     {
         load_custom_backends()?
-    }
-    else {
+    } else {
         ExternalBackends::default()
     };
     match args.command {
@@ -62,15 +60,15 @@ fn run() -> weather_core::Result<()> {
                     args.global_opts.json,
                     custom_backends,
                 )?,
-                Command::Backend(arg) => backend::subcommand(arg, settings_s)?,
+                Command::Backend(arg) => backend_commands::subcommand(arg, settings_s)?,
                 Command::Cache(arg) => cache(arg)?,
-                Command::Config(opts) => weather_core::cli::commands::config(opts.key, opts.value)?,
+                Command::Config(opts) => cli::commands::config(opts.key, opts.value)?,
                 Command::Credits => credits(),
                 Command::Settings => settings()?,
-                Command::GuiSettings => weather_core::open_settings_app(),
+                Command::GuiSettings => open_settings_app(),
                 Command::Layout(arg) => layout_commands::subcommand(arg, settings_s)?,
                 Command::Setup => setup(settings_s)?,
-                Command::Update(opts) => update(opts.force)?,
+                Command::Update(opts) => update(opts.force, version())?,
             };
         }
         None => weather(

@@ -3,8 +3,6 @@ use std::{env, io};
 use winresource::WindowsResource;
 
 fn main() -> io::Result<()> {
-    let version = rustc_version::version().unwrap();
-    println!("cargo:rustc-env=RUSTC_VERSION={version}");
     println!("cargo:rerun-if-changed=build.rs");
     if env::var("CARGO_CFG_TARGET_OS").unwrap() == "windows" {
         WindowsResource::new()

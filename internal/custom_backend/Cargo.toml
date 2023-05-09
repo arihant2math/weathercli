@@ -1,0 +1,15 @@
+[package]
+name = "custom_backend"
+version = "0.1.0"
+edition = "2021"
+
+
+
+[dependencies]
+backend = { path = "../backend" }
+weather_dirs = { path = "../weather_dirs" }
+weather_error = { path = "../weather_error" }
+log = "0.4"
+local = { path = "../local" }
+libloading = "0.8"
+wasmer = "3.3"

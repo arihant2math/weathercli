@@ -6,10 +6,10 @@ use std::io::Write;
 use auto_launch::{AutoLaunchBuilder, Error};
 use clap::Parser;
 
-use weather_core::cli::datasource_from_str;
-use weather_core::custom_backend::dynamic_library_loader::ExternalBackends;
-use weather_core::local::settings::Settings;
-use weather_core::local::weather_file::WeatherFile;
+use cli::datasource_from_str;
+use custom_backend::dynamic_library_loader::ExternalBackends;
+use local::settings::Settings;
+use local::weather_file::WeatherFile;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -70,9 +70,9 @@ fn main() -> weather_core::Result<()> {
             enabled = settings.enable_daemon;
             let default_datasource = &*settings.default_backend.clone();
             if default_datasource.to_lowercase() == "openweathermap" {
-                let data = weather_core::cli::commands::get_data_from_datasource(
+                let data = cli::commands::get_data_from_datasource(
                     datasource_from_str(default_datasource),
-                    weather_core::location::get(false, settings.constant_location)?,
+                    location::get(false, settings.constant_location)?,
                     settings.clone(),
                     ExternalBackends::default(),
                 )?;

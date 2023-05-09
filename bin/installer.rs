@@ -63,10 +63,7 @@ async fn main() -> weather_core::Result<()> {
     if !dir_path.exists() {
         fs::create_dir(&args.install_dir)?;
     }
-    let is_empty = dir_path
-        .read_dir()?
-        .next()
-        .is_none();
+    let is_empty = dir_path.read_dir()?.next().is_none();
     if !is_empty {
         return Err("Directory is not empty".to_string())?;
     }

@@ -8,55 +8,20 @@ use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use log4rs::Handle;
 
-use crate::custom_backend::dynamic_library_loader::{is_valid_ext, ExternalBackends};
-use weather_dirs::weathercli_dir;
+use custom_backend::dynamic_library_loader::{is_valid_ext, ExternalBackends};
 #[cfg(feature = "gui")]
-use crate::local::settings_app;
-use crate::util::Config;
+use settings_app;
+use weather_dirs::weathercli_dir;
 
-use weather_dirs::custom_backends_dir;
 use log::debug;
 use std::{fs, io};
-
-pub mod backend;
-pub mod cli;
-pub mod custom_backend;
-pub mod layout;
-pub mod local;
-pub mod location;
-pub mod updater;
-pub mod util;
+use weather_dirs::custom_backends_dir;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()
 }
-
-#[cfg(feature = "gui")]
-pub fn open_settings_app() {
-    settings_app::run_settings_app().expect("App Failed");
-}
-
-#[cfg(not(feature = "gui"))]
-pub fn open_settings_app() {
-    panic!("GUI support not enabled!");
-}
-
-#[cfg(target_os = "windows")]
-pub const CONFIG: Config<'static> = Config {
-    weather_file_name: "weather.exe",
-    weather_d_file_name: "weatherd.exe",
-    updater_file_name: "updater.exe",
-};
-
-#[cfg(not(target_os = "windows"))]
-pub const CONFIG: Config<'static> = Config {
-    weather_file_name: "weather",
-    weather_d_file_name: "weatherd",
-    updater_file_name: "updater",
-};
-
 
 pub fn init_logging() -> crate::Result<Handle> {
     let level = LevelFilter::Info;
@@ -123,6 +88,6 @@ pub fn load_custom_backends() -> crate::Result<ExternalBackends> {
         .map(|f| f.unwrap().path().display().to_string())
         .collect();
     debug!("Loading: {plugins:?}");
-    let custom_backends = crate::custom_backend::dynamic_library_loader::load(plugins);
+    let custom_backends = custom_backend::dynamic_library_loader::load(plugins);
     Ok(custom_backends)
 }
