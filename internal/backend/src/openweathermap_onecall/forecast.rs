@@ -2,9 +2,9 @@ use crate::openweathermap_onecall::get_combined_data_formatted;
 use crate::openweathermap_onecall::weather_data::get_weather_data;
 use crate::WeatherData;
 use crate::WeatherForecast;
+use local::location;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
-use location;
 use location::Coordinates;
 use std::collections::HashMap;
 

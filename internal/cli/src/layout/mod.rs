@@ -97,7 +97,7 @@ impl LayoutFile {
         check_version(file_data.version)?;
         let layout = file_data.layout;
         let mut internal_layout: Vec<Row> = Vec::new();
-        for (_count, row) in layout.iter().enumerate() {
+        for row in layout.into_iter() {
             internal_layout.push(Row::new(row));
         }
         Ok(Self {

@@ -1,8 +1,8 @@
 use crate::nws::current::get_current;
 use crate::nws::get_combined_data_formatted;
 use crate::WeatherForecast;
+use local::location;
 use local::settings::Settings;
-use location;
 use location::Coordinates;
 
 pub fn get_forecast(

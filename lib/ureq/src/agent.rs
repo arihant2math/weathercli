@@ -11,12 +11,12 @@ use crate::request::Request;
 use crate::resolve::{ArcResolver, StdResolver};
 use crate::stream::TlsConnector;
 
+use crate::Header;
 #[cfg(feature = "cookies")]
 use {
     crate::cookies::{CookieStoreGuard, CookieTin},
     cookie_store::CookieStore,
 };
-use crate::Header;
 
 /// Strategy for keeping `authorization` headers during redirects.
 ///

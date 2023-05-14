@@ -1,5 +1,5 @@
-use base64::Engine;
 use crate::error::{Error, ErrorKind};
+use base64::Engine;
 
 /// Proxy protocol
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]

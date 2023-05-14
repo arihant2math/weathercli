@@ -1,6 +1,6 @@
 use crate::openweathermap_onecall::json::MainJson;
 
-use location::Coordinates;
+use local::location::Coordinates;
 use networking;
 
 pub mod forecast;

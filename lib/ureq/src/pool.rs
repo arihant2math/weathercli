@@ -176,9 +176,9 @@ impl ConnectionPool {
                 let streams = occupied_entry.get_mut();
                 #[cfg(feature = "logging")]
                 {
-                    let stream = streams
-                        .pop_front()
-                        .expect("invariant failed: key existed in recycle but no streams available");
+                    let stream = streams.pop_front().expect(
+                        "invariant failed: key existed in recycle but no streams available",
+                    );
                     debug!("dropping oldest stream in pool: {:?}", stream);
                 }
                 if streams.is_empty() {

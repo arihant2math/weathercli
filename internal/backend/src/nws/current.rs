@@ -1,9 +1,9 @@
 use crate::nws::json::NWSJSON;
 use crate::WeatherCondition;
-use crate::{get_conditions_sentence, WeatherData};
 use crate::WindData;
+use crate::{get_conditions_sentence, WeatherData};
+use local::now;
 use local::weather_file::WeatherFile;
-use now::now;
 use std::collections::HashMap;
 
 fn convert_temp(value: f64, metric: bool) -> f64 {

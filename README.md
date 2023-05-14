@@ -29,3 +29,7 @@ Usage: `weather config [NAME] [VALUE]`, to get the value of a config name try `w
 ## Custom Layouts
 
 See custom_layouts.md for more info.
+
+## TODO
+- combine terminal and local
+- move to async rendering for layout engine

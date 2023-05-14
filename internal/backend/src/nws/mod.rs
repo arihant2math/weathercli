@@ -1,5 +1,5 @@
 use crate::nws::json::{NWSPointJSON, NWSJSON};
-use location::Coordinates;
+use local::location::Coordinates;
 use networking;
 
 mod current;

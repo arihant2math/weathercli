@@ -60,9 +60,10 @@ pub fn get_url<S: AsRef<str>>(
         },
     };
     if real_resp.is_err() {
-        return Err(std::io::Error::new(std::io::ErrorKind::ConnectionAborted, format!(
-            "Get to {url} failed"
-        )));
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::ConnectionAborted,
+            format!("Get to {url} failed"),
+        ));
     }
     let data = real_resp.unwrap();
     let status = data.status();

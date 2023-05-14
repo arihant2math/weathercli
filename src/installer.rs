@@ -7,10 +7,12 @@ use winreg::enums::HKEY_LOCAL_MACHINE;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
-use weather_core::CONFIG;
-use weather_core::local::settings::Settings;
-use weather_core::updater::component::update_component;
-use weather_core::updater::resource::update_web_resources;
+use local::settings::Settings;
+use updater::component::update_component;
+use updater::CONFIG;
+use updater::resource::update_web_resources;
+
+pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -25,7 +27,7 @@ struct Cli {
 }
 
 #[cfg(target_os = "windows")]
-fn add_to_path(dir: String) -> weather_core::Result<()> {
+fn add_to_path(dir: String) -> Result<()> {
     println!("Adding to Path ...");
     let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
     let environment =
@@ -41,12 +43,12 @@ fn add_to_path(dir: String) -> weather_core::Result<()> {
 }
 
 #[cfg(not(target_os = "windows"))]
-fn add_to_path(dir: String) -> weather_core::Result<()> {
+fn add_to_path(dir: String) -> Result<()> {
     return Err("Add to path is unsupported for your system")?;
 }
 
 #[tokio::main]
-async fn main() -> weather_core::Result<()> {
+async fn main() -> Result<()> {
     let args = Cli::parse();
     let settings = Settings::new()?;
     if args.guided {

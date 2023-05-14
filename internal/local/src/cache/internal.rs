@@ -1,9 +1,8 @@
-use weather_dirs::weathercli_dir;
-use now;
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::PathBuf;
+use weather_dirs::weathercli_dir;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum Place {
@@ -128,5 +127,5 @@ pub fn write_cache(rows: Vec<Row>) -> crate::Result<()> {
 }
 
 pub fn get_date_string() -> String {
-    now::now().to_string()
+    crate::now().to_string()
 }

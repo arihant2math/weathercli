@@ -17,7 +17,6 @@ log = "0.4"
 custom_backend = { path = "../custom_backend" }
 updater = { path = "../updater" }
 local = { path = "../local" }
-location = { path = "../location" }
 backend = { path = "../backend" }
 terminal = { path = "../terminal" }
 networking = { path = "../networking" }

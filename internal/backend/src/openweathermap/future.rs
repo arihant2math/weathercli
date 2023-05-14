@@ -1,8 +1,8 @@
 use crate::openweathermap::json::OpenWeatherMapForecastItemJson;
 use crate::WeatherCondition;
-use crate::{get_conditions_sentence, WeatherData};
 use crate::WindData;
-use now::now;
+use crate::{get_conditions_sentence, WeatherData};
+use local::now;
 use std::collections::HashMap;
 
 pub fn get_future(

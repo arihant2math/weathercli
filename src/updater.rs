@@ -5,10 +5,12 @@ use clap::Parser;
 use serde::Deserialize;
 use serde::Serialize;
 
-use weather_core::CONFIG;
-use weather_core::local::settings::Settings;
-use weather_core::updater::component::update_component;
-use weather_core::util::hash_file;
+use local::settings::Settings;
+use updater::component::update_component;
+use updater::CONFIG;
+use updater::hash_file;
+
+pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -44,7 +46,7 @@ struct IndexStruct {
     weatherd_exe_hash_unix: String,
 }
 
-fn is_update_needed_platform(file: &str, web_hash: String) -> weather_core::Result<bool> {
+fn is_update_needed_platform(file: &str, web_hash: String) -> Result<bool> {
     if Path::new(file).exists() {
         let file_hash = hash_file(file)?;
         Ok(file_hash != web_hash)
@@ -53,7 +55,7 @@ fn is_update_needed_platform(file: &str, web_hash: String) -> weather_core::Resu
     }
 }
 
-async fn is_update_needed(index: IndexStruct, component: Component) -> weather_core::Result<bool> {
+async fn is_update_needed(index: IndexStruct, component: Component) -> Result<bool> {
     if component == Component::Main {
         if cfg!(windows) {
             return is_update_needed_platform("weather.exe", index.weather_exe_hash_windows);
@@ -71,17 +73,17 @@ async fn is_update_needed(index: IndexStruct, component: Component) -> weather_c
 }
 
 #[tokio::main]
-async fn main() -> weather_core::Result<()> {
+async fn main() -> Result<()> {
     print!("\x1b[0J");
     let args = Cli::parse();
     let settings = Settings::new()?;
-    let mut resp = reqwest::get(settings.update_server.clone() + "index.json")
+    let resp = reqwest::get(settings.update_server.clone() + "index.json")
         .await
         .expect("Network request failed");
     let json: IndexStruct =
         unsafe { simd_json::from_str(&mut resp.text().await.expect("Failed to receive text")) }?;
     if args.version && !args.quiet {
-        println!("{}", weather_core::version());
+        println!("{}", env!("CARGO_PKG_VERSION").to_string()); // TODO: Standardize version retrieval
         return Ok(());
     }
     let install_dir = std::env::current_dir()?;
@@ -94,10 +96,7 @@ async fn main() -> weather_core::Result<()> {
     } else {
         install_dir
     };
-    weather_core::updater::resource::update_web_resources(
-        settings.update_server,
-        Some(args.quiet),
-    )?;
+    updater::resource::update_web_resources(settings.update_server, Some(args.quiet))?;
     let mut to_update: Vec<Component> = Vec::new();
     let mut update_requests: Vec<Component> = Vec::new();
     if args.component == "all" {

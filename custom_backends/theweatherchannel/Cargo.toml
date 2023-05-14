@@ -8,5 +8,5 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-weather = { path = "../.." }
+weather_plugin = { path = "../../internal/weather_plugin" }
 scraper = "0.16.0"

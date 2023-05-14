@@ -5,17 +5,10 @@ use std::thread;
 use std::time::Duration;
 
 use futures_util::StreamExt;
-use indicatif::style::TemplateError;
 use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::Client;
 
-use crate::error;
-
-impl From<TemplateError> for error::Error {
-    fn from(error: TemplateError) -> Self {
-        error::Error::Other(error.to_string())
-    }
-}
+use weather_error::Error;
 
 pub async fn update_component(
     url: &str,
@@ -46,7 +39,7 @@ pub async fn update_component(
     let mut file_expect = File::create(path);
     while file_expect.is_err() {
         if retries > 30 {
-            return Err(error::Error::IoError(format!(
+            return Err(Error::IoError(format!(
                 "Failed to create/open file '{}'",
                 path
             )));
@@ -59,7 +52,7 @@ pub async fn update_component(
     if !quiet {
         progress_bar = ProgressBar::new(total_size);
         progress_bar.set_style(ProgressStyle::default_bar()
-            .template("{msg}\n[{elapsed}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")?
+            .template("{msg}\n[{elapsed}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})").unwrap()
             .progress_chars("━ "));
         progress_bar.set_message(progress_msg + url);
     }
@@ -79,7 +72,7 @@ pub async fn update_component(
     }
     if !quiet {
         progress_bar.set_style(ProgressStyle::default_bar()
-            .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec})")?
+            .template("{msg}\n[{elapsed}] [{wide_bar:.green}] {bytes}/{total_bytes} ({bytes_per_sec})").unwrap()
             .progress_chars("━ "));
         progress_bar.finish_with_message(finish_msg);
     }

@@ -7,10 +7,8 @@ use windows::Devices::Geolocation::Geolocator;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::PositionAccuracy;
 
-use local::cache;
+use crate::cache;
 use networking;
-
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 #[derive(Clone, Copy)]
 pub struct Coordinates {

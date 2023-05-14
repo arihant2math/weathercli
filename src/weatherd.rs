@@ -11,6 +11,8 @@ use custom_backend::dynamic_library_loader::ExternalBackends;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 
+pub type CResult<T> = std::result::Result<T, weather_error::Error>;
+
 #[derive(Clone, Parser)]
 struct Cli {
     #[arg(long, short, default_value_t = String::from("start"))]
@@ -49,7 +51,7 @@ fn unregister() -> Result<(), Error> {
     Ok(())
 }
 
-fn main() -> weather_core::Result<()> {
+fn main() -> CResult<()> {
     let settings = Settings::new()?;
     let args = Cli::parse();
 
@@ -72,7 +74,7 @@ fn main() -> weather_core::Result<()> {
             if default_datasource.to_lowercase() == "openweathermap" {
                 let data = cli::commands::get_data_from_datasource(
                     datasource_from_str(default_datasource),
-                    location::get(false, settings.constant_location)?,
+                    local::location::get(false, settings.constant_location)?,
                     settings.clone(),
                     ExternalBackends::default(),
                 )?;

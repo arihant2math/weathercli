@@ -233,9 +233,7 @@ impl Stream {
         };
         #[cfg(not(feature = "logging"))]
         let result = match stream.peek(&mut buf) {
-            Ok(..) => {
-                Ok(true)
-            }
+            Ok(..) => Ok(true),
             Err(e) if e.kind() == io::ErrorKind::WouldBlock => Ok(false),
             Err(e) => Err(e),
         };

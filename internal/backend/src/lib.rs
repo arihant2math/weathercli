@@ -9,7 +9,7 @@ mod weather_condition;
 mod weather_data;
 mod weather_forecast;
 pub use weather_condition::WeatherCondition;
-pub use weather_data::{WeatherData, get_conditions_sentence};
+pub use weather_data::{get_conditions_sentence, WeatherData};
 pub use weather_forecast::WeatherForecast;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;

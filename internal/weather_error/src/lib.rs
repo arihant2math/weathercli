@@ -2,6 +2,8 @@ use bincode::ErrorKind;
 use std::fmt;
 use std::fmt::Debug;
 
+pub type Result<T> = std::result::Result<T, Error>;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InvocationError {
     CoordinatesError,
@@ -90,8 +92,8 @@ impl From<simd_json::Error> for Error {
 }
 
 impl From<wasmer::CompileError> for Error {
-    fn from(value: wasmer::CompileError) -> Self {
-        Self::Other("Failed to compile wasm".to_string())
+    fn from(error: wasmer::CompileError) -> Self {
+        Self::Other(format!("Failed to compile wasm: {error}"))
     }
 }
 
@@ -100,15 +102,15 @@ impl From<Box<ErrorKind>> for Error {
         match *value {
             ErrorKind::Io(i) => Self::IoError(i.to_string()),
             ErrorKind::InvalidUtf8Encoding(e) => {
-                Self::SerializationError("Bincode Error: Invalid Utf8 Encoding".to_string())
+                Self::SerializationError("Bincode Error: Invalid Utf8 Encoding, {e}".to_string())
             }
-            ErrorKind::InvalidBoolEncoding(e) => {
+            ErrorKind::InvalidBoolEncoding(_e) => {
                 Self::SerializationError("Bincode Error: Invalid bool encoding".to_string())
             }
             ErrorKind::InvalidCharEncoding => {
                 Self::SerializationError("Bincode Error: Invalid char encoding".to_string())
             }
-            ErrorKind::InvalidTagEncoding(u) => {
+            ErrorKind::InvalidTagEncoding(_u) => {
                 Self::SerializationError("Bincode Error: Invalid Tag encoding (enum)".to_string())
             }
             ErrorKind::DeserializeAnyNotSupported => Self::SerializationError(

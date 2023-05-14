@@ -1,4 +1,4 @@
-#[cfg(feature = "support")]
+#[cfg(feature = "component")]
 pub mod component;
 pub mod resource;
 mod update_server_json;

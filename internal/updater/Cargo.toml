@@ -16,3 +16,9 @@ networking = { path = "../networking" }
 weather_error = { path = "../weather_error" }
 sha2 = "0.10.6"
 hex = "0.4.3"
+indicatif = { version = "0.17", optional = true }
+futures-util = { version = "0.3", optional = true }
+reqwest = { version = "0.11", features = ["stream"], optional = true }
+
+[features]
+component = ["dep:indicatif", "dep:futures-util", "dep:reqwest"]

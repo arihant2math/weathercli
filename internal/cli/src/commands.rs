@@ -12,7 +12,7 @@ use backend::{meteo, nws, openweathermap, openweathermap_onecall, WeatherForecas
 use local::cache::prune;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
-use location::Coordinates;
+use local::location::Coordinates;
 use log::{debug, warn};
 use serde_json::Value;
 use std::path::Path;

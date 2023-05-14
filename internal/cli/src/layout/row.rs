@@ -21,10 +21,10 @@ fn reemit_layout_error(e: Error, count: usize) -> Error {
 }
 
 impl Row {
-    pub fn new(data: &[ItemSerde]) -> Self {
+    pub fn new(data: Vec<ItemSerde>) -> Self {
         let mut items: Vec<Item> = Vec::new();
-        for (_count, item) in data.iter().enumerate() {
-            items.push(Item::new(item.clone()));
+        for item in data.into_iter() {
+            items.push(Item::new(item));
         }
         Self { items }
     }

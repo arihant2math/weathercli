@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::openweathermap::json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
 };
-use location::Coordinates;
+use local::location::Coordinates;
 use networking;
 use networking::Resp;
 

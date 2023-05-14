@@ -1,8 +1,8 @@
 use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 use crate::WeatherCondition;
-use crate::{get_conditions_sentence, WeatherData};
 use crate::WindData;
-use now::now;
+use crate::{get_conditions_sentence, WeatherData};
+use local::now;
 use std::collections::HashMap;
 
 pub fn get_weather_data(

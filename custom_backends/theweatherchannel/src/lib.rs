@@ -2,16 +2,14 @@ use std::collections::HashMap;
 
 use scraper::Html;
 
-use weather_core::{export_plugin, networking};
-use weather_core::backend::weather_data::WeatherData;
-use weather_core::location;
-use weather_core::backend::weather_forecast::WeatherForecast;
-use weather_core::backend::WindData;
-use weather_core::backend::r#mod::PluginRegistrar;
-use weather_core::backend::r#mod::WeatherForecastPlugin;
-use weather_core::local::settings::Settings;
-use weather_core::location::Coordinates;
-use weather_core::now;
+use weather_plugin::{export_plugin, networking};
+use weather_plugin::{WeatherCondition, WeatherData, WeatherForecast, WindData};
+use weather_plugin::custom_backend::PluginRegistrar;
+use weather_plugin::custom_backend::WeatherForecastPlugin;
+use weather_plugin::location;
+use weather_plugin::location::Coordinates;
+use weather_plugin::now;
+use weather_plugin::settings::Settings;
 
 fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_quality_soup: Html) -> WeatherData {
     WeatherData {
@@ -33,8 +31,8 @@ fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_
     }
 }
 
-fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecast> {
-    let region_country = location::reverse_geocode(Coordinates {
+fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) -> weather_plugin::Result<WeatherForecast> {
+    let region_country = weather_plugin::location::reverse_geocode(Coordinates {
         latitude: coordinates[0].parse().unwrap(),
         longitude: coordinates[1].parse().unwrap()
     })?;
@@ -77,7 +75,7 @@ extern "C" fn register(registrar: &mut dyn PluginRegistrar) {
 pub struct TheWeatherChannel;
 
 impl WeatherForecastPlugin for TheWeatherChannel {
-    fn call(&self, coordinates: [&str; 2], settings: Settings) -> weather_core::Result<WeatherForecast> {
+    fn call(&self, coordinates: [&str; 2], settings: Settings) -> weather_plugin::Result<WeatherForecast> {
         get_the_weather_channel_forecast(coordinates, settings)
     }
 

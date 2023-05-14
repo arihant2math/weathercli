@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
-use location::Coordinates;
+use local::location::Coordinates;
 use networking;
 use networking::Resp;
 

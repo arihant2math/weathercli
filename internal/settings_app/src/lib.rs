@@ -6,7 +6,7 @@ use iced::theme::Theme;
 use iced::widget::{button, column, container, radio, row, text, text_input, toggler};
 use iced::{Alignment, Element, Length, Sandbox};
 
-use crate::local::settings;
+use local::settings;
 
 pub fn run_settings_app() -> iced::Result {
     App::run(iced::Settings {
@@ -34,7 +34,6 @@ pub fn run_settings_app() -> iced::Result {
     })
 }
 
-#[derive(Default)]
 struct App {
     theme: Theme,
     data: settings::Settings,
@@ -56,6 +55,7 @@ enum Message {
 enum DataSource {
     Meteo,
     OpenWeatherMap,
+    OpenWeatherMapOneCall,
     Nws,
 }
 
@@ -64,6 +64,7 @@ impl fmt::Display for DataSource {
         let s = match self {
             DataSource::Meteo => "meteo".to_string(),
             DataSource::OpenWeatherMap => "openweathermap".to_string(),
+            DataSource::OpenWeatherMapOneCall => "openweathermap_onecall".to_string(),
             DataSource::Nws => "nws".to_string(),
         };
         write!(f, "{s}")
@@ -74,15 +75,17 @@ impl Sandbox for App {
     type Message = Message;
 
     fn new() -> Self {
-        let mut a = App::default();
         let mode = dark_light::detect();
-        a.theme = match mode {
+        let theme = match mode {
             Mode::Default => Theme::default(),
             Mode::Light => Theme::Light,
             Mode::Dark => Theme::Dark,
         };
-        a.data = settings::Settings::new().expect("Loading settings failed");
-        a
+        let data = settings::Settings::new().expect("Loading settings failed");
+        App {
+            theme,
+            data,
+        }
     }
 
     fn title(&self) -> String {
@@ -123,6 +126,7 @@ impl Sandbox for App {
                     *data_source,
                     Some(match &*self.data.default_backend.clone().to_lowercase() {
                         "openweathermap" => DataSource::OpenWeatherMap,
+                        "openweathermap_onecall" => DataSource::OpenWeatherMapOneCall,
                         "nws" => DataSource::Nws,
                         _ => DataSource::Meteo,
                     }),

@@ -2,9 +2,9 @@ use crate::openweathermap::current::get_current;
 use crate::openweathermap::future::get_future;
 use crate::WeatherData;
 use crate::WeatherForecast;
+use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
-use location::Coordinates;
 use std::collections::HashMap;
 
 fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {

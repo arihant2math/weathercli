@@ -3,8 +3,8 @@ mod internal;
 use std::str::FromStr;
 use std::u128;
 
+use crate::now;
 use internal::{get_date_string, read_cache, write_cache, Row};
-use now::now;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
