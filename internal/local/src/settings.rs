@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+#[cfg(windows)]
 use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
 
 use crate::weather_file::WeatherFile;
