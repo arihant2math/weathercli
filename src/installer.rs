@@ -7,6 +7,7 @@ use winreg::enums::HKEY_LOCAL_MACHINE;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
+use async_runner::new_executor_and_spawner;
 use local::settings::Settings;
 use updater::component::update_component;
 use updater::CONFIG;
@@ -47,8 +48,22 @@ fn add_to_path(dir: String) -> Result<()> {
     return Err("Add to path is unsupported for your system")?;
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
+    let (executor, spawner) = new_executor_and_spawner();
+    // Spawn a task to print before and after waiting on a timer.
+    spawner.spawn(async {
+        run().await.unwrap();
+    });
+    // Drop the spawner so that our executor knows it is finished and won't
+    // receive more incoming tasks to run.
+    drop(spawner);
+
+    // Run the executor until the task queue is empty.
+    executor.run();
+    Ok(())
+}
+
+async fn run() -> Result<()> {
     let args = Cli::parse();
     let settings = Settings::new()?;
     if args.guided {

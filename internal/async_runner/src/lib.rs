@@ -21,7 +21,7 @@ pub struct Spawner {
 }
 
 impl Spawner {
-    fn spawn(&self, future: impl Future<Output = ()> + 'static + Send) {
+    pub fn spawn(&self, future: impl Future<Output = ()> + 'static + Send) {
         let future = future.boxed();
         let task = Arc::new(Task {
             future: Mutex::new(Some(future)),
@@ -59,7 +59,7 @@ impl ArcWake for Task {
 }
 
 impl Executor {
-    fn run(&self) {
+    pub fn run(&self) {
         while let Ok(task) = self.ready_queue.recv() {
             // Take the future, and if it has not yet completed (is still Some),
             // poll it in an attempt to complete it.

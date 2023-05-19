@@ -3,6 +3,8 @@ use std::time::Duration;
 use std::thread;
 use terminal::color::{FORE_CYAN, FORE_LIGHTMAGENTA};
 use terminal::prompt::{input, yes_no};
+use async_runner::new_executor_and_spawner;
+use updater::component::update_component;
 
 pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
@@ -67,7 +69,24 @@ pub fn update(force: bool, version: String) -> crate::Result<()> {
     println!("Current Version: {version}");
     if latest_version != version || force {
         println!("Updating weather.exe at {}", application_path.display());
+        let (executor, spawner) = new_executor_and_spawner();
+        // Spawn a task to print before and after waiting on a timer.
+        spawner.spawn(async {
+            update_component(
+                &("https://arihant2math.github.io/weathercli/".to_string() + updater::CONFIG.weather_file_name),
+                &std::env::current_exe().unwrap().display().to_string(),
+                "Downloading weathercli update from ".to_string(),
+                "Updated weathercli".to_string(),
+                false
+            ).await.unwrap();
+        });
 
+        // Drop the spawner so that our executor knows it is finished and won't
+        // receive more incoming tasks to run.
+        drop(spawner);
+
+        // Run the executor until the task queue is empty.
+        executor.run();
     }
     Ok(())
 }
