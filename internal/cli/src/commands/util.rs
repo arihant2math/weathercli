@@ -1,7 +1,6 @@
 use local::settings::Settings;
-use serde_json::Value;
 use std::time::Duration;
-use std::{fs, thread};
+use std::thread;
 use terminal::color::{FORE_CYAN, FORE_LIGHTMAGENTA};
 use terminal::prompt::{input, yes_no};
 
