@@ -10,6 +10,8 @@ weatherd.exe
 weather.spec
 test.http
 
+tmp/
+
 internal/async_runner/target/*
 internal/backend/target/*
 internal/cli/target/*
@@ -23,6 +25,7 @@ internal/terminal/target/*
 internal/updater/target/*
 internal/weather_dirs/target/*
 internal/weather_error/target/*
+internal/weather_plugin/target/*
 
 custom_backends/theweatherchannel/target/*
 dev-scripts/target/*
