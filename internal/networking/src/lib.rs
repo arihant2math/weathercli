@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+ use std::collections::HashMap;
 use std::io::Read;
 
 use cookie_store::{CookieResult, CookieStore};

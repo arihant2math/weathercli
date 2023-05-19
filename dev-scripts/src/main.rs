@@ -2,11 +2,10 @@ use std::{env, fs, process};
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::path::Path;
 
 use clap::{Args, Parser, Subcommand};
-use crate::layout::compile_layout;
 
+use crate::layout::compile_layout;
 use crate::update_hash::update_hash;
 
 mod update_docs;
@@ -44,7 +43,7 @@ pub struct CompileCustomLayoutOpts {
     path: String,
 }
 
-fn build_docs() -> weather_core::Result<()> {
+fn build_docs() -> weather_error::Result<()> {
     let working_dir = env::current_dir()?;
     fs::create_dir_all(working_dir.join("docs"))?;
     OpenOptions::new().create(true).write(true).open(working_dir.join("docs").join("index.html"))?;
@@ -75,7 +74,7 @@ fn build_docs() -> weather_core::Result<()> {
 }
 
 
-fn compile_json() -> weather_core::Result<()> {
+fn compile_json() -> weather_error::Result<()> {
     println!("Compile weather_codes");
     let path = "./docs_templates/weather_codes";
     let d: HashMap<String, Vec<String>> = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
@@ -97,7 +96,7 @@ fn compile_json() -> weather_core::Result<()> {
     Ok(())
 }
 
-fn compile_layout_from_path(p: String) -> weather_core::Result<()> {
+fn compile_layout_from_path(p: String) -> weather_error::Result<()> {
     let bytes = fs::read(&p)?;
     let v = bincode::serialize(&compile_layout(String::from_utf8(bytes).unwrap())?)?;
     let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(format!("{p}.res"))?;
@@ -105,21 +104,19 @@ fn compile_layout_from_path(p: String) -> weather_core::Result<()> {
     Ok(())
 }
 
-fn index_hashes() -> weather_core::Result<()> {
+fn index_hashes() -> weather_error::Result<()> {
     update_hash("./docs_templates/weather_codes.res", "weather-codes-hash")?;
     update_hash("./docs_templates/weather_ascii_images.res", "weather-ascii-images-hash")?;
     update_hash("./docs_templates/default_layout.res", "default-layout-hash")?;
     update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")?;
     update_hash("./docs_templates/weather", "weather-exe-hash-unix")?;
-    update_hash("./docs_templates/updater.exe", "updater-exe-hash-windows")?;
-    update_hash("./docs_templates/updater", "updater-exe-hash-unix")?;
     update_hash("./docs_templates/weatherd.exe", "weatherd-exe-hash-windows")?;
     update_hash("./docs_templates/weatherd", "weatherd-exe-hash-unix")?;
     Ok(())
 }
 
 
-fn main() -> weather_core::Result<()> {
+fn main() -> weather_error::Result<()> {
     let args = App::parse();
     match args.command {
         Command::Docs => build_docs(),

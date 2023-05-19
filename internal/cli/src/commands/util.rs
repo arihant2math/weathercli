@@ -68,55 +68,7 @@ pub fn update(force: bool, version: String) -> crate::Result<()> {
     println!("Current Version: {version}");
     if latest_version != version || force {
         println!("Updating weather.exe at {}", application_path.display());
-        let mut updater_location = application_path
-            .parent()
-            .expect("no parent dir")
-            .to_path_buf()
-            .join("components");
-        fs::create_dir_all(&updater_location)?;
-        if cfg!(windows) {
-            updater_location.push("updater.exe");
-        } else {
-            updater_location.push("updater");
-        }
-        unsafe {
-            if !updater_location.exists() {
-                println!("Updater not found, downloading updater");
-                updater::get_updater(updater_location.display().to_string())?;
-                let resp: Value = simd_json::from_str(
-                    &mut networking::get_url(
-                        "https://arihant2math.github.io/weathercli/index.json",
-                        None,
-                        None,
-                        None,
-                    )?
-                    .text,
-                )?;
-                let web_hash = if cfg!(windows) {
-                    resp["updater-exe-hash-windows"]
-                        .as_str()
-                        .expect("updater-exe-hash-windows key not found in index.json")
-                } else {
-                    resp["updater-exe-hash-unix"]
-                        .as_str()
-                        .expect("updater-exe-hash-unix key not found in index.json")
-                };
-                if updater::hash_file(&updater_location.display().to_string())? != web_hash
-                    || force
-                {
-                    updater::get_updater(updater_location.display().to_string())?;
-                }
-                drop(resp); // Dropping to reduce memory leakage
-                println!("Starting updater and exiting");
-                let mut command = std::process::Command::new(updater_location.as_os_str());
-                if force {
-                    command.arg("--force").spawn()?;
-                } else {
-                    command.spawn()?;
-                }
-                std::process::abort();
-            }
-        }
+
     }
     Ok(())
 }

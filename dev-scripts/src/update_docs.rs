@@ -1,8 +1,7 @@
-use std::collections::HashMap;
 use std::{env, fs};
+use std::collections::HashMap;
 use std::fs::{File, OpenOptions};
 use std::io::{BufReader, BufWriter, Write};
-
 
 use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::ParallelIterator;
@@ -10,20 +9,20 @@ use serde_json::Value;
 
 use crate::update_hash::update_hash;
 
-fn get_artifact_urls(h: HashMap<String, String>, run_id: &str) -> weather_core::Result<Value> {
-    let artifact_request = weather_core::networking::get_url(
+fn get_artifact_urls(h: HashMap<String, String>, run_id: &str) -> weather_error::Result<Value> {
+    let artifact_request = networking::get_url(
         format!("https://api.github.com/repos/arihant2math/weathercli/actions/runs/{}/artifacts", run_id),
         None, Some(h), None)?;
     let json: Value = serde_json::from_str(&artifact_request.text)?;
     return Ok(json["artifacts"].clone());
 }
 
-fn download_artifact(artifact_list: &Vec<Value>, h: HashMap<String, String>, name: &str, file: &str) -> weather_core::Result<()> {
+fn download_artifact(artifact_list: &Vec<Value>, h: HashMap<String, String>, name: &str, file: &str) -> weather_error::Result<()> {
     println!("Downloading {name} to {file}");
     let artifacts: Option<&Value> = artifact_list.iter().find(|a| a["name"].as_str().unwrap() == name);
     let artifact_id = artifacts.expect(&*format!("Could not find artifact {name}"))["id"].as_i64().expect(&*format!("Could not find artifact {name} key id"));
     let download =
-        weather_core::networking::get_url(format!("https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/{}/zip", artifact_id), None, Some(h), None)?;
+        networking::get_url(format!("https://api.github.com/repos/arihant2math/weathercli/actions/artifacts/{}/zip", artifact_id), None, Some(h), None)?;
     let mut tmp_zip_file = OpenOptions::new().create(true).write(true).open(format!("./tmp/{file}.zip"))?;
     tmp_zip_file.write_all(&*download.bytes)?;
     let reader = BufReader::new(File::open(format!("./tmp/{file}.zip"))?);
@@ -41,12 +40,12 @@ fn filter_by_file(runs: &Vec<Value>, file: &str) -> Vec<Value> {
     return runs.iter().filter(|&run| run["path"].as_str().unwrap() == file).map(|r| r.clone()).collect();
 }
 
-pub fn update_docs(gh_token: &str) -> weather_core::Result<()> {
+pub fn update_docs(gh_token: &str) -> weather_error::Result<()> {
     let working_dir = env::current_dir()?;
     fs::create_dir_all(working_dir.join("tmp"))?;
     let mut headers = HashMap::new();
     headers.insert("Authorization".to_string(), format!("Bearer {}", gh_token));
-    let get_run_id = weather_core::networking::get_url("https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=10&status=completed",
+    let get_run_id = networking::get_url("https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=10&status=completed",
                                                        None, Some(headers.clone()), None)?;
     let runs_json: Value = serde_json::from_str(&get_run_id.text)?;
     let runs = runs_json["workflow_runs"].as_array()

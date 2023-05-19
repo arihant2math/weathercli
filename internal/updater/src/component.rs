@@ -1,8 +1,10 @@
 use std::cmp::min;
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
+use self_replace;
 
 use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -17,6 +19,12 @@ pub async fn update_component(
     finish_msg: String,
     quiet: bool,
 ) -> crate::Result<()> {
+    let replace = std::env::current_exe()? == PathBuf::from(path);
+    let download_path = if replace {
+        path.to_string() + ".tmp"
+    } else {
+      path.to_string()
+    };
     let client = Client::new();
     // Reqwest setup
     let res = client
@@ -35,16 +43,17 @@ pub async fn update_component(
     this is likely a bug.\nURL: {}",
         status, url
     ); // Prevent a 404 page from blanking someone's exe
-    let retries = 0;
-    let mut file_expect = File::create(path);
+    let mut retries = 0;
+    let mut file_expect = File::create(&download_path);
     while file_expect.is_err() {
         if retries > 30 {
             return Err(Error::IoError(format!(
                 "Failed to create/open file '{}'",
-                path
+                &download_path
             )));
         }
-        file_expect = File::create(path);
+        file_expect = File::create(&download_path);
+        retries += 1;
         thread::sleep(Duration::from_millis(100));
     }
     let mut file = file_expect?;
@@ -69,6 +78,11 @@ pub async fn update_component(
         if !quiet {
             progress_bar.set_position(new);
         }
+    }
+    if !quiet && replace {
+        println!("Replacing ...");
+        self_replace::self_replace(&download_path)?;
+        std::fs::remove_file(&download_path)?;
     }
     if !quiet {
         progress_bar.set_style(ProgressStyle::default_bar()

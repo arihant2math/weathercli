@@ -1,7 +1,7 @@
 use log::{debug, trace};
 use serde_json::Value;
 
-use crate::hash_file;
+use local::hash_file;
 use local::weather_file::WeatherFile;
 use networking;
 use terminal::color;

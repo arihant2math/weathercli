@@ -1,6 +1,8 @@
 use std::collections::HashMap;
-use weather_core::layout::layout_serde::{ItemSerde, LayoutDefaultsSerde, LayoutSerde};
+
 use regex::Regex;
+
+use cli::layout::layout_serde::{ItemSerde, LayoutDefaultsSerde, LayoutSerde};
 
 fn strip(line: &str) -> &str { // TODO: Fix function (its actually good for now, but it can be better)
     return line.trim_end();
@@ -115,7 +117,7 @@ fn string_to_row(s: String) -> Vec<ItemSerde> {
     item_list
 }
 
-pub fn compile_layout(s: String) -> weather_core::Result<LayoutSerde> {
+pub fn compile_layout(s: String) -> weather_error::Result<LayoutSerde> {
     let lines: Vec<&str> = s.split("\n").collect();
     let mut rows: Vec<Vec<ItemSerde>> = Vec::new();
     let mut is_layout = false;
@@ -139,7 +141,7 @@ pub fn compile_layout(s: String) -> weather_core::Result<LayoutSerde> {
         }
     }
     Ok(LayoutSerde {
-        version: variables.get("version").unwrap_or(&weather_core::layout::VERSION.to_string()).parse().unwrap(),
+        version: variables.get("version").unwrap_or(&cli::layout::VERSION.to_string()).parse().unwrap(),
         defaults: LayoutDefaultsSerde {
             variable_color: variables.get("variable_color").unwrap_or(&"FORE_LIGHTGREEN".to_string()).to_string(),
             text_color: variables.get("text_color").unwrap_or(&"FORE_LIGHTBLUE".to_string()).to_string(),

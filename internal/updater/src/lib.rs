@@ -1,4 +1,3 @@
-#[cfg(feature = "component")]
 pub mod component;
 pub mod resource;
 mod update_server_json;
@@ -6,10 +5,6 @@ mod update_server_json;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::fs;
-use std::path::Path;
-
-use sha2::Digest;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
@@ -57,13 +52,6 @@ pub fn get_updater(path: String) -> crate::Result<()> {
         .open(path)?;
     file.write_all(&data)?;
     Ok(())
-}
-
-/// returns the sha-256 of the file
-pub fn hash_file(filename: &str) -> crate::Result<String> {
-    let input = Path::new(filename);
-    let bytes = fs::read(input)?;
-    Ok(hex::encode(sha2::Sha256::digest(bytes)))
 }
 
 pub struct Config<'a> {

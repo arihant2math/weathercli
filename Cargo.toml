@@ -4,11 +4,6 @@ name = "weatherd"
 path = "src/weatherd.rs"
 
 [[bin]]
-required-features = ["support"]
-name = "updater"
-path = "src/updater.rs"
-
-[[bin]]
 required-features = ["support", "installer"]
 name = "installer"
 path = "src/installer.rs"
@@ -49,7 +44,6 @@ log4rs = "1.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 simd-json = { version = "0.9.2", optional = true }
-tokio = { version = "1.28", features = ["full"], optional = true }
 reqwest = { version = "0.11", optional = true }
 
 [dev-dependencies]
@@ -59,7 +53,7 @@ rand = "0.8.5"
 winreg = "0.50.*"
 
 [features]
-support = ["dep:auto-launch", "dep:bincode", "dep:tokio", "updater/component", "dep:reqwest", "dep:simd-json"]
+support = ["dep:auto-launch", "dep:bincode", "dep:reqwest", "dep:simd-json"]
 installer = []
 gui = ["cli/gui"]
 default = ["gui"]
