@@ -56,10 +56,8 @@ pub fn update_docs(gh_token: &str) -> weather_error::Result<()> {
     let rust_artifacts = binding.as_array().unwrap();
     let tasks = vec![
    ["weather (Windows)", "weather.exe"],
-   ["updater (Windows)", "updater.exe"],
    ["weatherd (Windows)", "weatherd.exe"],
    ["weather (Linux)", "weather"],
-   ["updater (Linux)", "updater"],
    ["weatherd (Linux)", "weatherd"]];
     tasks.par_iter().for_each(|&s| download_artifact(&rust_artifacts, headers.clone(), s[0], s[1]).unwrap());
     fs::remove_dir_all(working_dir.join("tmp"))?; // TODO: Implement index version updates

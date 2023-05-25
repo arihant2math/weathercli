@@ -61,8 +61,6 @@ fn build_docs() -> weather_error::Result<()> {
     fs::copy("./docs_templates/logo.png", "./docs/logo.png")?;
     fs::copy("./docs_templates/weather.exe", "./docs/weather.exe")?;
     fs::copy("./docs_templates/weather", "./docs/weather")?;
-    fs::copy("./docs_templates/updater.exe", "./docs/updater.exe")?;
-    fs::copy("./docs_templates/updater", "./docs/updater")?;
     fs::copy("./docs_templates/weatherd.exe", "./docs/weatherd.exe")?;
     fs::copy("./docs_templates/weatherd", "./docs/weatherd")?;
     fs::copy("./docs_templates/theme.js", "./docs/theme.js")?;
