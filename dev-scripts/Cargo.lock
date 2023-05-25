@@ -137,7 +137,7 @@ dependencies = [
  "networking",
  "serde",
  "serde_json",
- "simd-json",
+ "simd-json 0.10.3",
  "weather_error",
 ]
 
@@ -347,7 +347,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
- "simd-json",
+ "simd-json 0.10.3",
  "terminal",
  "updater",
  "weather_dirs",
@@ -1011,9 +1011,9 @@ dependencies = [
 
 [[package]]
 name = "halfbrown"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d9ab7d9233262d3b74ae4c4a7a090fc4379b07c6eb9b02ecab7cbb12ad67a58"
+checksum = "f985624e90f861184145c13b736873a0f83cdb998a292dbb0653598ab03aecbf"
 dependencies = [
  "hashbrown 0.13.2",
  "serde",
@@ -1306,7 +1306,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "simd-json",
+ "simd-json 0.10.3",
  "weather_dirs",
  "weather_error",
  "windows",
@@ -2005,6 +2005,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "simd-json"
+version = "0.10.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3d0815e7ff0f1f05e09d4b029f86d8a330f0ab15b35b28736f3758325f59e14"
+dependencies = [
+ "halfbrown",
+ "lexical-core",
+ "serde",
+ "serde_json",
+ "simdutf8",
+ "value-trait",
+]
+
+[[package]]
 name = "simdutf8"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2272,7 +2286,7 @@ dependencies = [
  "self-replace",
  "serde",
  "serde_json",
- "simd-json",
+ "simd-json 0.9.2",
  "terminal",
  "weather_error",
 ]
@@ -2313,9 +2327,9 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
 name = "value-trait"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "733e1909354ceff16f7e1f7ddebc063455b8fda4968d91760a7c6115b96647a5"
+checksum = "09a5b6c8ceb01263b969cac48d4a6705134d490ded13d889e52c0cfc80c6945e"
 dependencies = [
  "float-cmp",
  "halfbrown",
@@ -2591,7 +2605,7 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "serde_json",
- "simd-json",
+ "simd-json 0.9.2",
  "wasmer",
  "windows",
 ]
