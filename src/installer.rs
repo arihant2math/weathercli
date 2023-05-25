@@ -48,18 +48,9 @@ fn add_to_path(dir: String) -> Result<()> {
     return Err("Add to path is unsupported for your system")?;
 }
 
-fn main() -> Result<()> {
-    let (executor, spawner) = new_executor_and_spawner();
-    // Spawn a task to print before and after waiting on a timer.
-    spawner.spawn(async {
-        run().await.unwrap();
-    });
-    // Drop the spawner so that our executor knows it is finished and won't
-    // receive more incoming tasks to run.
-    drop(spawner);
-
-    // Run the executor until the task queue is empty.
-    executor.run();
+#[tokio::main]
+async fn main() -> Result<()> {
+    run().await.unwrap();
     Ok(())
 }
 
@@ -92,8 +83,7 @@ async fn run() -> Result<()> {
         "Downloading weathercli from ".to_string(),
         "Installed weathercli".to_string(),
         args.quiet,
-    )
-    .await?;
+    )?;
     let url = settings.update_server.clone() + &CONFIG.weather_d_file_name;
     let path = dir_path
         .to_path_buf()
@@ -105,8 +95,7 @@ async fn run() -> Result<()> {
         "Downloading daemon from ".to_string(),
         "Installed daemon".to_string(),
         args.quiet,
-    )
-    .await?;
+    )?;
     if args.add_to_path {
         add_to_path(dir_path.display().to_string())?;
     }

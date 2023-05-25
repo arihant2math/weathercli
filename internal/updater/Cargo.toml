@@ -15,6 +15,3 @@ terminal = { path = "../terminal" }
 networking = { path = "../networking" }
 weather_error = { path = "../weather_error" }
 self-replace = "1.3.2"
-indicatif = "0.17"
-futures-util = "0.3"
-reqwest = { version = "0.11", features = ["stream"] }
