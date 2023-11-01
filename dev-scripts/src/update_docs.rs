@@ -55,10 +55,8 @@ pub fn update_docs(gh_token: &str) -> weather_error::Result<()> {
     let binding = get_artifact_urls(headers.clone(), &latest_updater_run_id.to_string())?;
     let rust_artifacts = binding.as_array().unwrap();
     let tasks = vec![
-   ["weather (Windows)", "weather.exe"],
-   ["weatherd (Windows)", "weatherd.exe"],
-   ["weather (Linux)", "weather"],
-   ["weatherd (Linux)", "weatherd"]];
+        ["weather (Windows)", "weather.exe"],
+        ["weather (Linux)", "weather"]];
     tasks.par_iter().for_each(|&s| download_artifact(&rust_artifacts, headers.clone(), s[0], s[1]).unwrap());
     fs::remove_dir_all(working_dir.join("tmp"))?; // TODO: Implement index version updates
     update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")?;

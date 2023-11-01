@@ -15,7 +15,7 @@ path = "src/weather.rs"
 
 [package]
 name = "weather"
-version = "2023.5.6"
+version = "2023.11.1"
 edition = "2021"
 authors = ["Ashwin Naren"]
 rust-version = "1.64.0"
@@ -36,25 +36,26 @@ weather_dirs = { path = "./internal/weather_dirs" }
 weather_error = { path = "./internal/weather_error" }
 local = { path = "./internal/local" }
 updater = { path = "./internal/updater" }
-auto-launch = { version = "0.4.0", optional = true, path = "./lib/auto-launch" }
+auto-launch = { version = "0.4", optional = true, path = "./lib/auto-launch" }
 bincode = { version = "1.3", optional = true }
 clap = { version = "4.4", features = ["derive"] }
 log = "0.4"
 log4rs = "1.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-simd-json = { version = "0.10", optional = true }
+simd-json = { version = "0.13", optional = true }
 reqwest = { version = "0.11", optional = true }
+tokio = { version = "1.28.1", optional = true }
 
 [dev-dependencies]
-rand = "0.8.5"
+rand = "0.8"
 
 [target.'cfg(windows)'.dependencies]
-winreg = "0.50.*"
+winreg = "0.51.*"
 
 [features]
 support = ["dep:auto-launch", "dep:bincode", "dep:reqwest", "dep:simd-json"]
-installer = []
+installer = ["dep:tokio"]
 gui = ["cli/gui"]
 default = ["gui"]
 
