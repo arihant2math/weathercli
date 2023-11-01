@@ -6,9 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cookie_store = "0.19.0"
-rayon = "1.7"
+cookie_store = "0.20"
+rayon = "1.8"
 log = "0.4"
 serde = { version = "1.0", features = ["derive"] }
-ureq = { version = "2.6.2", default-features = false, features = ["tls", "gzip", "cookies", "json"], path = "../../lib/ureq" }
-url = "2.3"
+ureq = { version = "2.6", default-features = false, features = ["tls", "gzip", "cookies", "json"], path = "../../lib/ureq" }
+url = "2.4"
