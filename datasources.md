@@ -17,4 +17,6 @@
 | Network Requests      | 1+reverse geocode   | 1+reverse geocode       | 3                           | 1+reverse geocode                       |
 | Website               | https://weather.gov | https://open-meteo.com/ | https://openweathermap.org/ | https://openweathermap.org/             |
 
+Reverse Geocode requests are cached
+
 † Supported by service but not by weathercli
