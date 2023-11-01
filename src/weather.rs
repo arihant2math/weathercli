@@ -77,7 +77,7 @@ fn main() {
     };
 }
 
-fn run() -> crate::Result<()> {
+fn run() -> Result<()> {
     let args = App::parse();
     let settings_s = Settings::new()?;
     if settings_s.debug || args.global_opts.debug {
