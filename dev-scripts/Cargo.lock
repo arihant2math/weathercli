@@ -136,7 +136,7 @@ dependencies = [
  "networking",
  "serde",
  "serde_json",
- "simd-json 0.13.4",
+ "simd-json",
  "weather_error",
 ]
 
@@ -364,7 +364,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
- "simd-json 0.13.4",
+ "simd-json",
  "terminal",
  "updater",
  "weather_dirs",
@@ -1317,7 +1317,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "simd-json 0.10.7",
+ "simd-json",
  "weather_dirs",
  "weather_error",
  "windows",
@@ -2029,21 +2029,6 @@ checksum = "d66dc143e6b11c1eddc06d5c423cfc97062865baf299914ab64caa38182078fe"
 
 [[package]]
 name = "simd-json"
-version = "0.10.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "80ea1dfc2c400965867fc4ddd6f502572be2de2074b39f90984ed15fbdbdd8eb"
-dependencies = [
- "getrandom",
- "halfbrown",
- "lexical-core",
- "serde",
- "serde_json",
- "simdutf8",
- "value-trait 0.6.1",
-]
-
-[[package]]
-name = "simd-json"
 version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5a3720326b20bf5b95b72dbbd133caae7e0dcf71eae8f6e6656e71a7e5c9aaa"
@@ -2055,7 +2040,7 @@ dependencies = [
  "serde",
  "serde_json",
  "simdutf8",
- "value-trait 0.8.0",
+ "value-trait",
 ]
 
 [[package]]
@@ -2339,7 +2324,7 @@ dependencies = [
  "self-replace",
  "serde",
  "serde_json",
- "simd-json 0.10.7",
+ "simd-json",
  "terminal",
  "weather_error",
 ]
@@ -2383,18 +2368,6 @@ name = "uuid"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "88ad59a7560b41a70d191093a945f0b87bc1deeda46fb237479708a1d6b6cdfc"
-
-[[package]]
-name = "value-trait"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09a5b6c8ceb01263b969cac48d4a6705134d490ded13d889e52c0cfc80c6945e"
-dependencies = [
- "float-cmp",
- "halfbrown",
- "itoa",
- "ryu",
-]
 
 [[package]]
 name = "value-trait"
@@ -2682,7 +2655,7 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "serde_json",
- "simd-json 0.13.4",
+ "simd-json",
  "wasmer",
  "windows",
 ]
@@ -2746,19 +2719,9 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "windows"
-version = "0.51.1"
+version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ca229916c5ee38c2f2bc1e9d8f04df975b4bd93f9955dc69fabb5d91270045c9"
-dependencies = [
- "windows-core",
- "windows-targets",
-]
-
-[[package]]
-name = "windows-core"
-version = "0.51.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1f8cf84f35d2db49a46868f947758c7a1138116f7fac3bc844f43ade1292e64"
+checksum = "e686886bc078bc1b0b600cac0147aadb815089b6e4da64016cbd754b6342700f"
 dependencies = [
  "windows-targets",
 ]

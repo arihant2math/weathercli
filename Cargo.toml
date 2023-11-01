@@ -55,7 +55,7 @@ winreg = "0.51.*"
 
 [features]
 support = ["dep:auto-launch", "dep:bincode", "dep:reqwest", "dep:simd-json"]
-installer = ["dep:tokio"]
+installer = ["dep:tokio", "tokio/full"]
 gui = ["cli/gui"]
 default = ["gui"]
 
