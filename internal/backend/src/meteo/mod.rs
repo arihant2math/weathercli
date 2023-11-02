@@ -50,3 +50,25 @@ pub struct MeteoFormattedData {
     pub air_quality: MeteoAirQualityJson,
     pub raw_data: Vec<Resp>,
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_get_api_url() {
+        let location = local::location::Coordinates {
+            latitude: 37.354,
+            longitude: -121.955,
+        };
+        let urls = crate::meteo::get_api_urls(location, true);
+        // TODO: actual test
+    }
+
+    #[test]
+    fn test_get_data() {
+                let location = local::location::Coordinates {
+            latitude: 37.354,
+            longitude: -121.955,
+        };
+        let data = crate::meteo::get_combined_data_formatted(location, true).unwrap();
+    }
+}

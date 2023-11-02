@@ -31,7 +31,7 @@ pub fn get_combined_data_formatted(location: Coordinates, metric: bool) -> crate
 mod tests {
     #[test]
     fn test_get_api_url() {
-        let location = crate::nws::Coordinates {
+        let location = local::location::Coordinates {
             latitude: 37.354,
             longitude: -121.955,
         };
@@ -44,7 +44,7 @@ mod tests {
 
     #[test]
     fn test_get_data() {
-                let location = crate::nws::Coordinates {
+                let location = local::location::Coordinates {
             latitude: 37.354,
             longitude: -121.955,
         };
