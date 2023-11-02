@@ -28,14 +28,14 @@ pub struct NWSPointJSON {
 #[serde(rename_all = "camelCase")]
 pub struct NWSValueIntJSON {
     pub valid_time: String,
-    pub value: i64,
+    pub value: Option<i64>,
 }
 
 #[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct NWSValueFloatJSON {
     pub valid_time: String,
-    pub value: f64,
+    pub value: Option<f64>,
 }
 
 #[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]

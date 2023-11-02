@@ -23,8 +23,7 @@ fn get_api_url(location: Coordinates, _metric: bool) -> crate::Result<String> {
 
 pub fn get_combined_data_formatted(location: Coordinates, metric: bool) -> crate::Result<NWSJSON> {
     let mut raw_data = networking::get_url(get_api_url(location, metric)?, None, None, None)?;
-    println!("{}", raw_data.text);
-    let data: NWSJSON = unsafe { simd_json::from_str(&mut raw_data.text) }?;
+    let data: NWSJSON = unsafe { serde_json::from_str(&mut raw_data.text) }?;
     Ok(data)
 }
 
@@ -49,13 +48,6 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let data = crate::nws::get_combined_data_formatted(location, true).unwrap_err();
-        match data {
-            weather_error::Error::SerializationError(s) => {
-                println!("{}", s);
-                assert!(false)
-            },
-            _ => assert!(false)
-        }
+        let data = crate::nws::get_combined_data_formatted(location, true).unwrap();
     }
 }
