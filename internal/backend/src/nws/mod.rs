@@ -9,7 +9,7 @@ mod json;
 fn get_api_url(location: Coordinates, _metric: bool) -> crate::Result<String> {
     let mut get_point = networking::get_url(
         format!(
-            "https://api.weather.gov/points/{},{}",
+            "https://api.weather.gov/gridpoints/{},{}",
             location.latitude, location.longitude
         ),
         None,
