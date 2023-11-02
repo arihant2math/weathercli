@@ -81,7 +81,7 @@ impl From<std::io::Error> for Error {
 
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
-        Self::SerializationError(format!("JSON parsing error: {error}"))
+        Self::SerializationError(format!("JSON parsing error: {error} at {}:{}" , error.line(), error.column()))
     }
 }
 

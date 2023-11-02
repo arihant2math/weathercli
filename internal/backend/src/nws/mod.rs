@@ -9,7 +9,7 @@ mod json;
 fn get_api_url(location: Coordinates, _metric: bool) -> crate::Result<String> {
     let mut get_point = networking::get_url(
         format!(
-            "https://api.weather.gov/gridpoints/{},{}",
+            "https://api.weather.gov/points/{},{}",
             location.latitude, location.longitude
         ),
         None,
@@ -23,6 +23,39 @@ fn get_api_url(location: Coordinates, _metric: bool) -> crate::Result<String> {
 
 pub fn get_combined_data_formatted(location: Coordinates, metric: bool) -> crate::Result<NWSJSON> {
     let mut raw_data = networking::get_url(get_api_url(location, metric)?, None, None, None)?;
+    println!("{}", raw_data.text);
     let data: NWSJSON = unsafe { simd_json::from_str(&mut raw_data.text) }?;
     Ok(data)
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_get_api_url() {
+        let location = crate::nws::Coordinates {
+            latitude: 37.354,
+            longitude: -121.955,
+        };
+        let url = crate::nws::get_api_url(location, true).unwrap();
+        assert_eq!(
+            url,
+            "https://api.weather.gov/gridpoints/MTR/97,83"
+        );
+    }
+
+    #[test]
+    fn test_get_data() {
+                let location = crate::nws::Coordinates {
+            latitude: 37.354,
+            longitude: -121.955,
+        };
+        let data = crate::nws::get_combined_data_formatted(location, true).unwrap_err();
+        match data {
+            weather_error::Error::SerializationError(s) => {
+                println!("{}", s);
+                assert!(false)
+            },
+            _ => assert!(false)
+        }
+    }
 }
