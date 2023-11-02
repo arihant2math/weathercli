@@ -102,7 +102,7 @@ impl From<Box<ErrorKind>> for Error {
         match *value {
             ErrorKind::Io(i) => Self::IoError(i.to_string()),
             ErrorKind::InvalidUtf8Encoding(e) => {
-                Self::SerializationError("Bincode Error: Invalid Utf8 Encoding, {e}".to_string())
+                Self::SerializationError(format!("Bincode Error: Invalid Utf8 Encoding, {e}"))
             }
             ErrorKind::InvalidBoolEncoding(_e) => {
                 Self::SerializationError("Bincode Error: Invalid bool encoding".to_string())
@@ -122,7 +122,7 @@ impl From<Box<ErrorKind>> for Error {
             ErrorKind::SequenceMustHaveLength => {
                 Self::SerializationError("Bincode Error: Sequence must have length".to_string())
             }
-            ErrorKind::Custom(s) => Self::SerializationError("Bincode Error: ".to_string() + &s),
+            ErrorKind::Custom(s) => Self::SerializationError(format!("Bincode Error: {s}")),
         }
     }
 }
