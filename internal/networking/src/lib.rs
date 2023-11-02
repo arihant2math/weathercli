@@ -122,7 +122,7 @@ pub fn get_urls(
             let status = data.status();
             let mut bytes: Vec<u8> = Vec::with_capacity(128);
             data.into_reader()
-                .take(10_000_000)
+                .take(u64::MAX-4)
                 .read_to_end(&mut bytes)
                 .expect("read failed");
 

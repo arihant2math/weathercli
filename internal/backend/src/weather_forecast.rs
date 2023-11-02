@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct WeatherForecast {
+    pub datasource: String,
     pub region: String,
     pub country: String,
     pub forecast: Vec<WeatherData>,

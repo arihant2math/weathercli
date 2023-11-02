@@ -82,6 +82,7 @@ pub fn get_forecast(
     }
     let forecast_sentence = get_forecast_sentence(forecast.clone());
     Ok(WeatherForecast {
+                datasource: String::from("Open Weather Map"),
         region: data.weather.name,
         country: data.weather.sys.country,
         forecast: forecast.clone(),

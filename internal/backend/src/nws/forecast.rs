@@ -13,6 +13,7 @@ pub fn get_forecast(
     let current = get_current(data, settings.metric_default)?;
     let region_country = location::reverse_geocode(coordinates)?;
     Ok(WeatherForecast {
+        datasource: String::from("National Weather Service"),
         region: region_country[0].clone(),
         country: region_country[1].clone(),
         forecast: vec![current.clone()],

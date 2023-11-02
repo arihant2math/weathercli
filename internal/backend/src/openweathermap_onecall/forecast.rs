@@ -83,6 +83,7 @@ pub fn get_forecast(
     let region_country = location::reverse_geocode(coordinates)?;
     let forecast_sentence = get_forecast_sentence(forecast.clone());
     Ok(WeatherForecast {
+                datasource: String::from("Open Weather Map OneCall"),
         region: region_country[0].clone(),
         country: region_country[1].clone(),
         forecast: forecast.clone(),

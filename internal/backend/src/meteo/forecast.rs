@@ -93,7 +93,7 @@ pub fn get_forecast(
         .time
         .iter()
         .position(|r| *r == data.weather.current_weather.time)
-        .expect("now not found");
+        .unwrap_or(0); // TODO: Log warning
     let weather_file = WeatherFile::weather_codes()?;
     let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&weather_file.data)?;
     let current = get_weather_data(
@@ -116,6 +116,7 @@ pub fn get_forecast(
     let region_country = location::reverse_geocode(coordinates)?;
     let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather, now);
     let f = WeatherForecast {
+        datasource: String::from("meteo"),
         region: region_country[0].clone(),
         country: region_country[1].clone(),
         forecast: forecast.clone(),
