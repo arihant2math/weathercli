@@ -1,10 +1,14 @@
-use crate::error::{Error, ErrorKind};
-use base64::Engine;
+use base64::{prelude::BASE64_STANDARD, Engine};
+
+use crate::{
+    error::{Error, ErrorKind},
+    Response,
+};
 
 /// Proxy protocol
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Proto {
-    HTTPConnect,
+    HTTP,
     SOCKS4,
     SOCKS4A,
     SOCKS5,
@@ -66,11 +70,35 @@ impl Proxy {
         self.user.is_some() && self.password.is_some()
     }
 
+    pub(crate) fn try_from_system() -> Option<Self> {
+        macro_rules! try_env {
+            ($($env:literal),+) => {
+                $(
+                    if let Ok(env) = std::env::var($env) {
+                        if let Ok(proxy) = Self::new(env) {
+                            return Some(proxy);
+                        }
+                    }
+                )+
+            };
+        }
+
+        try_env!(
+            "ALL_PROXY",
+            "all_proxy",
+            "HTTPS_PROXY",
+            "https_proxy",
+            "HTTP_PROXY",
+            "http_proxy"
+        );
+        None
+    }
+
     /// Create a proxy from a format string.
     /// # Arguments:
     /// * `proxy` - a str of format `<protocol>://<user>:<password>@<host>:port` . All parts except host are optional.
     /// # Protocols
-    /// * `http`: HTTP Connect
+    /// * `http`: HTTP
     /// * `socks4`: SOCKS4 (requires socks feature)
     /// * `socks4a`: SOCKS4A (requires socks feature)
     /// * `socks5` and `socks`: SOCKS5 (requires socks feature)
@@ -90,7 +118,7 @@ impl Proxy {
 
         let proto = if proxy_parts.len() == 2 {
             match proxy_parts.next() {
-                Some("http") => Proto::HTTPConnect,
+                Some("http") => Proto::HTTP,
                 Some("socks4") => Proto::SOCKS4,
                 Some("socks4a") => Proto::SOCKS4A,
                 Some("socks") => Proto::SOCKS5,
@@ -98,7 +126,7 @@ impl Proxy {
                 _ => return Err(ErrorKind::InvalidProxyUrl.new()),
             }
         } else {
-            Proto::HTTPConnect
+            Proto::HTTP
         };
 
         let remaining_parts = proxy_parts.next();
@@ -130,16 +158,16 @@ impl Proxy {
         })
     }
 
-    pub(crate) fn connect<S: AsRef<str>>(&self, host: S, port: u16) -> String {
+    pub(crate) fn connect<S: AsRef<str>>(&self, host: S, port: u16, user_agent: &str) -> String {
         let authorization = if self.use_authorization() {
-            let creds = base64::engine::general_purpose::STANDARD.encode(format!(
+            let creds = BASE64_STANDARD.encode(format!(
                 "{}:{}",
                 self.user.clone().unwrap_or_default(),
                 self.password.clone().unwrap_or_default()
             ));
 
             match self.proto {
-                Proto::HTTPConnect => format!("Proxy-Authorization: basic {}\r\n", creds),
+                Proto::HTTP => format!("Proxy-Authorization: basic {}\r\n", creds),
                 _ => String::new(),
             }
         } else {
@@ -149,7 +177,7 @@ impl Proxy {
         format!(
             "CONNECT {}:{} HTTP/1.1\r\n\
 Host: {}:{}\r\n\
-User-Agent: something/1.0.0\r\n\
+User-Agent: {}\r\n\
 Proxy-Connection: Keep-Alive\r\n\
 {}\
 \r\n",
@@ -157,24 +185,15 @@ Proxy-Connection: Keep-Alive\r\n\
             port,
             host.as_ref(),
             port,
+            user_agent,
             authorization
         )
     }
 
-    pub(crate) fn verify_response(response: &[u8]) -> Result<(), Error> {
-        let response_string = String::from_utf8_lossy(response);
-        let top_line = response_string
-            .lines()
-            .next()
-            .ok_or_else(|| ErrorKind::ProxyConnect.new())?;
-        let status_code = top_line
-            .split_whitespace()
-            .nth(1)
-            .ok_or_else(|| ErrorKind::ProxyConnect.new())?;
-
-        match status_code {
-            "200" => Ok(()),
-            "401" | "407" => Err(ErrorKind::ProxyUnauthorized.new()),
+    pub(crate) fn verify_response(response: &Response) -> Result<(), Error> {
+        match response.status() {
+            200 => Ok(()),
+            401 | 407 => Err(ErrorKind::ProxyUnauthorized.new()),
             _ => Err(ErrorKind::ProxyConnect.new()),
         }
     }
@@ -196,7 +215,7 @@ mod tests {
         assert_eq!(proxy.password, Some(String::from("p@ssw0rd")));
         assert_eq!(proxy.server, String::from("localhost"));
         assert_eq!(proxy.port, 9999);
-        assert_eq!(proxy.proto, Proto::HTTPConnect);
+        assert_eq!(proxy.proto, Proto::HTTP);
     }
 
     #[test]
@@ -206,7 +225,7 @@ mod tests {
         assert_eq!(proxy.password, Some(String::from("p@ssw0rd")));
         assert_eq!(proxy.server, String::from("localhost"));
         assert_eq!(proxy.port, 9999);
-        assert_eq!(proxy.proto, Proto::HTTPConnect);
+        assert_eq!(proxy.proto, Proto::HTTP);
     }
 
     #[cfg(feature = "socks-proxy")]

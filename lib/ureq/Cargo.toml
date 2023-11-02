@@ -1,9 +1,9 @@
 [package]
 name = "ureq"
-version = "2.6.2"
+version = "2.8.0"
 authors = ["Martin Algesten <martin@algesten.se>", "Jacob Hoffman-Andrews <ureq@hoffman-andrews.com>"]
 description = "Simple, safe HTTP client"
-license = "MIT/Apache-2.0"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/algesten/ureq"
 readme = "README.md"
 keywords = ["web", "request", "https", "http", "client"]
@@ -15,7 +15,7 @@ edition = "2018"
 features = ["tls", "native-tls", "json", "charset", "cookies", "socks-proxy"]
 
 [features]
-default = ["tls", "gzip", "logging"]
+default = ["tls", "gzip"]
 tls = ["webpki", "webpki-roots", "rustls"]
 native-certs = ["rustls-native-certs"]
 json = ["serde", "serde_json"]
@@ -24,31 +24,32 @@ cookies = ["cookie", "cookie_store"]
 socks-proxy = ["socks"]
 gzip = ["flate2"]
 brotli = ["brotli-decompressor"]
-logging = ["rustls/logging", "log"]
+http-interop = ["dep:http"]
 
 [dependencies]
 base64 = "0.21"
-cookie = { version = "0.16", default-features = false, optional = true}
+cookie = { version = "0.17", default-features = false, optional = true }
 once_cell = "1"
 url = "2"
 socks = { version = "0.3", optional = true }
 serde = { version = "1", optional = true }
-serde_json = { version = "1", optional = true }
+serde_json = { version = ">=1.0.97", optional = true }
 encoding_rs = { version = "0.8", optional = true }
-cookie_store = { version = "0.19", optional = true, default-features = false, features = ["preserve_order"] }
-log = { version = "0.4", optional = true }
-webpki = { version = "0.22", optional = true }
-webpki-roots = { version = "0.23", optional = true }
-rustls = { version = "0.20", default-features = false, features = ["tls12"], optional = true }
+cookie_store = { version = "0.20", optional = true, default-features = false, features = ["preserve_order"] }
+log = "0.4"
+webpki = { package = "rustls-webpki", version = "0.101", optional = true }
+webpki-roots = { version = "0.25", optional = true }
+rustls = { version = "0.21", optional = true }
 rustls-native-certs = { version = "0.6", optional = true }
 native-tls = { version = "0.2", optional = true }
 flate2 = { version = "1.0.22", optional = true }
 brotli-decompressor = { version = "2.3.2", optional = true }
+http = { version = "0.2", optional = true }
 
 [dev-dependencies]
 serde = { version = "1", features = ["derive"] }
 env_logger = "0.10"
-rustls = { version = "0.20", default-features = false, features = ["tls12", "dangerous_configuration"] }
+rustls = { version = "0.21", features = ["dangerous_configuration"] }
 rustls-pemfile = { version = "1.0" }
 
 [[example]]

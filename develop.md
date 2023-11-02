@@ -44,21 +44,9 @@ new artifacts.
 A GitHub PAT is needed for the script to work.
 
 ```shell
-python scripts/update_docs_templates.py [gh token here]
+[command coming soon] [gh token here]
 ```
 
 ### Update Index Hashes
 
-Should be run after the docs templates are updated
-
-```shell
-python scripts/update_index_hashes.py
-```
-
-### Docs
-
-Run
-
-```shell
-python scripts/dev_helper.py docs
-```
+Documentation coming soon

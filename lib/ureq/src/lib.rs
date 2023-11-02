@@ -8,6 +8,12 @@
 #![allow(clippy::upper_case_acronyms)]
 #![allow(clippy::result_large_err)]
 #![allow(clippy::only_used_in_recursion)]
+// println!("{var}") doesn't allow even the simplest expressions for var,
+// such as "{foo.var}" – hence this lint forces us to have inconsistent
+// formatting args. I prefer a lint that forbid "{var}".
+#![allow(clippy::uninlined_format_args)]
+// if we want a range, we will make a range.
+#![allow(clippy::manual_range_patterns)]
 
 //!<div align="center">
 //!  <!-- Version -->
@@ -33,17 +39,17 @@
 //! Ureq's first priority is being easy for you to use. It's great for
 //! anyone who wants a low-overhead HTTP client that just gets the job done. Works
 //! very well with HTTP APIs. Its features include cookies, JSON, HTTP proxies,
-//! HTTPS, and charset decoding.
+//! HTTPS, interoperability with the `http` crate, and charset decoding.
 //!
 //! Ureq is in pure Rust for safety and ease of understanding. It avoids using
 //! `unsafe` directly. It [uses blocking I/O][blocking] instead of async I/O, because that keeps
 //! the API simple and keeps dependencies to a minimum. For TLS, ureq uses
 //! [rustls or native-tls](#https--tls--ssl).
 //!
-//! Version 2.0.0 was released recently and changed some APIs. See the [changelog] for details.
+//! See the [changelog] for details of recent releases.
 //!
 //! [blocking]: #blocking-io-for-simplicity
-//! [changelog]: https://github.com/algesten/ureq/blob/master/CHANGELOG.md
+//! [changelog]: https://github.com/algesten/ureq/blob/main/CHANGELOG.md
 //!
 //!
 //! ## Usage
@@ -156,6 +162,7 @@
 //!   does nothing for `native-tls`.
 //! * `gzip` enables requests of gzip-compressed responses and decompresses them. This is enabled by default.
 //! * `brotli` enables requests brotli-compressed responses and decompresses them.
+//! * `http-interop` enables conversion methods to and from `http::Response` and `http::request::Builder`.
 //!
 //! # Plain requests
 //!
@@ -220,14 +227,14 @@
 //!
 //! # Proxying
 //!
-//! ureq supports two kinds of proxies,  HTTP [`CONNECT`], [`SOCKS4`] and [`SOCKS5`], the former is
-//! always available while the latter must be enabled using the feature
+//! ureq supports two kinds of proxies,  [`HTTP`] ([`CONNECT`]), [`SOCKS4`] and [`SOCKS5`],
+//! the former is always available while the latter must be enabled using the feature
 //! `ureq = { version = "*", features = ["socks-proxy"] }`.
 //!
 //! Proxies settings are configured on an [Agent] (using [AgentBuilder]). All request sent
 //! through the agent will be proxied.
 //!
-//! ## Example using HTTP CONNECT
+//! ## Example using HTTP
 //!
 //! ```rust
 //! fn proxy_example_1() -> std::result::Result<(), ureq::Error> {
@@ -328,6 +335,7 @@
 //! [async-std]: https://github.com/async-rs/async-std#async-std
 //! [tokio]: https://github.com/tokio-rs/tokio#tokio
 //! [what-color]: https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/
+//! [`HTTP`]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Proxy_servers_and_tunneling#http_tunneling
 //! [`CONNECT`]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/CONNECT
 //! [`SOCKS4`]: https://en.wikipedia.org/wiki/SOCKS#SOCKS4
 //! [`SOCKS5`]: https://en.wikipedia.org/wiki/SOCKS#SOCKS5
@@ -407,6 +415,9 @@ use url::Url;
 mod test;
 #[doc(hidden)]
 mod testserver;
+
+#[cfg(feature = "http-interop")]
+mod http_interop;
 
 pub use crate::agent::Agent;
 pub use crate::agent::AgentBuilder;
@@ -560,8 +571,8 @@ mod tests {
 
         let resp = agent.get("http://www.google.com/").call().unwrap();
         assert_eq!(
-            "text/html; charset=ISO-8859-1",
-            resp.header("content-type").unwrap()
+            "text/html;charset=ISO-8859-1",
+            resp.header("content-type").unwrap().replace("; ", ";")
         );
         assert_eq!("text/html", resp.content_type());
     }
@@ -573,8 +584,8 @@ mod tests {
 
         let resp = agent.get("https://www.google.com/").call().unwrap();
         assert_eq!(
-            "text/html; charset=ISO-8859-1",
-            resp.header("content-type").unwrap()
+            "text/html;charset=ISO-8859-1",
+            resp.header("content-type").unwrap().replace("; ", ";")
         );
         assert_eq!("text/html", resp.content_type());
     }
@@ -589,8 +600,8 @@ mod tests {
 
         let resp = agent.get("https://www.google.com/").call().unwrap();
         assert_eq!(
-            "text/html; charset=ISO-8859-1",
-            resp.header("content-type").unwrap()
+            "text/html;charset=ISO-8859-1",
+            resp.header("content-type").unwrap().replace("; ", ";")
         );
         assert_eq!("text/html", resp.content_type());
     }

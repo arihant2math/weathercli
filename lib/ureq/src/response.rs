@@ -4,7 +4,6 @@ use std::num::NonZeroUsize;
 use std::str::FromStr;
 use std::{fmt, io::BufRead};
 
-#[cfg(feature = "logging")]
 use log::debug;
 use url::Url;
 
@@ -37,7 +36,13 @@ const INTO_STRING_LIMIT: usize = 10 * 1_024 * 1_024;
 const MAX_HEADER_SIZE: usize = 100 * 1_024;
 const MAX_HEADER_COUNT: usize = 100;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq)]
+enum ConnectionOption {
+    KeepAlive,
+    Close,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 enum BodyType {
     LengthDelimited(usize),
     Chunked,
@@ -72,13 +77,15 @@ enum BodyType {
 /// ```
 pub struct Response {
     pub(crate) url: Url,
-    status_line: String,
-    index: ResponseStatusIndex,
-    status: u16,
-    headers: Vec<Header>,
-    reader: Box<dyn Read + Send + Sync + 'static>,
+    pub(crate) status_line: String,
+    pub(crate) index: ResponseStatusIndex,
+    pub(crate) status: u16,
+    pub(crate) headers: Vec<Header>,
+    pub(crate) reader: Box<dyn Read + Send + Sync + 'static>,
     /// The socket address of the server that sent the response.
-    remote_addr: SocketAddr,
+    pub(crate) remote_addr: SocketAddr,
+    /// The socket address of the client that sent the request.
+    pub(crate) local_addr: SocketAddr,
     /// The redirect history of this response, if any. The history starts with
     /// the first response received and ends with the response immediately
     /// previous to this one.
@@ -89,9 +96,9 @@ pub struct Response {
 
 /// index into status_line where we split: HTTP/1.1 200 OK
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
-struct ResponseStatusIndex {
-    http_version: usize,
-    response_code: usize,
+pub(crate) struct ResponseStatusIndex {
+    pub(crate) http_version: usize,
+    pub(crate) response_code: usize,
 }
 
 impl fmt::Debug for Response {
@@ -233,6 +240,11 @@ impl Response {
         self.remote_addr
     }
 
+    /// The local address the request was made from.
+    pub fn local_addr(&self) -> SocketAddr {
+        self.local_addr
+    }
+
     /// Turn this response into a `impl Read` of the body.
     ///
     /// 1. If `Transfer-Encoding: chunked`, the returned reader will unchunk it
@@ -273,6 +285,31 @@ impl Response {
         self.reader
     }
 
+    // Determine what to do with the connection after we've read the body.
+    fn connection_option(
+        response_version: &str,
+        connection_header: Option<&str>,
+    ) -> ConnectionOption {
+        // https://datatracker.ietf.org/doc/html/rfc9112#name-tear-down
+        // "A client that receives a "close" connection option MUST cease sending requests on that
+        // connection and close the connection after reading the response message containing the "close"
+        // connection option"
+        //
+        // Per https://www.rfc-editor.org/rfc/rfc2068#section-19.7.1, an HTTP/1.0 response can explicitly
+        // say "Connection: keep-alive" in response to a request with "Connection: keep-alive". We don't
+        // send "Connection: keep-alive" in the request but are willing to accept in the response anyhow.
+        use ConnectionOption::*;
+        let is_http10 = response_version.eq_ignore_ascii_case("HTTP/1.0");
+        match (is_http10, connection_header) {
+            (true, Some(c)) if c.eq_ignore_ascii_case("keep-alive") => KeepAlive,
+            (true, _) => Close,
+            (false, Some(c)) if c.eq_ignore_ascii_case("close") => Close,
+            (false, _) => KeepAlive,
+        }
+    }
+
+    /// Determine how the body should be read, based on
+    /// <https://datatracker.ietf.org/doc/html/rfc9112#name-message-body-length>
     fn body_type(
         request_method: &str,
         response_status: u16,
@@ -280,9 +317,6 @@ impl Response {
         headers: &[Header],
     ) -> BodyType {
         let is_http10 = response_version.eq_ignore_ascii_case("HTTP/1.0");
-        let is_close = get_header(headers, "connection")
-            .map(|c| c.eq_ignore_ascii_case("close"))
-            .unwrap_or(false);
 
         let is_head = request_method.eq_ignore_ascii_case("head");
         let has_no_body = is_head
@@ -291,41 +325,41 @@ impl Response {
                 _ => false,
             };
 
+        if has_no_body {
+            return BodyType::LengthDelimited(0);
+        }
+
         let is_chunked = get_header(headers, "transfer-encoding")
             .map(|enc| !enc.is_empty()) // whatever it says, do chunked
             .unwrap_or(false);
 
-        let use_chunked = !is_http10 && !has_no_body && is_chunked;
+        // https://www.rfc-editor.org/rfc/rfc2068#page-161
+        // > a persistent connection with an HTTP/1.0 client cannot make
+        // > use of the chunked transfer-coding
+        let use_chunked = !is_http10 && is_chunked;
 
         if use_chunked {
             return BodyType::Chunked;
         }
 
-        if has_no_body {
-            return BodyType::LengthDelimited(0);
-        }
-
         let length = get_header(headers, "content-length").and_then(|v| v.parse::<usize>().ok());
 
-        if is_http10 || is_close {
-            BodyType::CloseDelimited
-        } else if has_no_body {
-            // head requests never have a body
-            BodyType::LengthDelimited(0)
-        } else {
-            match length {
-                Some(n) => BodyType::LengthDelimited(n),
-                None => BodyType::CloseDelimited,
-            }
+        match length {
+            Some(n) => BodyType::LengthDelimited(n),
+            None => BodyType::CloseDelimited,
         }
     }
 
     fn stream_to_reader(
-        stream: DeadlineStream,
+        mut stream: DeadlineStream,
         unit: &Unit,
         body_type: BodyType,
         compression: Option<Compression>,
+        connection_option: ConnectionOption,
     ) -> Box<dyn Read + Send + Sync + 'static> {
+        if connection_option == ConnectionOption::Close {
+            stream.inner_mut().set_unpoolable();
+        }
         let inner = stream.inner_ref();
         let result = inner.set_read_timeout(unit.agent.config.timeout_read);
         if let Err(e) = result {
@@ -338,7 +372,6 @@ impl Response {
             // marker. When we encounter the marker, we can return the underlying stream
             // to the connection pool.
             BodyType::Chunked => {
-                #[cfg(feature = "logging")]
                 debug!("Chunked body in response");
                 Box::new(PoolReturnRead::new(ChunkDecoder::new(stream)))
             }
@@ -348,7 +381,6 @@ impl Response {
             BodyType::LengthDelimited(len) => {
                 match NonZeroUsize::new(len) {
                     None => {
-                        #[cfg(feature = "logging")]
                         debug!("zero-length body returning stream directly to pool");
                         let stream: Stream = stream.into();
                         // TODO: This expect can actually panic if we get an error when
@@ -361,7 +393,6 @@ impl Response {
                         let mut limited_read = LimitedRead::new(stream, len);
 
                         if len.get() <= buffer_len {
-                            #[cfg(feature = "logging")]
                             debug!("Body entirely buffered (length: {})", len);
                             let mut buf = vec![0; len.get()];
                             // TODO: This expect can actually panic if we get an error when
@@ -372,7 +403,6 @@ impl Response {
                                 .expect("failed to read exact buffer length from stream");
                             Box::new(Cursor::new(buf))
                         } else {
-                            #[cfg(feature = "logging")]
                             debug!("Streaming body until content-length: {}", len);
                             Box::new(limited_read)
                         }
@@ -380,7 +410,6 @@ impl Response {
                 }
             }
             BodyType::CloseDelimited => {
-                #[cfg(feature = "logging")]
                 debug!("Body of unknown size - read until socket close");
                 Box::new(stream)
             }
@@ -504,16 +533,13 @@ impl Response {
     #[cfg(feature = "json")]
     pub fn into_json<T: DeserializeOwned>(self) -> io::Result<T> {
         use crate::stream::io_err_timeout;
-        use std::error::Error;
 
         let reader = self.into_reader();
         serde_json::from_reader(reader).map_err(|e| {
             // This is to unify TimedOut io::Error in the API.
-            // We make a clone of the original error since serde_json::Error doesn't
-            // let us get the wrapped error instance back.
-            if let Some(ioe) = e.source().and_then(|s| s.downcast_ref::<io::Error>()) {
-                if ioe.kind() == io::ErrorKind::TimedOut {
-                    return io_err_timeout(ioe.to_string());
+            if let Some(kind) = e.io_error_kind() {
+                if kind == io::ErrorKind::TimedOut {
+                    return io_err_timeout(e.to_string());
                 }
             }
 
@@ -539,6 +565,12 @@ impl Response {
     /// assert_eq!(resp.status(), 401);
     pub(crate) fn do_from_stream(stream: Stream, unit: Unit) -> Result<Response, Error> {
         let remote_addr = stream.remote_addr;
+
+        let local_addr = match stream.socket() {
+            Some(sock) => sock.local_addr().map_err(Error::from)?,
+            None => std::net::SocketAddrV4::new(std::net::Ipv4Addr::new(127, 0, 0, 1), 0).into(),
+        };
+
         //
         // HTTP/1.1 200 OK\r\n
         let mut stream = stream::DeadlineStream::new(stream, unit.deadline);
@@ -568,6 +600,9 @@ impl Response {
         let compression =
             get_header(&headers, "content-encoding").and_then(Compression::from_header_value);
 
+        let connection_option =
+            Self::connection_option(http_version, get_header(&headers, "connection"));
+
         let body_type = Self::body_type(&unit.method, status, http_version, &headers);
 
         // remove Content-Encoding and length due to automatic decompression
@@ -575,7 +610,8 @@ impl Response {
             headers.retain(|h| !h.is_name("content-encoding") && !h.is_name("content-length"));
         }
 
-        let reader = Self::stream_to_reader(stream, &unit, body_type, compression);
+        let reader =
+            Self::stream_to_reader(stream, &unit, body_type, compression, connection_option);
 
         let url = unit.url.clone();
 
@@ -587,6 +623,7 @@ impl Response {
             headers,
             reader,
             remote_addr,
+            local_addr,
             history: vec![],
         };
         Ok(response)
@@ -1215,5 +1252,137 @@ mod tests {
         .unwrap();
         let body = resp.into_string().unwrap();
         assert_eq!(body, "hi\n");
+    }
+
+    #[test]
+    fn connection_option() {
+        use ConnectionOption::*;
+        assert_eq!(Response::connection_option("HTTP/1.0", None), Close);
+        assert_eq!(Response::connection_option("HtTp/1.0", None), Close);
+        assert_eq!(Response::connection_option("HTTP/1.0", Some("blah")), Close);
+        assert_eq!(
+            Response::connection_option("HTTP/1.0", Some("keep-ALIVE")),
+            KeepAlive
+        );
+        assert_eq!(
+            Response::connection_option("http/1.0", Some("keep-alive")),
+            KeepAlive
+        );
+
+        assert_eq!(Response::connection_option("http/1.1", None), KeepAlive);
+        assert_eq!(
+            Response::connection_option("http/1.1", Some("blah")),
+            KeepAlive
+        );
+        assert_eq!(
+            Response::connection_option("http/1.1", Some("keep-alive")),
+            KeepAlive
+        );
+        assert_eq!(
+            Response::connection_option("http/1.1", Some("CLOSE")),
+            Close
+        );
+    }
+
+    #[test]
+    fn body_type() {
+        use BodyType::*;
+        assert_eq!(
+            Response::body_type("GET", 200, "HTTP/1.1", &[]),
+            CloseDelimited
+        );
+        assert_eq!(
+            Response::body_type("HEAD", 200, "HTTP/1.1", &[]),
+            LengthDelimited(0)
+        );
+        assert_eq!(
+            Response::body_type("hEaD", 200, "HTTP/1.1", &[]),
+            LengthDelimited(0)
+        );
+        assert_eq!(
+            Response::body_type("head", 200, "HTTP/1.1", &[]),
+            LengthDelimited(0)
+        );
+        assert_eq!(
+            Response::body_type("GET", 304, "HTTP/1.1", &[]),
+            LengthDelimited(0)
+        );
+        assert_eq!(
+            Response::body_type("GET", 204, "HTTP/1.1", &[]),
+            LengthDelimited(0)
+        );
+        assert_eq!(
+            Response::body_type(
+                "GET",
+                200,
+                "HTTP/1.1",
+                &[Header::new("Transfer-Encoding", "chunked"),]
+            ),
+            Chunked
+        );
+        assert_eq!(
+            Response::body_type(
+                "GET",
+                200,
+                "HTTP/1.1",
+                &[Header::new("Content-Length", "123"),]
+            ),
+            LengthDelimited(123)
+        );
+        assert_eq!(
+            Response::body_type(
+                "GET",
+                200,
+                "HTTP/1.1",
+                &[
+                    Header::new("Content-Length", "123"),
+                    Header::new("Transfer-Encoding", "chunked"),
+                ]
+            ),
+            Chunked
+        );
+        assert_eq!(
+            Response::body_type(
+                "GET",
+                200,
+                "HTTP/1.1",
+                &[
+                    Header::new("Transfer-Encoding", "chunked"),
+                    Header::new("Content-Length", "123"),
+                ]
+            ),
+            Chunked
+        );
+        assert_eq!(
+            Response::body_type(
+                "HEAD",
+                200,
+                "HTTP/1.1",
+                &[
+                    Header::new("Transfer-Encoding", "chunked"),
+                    Header::new("Content-Length", "123"),
+                ]
+            ),
+            LengthDelimited(0)
+        );
+        assert_eq!(
+            Response::body_type(
+                "GET",
+                200,
+                "HTTP/1.0",
+                &[Header::new("Transfer-Encoding", "chunked"),]
+            ),
+            CloseDelimited,
+            "HTTP/1.0 did not support chunked encoding"
+        );
+        assert_eq!(
+            Response::body_type(
+                "GET",
+                200,
+                "HTTP/1.0",
+                &[Header::new("Content-Length", "123"),]
+            ),
+            LengthDelimited(123)
+        );
     }
 }

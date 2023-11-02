@@ -99,7 +99,7 @@ fn root_certs() -> rustls::RootCertStore {
 #[cfg(not(feature = "native-certs"))]
 fn root_certs() -> rustls::RootCertStore {
     let mut root_store = rustls::RootCertStore::empty();
-    root_store.add_server_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.0.iter().map(|ta| {
+    root_store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
         rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
             ta.subject,
             ta.spki,
@@ -115,6 +115,13 @@ impl TlsConnector for Arc<rustls::ClientConfig> {
         dns_name: &str,
         mut io: Box<dyn ReadWrite>,
     ) -> Result<Box<dyn ReadWrite>, Error> {
+        let dns_name = if dns_name.starts_with('[') && dns_name.ends_with(']') {
+            // rustls doesn't like ipv6 addresses with brackets
+            &dns_name[1..dns_name.len() - 1]
+        } else {
+            dns_name
+        };
+
         let sni = rustls::ServerName::try_from(dns_name)
             .map_err(|e| ErrorKind::Dns.msg(format!("parsing '{}'", dns_name)).src(e))?;
 

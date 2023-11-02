@@ -1,4 +1,3 @@
-#[cfg(feature = "logging")]
 use log::debug;
 use std::io::{self, BufRead, BufReader, Read, Write};
 use std::net::SocketAddr;
@@ -15,6 +14,7 @@ use crate::error::ErrorKind;
 use crate::pool::{PoolKey, PoolReturner};
 use crate::proxy::Proxy;
 use crate::unit::Unit;
+use crate::Response;
 use crate::{error::Error, proxy::Proto};
 
 /// Trait for things implementing [std::io::Read] + [std::io::Write]. Used in [TlsConnector].
@@ -66,6 +66,10 @@ impl DeadlineStream {
 
     pub(crate) fn inner_ref(&self) -> &Stream {
         &self.stream
+    }
+
+    pub(crate) fn inner_mut(&mut self) -> &mut Stream {
+        &mut self.stream
     }
 }
 
@@ -193,7 +197,6 @@ impl Stream {
     }
 
     fn logged_create(stream: Stream) -> Stream {
-        #[cfg(feature = "logging")]
         debug!("created stream: {:?}", stream);
         stream
     }
@@ -215,11 +218,10 @@ impl Stream {
     // If this returns WouldBlock (aka EAGAIN),
     // that means the connection is still open: return false. Otherwise
     // return an error.
-    fn serverclosed_stream(stream: &TcpStream) -> io::Result<bool> {
+    fn serverclosed_stream(stream: &std::net::TcpStream) -> io::Result<bool> {
         let mut buf = [0; 1];
         stream.set_nonblocking(true)?;
 
-        #[cfg(feature = "logging")]
         let result = match stream.peek(&mut buf) {
             Ok(n) => {
                 debug!(
@@ -228,12 +230,6 @@ impl Stream {
                 );
                 Ok(true)
             }
-            Err(e) if e.kind() == io::ErrorKind::WouldBlock => Ok(false),
-            Err(e) => Err(e),
-        };
-        #[cfg(not(feature = "logging"))]
-        let result = match stream.peek(&mut buf) {
-            Ok(..) => Ok(true),
             Err(e) if e.kind() == io::ErrorKind::WouldBlock => Ok(false),
             Err(e) => Err(e),
         };
@@ -247,6 +243,10 @@ impl Stream {
             Some(socket) => Stream::serverclosed_stream(socket),
             None => Ok(false),
         }
+    }
+
+    pub(crate) fn set_unpoolable(&mut self) {
+        self.pool_returner = PoolReturner::none();
     }
 
     pub(crate) fn return_to_pool(mut self) -> io::Result<()> {
@@ -317,7 +317,6 @@ impl Write for Stream {
 
 impl Drop for Stream {
     fn drop(&mut self) {
-        #[cfg(feature = "logging")]
         debug!("dropping stream: {:?}", self);
     }
 }
@@ -383,12 +382,11 @@ pub(crate) fn connect_host(
             None => None,
         };
 
-        #[cfg(feature = "logging")]
         debug!("connecting to {} at {}", netloc, &sock_addr);
 
         // connect with a configured timeout.
         #[allow(clippy::unnecessary_unwrap)]
-        let stream = if proto.is_some() && Some(Proto::HTTPConnect) != proto {
+        let stream = if proto.is_some() && Some(Proto::HTTP) != proto {
             connect_socks(
                 unit,
                 proxy.clone().unwrap(),
@@ -434,23 +432,22 @@ pub(crate) fn connect_host(
         stream.set_write_timeout(unit.agent.config.timeout_write)?;
     }
 
-    if proto == Some(Proto::HTTPConnect) {
+    if proto == Some(Proto::HTTP) && unit.url.scheme() == "https" {
         if let Some(ref proxy) = proxy {
-            write!(stream, "{}", proxy.connect(hostname, port)).unwrap();
+            write!(
+                stream,
+                "{}",
+                proxy.connect(hostname, port, &unit.agent.config.user_agent)
+            )
+            .unwrap();
             stream.flush()?;
 
-            let mut proxy_response = Vec::new();
-
-            loop {
-                let mut buf = vec![0; 256];
-                let total = stream.read(&mut buf)?;
-                proxy_response.append(&mut buf);
-                if total < 256 {
-                    break;
-                }
-            }
-
-            Proxy::verify_response(&proxy_response)?;
+            let s = stream.try_clone()?;
+            let pool_key = PoolKey::from_parts(unit.url.scheme(), hostname, port);
+            let pool_returner = PoolReturner::new(&unit.agent, pool_key);
+            let s = Stream::new(s, remote_addr, pool_returner);
+            let response = Response::do_from_stream(s, unit.clone())?;
+            Proxy::verify_response(&response)?;
         }
     }
 

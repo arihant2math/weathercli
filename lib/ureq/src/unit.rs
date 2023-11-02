@@ -1,10 +1,9 @@
-use base64::Engine;
 use std::fmt::{self, Display};
 use std::io::{self, Write};
 use std::ops::Range;
 use std::time;
 
-#[cfg(feature = "logging")]
+use base64::{prelude::BASE64_STANDARD, Engine};
 use log::debug;
 use url::Url;
 
@@ -16,6 +15,7 @@ use crate::body::{self, BodySize, Payload, SizedReader};
 use crate::error::{Error, ErrorKind};
 use crate::header;
 use crate::header::{get_header, Header};
+use crate::proxy::Proto;
 use crate::resolve::ArcResolver;
 use crate::response::Response;
 use crate::stream::{self, connect_test, Stream};
@@ -89,8 +89,7 @@ impl Unit {
             if (!username.is_empty() || !password.is_empty())
                 && get_header(&headers, "authorization").is_none()
             {
-                let encoded = base64::engine::general_purpose::STANDARD
-                    .encode(format!("{}:{}", username, password));
+                let encoded = BASE64_STANDARD.encode(format!("{}:{}", username, password));
                 extra.push(Header::new("Authorization", &format!("Basic {}", encoded)));
             }
 
@@ -210,7 +209,6 @@ pub(crate) fn connect(
             &new_url,
         );
 
-        #[cfg(feature = "logging")]
         debug!("redirect {} {} -> {}", resp.status(), url, new_url);
         history.push(unit.url);
         body = Payload::Empty.into_read();
@@ -219,9 +217,11 @@ pub(crate) fn connect(
         let mut headers = unit.headers;
 
         // on redirects we don't want to keep "content-length". we also might want to
-        // strip away "authorization" to ensure credentials are not leaked.
+        // strip away "authorization" and "cookie" to ensure credentials are not leaked.
         headers.retain(|h| {
-            !h.is_name("content-length") && (!h.is_name("authorization") || keep_auth_header)
+            !h.is_name("content-length")
+                && !h.is_name("cookie")
+                && (!h.is_name("authorization") || keep_auth_header)
         });
 
         // recreate the unit to get a new hostname and cookies for the new host.
@@ -250,25 +250,21 @@ fn connect_inner(
         .host_str()
         // This unwrap is ok because Request::parse_url() ensure there is always a host present.
         .unwrap();
-    #[cfg(feature = "logging")]
     let url = &unit.url;
+    let method = &unit.method;
     // open socket
     let (mut stream, is_recycled) = connect_socket(unit, host, use_pooled)?;
-    #[cfg(feature = "logging")]
-    {
-        let method = &unit.method;
-        if is_recycled {
-            debug!("sending request (reused connection) {} {}", method, url);
-        } else {
-            debug!("sending request {} {}", method, url);
-        }
+
+    if is_recycled {
+        debug!("sending request (reused connection) {} {}", method, url);
+    } else {
+        debug!("sending request {} {}", method, url);
     }
 
     let send_result = send_prelude(unit, &mut stream);
 
     if let Err(err) = send_result {
         if is_recycled {
-            #[cfg(feature = "logging")]
             debug!("retrying request early {} {}: {}", method, url, err);
             // we try open a new connection, this time there will be
             // no connection in the pool. don't use it.
@@ -302,7 +298,6 @@ fn connect_inner(
     // up to N+1 total tries, where N is max_idle_connections_per_host.
     let resp = match result {
         Err(err) if err.connection_closed() && retryable && is_recycled => {
-            #[cfg(feature = "logging")]
             debug!("retrying request {} {}: {}", method, url, err);
             let empty = Payload::Empty.into_read();
             // NOTE: this recurses at most once because `use_pooled` is `false`.
@@ -316,7 +311,6 @@ fn connect_inner(
     #[cfg(feature = "cookies")]
     save_cookies(unit, &resp);
 
-    #[cfg(feature = "logging")]
     debug!("response {} to {} {}", resp.status(), method, url);
 
     // release the response
@@ -335,7 +329,6 @@ fn extract_cookies(agent: &Agent, url: &Url) -> Option<Header> {
         .filter(|c| {
             let is_ok = is_cookie_rfc_compliant(c);
             if !is_ok {
-                #[cfg(feature = "logging")]
                 debug!("do not send non compliant cookie: {:?}", c);
             }
             is_ok
@@ -370,7 +363,6 @@ fn connect_socket(unit: &Unit, hostname: &str, use_pooled: bool) -> Result<(Stre
             if !server_closed {
                 return Ok((stream, true));
             }
-            #[cfg(feature = "logging")]
             debug!("dropping stream from pool; closed by server: {:?}", stream);
         }
     }
@@ -415,12 +407,33 @@ fn send_prelude(unit: &Unit, stream: &mut Stream) -> io::Result<()> {
     // build into a buffer and send in one go.
     let mut prelude = PreludeBuilder::new();
 
+    let path = if let Some(proxy) = &unit.agent.config.proxy {
+        // HTTP proxies require the path to be in absolute URI form
+        // https://www.rfc-editor.org/rfc/rfc7230#section-5.3.2
+        match proxy.proto {
+            Proto::HTTP => match unit.url.port() {
+                Some(port) => format!(
+                    "{}://{}:{}{}",
+                    unit.url.scheme(),
+                    unit.url.host().unwrap(),
+                    port,
+                    unit.url.path()
+                ),
+                None => format!(
+                    "{}://{}{}",
+                    unit.url.scheme(),
+                    unit.url.host().unwrap(),
+                    unit.url.path()
+                ),
+            },
+            _ => unit.url.path().into(),
+        }
+    } else {
+        unit.url.path().into()
+    };
+
     // request line
-    prelude.write_request_line(
-        &unit.method,
-        unit.url.path(),
-        unit.url.query().unwrap_or_default(),
-    )?;
+    prelude.write_request_line(&unit.method, &path, unit.url.query().unwrap_or_default())?;
 
     // host header if not set by user.
     if !header::has_header(&unit.headers, "host") {
@@ -464,7 +477,6 @@ fn send_prelude(unit: &Unit, stream: &mut Stream) -> io::Result<()> {
     // finish
     prelude.finish()?;
 
-    #[cfg(feature = "logging")]
     debug!("writing prelude: {}", prelude);
     // write all to the wire
     stream.write_all(prelude.as_slice())?;
@@ -554,7 +566,6 @@ fn save_cookies(unit: &Unit, resp: &Response) {
         return;
     }
     let cookies = headers.into_iter().flat_map(|header_value| {
-        #[cfg(feature = "logging")]
         debug!(
             "received 'set-cookie: {}' from {} {}",
             header_value, unit.method, unit.url
@@ -566,7 +577,6 @@ fn save_cookies(unit: &Unit, resp: &Response) {
                 if is_cookie_rfc_compliant(&c) {
                     Some(c)
                 } else {
-                    #[cfg(feature = "logging")]
                     debug!("ignore incoming non compliant cookie: {:?}", c);
                     None
                 }
@@ -624,7 +634,6 @@ fn is_cookie_rfc_compliant(cookie: &Cookie) -> bool {
     let valid_name = name.iter().all(is_valid_name);
 
     if !valid_name {
-        #[cfg(feature = "logging")]
         log::trace!("cookie name is not valid: {:?}", cookie.name());
         return false;
     }
@@ -634,7 +643,6 @@ fn is_cookie_rfc_compliant(cookie: &Cookie) -> bool {
     let valid_value = value.iter().all(is_valid_value);
 
     if !valid_value {
-        #[cfg(feature = "logging")]
         log::trace!("cookie value is not valid: {:?}", cookie.value());
         return false;
     }

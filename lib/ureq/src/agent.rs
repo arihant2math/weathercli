@@ -10,8 +10,8 @@ use crate::proxy::Proxy;
 use crate::request::Request;
 use crate::resolve::{ArcResolver, StdResolver};
 use crate::stream::TlsConnector;
-
 use crate::Header;
+
 #[cfg(feature = "cookies")]
 use {
     crate::cookies::{CookieStoreGuard, CookieTin},
@@ -38,6 +38,7 @@ pub enum RedirectAuthHeaders {
 /// Accumulates options towards building an [Agent].
 pub struct AgentBuilder {
     config: AgentConfig,
+    try_proxy_from_env: bool,
     max_idle_connections: usize,
     max_idle_connections_per_host: usize,
     /// Cookies saved between requests.
@@ -266,6 +267,7 @@ impl AgentBuilder {
                 tls_config: TlsConfig(crate::default_tls_config()),
                 headers: Vec::new(),
             },
+            try_proxy_from_env: false,
             max_idle_connections: DEFAULT_MAX_IDLE_CONNECTIONS,
             max_idle_connections_per_host: DEFAULT_MAX_IDLE_CONNECTIONS_PER_HOST,
             resolver: StdResolver.into(),
@@ -280,7 +282,12 @@ impl AgentBuilder {
     // AgentBuilder to be used multiple times, except CookieStore does
     // not implement clone, so we have to give ownership to the newly
     // built Agent.
-    pub fn build(self) -> Agent {
+    pub fn build(mut self) -> Agent {
+        if self.config.proxy.is_none() && self.try_proxy_from_env {
+            if let Some(proxy) = Proxy::try_from_system() {
+                self.config.proxy = Some(proxy);
+            }
+        }
         Agent {
             config: Arc::new(self.config),
             state: Arc::new(AgentState {
@@ -309,8 +316,21 @@ impl AgentBuilder {
     /// # Ok(())
     /// # }
     /// ```
+    ///
+    /// Adding a proxy will disable `try_proxy_from_env`.
     pub fn proxy(mut self, proxy: Proxy) -> Self {
         self.config.proxy = Some(proxy);
+        self
+    }
+
+    /// Attempt to detect proxy settings from the environment, i.e. HTTP_PROXY
+    ///
+    /// The default is `false`, i.e. not detecting proxy from env since this is
+    /// a potential security risk.
+    ///
+    /// If the `proxy` is set on the builder, this setting has no effect.
+    pub fn try_proxy_from_env(mut self, do_try: bool) -> Self {
+        self.try_proxy_from_env = do_try;
         self
     }
 
@@ -501,7 +521,7 @@ impl AgentBuilder {
     /// WARNING: for 307 and 308 redirects, this value is ignored for methods that have a body.
     /// You must handle 307 redirects yourself when sending a PUT, POST, PATCH, or DELETE request.
     ///
-    /// ```
+    /// ```no_run
     /// # fn main() -> Result<(), ureq::Error> {
     /// # ureq::is_test(true);
     /// let result = ureq::builder()
@@ -538,7 +558,7 @@ impl AgentBuilder {
     /// Defaults to `ureq/[VERSION]`. You can override the user-agent on an individual request by
     /// setting the `User-Agent` header when constructing the request.
     ///
-    /// ```
+    /// ```no_run
     /// # #[cfg(feature = "json")]
     /// # fn main() -> Result<(), ureq::Error> {
     /// # ureq::is_test(true);
@@ -580,7 +600,7 @@ impl AgentBuilder {
     /// # ureq::is_test(true);
     /// use std::sync::Arc;
     /// let mut root_store = rustls::RootCertStore::empty();
-    /// root_store.add_server_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.0.iter().map(|ta| {
+    /// root_store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
     ///     rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
     ///         ta.subject,
     ///         ta.spki,
