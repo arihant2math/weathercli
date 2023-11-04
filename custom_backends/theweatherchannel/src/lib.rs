@@ -1,17 +1,17 @@
 use std::collections::HashMap;
 
-use scraper::Html;
+use serde_json::json;
+use serde_json::Value;
 
-use weather_plugin::{export_plugin, networking};
-use weather_plugin::{WeatherCondition, WeatherData, WeatherForecast, WindData};
+use weather_plugin::{WeatherData, WeatherForecast, WindData};
 use weather_plugin::custom_backend::PluginRegistrar;
 use weather_plugin::custom_backend::WeatherForecastPlugin;
-use weather_plugin::location;
+use weather_plugin::export_plugin;
 use weather_plugin::location::Coordinates;
 use weather_plugin::now;
 use weather_plugin::settings::Settings;
 
-fn get_the_weather_channel_current(weather_soup: Html, forecast_soup: Html, air_quality_soup: Html) -> WeatherData {
+fn get_the_weather_channel_current(data: &Value) -> WeatherData {
     WeatherData {
         time: now() as i128,
         temperature: 0.0,
@@ -36,31 +36,28 @@ fn get_the_weather_channel_forecast(coordinates: [&str; 2], settings: Settings) 
         latitude: coordinates[0].parse().unwrap(),
         longitude: coordinates[1].parse().unwrap()
     })?;
-    let mut cookies = HashMap::new();
+    let mut headers = HashMap::new();
     if !settings.metric_default {
-        cookies.insert("unitOfMeasurement".to_string(), "e".to_string());
+        headers.insert("unitOfMeasurement".to_string(), "e".to_string());
     } else {
-        cookies.insert("unitOfMeasurement".to_string(), "m".to_string());
+        headers.insert("unitOfMeasurement".to_string(), "m".to_string());
     }
-    let r1 = networking::get_url(format!("https://weather.com/weather/today/l/{},{}", &coordinates[0], &coordinates[1]),
-                                 None, None, Some(cookies.clone()))?;
-    let r2 = networking::get_url(format!("https://weather.com/weather/hourbyhour/l/{},{}", &coordinates[0], &coordinates[1]),
-                                 None, None, Some(cookies.clone()))?;
-    let r3 = networking::get_url(format!("https://weather.com/weather/air-quality/l/{},{}", &coordinates[0], &coordinates[1]) + &coordinates[0] + "," + &coordinates[1],
-                                 None, None, Some(cookies.clone()))?;
-    let weather_soup = Html::parse_document(&r1.text);
-    let forecast_soup = Html::parse_document(&r2.text);
-    let air_quality_soup = Html::parse_document(&r3.text);
-    let current = get_the_weather_channel_current(weather_soup, forecast_soup, air_quality_soup);
+    let request_args = json!([{"name":"getSunWeatherAlertHeadlinesUrlConfig","params":{"geocode":"37.35,-121.95","units":"e"}},{"name":"getSunV3CurrentObservationsUrlConfig","params":{"geocode":"37.35,-121.95","units":"e"}},{"name":"getSunV3DailyForecastWithHeadersUrlConfig","params":{"duration":"7day","geocode":"37.35,-121.95","units":"e"}}]);
+    // TODO: Browser user agent
+    let resp = weather_plugin::networking::post_url("",
+                                                    Some(serde_json::to_string(&request_args)?),
+                                                    Some(""), None, None)?;
+    let current = get_the_weather_channel_current(weather_soup);
     let forecast = vec![current.clone()];
     let region = &region_country.clone()[0];
     let country = &region_country.clone()[1];
     Ok(WeatherForecast {
+        datasource: String::from("theweatherchannel"),
         region: region.to_string(),
         country: country.to_string(),
         forecast,
         current_weather: current,
-        forecast_sentence: "WIP".to_string(),
+        forecast_sentence: String::from("WIP"),
         raw_data: None,
     })
 }
@@ -84,6 +81,6 @@ impl WeatherForecastPlugin for TheWeatherChannel {
     }
 
     fn help(&self) -> Option<&str> {
-        Some("A weather channel scraper (weather.com)")
+        Some("A weather channel api backend (weather.com)")
     }
 }
