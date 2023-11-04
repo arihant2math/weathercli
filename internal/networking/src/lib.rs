@@ -82,6 +82,70 @@ pub fn get_url<S: AsRef<str>>(
     })
 }
 
+ /// post to a url
+pub fn post_url<S: AsRef<str>>(
+    url_s: S,
+    data: Option<String>,
+    user_agent: Option<S>,
+    headers: Option<HashMap<String, String>>,
+    cookies: Option<HashMap<String, String>>,
+) -> std::io::Result<Resp> {
+    let url = url_s.as_ref();
+    trace!("Retrieving {url}");
+    let mut cookies_vec: Vec<CookieResult> = Vec::new();
+    for (key, value) in cookies.clone().unwrap_or_default() {
+        cookies_vec.push(cookie_store::Cookie::parse(
+            key.clone() + "=" + &value,
+            &Url::parse(url).expect("parse failed"),
+        ));
+    }
+    let app_user_agent = get_user_agent(user_agent);
+    let mut client_pre = ureq::AgentBuilder::new().user_agent(&app_user_agent);
+    for (key, value) in headers.unwrap_or_default() {
+        client_pre = client_pre.add_header(&key, &value);
+    }
+    if cookies.is_some() {
+        client_pre = client_pre.cookie_store(
+            CookieStore::from_cookies(cookies_vec, true).expect("Cookie Store init failed"),
+        );
+    }
+    let client = client_pre.build();
+    let mut real_data = String::new();
+     if let Some(ad) = data {
+         real_data = ad;
+     }
+    let req = client.post(url);
+    let resp = req.send_string(&real_data);
+    let real_resp = match resp {
+        Ok(d) => Ok(d),
+        Err(e) => match e {
+            ureq::Error::Status(_s, d) => Ok(d),
+            ureq::Error::Transport(d) => Err(d),
+        },
+    };
+    if real_resp.is_err() {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::ConnectionAborted,
+            format!("Get to {url} failed"),
+        ));
+    }
+    let data = real_resp.unwrap();
+    let status = data.status();
+    let mut bytes: Vec<u8> = Vec::with_capacity(100);
+    data.into_reader()
+        .take(10_000_000)
+        .read_to_end(&mut bytes)?;
+    let mut text = String::new();
+    for byte in &bytes {
+        text += &(*byte as char).to_string();
+    }
+    Ok(Resp {
+        status,
+        bytes,
+        text,
+    })
+}
+
 /// Async retrival of multiple urls
 /// :param urls: the urls to retrieve
 /// :param `user_agent`: the user agent to use, weathercli/1 by default
