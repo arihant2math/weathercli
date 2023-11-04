@@ -37,18 +37,14 @@ pub fn get_data_from_datasource(
             updater::resource::update_web_resources(update_server, None).unwrap_or(());
         });
     }
-    let conv_coords = [
-        &*coordinates.latitude.to_string(),
-        &*coordinates.longitude.to_string(),
-    ];
     match datasource {
-        Datasource::Openweathermap => openweathermap::forecast::get_forecast(coordinates, settings),
+        Datasource::Openweathermap => openweathermap::forecast::get_forecast(&coordinates, settings),
         Datasource::OpenweathermapOneCall => {
-            openweathermap_onecall::forecast::get_forecast(coordinates, settings)
+            openweathermap_onecall::forecast::get_forecast(&coordinates, settings)
         }
-        Datasource::NWS => nws::forecast::get_forecast(coordinates, settings),
-        Datasource::Meteo => meteo::forecast::get_forecast(coordinates, settings),
-        Datasource::Other(s) => custom_backends.call(&s, conv_coords, settings),
+        Datasource::NWS => nws::forecast::get_forecast(&coordinates, settings),
+        Datasource::Meteo => meteo::forecast::get_forecast(&coordinates, settings),
+        Datasource::Other(s) => custom_backends.call(&s, &coordinates, settings),
     }
 }
 

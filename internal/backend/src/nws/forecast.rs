@@ -6,7 +6,7 @@ use local::settings::Settings;
 use location::Coordinates;
 
 pub fn get_forecast(
-    coordinates: Coordinates,
+    coordinates: &Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
     let data = get_combined_data_formatted(coordinates, settings.metric_default)?;

@@ -13,7 +13,7 @@ mod future;
 pub mod json;
 
 /// Gets the urls from the openweathermap api server
-fn get_api_urls(url: &str, api_key: String, location: Coordinates, metric: bool) -> [String; 3] {
+fn get_api_urls(url: &str, api_key: String, location: &Coordinates, metric: bool) -> [String; 3] {
     let longitude = location.longitude;
     let latitude = location.latitude;
     let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
@@ -36,7 +36,7 @@ fn get_api_urls(url: &str, api_key: String, location: Coordinates, metric: bool)
 pub fn get_combined_data_formatted(
     open_weather_map_api_url: &str,
     open_weather_map_api_key: String,
-    coordinates: Coordinates,
+    coordinates: &Coordinates,
     metric: bool,
 ) -> crate::Result<OpenWeatherMapFormattedData> {
     let urls = get_api_urls(

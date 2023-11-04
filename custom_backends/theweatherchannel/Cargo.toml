@@ -9,4 +9,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 weather_plugin = { path = "../../internal/weather_plugin" }
-scraper = "0.16.0"
+serde = "1.0"
+serde_json = "1.0"

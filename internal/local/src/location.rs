@@ -81,7 +81,7 @@ fn nominatim_geocode(query: &str) -> crate::Result<Coordinates> {
     })
 }
 
-fn nominatim_reverse_geocode(coordinates: Coordinates) -> crate::Result<String> {
+fn nominatim_reverse_geocode(coordinates: &Coordinates) -> crate::Result<String> {
     let r = networking::get_url(
         format!(
             "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
@@ -177,7 +177,7 @@ pub fn geocode(query: String, bing_maps_api_key: String) -> crate::Result<Coordi
     }
 }
 
-pub fn reverse_geocode(coordinates: Coordinates) -> crate::Result<[String; 2]> {
+pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<[String; 2]> {
     let k = "coordinates".to_string()
         + &coordinates.latitude.to_string()
         + ","

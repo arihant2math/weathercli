@@ -10,18 +10,21 @@ use local::settings::Settings;
 use weather_dirs::custom_backends_dir;
 
 use log::{debug, info};
+use local::location::Coordinates;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 pub static CORE_VERSION: &str = "0.0";
 
 pub trait WeatherForecastPlugin {
-    fn call(&self, coordinates: [&str; 2], settings: Settings) -> crate::Result<WeatherForecast>;
+    fn call(&self, coordinates: &Coordinates, settings: Settings) -> crate::Result<WeatherForecast>;
 
     fn name(&self) -> Option<&str> {
         None
     }
-    // TODO: Use all this data
+    fn aliases(&self) -> Option<Vec<&str>> {
+        None
+    }
     /// Help text that may be used to display information about this function.
     fn help(&self) -> Option<&str> {
         None
@@ -54,11 +57,12 @@ fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
     match f {
         Err(_e) => false,
         Ok(dir) => {
-            if dir.metadata().is_ok()
-                && dir.metadata().unwrap().is_file()
-                && dynamic_library_loader::is_valid_ext(dir.file_name().to_str().unwrap())
-            {
-                return true;
+            if let Some(metadata) = dir.metadata() {
+                if metadata().unwrap().is_file()
+                    && dynamic_library_loader::is_valid_ext(dir.file_name().to_str().unwrap())
+                {
+                    return true;
+                }
             }
             false
         }
@@ -73,7 +77,7 @@ pub fn load_custom_backends() -> crate::Result<dynamic_library_loader::ExternalB
         .filter(is_ext) // We only care about files
         .map(|f| f.unwrap().path().display().to_string())
         .collect();
-    info!("Loading: {plugins:?}");
+    debug!("Loading: {plugins:?}");
     let custom_backends = dynamic_library_loader::load(plugins);
     Ok(custom_backends)
 }

@@ -10,7 +10,7 @@ mod json;
 mod weather_data;
 
 /// Formats the urls
-fn get_api_urls(location: Coordinates, metric: bool) -> [String; 2] {
+fn get_api_urls(location: &Coordinates, metric: bool) -> [String; 2] {
     let latitude = location.latitude;
     let longitude = location.longitude;
     let base_forecast_url = "https://api.open-meteo.com/v1/forecast";
@@ -28,7 +28,7 @@ fn get_api_urls(location: Coordinates, metric: bool) -> [String; 2] {
 
 /// Gets the urls from the meteo api server and returns a `FormattedData` struct with the data
 pub fn get_combined_data_formatted(
-    coordinates: Coordinates,
+    coordinates: &Coordinates,
     metric: bool,
 ) -> crate::Result<MeteoFormattedData> {
     let urls = get_api_urls(coordinates, metric);

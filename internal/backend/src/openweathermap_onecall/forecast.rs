@@ -56,7 +56,7 @@ fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {
 }
 
 pub fn get_forecast(
-    coordinates: Coordinates,
+    coordinates: &Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
     let data = get_combined_data_formatted(

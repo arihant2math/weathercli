@@ -54,7 +54,7 @@ fn get_forecast_sentence(forecast: Vec<WeatherData>) -> String {
 }
 
 pub fn get_forecast(
-    coordinates: Coordinates,
+    coordinates: &Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
     if settings.open_weather_map_api_key.is_empty() {
