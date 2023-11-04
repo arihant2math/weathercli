@@ -9,7 +9,7 @@ use local::settings::Settings;
 
 use weather_dirs::custom_backends_dir;
 
-use log::debug;
+use log::{debug, info};
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
@@ -69,12 +69,11 @@ pub fn load_custom_backends() -> crate::Result<dynamic_library_loader::ExternalB
     debug!("Detecting external dlls");
     let path = custom_backends_dir()?;
     let plugins: Vec<String> = path
-        .read_dir()
-        .expect("Reading the custom_backends dir failed")
+        .read_dir().map_err(|e| weather_error::Error::IoError("Reading custom backends dir failed: ".to_string() + &e.to_string()))?
         .filter(is_ext) // We only care about files
         .map(|f| f.unwrap().path().display().to_string())
         .collect();
-    debug!("Loading: {plugins:?}");
+    info!("Loading: {plugins:?}");
     let custom_backends = dynamic_library_loader::load(plugins);
     Ok(custom_backends)
 }
