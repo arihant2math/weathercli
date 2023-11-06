@@ -1,0 +1,4 @@
+[backend]
+name = "theweatherchannel"
+aliases = ["weatherchannel", "weather.com", "weather"]
+description = "A weather channel api backend (weather.com)"

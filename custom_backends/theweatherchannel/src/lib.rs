@@ -13,11 +13,11 @@ use weather_plugin::settings::Settings;
 
 mod json;
 
-fn get_the_weather_channel_current(data: &Value) -> WeatherData {
+fn get_the_weather_channel_current(data: &Value) -> weather_plugin::Result<WeatherData> {
     let current_data_total: &Map<String, Value> = data["dal"]["getSunV3CurrentObservationsUrlConfig"].as_object().unwrap();
     let key = current_data_total.keys().find(|_| true).unwrap();
     let current_data: &Map<String, Value> = current_data_total[key]["data"].as_object().unwrap();
-    WeatherData {
+    Ok(WeatherData {
         time: now() as i128,
         temperature: current_data["temperature"].as_f64().unwrap() as f32,
         min_temp: current_data["temperatureMin24Hour"].as_f64().unwrap() as f32,
@@ -33,7 +33,7 @@ fn get_the_weather_channel_current(data: &Value) -> WeatherData {
         cloud_cover: 0,
         conditions: vec![],
         condition_sentence: "WIP".to_string(),
-    }
+    })
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -87,7 +87,7 @@ fn get_the_weather_channel_forecast(coordinates: &Coordinates, settings: Setting
                                                     Some("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"),
                                                     Some(headers),
                                                     Some(cookies))?; // TODO: standardize UAs
-    let current = get_the_weather_channel_current(&serde_json::from_str(&resp.text)?);
+    let current = get_the_weather_channel_current(&serde_json::from_str(&resp.text)?)?;
     let forecast = vec![current.clone()];
     let region = &region_country.clone()[0];
     let country = &region_country.clone()[1];

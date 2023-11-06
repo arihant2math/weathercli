@@ -57,9 +57,9 @@ fn is_ext(f: &io::Result<fs::DirEntry>) -> bool {
     match f {
         Err(_e) => false,
         Ok(dir) => {
-            if let Some(metadata) = dir.metadata() {
-                if metadata().unwrap().is_file()
-                    && dynamic_library_loader::is_valid_ext(dir.file_name().to_str().unwrap())
+            if let Ok(metadata) = dir.metadata() {
+                if metadata.is_file()
+                    && dynamic_library_loader::is_valid_ext(dir.file_name().to_str().unwrap_or(""))
                 {
                     return true;
                 }
