@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use weather_dirs::weathercli_dir;
 
 
-const  VERSION: int = 0;
+const VERSION: u8 = 0;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum Place {
@@ -62,7 +62,7 @@ pub fn read_cache() -> crate::Result<Vec<Row>> {
     let original_bytes = read_from_file()?;
     let version = original_bytes[0];
     if version != VERSION {
-        write_cache(Vec::new());
+        write_cache(Vec::new())?;
         return  Ok(vec![]);
     }
     let bytes = &original_bytes[1..];
@@ -72,7 +72,7 @@ pub fn read_cache() -> crate::Result<Vec<Row>> {
     let mut current_date = String::new();
     let mut current_count = 0;
     let mut place = Place::Key;
-    for b in bytes {
+    for &b in bytes {
         if b == 28 {
             rows.push(Row {
                 key: current_key,

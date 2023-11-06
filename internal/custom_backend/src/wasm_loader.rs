@@ -1,57 +1,5 @@
-use std::sync::{Arc, Mutex};
-use wasmer_runtime::{error, func, imports, instantiate, Array, Ctx, WasmPtr};
 
 pub fn is_valid_ext(f: &str) -> bool {
     let len = f.len();
     &f[len - 5..] == ".wasm"
-}
-
-
-fn main(file: &str) -> error::Result<()> {
-    static WASM: &'static [u8] = include_bytes!(file);
-    // Let's define the import object used to import our function
-    // into our webassembly sample application.
-    //
-    // We've defined a macro that makes it super easy.
-    //
-    // The signature tells the runtime what the signature (the parameter
-    // and return types) of the function we're defining here is.
-    // The allowed types are `i32`, `u32`, `i64`, `u64`,
-    // `f32`, and `f64`.
-    //
-    // Make sure to check this carefully!
-    let import_object = imports! {
-        // Define the "env" namespace that was implicitly used
-        // by our sample application.
-        "env" => {
-            // name        // the func! macro autodetects the signature
-            "print_str" => func!(print_str),
-        },
-    };
-
-    // Compile our webassembly into an `Instance`.
-    let instance = instantiate(WASM, &import_object)?;
-
-    // Call our exported function!
-    instance.call("weathercli", &[])?;
-
-    Ok(())
-}
-
-fn print_str(ctx: &mut Ctx, ptr: WasmPtr<u8, Array>, len: u32) {
-    // Get a slice that maps to the memory currently used by the webassembly
-    // instance.
-    //
-    // Webassembly only supports a single memory for now,
-    // but in the near future, it'll support multiple.
-    //
-    // Therefore, we don't assume you always just want to access first
-    // memory and force you to specify the first memory.
-    let memory = ctx.memory(0);
-
-    // Use helper method on `WasmPtr` to read a utf8 string
-    let string = ptr.get_utf8_string(memory, len).unwrap();
-
-    // Print it!
-    println!("{}", string);
 }

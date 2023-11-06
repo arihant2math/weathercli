@@ -9,7 +9,7 @@ use local::settings::Settings;
 
 use weather_dirs::custom_backends_dir;
 
-use log::{debug, info};
+use log::debug;
 use local::location::Coordinates;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
