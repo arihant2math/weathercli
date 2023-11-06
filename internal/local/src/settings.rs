@@ -1,3 +1,5 @@
+use std::result;
+use log::warn;
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
@@ -96,7 +98,20 @@ pub struct Settings {
 
 impl Settings {
     pub fn new() -> crate::Result<Self> {
-        unsafe { Ok(simd_json::from_str(&mut _file().get_text()?)?) }
+        unsafe {
+            let file = _file();
+            let mut s = file.get_text()?.clone();
+            let res = simd_json::from_str(&mut s);
+            match res {
+                Ok(data) => Ok(data),
+                Err(e) => {
+                    warn!("Error parsing settings file: {e}");
+                    let mut s = String::from("{}");
+                                let res = simd_json::from_str(&mut s)?;
+                                Ok(res)
+                }
+            }
+        }
     }
 
     pub fn write(&mut self) -> crate::Result<()> {

@@ -4,6 +4,9 @@ use std::io::{Read, Write};
 use std::path::PathBuf;
 use weather_dirs::weathercli_dir;
 
+
+const  VERSION: int = 0;
+
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum Place {
     Key,
@@ -56,7 +59,13 @@ fn write_to_file(bytes: &[u8]) -> crate::Result<()> {
 }
 
 pub fn read_cache() -> crate::Result<Vec<Row>> {
-    let bytes = read_from_file()?;
+    let original_bytes = read_from_file()?;
+    let version = original_bytes[0];
+    if version != VERSION {
+        write_cache(Vec::new());
+        return  Ok(vec![]);
+    }
+    let bytes = &original_bytes[1..];
     let mut rows: Vec<Row> = Vec::new();
     let mut current_key = String::new();
     let mut current_value = String::new();
@@ -103,7 +112,7 @@ pub fn read_cache() -> crate::Result<Vec<Row>> {
 }
 
 pub fn write_cache(rows: Vec<Row>) -> crate::Result<()> {
-    let mut response: Vec<u8> = vec![];
+    let mut response: Vec<u8> = vec![VERSION];
     for row in rows {
         if !row.key.is_empty() {
             response.push(28);
