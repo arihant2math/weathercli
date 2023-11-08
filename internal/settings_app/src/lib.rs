@@ -82,10 +82,7 @@ impl Sandbox for App {
             Mode::Dark => Theme::Dark,
         };
         let data = settings::Settings::new().expect("Loading settings failed");
-        App {
-            theme,
-            data,
-        }
+        App { theme, data }
     }
 
     fn title(&self) -> String {

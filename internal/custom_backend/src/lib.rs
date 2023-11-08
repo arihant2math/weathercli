@@ -2,6 +2,8 @@ pub mod dynamic_library_loader;
 pub mod loader;
 pub mod wasm_loader;
 
+pub use backend::get_conditions_sentence;
+
 use std::{fs, io};
 
 use backend::WeatherForecast;
@@ -9,15 +11,16 @@ use local::settings::Settings;
 
 use weather_dirs::custom_backends_dir;
 
-use log::debug;
 use local::location::Coordinates;
+use log::debug;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 pub static CORE_VERSION: &str = "0.0";
 
 pub trait WeatherForecastPlugin {
-    fn call(&self, coordinates: &Coordinates, settings: Settings) -> crate::Result<WeatherForecast>;
+    fn call(&self, coordinates: &Coordinates, settings: Settings)
+        -> crate::Result<WeatherForecast>;
 
     fn name(&self) -> Option<&str> {
         None
@@ -73,7 +76,12 @@ pub fn load_custom_backends() -> crate::Result<dynamic_library_loader::ExternalB
     debug!("Detecting external dlls");
     let path = custom_backends_dir()?;
     let plugins: Vec<String> = path
-        .read_dir().map_err(|e| weather_error::Error::IoError("Reading custom backends dir failed: ".to_string() + &e.to_string()))?
+        .read_dir()
+        .map_err(|e| {
+            weather_error::Error::IoError(
+                "Reading custom backends dir failed: ".to_string() + &e.to_string(),
+            )
+        })?
         .filter(is_ext) // We only care about files
         .map(|f| f.unwrap().path().display().to_string())
         .collect();

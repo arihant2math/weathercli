@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     fn test_get_data() {
-                let location = local::location::Coordinates {
+        let location = local::location::Coordinates {
             latitude: 37.354,
             longitude: -121.955,
         };

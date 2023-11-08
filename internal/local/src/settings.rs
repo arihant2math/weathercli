@@ -93,6 +93,8 @@ pub struct Settings {
     #[serde(skip_serializing, skip_deserializing)]
     #[serde(default = "_file")]
     file: WeatherFile,
+    #[serde(default)]
+    pub open_weather_map_one_call_key: bool, // True if open_weather_map_api_key is one_call compatable
 }
 
 impl Settings {
@@ -106,8 +108,8 @@ impl Settings {
                 Err(e) => {
                     warn!("Error parsing settings file: {e}");
                     let mut s = String::from("{}");
-                                let res = simd_json::from_str(&mut s)?;
-                                Ok(res)
+                    let res = simd_json::from_str(&mut s)?;
+                    Ok(res)
                 }
             }
         }

@@ -3,9 +3,9 @@ use backend::WeatherForecast;
 use weather_error;
 use weather_error::LayoutErr;
 
-pub mod layout;
 pub mod arguments;
 pub mod commands;
+pub mod layout;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 

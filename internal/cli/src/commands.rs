@@ -7,12 +7,12 @@ use std::thread;
 
 use crate::arguments::CacheOpts;
 use crate::{print_out, Datasource};
-use custom_backend::dynamic_library_loader::ExternalBackends;
 use backend::{meteo, nws, openweathermap, openweathermap_onecall, WeatherForecast};
+use custom_backend::dynamic_library_loader::ExternalBackends;
 use local::cache::prune;
+use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
-use local::location::Coordinates;
 use log::{debug, warn};
 use serde_json::Value;
 use std::path::Path;
@@ -38,7 +38,9 @@ pub fn get_data_from_datasource(
         });
     }
     match datasource {
-        Datasource::Openweathermap => openweathermap::forecast::get_forecast(&coordinates, settings),
+        Datasource::Openweathermap => {
+            openweathermap::forecast::get_forecast(&coordinates, settings)
+        }
         Datasource::OpenweathermapOneCall => {
             openweathermap_onecall::forecast::get_forecast(&coordinates, settings)
         }
@@ -151,7 +153,6 @@ pub fn settings() -> crate::Result<()> {
     settings.write()?;
     Ok(())
 }
-
 
 #[cfg(feature = "gui")]
 pub fn open_settings_app() {

@@ -4,7 +4,6 @@ use std::io::{Read, Write};
 use std::path::PathBuf;
 use weather_dirs::weathercli_dir;
 
-
 const VERSION: u8 = 0;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -60,10 +59,14 @@ fn write_to_file(bytes: &[u8]) -> crate::Result<()> {
 
 pub fn read_cache() -> crate::Result<Vec<Row>> {
     let original_bytes = read_from_file()?;
+    if original_bytes.is_empty() {
+        write_cache(Vec::new())?;
+        return Ok(vec![]);
+    }
     let version = original_bytes[0];
     if version != VERSION {
         write_cache(Vec::new())?;
-        return  Ok(vec![]);
+        return Ok(vec![]);
     }
     let bytes = &original_bytes[1..];
     let mut rows: Vec<Row> = Vec::new();

@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct NWSPointGeometry {
     #[serde(rename = "type")]
     pub geo_type: String,
     pub coordinates: Vec<f64>,
 }
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct NWSPointProperties {
     #[serde(rename = "@id")]
@@ -18,39 +18,39 @@ pub struct NWSPointProperties {
     pub forecast_grid_data: String,
 }
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct NWSPointJSON {
     pub geometry: NWSPointGeometry,
     pub properties: NWSPointProperties,
 }
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct NWSValueIntJSON {
     pub valid_time: String,
     pub value: Option<i64>,
 }
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct NWSValueFloatJSON {
     pub valid_time: String,
     pub value: Option<f64>,
 }
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct NWSIntDataJSON {
     pub uom: String,
     pub values: Vec<NWSValueIntJSON>,
 }
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct NWSFloatDataJSON {
     pub uom: String,
     pub values: Vec<NWSValueFloatJSON>,
 }
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct NWSPropertiesJSON {
     #[serde(rename = "@id")]
@@ -88,7 +88,7 @@ pub struct NWSPropertiesJSON {
     pub wave_height: NWSFloatDataJSON,
 }
 
-#[derive(Clone, Serialize, Deserialize ,Debug, PartialEq)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct NWSJSON {
     pub id: String,
     #[serde(rename = "type")]

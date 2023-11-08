@@ -1,6 +1,6 @@
 use local::settings::Settings;
-use std::time::Duration;
 use std::thread;
+use std::time::Duration;
 use terminal::color::{FORE_CYAN, FORE_LIGHTMAGENTA};
 use terminal::prompt::{input, yes_no};
 use updater::component::update_component;
@@ -69,12 +69,14 @@ pub fn update(force: bool, version: String) -> crate::Result<()> {
     if latest_version != version || force {
         println!("Updating weather.exe at {}", application_path.display());
         update_component(
-            &("https://arihant2math.github.io/weathercli/".to_string() + updater::CONFIG.weather_file_name),
+            &("https://arihant2math.github.io/weathercli/".to_string()
+                + updater::CONFIG.weather_file_name),
             &std::env::current_exe().unwrap().display().to_string(),
             "Downloading weathercli update from ".to_string(),
             "Updated weathercli".to_string(),
-            false
-        ).unwrap();
+            false,
+        )
+        .unwrap();
     }
     Ok(())
 }

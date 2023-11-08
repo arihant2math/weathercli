@@ -5,8 +5,8 @@ use log::{debug, error, trace};
 
 use crate::{PluginDeclaration, WeatherForecastPlugin};
 use backend::WeatherForecast;
-use local::settings::Settings;
 use local::location::Coordinates;
+use local::settings::Settings;
 use weather_error::Error;
 use weather_error::InvocationError;
 
@@ -163,7 +163,11 @@ pub struct BackendWrapper {
 }
 
 impl WeatherForecastPlugin for BackendWrapper {
-    fn call(&self, coordinates: &Coordinates, settings: Settings) -> crate::Result<WeatherForecast> {
+    fn call(
+        &self,
+        coordinates: &Coordinates,
+        settings: Settings,
+    ) -> crate::Result<WeatherForecast> {
         self.backend.call(coordinates, settings)
     }
 

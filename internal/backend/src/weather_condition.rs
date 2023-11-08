@@ -28,3 +28,18 @@ impl WeatherCondition {
         })
     }
 }
+
+
+pub fn get_clouds_condition(cloud_cover: u8, weather_codes: &HashMap<String, Vec<String>>) -> crate::Result<WeatherCondition> {
+    if cloud_cover == 0 {
+        return Ok(WeatherCondition::new(800, weather_codes)?);
+    } else if cloud_cover < 25 {
+        return Ok(WeatherCondition::new(801,weather_codes)?);
+    } else if cloud_cover < 50 {
+        return Ok(WeatherCondition::new(802, weather_codes)?);
+    } else if cloud_cover < 85 {
+        return Ok(WeatherCondition::new(803, weather_codes)?);
+    } else {
+        return Ok(WeatherCondition::new(804, &weather_codes)?);
+    }
+}

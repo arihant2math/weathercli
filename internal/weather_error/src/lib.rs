@@ -81,7 +81,7 @@ impl From<std::io::Error> for Error {
 
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
-        Self::SerializationError(format!("JSON parsing error: {error}" ))
+        Self::SerializationError(format!("JSON parsing error: {error}"))
     }
 }
 
@@ -148,6 +148,9 @@ impl From<LayoutErr> for Error {
 #[cfg(target_os = "windows")]
 impl From<windows::core::Error> for Error {
     fn from(error: windows::core::Error) -> Self {
-        Self::Other(format!("Win32 Error: {}", &error.message().to_string_lossy()))
+        Self::Other(format!(
+            "Win32 Error: {}",
+            &error.message().to_string_lossy()
+        ))
     }
 }

@@ -9,8 +9,8 @@ use terminal::color::{FORE_BLUE, FORE_GREEN, FORE_LIGHTMAGENTA, RESET};
 use weather_dirs::layouts_dir;
 
 fn install(path: String) -> crate::Result<()> {
-    let real_path = PathBuf::from_str(&path).unwrap();
-    let file_name = real_path.file_name().ok_or("Not a file")?.to_str().unwrap();
+    let real_path = PathBuf::from_str(&path)?;
+    let file_name = real_path.file_name().ok_or("Not a file")?.to_str()?;
     let ext = real_path.extension().unwrap_or_else(|| "".as_ref());
     if ext != "res" {
         return Err("File has to have an extension of .res")?;

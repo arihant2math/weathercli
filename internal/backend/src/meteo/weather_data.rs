@@ -4,6 +4,7 @@ use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
 use local::now;
 use std::collections::HashMap;
+use crate::weather_condition::get_clouds_condition;
 
 pub fn get_weather_data(
     data: MeteoForecastJson,
@@ -47,17 +48,7 @@ fn get_conditions(
     weather_codes: HashMap<String, Vec<String>>,
 ) -> crate::Result<Vec<WeatherCondition>> {
     let mut conditions: Vec<WeatherCondition> = Vec::new();
-    if cloud_cover == 0 {
-        conditions.push(WeatherCondition::new(800, &weather_codes)?);
-    } else if cloud_cover < 25 {
-        conditions.push(WeatherCondition::new(801, &weather_codes)?);
-    } else if cloud_cover < 50 {
-        conditions.push(WeatherCondition::new(802, &weather_codes)?);
-    } else if cloud_cover < 85 {
-        conditions.push(WeatherCondition::new(803, &weather_codes)?);
-    } else {
-        conditions.push(WeatherCondition::new(804, &weather_codes)?);
-    }
+    conditions.push(get_clouds_condition(cloud_cover, &weather_codes)?);
     if data.hourly.rain[index] != 0.0 {
         let rain = data.hourly.rain[index];
         let metric = metric;

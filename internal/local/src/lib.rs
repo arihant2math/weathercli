@@ -3,8 +3,8 @@ pub mod location;
 pub mod settings;
 pub mod weather_file;
 
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 

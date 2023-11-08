@@ -84,7 +84,7 @@ fn get_the_weather_channel_forecast(coordinates: &Coordinates, settings: Setting
     let resp = weather_plugin::networking::post_url("https://weather.com/api/v1/p/redux-dal",
                                                     // Some(serde_json::to_string(&request_args)?),
                                                     Some(default_data.to_string()),
-                                                    Some("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0"),
+                                                    Some(weather_plugin::networking::SNEAK_USER_AGENT),
                                                     Some(headers),
                                                     Some(cookies))?; // TODO: standardize UAs
     let current = get_the_weather_channel_current(&serde_json::from_str(&resp.text)?)?;
@@ -98,7 +98,7 @@ fn get_the_weather_channel_forecast(coordinates: &Coordinates, settings: Setting
         forecast,
         current_weather: current,
         forecast_sentence: String::from("WIP"),
-        raw_data: None,
+        raw_data: Some(vec![resp.text]), // TODO: Fix
     })
 }
 

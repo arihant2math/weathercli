@@ -1,5 +1,5 @@
 pub fn get_default_layout() -> String {
-    let s = "VERSION = 20
+"VERSION = 20
 ------------------------------
 Weather for {@region}, {@country}
 {$FORE_LIGHTMAGENTA$@current_weather.condition_sentence}
@@ -8,6 +8,5 @@ Temperature: {@current_weather.temperature|° F|° C} with a low of {@current_we
 Wind: {@current_weather.wind.speed| mph| km/h} at {@current_weather.wind.heading|°}
 Cloud Cover: {@current_weather.cloud_cover|%}
 Dew Point: {@current_weather.dewpoint|° F|° C}
-AQI: {#color_aqi|@current_weather.aqi}".to_string();
-    return s;
+AQI: {#color_aqi|@current_weather.aqi}".to_string()
 }

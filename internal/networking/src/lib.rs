@@ -1,4 +1,4 @@
- use std::collections::HashMap;
+use std::collections::HashMap;
 use std::io::Read;
 
 use cookie_store::{CookieResult, CookieStore};
@@ -8,6 +8,9 @@ use serde::{Deserialize, Serialize};
 use ureq;
 use url::Url;
 
+pub const USER_AGENT: &str = "weathercli/1";
+pub const SNEAK_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0";
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Resp {
     pub status: u16,
@@ -16,7 +19,7 @@ pub struct Resp {
 }
 
 fn get_user_agent<S: AsRef<str>>(custom: Option<S>) -> String {
-    let mut app_user_agent = "weathercli/1".to_string();
+    let mut app_user_agent = USER_AGENT.to_string();
     if let Some(user_agent) = custom {
         app_user_agent = user_agent.as_ref().to_string();
     }
@@ -82,7 +85,7 @@ pub fn get_url<S: AsRef<str>>(
     })
 }
 
- /// post to a url
+/// post to a url
 pub fn post_url<S: AsRef<str>>(
     url_s: S,
     data: Option<String>,
@@ -111,9 +114,9 @@ pub fn post_url<S: AsRef<str>>(
     }
     let client = client_pre.build();
     let mut real_data = String::new();
-     if let Some(ad) = data {
-         real_data = ad;
-     }
+    if let Some(ad) = data {
+        real_data = ad;
+    }
     let req = client.post(url);
     let resp = req.send_string(&real_data);
     let real_resp = match resp {
@@ -186,7 +189,7 @@ pub fn get_urls(
             let status = data.status();
             let mut bytes: Vec<u8> = Vec::with_capacity(128);
             data.into_reader()
-                .take(u64::MAX-4)
+                .take(u64::MAX - 4)
                 .read_to_end(&mut bytes)
                 .expect("read failed");
 

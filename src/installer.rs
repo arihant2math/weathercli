@@ -7,7 +7,6 @@ use winreg::enums::HKEY_LOCAL_MACHINE;
 #[cfg(target_os = "windows")]
 use winreg::RegKey;
 
-use async_runner::new_executor_and_spawner;
 use local::settings::Settings;
 use updater::component::update_component;
 use updater::CONFIG;

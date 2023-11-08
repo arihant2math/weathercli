@@ -69,7 +69,7 @@ pub struct MainJson {
     pub timezone: String,
     pub timezone_offset: i64,
     pub current: MomentJson,
-    pub minutely: Vec<MinutelyJson>,
+    pub minutely: Option<Vec<MinutelyJson>>,
     pub hourly: Vec<MomentJson>,
     pub daily: Vec<DailyJson>,
     pub alerts: Option<Vec<AlertsJson>>,

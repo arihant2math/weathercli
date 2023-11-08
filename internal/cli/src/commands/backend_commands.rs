@@ -60,6 +60,7 @@ fn open_weather_map_api_key(settings: Settings) -> crate::Result<()> {
             "Length of api key is not 32, this likely means you have entered an invalid api key.",
         )?;
     }
+    // TODO: verify key
     println!("{}Saving api key as {s}", color::FORE_BLUE); // TODO: Fix
     let mut settings = Settings::new()?; // TODO: Fix excess read
     settings.open_weather_map_api_key = s;
@@ -74,6 +75,7 @@ fn bing_maps_api_key(settings: Settings) -> crate::Result<()> {
         Some(original),
     )?;
     s = s.trim().to_string();
+    // TODO: verify key
     println!("{}Saving api key as {s}", color::FORE_BLUE);
     let mut settings = Settings::new()?; // TODO: Fix excess read
     settings.bing_maps_api_key = s;

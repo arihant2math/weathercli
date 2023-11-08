@@ -1,9 +1,9 @@
+use self_replace;
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
-use self_replace;
 
 use weather_error::Error;
 
@@ -18,7 +18,7 @@ pub fn update_component(
     let download_path = if replace {
         path.to_string() + ".tmp"
     } else {
-      path.to_string()
+        path.to_string()
     };
     let res = networking::get_url(url, None, None, None)?;
     let status = res.status;

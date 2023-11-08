@@ -36,15 +36,12 @@ mod tests {
             longitude: -121.955,
         };
         let url = crate::nws::get_api_url(location, true).unwrap();
-        assert_eq!(
-            url,
-            "https://api.weather.gov/gridpoints/MTR/97,83"
-        );
+        assert_eq!(url, "https://api.weather.gov/gridpoints/MTR/97,83");
     }
 
     #[test]
     fn test_get_data() {
-                let location = local::location::Coordinates {
+        let location = local::location::Coordinates {
             latitude: 37.354,
             longitude: -121.955,
         };

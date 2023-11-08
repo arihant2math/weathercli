@@ -53,8 +53,11 @@ pub enum BackendOpts {
     Install(InstallOpts),
     #[command(about = "List all installed backends")]
     List,
+    #[command(about = "Select the default backend")]
     Select,
+    #[command(about = "Set the openweathermap API key")]
     OpenWeatherMapApiKey,
+    #[command(about = "Set the bing maps API key")]
     BingMapsApiKey,
     #[command(about = "Delete an installed custom backend")]
     Delete,

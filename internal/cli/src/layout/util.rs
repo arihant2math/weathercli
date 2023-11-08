@@ -20,7 +20,7 @@ fn url_validator(u: &str) -> bool {
 pub fn image(source: String, scale: f64) -> crate::Result<String> {
     let is_url = url_validator(&source);
     if is_url {
-                    return Err("layout networking has been temporarily disabled".to_string())? ; // TODO: re-enable networking
+        return Err("layout networking has been temporarily disabled".to_string())?; // TODO: re-enable networking
         let response = networking::get_url(&source, None, None, None)?;
         let mut f = fs::OpenOptions::new()
             .write(true)
