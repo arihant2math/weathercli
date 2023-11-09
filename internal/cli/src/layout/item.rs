@@ -19,6 +19,9 @@ impl Item {
     }
 
     fn get_variable_value(&self, data: &Value) -> crate::Result<String> {
+        if data.is_null() {
+            return Ok(String::from("null"));
+        }
         let mut split: Vec<&str> = self.data.value.split('.').collect();
         let mut current = data;
         while !split.is_empty() {
@@ -54,7 +57,7 @@ impl Item {
                     .as_i64()
                     .ok_or_else(|| {
                         weather_error::Error::LayoutError(LayoutErr {
-                            message: "Json type not supported".to_string(),
+                            message: "Variable type not supported".to_string(),
                             row: None,
                             item: None,
                         })
