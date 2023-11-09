@@ -39,8 +39,22 @@ pub fn write(key: &str, value: &str) -> crate::Result<()> {
     Ok(())
 }
 
+/// Deletes the key from the cache
+pub fn delete(key: &str) -> crate::Result<()> {
+    let mut rows: Vec<Row> = read_cache()?;
+    let key_index = rows
+        .clone()
+        .into_iter()
+        .position(|row| row.key == key)
+        .ok_or(format!("Key not found, {key}"))?;
+    let key_index_usize = key_index;
+    rows.remove(key_index);
+    write_cache(rows)?;
+    Ok(())
+}
+
 /// Bumps the number of hits to the row, makes it so that the row is less likely to be deleted by the pruner
-pub fn update_hits(key: String) -> crate::Result<()> {
+pub fn update_hits(key: &str) -> crate::Result<()> {
     let mut rows: Vec<Row> = read_cache()?;
     let key_index = rows
         .clone()
@@ -63,6 +77,7 @@ pub fn update_hits(key: String) -> crate::Result<()> {
 }
 
 fn calculate_power(row: &Row) -> f64 {
+    #[allow(clippy::cast_precision_loss)]
     let offset = now().abs_diff(u128::from_str(&row.date).unwrap_or(u128::MAX)) as f64;
     f64::from(row.hits) / (offset / 86_400_000.0)
 }

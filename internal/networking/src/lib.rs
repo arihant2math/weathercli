@@ -5,7 +5,7 @@ use cookie_store::{CookieResult, CookieStore};
 use log::trace;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
-use ureq;
+
 use url::Url;
 
 pub const USER_AGENT: &str = "weathercli/1";

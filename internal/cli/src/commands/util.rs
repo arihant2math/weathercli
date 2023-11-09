@@ -71,12 +71,11 @@ pub fn update(force: bool, version: String) -> crate::Result<()> {
         update_component(
             &("https://arihant2math.github.io/weathercli/".to_string()
                 + updater::CONFIG.weather_file_name),
-            &std::env::current_exe().unwrap().display().to_string(),
+            &std::env::current_exe()?.display().to_string(),
             "Downloading weathercli update from ".to_string(),
             "Updated weathercli".to_string(),
             false,
-        )
-        .unwrap();
+        )?;
     }
     Ok(())
 }

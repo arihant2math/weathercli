@@ -42,7 +42,7 @@ fn get_web() -> crate::Result<Coordinates> {
     })
 }
 
-fn bing_maps_geocode(query: &str, bing_maps_api_key: String) -> crate::Result<Coordinates> {
+fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> crate::Result<Coordinates> {
     let mut r = networking::get_url(
         format!(
             "https://dev.virtualearth.net/REST/v1/Locations?query=\"{query}\"&maxResults=5&key={bing_maps_api_key}"
@@ -127,7 +127,7 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<Coordinat
             }
             Ok(ca) => {
                 thread::spawn(|| {
-                    cache::update_hits("current_location".to_string()).unwrap_or(());
+                    cache::update_hits("current_location").unwrap_or(());
                 });
                 let splt = ca.split(',');
                 let split_vec: Vec<&str> = splt.into_iter().collect();
@@ -141,7 +141,7 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<Coordinat
     get_location_core(no_sys_loc)
 }
 
-pub fn geocode(query: String, bing_maps_api_key: String) -> crate::Result<Coordinates> {
+pub fn geocode(query: String, bing_maps_api_key: &str) -> crate::Result<Coordinates> {
     let attempt_cache = cache::read(&("location".to_string() + &query));
 
     match attempt_cache {
@@ -166,7 +166,7 @@ pub fn geocode(query: String, bing_maps_api_key: String) -> crate::Result<Coordi
         Ok(real_cache) => {
             let cache_string = "location".to_string() + &query.to_lowercase();
             thread::spawn(move || {
-                cache::update_hits(cache_string).unwrap_or(());
+                cache::update_hits(&cache_string).unwrap_or(());
             });
             let vec_collect: Vec<&str> = real_cache.split(',').collect();
             Ok(Coordinates {
@@ -175,6 +175,15 @@ pub fn geocode(query: String, bing_maps_api_key: String) -> crate::Result<Coordi
             })
         }
     }
+}
+
+pub struct LocationData { // TODO: Use this
+    suburb: String,
+    city: String,
+    county: String,
+    state: String,
+    region: String,
+    country: String,
 }
 
 pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<[String; 2]> {
@@ -193,12 +202,16 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<[String; 2]> 
                     .ok_or("country not found")?
                     .to_string();
                 let mut region = "";
-                if let Some(city) = place["address"]["city"].as_str() {
+                if let Some(village) = place["address"]["village"].as_str() {
+                    region = village;
+                } else if let Some(city) = place["address"]["city"].as_str() {
                     region = city;
                 } else if let Some(county) = place["address"]["county"].as_str() {
                     region = county;
+                } else if let Some(state) = place["address"]["state"].as_str() {
+                    region = state;
                 }
-                let v = region.to_string() + ",?`|" + &country;
+                let v = region.to_string() + "`|`|`" + &country;
                 thread::spawn(move || {
                     cache::write(&k, &v).unwrap_or_default();
                 });
@@ -207,9 +220,13 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<[String; 2]> 
             Ok(real_cache) => {
                 let cache_string = "coordinates".to_string() + &k;
                 thread::spawn(move || {
-                    cache::update_hits(cache_string).unwrap_or(());
+                    cache::update_hits(&cache_string).unwrap_or(());
                 });
-                let vec_collect: Vec<&str> = real_cache.split(",?`|").collect();
+                let vec_collect: Vec<&str> = real_cache.split("`|`|`").collect();
+                if vec_collect.len() != 2 {
+                    cache::delete(&k).unwrap_or_default();
+                    return reverse_geocode(coordinates);
+                }
                 Ok([vec_collect[0].to_string(), vec_collect[1].to_string()])
             }
         }

@@ -109,7 +109,7 @@ fn run() -> Result<()> {
             match command {
                 Command::Place(opts) => weather(
                     datasource,
-                    local::location::geocode(opts.query, settings_s.bing_maps_api_key.clone())?,
+                    local::location::geocode(opts.query, &settings_s.bing_maps_api_key.clone())?,
                     settings_s,
                     true_metric,
                     args.global_opts.json,

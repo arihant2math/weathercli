@@ -29,7 +29,7 @@ pub fn datasource_from_str(s: &str) -> Datasource {
 }
 
 fn print_out(
-    layout_file: String,
+    layout_file: &str,
     data: WeatherForecast,
     json: bool,
     metric: bool,
@@ -39,7 +39,7 @@ fn print_out(
     } else {
         let mut out = LayoutFile::new(layout_file);
         if out.is_err() {
-            out = LayoutFile::new("default.res".to_string());
+            out = LayoutFile::new("default.res");
         }
         println!(
             "{}",

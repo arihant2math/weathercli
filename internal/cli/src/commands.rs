@@ -75,7 +75,7 @@ pub fn weather(
     let mut s = settings.clone();
     s.metric_default = true_metric;
     let data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
-    print_out(settings.layout_file, data, json, true_metric)?;
+    print_out(&settings.layout_file, data, json, true_metric)?;
     Ok(())
 }
 

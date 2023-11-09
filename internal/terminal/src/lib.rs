@@ -1,6 +1,6 @@
 pub mod color;
 pub mod prompt;
-use crossterm;
+pub use crossterm;
 
 pub use crossterm::cursor::MoveTo as move_to;
 pub use crossterm::execute;

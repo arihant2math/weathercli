@@ -23,7 +23,7 @@ fn reemit_layout_error(e: Error, count: usize) -> Error {
 impl Row {
     pub fn new(data: Vec<ItemSerde>) -> Self {
         let mut items: Vec<Item> = Vec::new();
-        for item in data.into_iter() {
+        for item in data {
             items.push(Item::new(item));
         }
         Self { items }

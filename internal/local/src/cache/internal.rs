@@ -41,7 +41,8 @@ fn read_from_file() -> crate::Result<Vec<u8>> {
         .read(true)
         .open(path.display().to_string())?;
     let metadata = fs::metadata(path.display().to_string())?;
-    let mut buffer = vec![0; metadata.len() as usize];
+    #[allow(clippy::cast_possible_truncation)]
+    let mut buffer = vec![0; metadata.len() as usize]; // We don't care about precision loss because its too high and 64 bit usize doesn't lose precision
     f.read_exact(&mut buffer)?;
     Ok(buffer)
 }
@@ -130,6 +131,7 @@ pub fn write_cache(rows: Vec<Row>) -> crate::Result<()> {
                 response.push(u8::MAX);
                 count_now -= u32::from(u8::MAX);
             }
+            #[allow(clippy::cast_possible_truncation)] // Since we truncated it already
             response.push(count_now as u8);
         }
     }

@@ -17,9 +17,9 @@ pub fn textarea() -> Result<String> {
     io::stdout().flush()?;
     let mut text: Vec<String> = Vec::new();
     text.push(String::new());
-    let mut cursor_char: u16 = 0;
-    let mut cursor_line: u16 = 0;
-    let mut lagged_cursor_char: u16 = 0;
+    let mut cursor_char: usize = 0;
+    let mut cursor_line: usize = 0;
+    let mut lagged_cursor_char: usize = 0;
     loop {
         read()?;
         // matching the key
@@ -34,22 +34,22 @@ pub fn textarea() -> Result<String> {
             Event::Key(KeyEvent {
                 code: KeyCode::End, ..
             }) => {
-                cursor_char = text[cursor_line as usize].len() as u16 - 1;
+                cursor_char = text[cursor_line].len() - 1;
             }
             Event::Key(KeyEvent {
                 code: KeyCode::Up, ..
             }) => {
                 cursor_line = cursor_line.saturating_sub(1);
-                cursor_char = lagged_cursor_char.min(text[cursor_line as usize].len() as u16);
+                cursor_char = lagged_cursor_char.min(text[cursor_line].len());
             }
 
             Event::Key(KeyEvent {
                 code: KeyCode::Down,
                 ..
             }) => {
-                if text.len() - 1 > cursor_line as usize {
+                if text.len() - 1 > cursor_line {
                     cursor_line = cursor_line.saturating_add(1);
-                    cursor_char = lagged_cursor_char.min(text[cursor_line as usize].len() as u16);
+                    cursor_char = lagged_cursor_char.min(text[cursor_line].len());
                 }
             }
             Event::Key(KeyEvent {
@@ -60,16 +60,16 @@ pub fn textarea() -> Result<String> {
                     cursor_char = cursor_char.saturating_sub(1);
                 } else if cursor_line > 0 {
                     cursor_line = cursor_line.saturating_sub(1);
-                    cursor_char = text[cursor_line as usize].len() as u16;
+                    cursor_char = text[cursor_line].len();
                 }
             }
             Event::Key(KeyEvent {
                 code: KeyCode::Right,
                 ..
             }) => {
-                if text[cursor_line as usize].len() > cursor_char as usize {
+                if text[cursor_line].len() > cursor_char {
                     cursor_char = cursor_char.saturating_add(1);
-                } else if text.len() - 1 > cursor_line as usize {
+                } else if text.len() - 1 > cursor_line {
                     cursor_line = cursor_line.saturating_add(1);
                     cursor_char = 0;
                 }
@@ -91,7 +91,7 @@ pub fn textarea() -> Result<String> {
                 modifiers: KeyModifiers::NONE | KeyModifiers::SHIFT,
                 ..
             }) => {
-                text[cursor_line as usize].insert(cursor_char as usize, c);
+                text[cursor_line].insert(cursor_char, c);
                 execute!(stdout(), Clear(ClearType::CurrentLine))?;
                 execute!(stdout(), cursor::MoveToColumn(0))?;
                 cursor_char += 1;
@@ -107,13 +107,13 @@ pub fn textarea() -> Result<String> {
                 ..
             }) => {
                 if cursor_char > 0 {
-                    text[cursor_line as usize].remove(cursor_char as usize - 1);
+                    text[cursor_line].remove(cursor_char - 1);
                     cursor_char -= 1;
                 } else if cursor_line > 0 {
-                    let old_text = text.remove(cursor_line as usize);
+                    let old_text = text.remove(cursor_line);
                     cursor_line -= 1;
-                    cursor_char = text[cursor_line as usize].len() as u16;
-                    text[cursor_line as usize].push_str(&old_text);
+                    cursor_char = text[cursor_line].len();
+                    text[cursor_line].push_str(&old_text);
                 }
             }
             Event::Key(KeyEvent {
@@ -122,10 +122,10 @@ pub fn textarea() -> Result<String> {
                 ..
             }) => {
                 text.insert(
-                    cursor_line as usize + 1,
-                    text[cursor_line as usize][cursor_char as usize..].to_string(),
+                    cursor_line + 1,
+                    text[cursor_line][cursor_char..].to_string(),
                 );
-                text[cursor_line as usize].truncate(cursor_char as usize);
+                text[cursor_line].truncate(cursor_char);
                 cursor_line += 1;
                 cursor_char = 0;
                 execute!(stdout(), Clear(ClearType::UntilNewLine))?;
@@ -135,9 +135,10 @@ pub fn textarea() -> Result<String> {
         execute!(stdout(), cursor::MoveTo(0, 0))?;
         print!("{}", text.join("\n"));
         execute!(stdout(), Clear(ClearType::FromCursorDown))?;
-        execute!(stdout(), cursor::MoveTo(cursor_char, cursor_line))?;
-        if text[cursor_line as usize].len() != cursor_char as usize {
-            lagged_cursor_char = cursor_line
+        #[allow(clippy::cast_possible_truncation)]
+        execute!(stdout(), cursor::MoveTo(cursor_char as u16, cursor_line as u16))?;
+        if text[cursor_line].len() != cursor_char {
+            lagged_cursor_char = cursor_line;
         }
         thread::sleep(Duration::from_millis(5));
         stdout().flush()?;

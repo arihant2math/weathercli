@@ -79,8 +79,8 @@ fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
 }
 
 impl LayoutFile {
-    pub fn new(path: String) -> crate::Result<Self> {
-        let file = WeatherFile::new("layouts/".to_string() + &path)?;
+    pub fn new(path: &str) -> crate::Result<Self> {
+        let file = WeatherFile::new("layouts/".to_string() + path)?;
         let ext = file
             .path
             .extension()
@@ -97,7 +97,7 @@ impl LayoutFile {
         check_version(file_data.version)?;
         let layout = file_data.layout;
         let mut internal_layout: Vec<Row> = Vec::new();
-        for row in layout.into_iter() {
+        for row in layout {
             internal_layout.push(Row::new(row));
         }
         Ok(Self {
