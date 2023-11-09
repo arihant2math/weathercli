@@ -1,14 +1,14 @@
 {
   "daemon-version": "2023.5.6",
-  "default-layout-hash": "350b9c9317453f748c77a18fb317c4bc924a041c666db7f5e280f87c9f4ae6fa",
+  "default-layout-hash": "d5c1a794a662f8a59cbc776678a4af2d2eb64b4c8df3e24851f84e70e936f4e3",
   "updater-exe-hash-unix": "1f4d9e86187ddc13226103dc7efc2097a9d1e06482c7eae125f332287c742800",
   "updater-exe-hash-windows": "e33be6204597ad8910cefbbeea40748f65c527a67d344b209aea4cfa28a01470",
   "updater-version": "2023.5.6",
   "version": "2023.5.6",
-  "weather-ascii-images-hash": "14826ddeba3f90ac7d7abc5dc44ca2d888a89228f017670f8c82d49d3ae9e7e8",
-  "weather-codes-hash": "8619aa20f190f2029c574edd2478345fa885564886f9b06c5a25839b979e073f",
-  "weather-exe-hash-unix": "c26308ba7eb2b9eb3b5d8173a0ff0ab260c3fad1267ee7163deeb53a804aaffe",
-  "weather-exe-hash-windows": "53ce6e00781a97bd3d1bdc84b1ac08f0cbb26ff6f204c8ede81fd3dc01a56524",
-  "weatherd-exe-hash-unix": "3b379c1b05bce0ace9c69503acea95703554131048c0fbc69ec5605d88b12e03",
-  "weatherd-exe-hash-windows": "e0c09e22d06da40ae3136d1e7efe06692035d68f763c5bccf1b81c57fdf470b4"
+  "weather-ascii-images-hash": "a2cc5e0352ab78c75a681edc0284f2888a41471eb9206597d528b8bb7d03f456",
+  "weather-codes-hash": "a864c1f625ba419e385139870517b82303529f861a712c350e070063e4f718d8",
+  "weather-exe-hash-unix": "e597bfd269eeb9e995637d83851dc1516b989d599c72fcd30abff35adebcfe87",
+  "weather-exe-hash-windows": "da719526816e78072ffb39c2a45bce606dd293ef675d1e9e01f31798e9bfc7a0",
+  "weatherd-exe-hash-unix": "e395838c92be917e42d6c3136ea2053901ec6e32a73a80411382ee7c64258065",
+  "weatherd-exe-hash-windows": "3b1c4e3dd3522aa58626766da2ae96c002fcaa1c3331ae9091d883afa8702a0d"
 }
