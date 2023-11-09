@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use shared_deps::simd_json;
 
 use crate::openweathermap::json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,

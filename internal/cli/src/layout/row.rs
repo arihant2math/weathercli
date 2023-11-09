@@ -1,4 +1,4 @@
-use serde_json::Value;
+use shared_deps::serde_json::Value;
 
 use crate::layout::item::Item;
 use crate::layout::layout_serde::ItemSerde;

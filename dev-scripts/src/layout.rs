@@ -121,27 +121,29 @@ pub fn compile_layout(s: String) -> weather_error::Result<LayoutSerde> {
     let lines: Vec<&str> = s.split("\n").collect();
     let mut rows: Vec<Vec<ItemSerde>> = Vec::new();
     let mut is_layout = false;
-    let mut variables: HashMap<&str, String> = HashMap::new();
+    let mut variables: HashMap<String, String> = HashMap::new();
     for line in lines {
         let stripped_line = strip(line);
         if stripped_line.chars().find(|&x| x != '-' && x != ' ').is_none() {
             is_layout = true;
-        }
-        else if is_layout {
+        } else if is_layout {
             rows.push(string_to_row(stripped_line.to_string()));
-        }
-        else {
+        } else {
             let variable = Regex::new(r#"\w*=\w*"#).unwrap();
             if variable.is_match(line) {
                 let split: Vec<&str> = line.split("=").collect();
-                let variable = split[0].trim_end().trim_start();
+                let variable = split[0].trim_end().trim_start().to_lowercase();
                 let value = split[1].trim_end().trim_start();
                 variables.insert(variable, value.to_string());
             }
         }
     }
     Ok(LayoutSerde {
-        version: variables.get("version").unwrap_or(&cli::layout::VERSION.to_string()).parse().unwrap(),
+        version: variables.get("version").expect("version header not found").parse().unwrap(),
+        name: variables.get("name").expect("name header not found").to_string(),
+        author: variables.get("author").cloned(),
+        description: variables.get("description").cloned(),
+        layout_version: variables.get("layout_version").unwrap_or(&"1".to_string()).parse().unwrap(),
         defaults: LayoutDefaultsSerde {
             variable_color: variables.get("variable_color").unwrap_or(&"FORE_LIGHTGREEN".to_string()).to_string(),
             text_color: variables.get("text_color").unwrap_or(&"FORE_LIGHTBLUE".to_string()).to_string(),

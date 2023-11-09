@@ -1,4 +1,5 @@
-use bincode::ErrorKind;
+use shared_deps::bincode::ErrorKind;
+use shared_deps::*;
 use std::fmt;
 use std::fmt::Debug;
 

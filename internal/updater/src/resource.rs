@@ -1,5 +1,6 @@
 use log::{debug, trace};
-use serde_json::Value;
+use shared_deps::serde_json::Value;
+use shared_deps::simd_json;
 
 use local::hash_file;
 use local::weather_file::WeatherFile;

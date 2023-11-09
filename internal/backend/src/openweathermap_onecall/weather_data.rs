@@ -1,3 +1,5 @@
+use shared_deps::simd_json;
+
 use crate::openweathermap_onecall::json::{DailyJson, MomentJson};
 use crate::WeatherCondition;
 use crate::WindData;

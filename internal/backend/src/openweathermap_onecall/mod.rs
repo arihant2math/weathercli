@@ -1,5 +1,7 @@
 use crate::openweathermap_onecall::json::MainJson;
 
+use shared_deps::simd_json;
+
 use local::location::Coordinates;
 use networking;
 
@@ -31,4 +33,16 @@ pub fn get_combined_data_formatted(
     let mut n = networking::get_url(&*url, Some(networking::SNEAK_USER_AGENT), None, None)?;
     let r: MainJson = unsafe { simd_json::from_str(&mut n.text) }?;
     Ok(r)
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_get_data() {
+        let location = local::location::Coordinates {
+            latitude: 37.354,
+            longitude: -121.955,
+        };
+        let data = crate::openweathermap_onecall::forecast::get_forecast(&location, local::settings::Settings::new().unwrap()).unwrap();
+    }
 }

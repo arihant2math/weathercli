@@ -1,3 +1,4 @@
+use shared_deps::simd_json;
 use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 use crate::WeatherCondition;
 use crate::WindData;

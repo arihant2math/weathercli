@@ -5,6 +5,8 @@ pub mod util;
 use std::str::FromStr;
 use std::thread;
 
+use shared_deps::simd_json;
+
 use crate::arguments::CacheOpts;
 use crate::{print_out, Datasource};
 use backend::{meteo, nws, openweathermap, openweathermap_onecall, WeatherForecast};
@@ -14,7 +16,7 @@ use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 use log::{debug, warn};
-use serde_json::Value;
+use shared_deps::serde_json::Value;
 use std::path::Path;
 use terminal::prompt;
 use weather_dirs::resources_dir;
@@ -117,16 +119,18 @@ pub fn cache(opts: CacheOpts) -> crate::Result<()> {
     Ok(())
 }
 
+pub fn about() {
+    println!("Weather, in your terminal") // TODO: Incorperate command
+}
+
 pub fn credits() {
     println!(
         "Backends:
-    Meteo - https://open-meteo.com
-    Open Weather Map - https://openweathermap.org/
-    NWS - https://weather.gov"
+Meteo - https://open-meteo.com
+Open Weather Map - https://openweathermap.org/
+NWS - https://weather.gov"
     );
-    if cfg!(feature = "gui") || cfg!(windows) {
-        println!("Icons from Icons8: https://icons8.com/");
-    }
+    println!("App icons from Icons8: https://icons8.com/");
 }
 
 pub fn settings() -> crate::Result<()> {

@@ -5,7 +5,7 @@ use local::settings::Settings;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
-use terminal::color::{FORE_BLUE, FORE_GREEN, FORE_LIGHTMAGENTA, RESET};
+use terminal::color::*;
 use weather_dirs::layouts_dir;
 
 fn install(path: String) -> crate::Result<()> {
@@ -72,12 +72,28 @@ fn delete(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
+fn info(settings: Settings, name: String) -> crate::Result<()> { // TODO: Fix
+    let paths = fs::read_dir(layouts_dir()?)?;
+    let current_layout = settings.layout_file;
+    for path in paths {
+        let tmp = path?.file_name();
+        let file_name = tmp.to_str().unwrap();
+        if file_name == name.clone() + ".res" {
+            println!("{FORE_LIGHTBLUE}==={FORE_LIGHTGREEN} {file_name} {FORE_LIGHTBLUE}==={RESET}");
+            let layout = LayoutFile::new(file_name)?;
+            println!("Version: {}", layout.version);
+        }
+    }
+    Ok(())
+}
+
 pub fn subcommand(arg: LayoutOpts, settings: Settings) -> crate::Result<()> {
     match arg {
         LayoutOpts::Install(opts) => install(opts.path)?,
         LayoutOpts::List => list(settings)?,
         LayoutOpts::Select => select(settings)?,
         LayoutOpts::Delete => delete(settings)?,
+        LayoutOpts::Info(opts) => info(settings, opts.name)?
     };
     Ok(())
 }

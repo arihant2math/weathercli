@@ -1,5 +1,7 @@
 pub fn get_default_layout() -> String {
-"VERSION = 20
+"NAME = TEST
+VERSION = 20
+LAYOUT_VERSION = 1
 ------------------------------
 Weather for {@region}, {@country}
 {$FORE_LIGHTMAGENTA$@current_weather.condition_sentence}

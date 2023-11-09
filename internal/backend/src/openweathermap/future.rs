@@ -4,6 +4,7 @@ use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
 use local::now;
 use std::collections::HashMap;
+use shared_deps::simd_json;
 
 pub fn get_future(
     data: OpenWeatherMapForecastItemJson,

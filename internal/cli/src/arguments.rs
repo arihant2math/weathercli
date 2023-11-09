@@ -44,6 +44,7 @@ pub enum LayoutOpts {
     Install(InstallOpts),
     List,
     Select,
+    Info(InfoOpts),
     Delete,
 }
 
@@ -67,6 +68,12 @@ pub enum BackendOpts {
 pub struct InstallOpts {
     pub path: String,
 }
+
+#[derive(Clone, Args)]
+pub struct InfoOpts {
+    pub name: String,
+}
+
 
 #[derive(Clone, Subcommand)]
 pub enum CacheOpts {

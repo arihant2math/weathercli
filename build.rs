@@ -7,7 +7,7 @@ fn main() -> io::Result<()> {
     if env::var("CARGO_CFG_TARGET_OS").unwrap() == "windows" {
         WindowsResource::new()
             // This path can be absolute, or relative to your crate root.
-            .set_icon("icon/updater.ico")
+            .set_icon("icon/icon.ico")
             .compile()?;
     }
     Ok(())

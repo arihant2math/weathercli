@@ -1,7 +1,10 @@
+use shared_deps::bincode;
+
 use crate::openweathermap::current::get_current;
 use crate::openweathermap::future::get_future;
 use crate::WeatherData;
 use crate::WeatherForecast;
+use local::location;
 use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
@@ -81,10 +84,10 @@ pub fn get_forecast(
         forecast.push(get_future(item, weather_codes.clone())?);
     }
     let forecast_sentence = get_forecast_sentence(forecast.clone());
+    let loc = location::reverse_geocode(coordinates)?;
     Ok(WeatherForecast {
         datasource: String::from("Open Weather Map"),
-        region: data.weather.name,
-        country: data.weather.sys.country,
+        location: loc,
         forecast: forecast.clone(),
         current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,

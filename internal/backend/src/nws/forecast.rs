@@ -11,11 +11,10 @@ pub fn get_forecast(
 ) -> crate::Result<WeatherForecast> {
     let data = get_combined_data_formatted(coordinates, settings.metric_default)?;
     let current = get_current(data, settings.metric_default)?;
-    let region_country = location::reverse_geocode(coordinates)?;
+    let loc = location::reverse_geocode(coordinates)?;
     Ok(WeatherForecast {
         datasource: String::from("National Weather Service"),
-        region: region_country[0].clone(),
-        country: region_country[1].clone(),
+        location: loc,
         forecast: vec![current.clone()],
         current_weather: current,
         forecast_sentence: String::new(),

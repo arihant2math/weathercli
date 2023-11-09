@@ -8,10 +8,8 @@ edition = "2021"
 [dependencies]
 cookie_store = "0.20"
 rayon = "1.8"
+serde = "1.0"
 log = "0.4"
-serde = { version = "1.0", features = ["derive"] }
+shared_deps = { path = "../shared_deps" }
 ureq = { version = "2.8", default-features = false, features = ["tls", "gzip", "cookies", "json"], path = "../../lib/ureq" }
 url = "2.4"
-
-[target.'cfg(windows)'.dependencies]
-windows = { version = "0.48", features = ["Foundation", "Devices_Geolocation", "System_Power", "Win32_System_Power", "Win32_Foundation"] }

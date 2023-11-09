@@ -1,3 +1,4 @@
+use shared_deps::bincode;
 use crate::meteo::get_combined_data_formatted;
 use crate::meteo::json::MeteoForecastJson;
 use crate::meteo::weather_data::get_weather_data;
@@ -113,12 +114,11 @@ pub fn get_forecast(
             weather_codes.clone(),
         )?);
     }
-    let region_country = location::reverse_geocode(coordinates)?;
+    let loc = location::reverse_geocode(coordinates)?;
     let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather, now);
     let f = WeatherForecast {
         datasource: String::from("meteo"),
-        region: region_country[0].clone(),
-        country: region_country[1].clone(),
+        location: loc,
         forecast: forecast.clone(),
         current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,

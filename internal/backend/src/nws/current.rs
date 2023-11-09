@@ -1,3 +1,5 @@
+use shared_deps::bincode;
+
 use crate::nws::json::NWSJSON;
 use crate::WeatherCondition;
 use crate::WindData;

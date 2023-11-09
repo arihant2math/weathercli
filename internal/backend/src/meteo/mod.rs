@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use shared_deps::simd_json;
+
 use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 use local::location::Coordinates;
 use networking;
@@ -59,7 +61,7 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let urls = crate::meteo::get_api_urls(location, true);
+        let urls = crate::meteo::get_api_urls(&location, true);
         // TODO: actual test
     }
 
@@ -69,6 +71,6 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let data = crate::meteo::get_combined_data_formatted(location, true).unwrap();
+        let data = crate::meteo::get_combined_data_formatted(&location, true).unwrap();
     }
 }

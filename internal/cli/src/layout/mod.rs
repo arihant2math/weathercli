@@ -1,3 +1,5 @@
+use shared_deps::bincode;
+use shared_deps::serde_json;
 use crate::layout::layout_serde::LayoutDefaultsSerde;
 use crate::layout::row::Row;
 use backend::WeatherForecast;
@@ -25,6 +27,7 @@ pub struct LayoutSettings {
 
 pub struct LayoutFile {
     layout: Vec<Row>,
+    pub(crate) version: u64,
     settings: LayoutSettings,
 }
 
@@ -102,6 +105,7 @@ impl LayoutFile {
         }
         Ok(Self {
             layout: internal_layout,
+            version: file_data.version,
             settings: get_layout_settings(file_data.defaults),
         })
     }

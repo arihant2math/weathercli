@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use std::thread;
 
-use serde_json::Value;
+use serde::{Serialize, Deserialize};
+use shared_deps::serde_json::Value;
+use shared_deps::simd_json;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 #[cfg(target_os = "windows")]
@@ -177,16 +179,17 @@ pub fn geocode(query: String, bing_maps_api_key: &str) -> crate::Result<Coordina
     }
 }
 
+#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 pub struct LocationData { // TODO: Use this
-    suburb: String,
-    city: String,
-    county: String,
-    state: String,
-    region: String,
+    village: Option<String>,
+    suburb: Option<String>,
+    city: Option<String>,
+    county: Option<String>,
+    state: Option<String>,
     country: String,
 }
 
-pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<[String; 2]> {
+pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<LocationData> {
     let k = "coordinates".to_string()
         + &coordinates.latitude.to_string()
         + ","
@@ -201,33 +204,73 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<[String; 2]> 
                     .as_str()
                     .ok_or("country not found")?
                     .to_string();
-                let mut region = "";
-                if let Some(village) = place["address"]["village"].as_str() {
-                    region = village;
-                } else if let Some(city) = place["address"]["city"].as_str() {
-                    region = city;
-                } else if let Some(county) = place["address"]["county"].as_str() {
-                    region = county;
-                } else if let Some(state) = place["address"]["state"].as_str() {
-                    region = state;
+                fn option_to_string(option: Option<&str>) -> Option<String> {
+                    return if let Some(s) = option {
+                        Some(s.to_string())
+                    } else {
+                        None
+                    };
                 }
-                let v = region.to_string() + "`|`|`" + &country;
+                let village: Option<String> = option_to_string(place["address"]["village"].as_str());
+                let suburb: Option<String> = option_to_string(place["address"]["suburb"].as_str());
+                let city: Option<String> = option_to_string(place["address"]["city"].as_str());
+                let county: Option<String> = option_to_string(place["address"]["county"].as_str());
+                let state: Option<String> = option_to_string(place["address"]["state"].as_str());
+                let v = format!("{}||{}||{}||{}||{}||{}",
+                                village.clone().unwrap_or(String::from("")),
+                                suburb.clone().unwrap_or(String::from("")),
+                                city.clone().unwrap_or(String::from("")),
+                                county.clone().unwrap_or(String::from("")),
+                                state.clone().unwrap_or(String::from("")),
+                                country);
                 thread::spawn(move || {
                     cache::write(&k, &v).unwrap_or_default();
                 });
-                Ok([region.to_string(), country])
+                Ok(LocationData {
+                    village,
+                    suburb,
+                    city,
+                    county,
+                    state,
+                    country,
+                })
             }
             Ok(real_cache) => {
                 let cache_string = "coordinates".to_string() + &k;
                 thread::spawn(move || {
                     cache::update_hits(&cache_string).unwrap_or(());
                 });
-                let vec_collect: Vec<&str> = real_cache.split("`|`|`").collect();
-                if vec_collect.len() != 2 {
-                    cache::delete(&k).unwrap_or_default();
+                let vec_collect: Vec<&str> = real_cache.split("||").collect();
+                if vec_collect.len() != 6 {
+                    cache::delete(&k)?; // Important it works or else it will be stuck in an infinite loop
                     return reverse_geocode(coordinates);
                 }
-                Ok([vec_collect[0].to_string(), vec_collect[1].to_string()])
+                let village_string = vec_collect[0].to_string();
+                let suburb_string = vec_collect[1].to_string();
+                let city_string = vec_collect[2].to_string();
+                let county_string = vec_collect[3].to_string();
+                let state_string = vec_collect[4].to_string();
+                let country = vec_collect[5].to_string();
+                fn convert_string(s: String) -> Option<String> {
+                    return if s.is_empty() {
+                        None
+                    } else {
+                        Some(s)
+                    };
+                }
+                let village = convert_string(village_string);
+                let suburb = convert_string(suburb_string);
+                let city = convert_string(city_string);
+                let county = convert_string(county_string);
+                let state = convert_string(state_string);
+                Ok(LocationData {
+                    village,
+                    suburb,
+                    city,
+                    county,
+                    state,
+                    country,
+                })
             }
         }
     }

@@ -1,3 +1,5 @@
+use shared_deps::simd_json;
+
 use crate::nws::json::{NWSPointJSON, NWSJSON};
 use local::location::Coordinates;
 use networking;
@@ -35,7 +37,7 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let url = crate::nws::get_api_url(location, true).unwrap();
+        let url = crate::nws::get_api_url(&location, true).unwrap();
         assert_eq!(url, "https://api.weather.gov/gridpoints/MTR/97,83");
     }
 
@@ -45,6 +47,6 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let data = crate::nws::get_combined_data_formatted(location, true).unwrap();
+        let data = crate::nws::get_combined_data_formatted(&location, true).unwrap();
     }
 }

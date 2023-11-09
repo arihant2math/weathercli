@@ -1,3 +1,4 @@
+use shared_deps::bincode;
 use crate::openweathermap_onecall::get_combined_data_formatted;
 use crate::openweathermap_onecall::weather_data::get_weather_data;
 use crate::WeatherData;
@@ -81,12 +82,11 @@ pub fn get_forecast(
             weather_codes.clone(),
         )?); //TODO: Test
     }
-    let region_country = location::reverse_geocode(coordinates)?;
+    let loc = location::reverse_geocode(coordinates)?;
     let forecast_sentence = get_forecast_sentence(forecast.clone());
     Ok(WeatherForecast {
         datasource: String::from("Open Weather Map OneCall"),
-        region: region_country[0].clone(),
-        country: region_country[1].clone(),
+        location: loc,
         forecast: forecast.clone(),
         current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,

@@ -2,6 +2,8 @@ pub mod component;
 pub mod resource;
 mod update_server_json;
 
+use shared_deps::simd_json;
+
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::Write;
