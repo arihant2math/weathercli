@@ -34,6 +34,8 @@ pub enum Command {
     Setup,
     #[command(about = "Update weathercli")]
     Update(UpdateOpts),
+    #[command(about = "About weathercli")]
+    About,
     #[command(about = "Various Credits")]
     Credits,
 }

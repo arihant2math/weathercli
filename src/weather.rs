@@ -12,7 +12,7 @@ use log::LevelFilter;
 use cli::{Datasource, datasource_from_str};
 use cli::arguments::{App, Command};
 use cli::commands::{
-    backend_commands, cache, credits, layout_commands, open_settings_app, settings, weather,
+    about, backend_commands, cache, credits, layout_commands, open_settings_app, settings, weather,
 };
 use cli::commands::util::{setup, update};
 use custom_backend::dynamic_library_loader::ExternalBackends;
@@ -115,6 +115,7 @@ fn run() -> Result<()> {
                     args.global_opts.json,
                     custom_backends,
                 )?,
+                Command::About => about(),
                 Command::Backend(arg) => backend_commands::subcommand(arg, settings_s)?,
                 Command::Cache(arg) => cache(arg)?,
                 Command::Config(opts) => cli::commands::config(opts.key, opts.value)?,
