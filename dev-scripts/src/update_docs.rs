@@ -26,7 +26,7 @@ fn download_artifact(artifact_list: &Vec<Value>, h: HashMap<String, String>, nam
     let mut tmp_zip_file = OpenOptions::new().create(true).write(true).open(format!("./tmp/{file}.zip"))?;
     tmp_zip_file.write_all(&*download.bytes)?;
     let reader = BufReader::new(File::open(format!("./tmp/{file}.zip"))?);
-    let mut zip = zip::ZipArchive::new(reader).expect("zip read failed");
+    let mut zip = zip::ZipArchive::new(reader).or_else(|_| Err("Could not open zip file"))?;
     let mut file_zip = zip.by_index(0).unwrap();
     println!("Extracting {}", file_zip.name());
     let mut writer = BufWriter::new(
@@ -46,7 +46,7 @@ pub fn update_docs(gh_token: &str) -> weather_error::Result<()> {
     let mut headers = HashMap::new();
     headers.insert("Authorization".to_string(), format!("Bearer {}", gh_token));
     let get_run_id = networking::get_url("https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=10&status=completed",
-                                                       None, Some(headers.clone()), None)?;
+                                         None, Some(headers.clone()), None)?;
     let runs_json: Value = serde_json::from_str(&get_run_id.text)?;
     let runs = runs_json["workflow_runs"].as_array()
         .ok_or("not an array")?;
@@ -57,7 +57,7 @@ pub fn update_docs(gh_token: &str) -> weather_error::Result<()> {
     let tasks = vec![
         ["weather (Windows)", "weather.exe"],
         ["weather (Linux)", "weather"]];
-    tasks.par_iter().for_each(|&s| download_artifact(&rust_artifacts, headers.clone(), s[0], s[1]).unwrap());
+    tasks.par_iter().for_each(|&s| { download_artifact(&rust_artifacts, headers.clone(), s[0], s[1]); });
     fs::remove_dir_all(working_dir.join("tmp"))?; // TODO: Implement index version updates
     update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")?;
     update_hash("./docs_templates/weather", "weather-exe-hash-unix")?;
