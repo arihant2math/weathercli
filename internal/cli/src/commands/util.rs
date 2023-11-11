@@ -60,7 +60,7 @@ pub fn setup(settings_s: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-pub fn update(force: bool, version: String) -> crate::Result<()> {
+pub fn update(force: bool, dry_run: bool, version: String) -> crate::Result<()> {
     println!("Checking for updates ...");
     let latest_version = updater::get_latest_version()?;
     let application_path = std::env::current_exe()?;
@@ -68,14 +68,16 @@ pub fn update(force: bool, version: String) -> crate::Result<()> {
     println!("Current Version: {version}");
     if latest_version != version || force {
         println!("Updating weather.exe at {}", application_path.display());
-        update_component(
-            &("https://arihant2math.github.io/weathercli/".to_string()
-                + updater::CONFIG.weather_file_name),
-            &std::env::current_exe()?.display().to_string(),
-            "Downloading weathercli update from ".to_string(),
-            "Updated weathercli".to_string(),
-            false,
-        )?;
+        if !dry_run {
+            update_component(
+                &("https://arihant2math.github.io/weathercli/".to_string()
+                    + updater::CONFIG.weather_file_name),
+                &std::env::current_exe()?.display().to_string(),
+                "Downloading weathercli update from ".to_string(),
+                "Updated weathercli".to_string(),
+                false,
+            )?;
+        }
     }
     Ok(())
 }

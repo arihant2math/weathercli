@@ -124,7 +124,7 @@ fn run() -> Result<()> {
                 Command::GuiSettings => open_settings_app(),
                 Command::Layout(arg) => layout_commands::subcommand(arg, settings_s)?,
                 Command::Setup => setup(settings_s)?,
-                Command::Update(opts) => update(opts.force, version())?,
+                Command::Update(opts) => update(opts.force, opts.dry_run, version())?,
             };
         }
         None => weather(

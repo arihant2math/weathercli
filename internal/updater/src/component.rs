@@ -14,7 +14,7 @@ pub fn update_component(
     finish_msg: String,
     quiet: bool,
 ) -> crate::Result<()> {
-    let replace = std::env::current_exe()? == PathBuf::from(path);
+    let replace = &std::env::current_exe()?.display().to_string() == path;
     let download_path = if replace {
         path.to_string() + ".tmp"
     } else {
