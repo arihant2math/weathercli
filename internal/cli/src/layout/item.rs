@@ -1,5 +1,7 @@
 use shared_deps::serde_json::Value;
 
+use log::error;
+
 use crate::layout::layout_serde::ItemSerde;
 use crate::layout::{util, LayoutSettings};
 use terminal::color;
@@ -20,6 +22,7 @@ impl Item {
 
     fn get_variable_value(&self, data: &Value) -> crate::Result<String> {
         if data.is_null() {
+            error!("data is null"); // TODO: More info
             return Ok(String::from("null"));
         }
         let mut split: Vec<&str> = self.data.value.split('.').collect();

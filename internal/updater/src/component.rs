@@ -1,9 +1,10 @@
 use self_replace;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
 use std::thread;
 use std::time::Duration;
+
+use log::{debug, trace};
 
 use weather_error::Error;
 
@@ -20,8 +21,15 @@ pub fn update_component(
     } else {
         path.to_string()
     };
-    let res = networking::get_url(url, None, None, None)?;
-    let status = res.status;
+    debug!("Downloading to {download_path} from {url}");
+    let res = reqwest::blocking::get(url).or_else(|e| {
+        Err(Error::NetworkError(format!(
+            "Failed to download file from {}",
+            url
+        )))
+    })?;
+    let status = res.status().as_u16();
+    trace!("Status code: {status}");
     assert_eq!(
         status, 200,
         "Server returned a status code of {} instead of 200,\
@@ -43,11 +51,12 @@ pub fn update_component(
         thread::sleep(Duration::from_millis(100));
     }
     let mut file = file_expect?;
-    file.write_all(&res.bytes)?;
+    file.write_all(&res.bytes().or_else(|e| Err(Error::NetworkError(format!("Cannot get bytes"))))?)?;
     if replace {
         if !quiet {
-            println!("Replacing ...");
+            println!("Replacing {} with {}", path, download_path);
         }
+        debug!("Replacing {} with {}", path, download_path);
         self_replace::self_replace(&download_path)?;
         std::fs::remove_file(&download_path)?;
     }
