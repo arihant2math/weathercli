@@ -100,6 +100,6 @@ pub struct PlaceOpts {
 pub struct UpdateOpts {
     #[arg(long, short, action, help = "Forces a reinstall of weathercli")]
     pub force: bool,
-    #[arg(long, short, action, help = "Dry run the update")]
+    #[arg(long, action, help = "Dry run the update")]
     pub dry_run: bool,
 }
