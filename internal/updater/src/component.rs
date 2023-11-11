@@ -54,7 +54,7 @@ pub fn update_component(
     file.write_all(&res.bytes().or_else(|e| Err(Error::NetworkError(format!("Cannot get bytes"))))?)?;
     if replace {
         if !quiet {
-            println!("Replacing {} with {}", path, download_path);
+            println!("Replacing {}", path);
         }
         debug!("Replacing {} with {}", path, download_path);
         self_replace::self_replace(&download_path)?;
