@@ -18,7 +18,7 @@ To build, run:
 cargo build
 ```
 
-To have a development friendly experience run the following commands
+To have a development-friendly experience, run the following commands
 
 ```shell
 weather config DEVELOPMENT true

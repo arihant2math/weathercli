@@ -53,6 +53,9 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> crate::Result<Coor
         None,
         None,
     )?;
+    if r.status > 399 {
+        return Err("Bing maps geocoding failed")?;
+    }
     let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
     Ok(Coordinates {

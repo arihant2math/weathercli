@@ -63,7 +63,7 @@ impl Executor {
         while let Ok(task) = self.ready_queue.recv() {
             // Take the future, and if it has not yet completed (is still Some),
             // poll it in an attempt to complete it.
-            let mut future_slot = task.future.lock().unwrap();
+            let mut future_slot = task.future.lock().expect("Could not lock future.");
             if let Some(mut future) = future_slot.take() {
                 // Create a `LocalWaker` from the task itself
                 let waker = waker_ref(&task);
