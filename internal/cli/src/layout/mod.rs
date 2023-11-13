@@ -1,17 +1,21 @@
 use shared_deps::bincode;
 use shared_deps::serde_json;
-use crate::layout::layout_serde::LayoutDefaultsSerde;
-use crate::layout::row::Row;
-use backend::WeatherForecast;
+
 use local::weather_file::WeatherFile;
 use terminal::color;
 use weather_error::{Error, LayoutErr};
+
+use crate::layout::layout_serde::LayoutDefaultsSerde;
+use crate::layout::row::Row;
+use crate::layout::layout_input::LayoutInput;
+
 
 mod image_to_text;
 pub mod item;
 pub mod layout_serde;
 mod row;
 pub mod util;
+pub mod layout_input;
 
 pub const VERSION: u64 = 20;
 
@@ -110,7 +114,7 @@ impl LayoutFile {
         })
     }
 
-    pub fn to_string(&self, data: WeatherForecast, metric: bool) -> crate::Result<String> {
+    pub fn to_string(&self, data: LayoutInput, metric: bool) -> crate::Result<String> {
         let mut s = Vec::new();
         let data_value = serde_json::to_value(data)?;
         for (count, row) in self.layout.iter().enumerate() {

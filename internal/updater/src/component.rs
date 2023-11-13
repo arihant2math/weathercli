@@ -11,8 +11,6 @@ use weather_error::Error;
 pub fn update_component(
     url: &str,
     path: &str,
-    progress_msg: String,
-    finish_msg: String,
     quiet: bool,
 ) -> crate::Result<()> {
     let replace = &std::env::current_exe()?.display().to_string() == path;
@@ -22,7 +20,7 @@ pub fn update_component(
         path.to_string()
     };
     debug!("Downloading to {download_path} from {url}");
-    let res = reqwest::blocking::get(url).or_else(|e| {
+    let res = reqwest::blocking::get(url).or_else(|_| {
         Err(Error::NetworkError(format!(
             "Failed to download file from {}",
             url
@@ -51,7 +49,7 @@ pub fn update_component(
         thread::sleep(Duration::from_millis(100));
     }
     let mut file = file_expect?;
-    file.write_all(&res.bytes().or_else(|e| Err(Error::NetworkError(format!("Cannot get bytes"))))?)?;
+    file.write_all(&res.bytes().or_else(|_| Err(Error::NetworkError(format!("Cannot get bytes"))))?)?;
     if replace {
         if !quiet {
             println!("Replacing {}", path);

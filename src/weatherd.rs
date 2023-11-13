@@ -6,12 +6,12 @@ use std::io::Write;
 use auto_launch::{AutoLaunchBuilder, Error};
 use clap::Parser;
 
-use cli::datasource_from_str;
+use cli::Datasource;
 use custom_backend::dynamic_library_loader::ExternalBackends;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 
-pub type CResult<T> = std::result::Result<T, weather_error::Error>;
+pub type CResult<T> = Result<T, weather_error::Error>;
 
 #[derive(Clone, Parser)]
 struct Cli {
@@ -73,7 +73,7 @@ fn main() -> CResult<()> {
             let default_datasource = &*settings.default_backend.clone();
             if default_datasource.to_lowercase() == "openweathermap" {
                 let data = cli::commands::get_data_from_datasource(
-                    datasource_from_str(default_datasource),
+                    Datasource::from_str(default_datasource),
                     local::location::get(false, settings.constant_location)?,
                     settings.clone(),
                     ExternalBackends::default(),

@@ -42,11 +42,8 @@ impl Item {
             } else {
                 // normal variable
                 if current.is_null() {
-                    return Err(weather_error::Error::LayoutError(LayoutErr {
-                        message: "Variable not found in data".to_string(),
-                        row: None,
-                        item: None,
-                    }));
+                    error!("Variable not found in data");
+                    return Ok("null".to_string());
                 }
                 current = &current[split[0]];
             }

@@ -9,12 +9,12 @@ use log4rs::filter::threshold::ThresholdFilter;
 use log4rs::Handle;
 use log::LevelFilter;
 
-use cli::{Datasource, datasource_from_str};
 use cli::arguments::{App, Command};
 use cli::commands::{
     about, backend_commands, cache, credits, layout_commands, open_settings_app, settings, weather,
 };
 use cli::commands::util::{setup, update};
+use cli::Datasource;
 use custom_backend::dynamic_library_loader::ExternalBackends;
 use custom_backend::load_custom_backends;
 use local::settings::Settings;
@@ -90,7 +90,7 @@ fn run() -> Result<()> {
     } else {
         settings_s.metric_default
     };
-    let datasource = datasource_from_str(
+    let datasource = Datasource::from_str(
         &args
             .global_opts
             .datasource
@@ -110,7 +110,7 @@ fn run() -> Result<()> {
                 Command::Place(opts) => weather(
                     datasource,
                     local::location::geocode(opts.query, &settings_s.bing_maps_api_key.clone())?,
-                    args.global_opts.future.unwrap_or(0),
+                    args.global_opts.future,
                     settings_s,
                     true_metric,
                     args.global_opts.json,
@@ -131,7 +131,7 @@ fn run() -> Result<()> {
         None => weather(
             datasource,
             local::location::get(args.global_opts.no_sys_loc, settings_s.constant_location)?,
-            args.global_opts.future.unwrap_or(0),
+            args.global_opts.future,
             settings_s,
             true_metric,
             args.global_opts.json,

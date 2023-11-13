@@ -1,7 +1,10 @@
-use crate::layout::LayoutFile;
-use backend::WeatherForecast;
+use chrono::DateTime;
+use backend::{WeatherData, WeatherForecast};
 use weather_error;
 use weather_error::LayoutErr;
+
+use crate::layout::LayoutFile;
+use crate::layout::layout_input::LayoutInput;
 
 pub mod arguments;
 pub mod commands;
@@ -18,19 +21,22 @@ pub enum Datasource {
     Other(String),
 }
 
-pub fn datasource_from_str(s: &str) -> Datasource {
-    match &*s.to_lowercase() {
-        "nws" => Datasource::NWS,
-        "openweathermap" => Datasource::Openweathermap,
-        "openweathermap_onecall" => Datasource::OpenweathermapOneCall,
-        "meteo" => Datasource::Meteo,
-        _ => Datasource::Other(s.to_string()),
+impl Datasource {
+    pub fn from_str(s: &str) -> Datasource {
+        match &*s.to_lowercase() {
+            "nws" => Datasource::NWS,
+            "openweathermap" => Datasource::Openweathermap,
+            "openweathermap_onecall" => Datasource::OpenweathermapOneCall,
+            "meteo" => Datasource::Meteo,
+            _ => Datasource::Other(s.to_string()),
+        }
     }
 }
 
 fn print_out(
     layout_file: &str,
     data: WeatherForecast,
+    requested_weather: WeatherData,
     json: bool,
     metric: bool,
 ) -> crate::Result<()> {
@@ -48,7 +54,12 @@ fn print_out(
                 row: None,
                 item: None
             }))?
-            .to_string(data, metric)?
+            .to_string(LayoutInput {
+                datasource: data.datasource,
+                location: data.location,
+                current_weather: requested_weather,
+                forecast_sentence: data.forecast_sentence,
+            }, metric)?
         );
     }
     Ok(())

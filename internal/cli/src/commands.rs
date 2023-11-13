@@ -18,9 +18,21 @@ use local::weather_file::WeatherFile;
 use log::{debug, warn};
 use shared_deps::serde_json::Value;
 use std::path::Path;
+use chrono::{DateTime, Duration, Utc};
 use terminal::prompt;
 use weather_dirs::resources_dir;
-use chrono::DateTime;
+
+fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
+    match time {
+        Some(t) => {
+            let time = chrono::Utc::now() + Duration::hours(t.parse().unwrap());
+            return time;
+        }
+        None => {
+            return chrono::Utc::now();
+        }
+    }
+}
 
 pub fn get_data_from_datasource(
     datasource: Datasource,
@@ -64,7 +76,7 @@ pub fn get_data_from_datasource(
 pub fn weather(
     datasource: Datasource,
     coordinates: Coordinates,
-    hours: u16,
+    time: Option<String>,
     settings: Settings,
     true_metric: bool,
     json: bool,
@@ -78,8 +90,9 @@ pub fn weather(
     debug!("json: {json}");
     let mut s = settings.clone();
     s.metric_default = true_metric;
-    let mut data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
-    print_out(&settings.layout_file, data, json, true_metric)?;
+    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
+    let requested_weather = data.get_best_forecast(get_requested_time(time));
+    print_out(&settings.layout_file, data, requested_weather, json, true_metric)?;
     Ok(())
 }
 

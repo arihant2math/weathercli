@@ -89,7 +89,6 @@ pub fn get_forecast(
         datasource: String::from("Open Weather Map"),
         location: loc,
         forecast: forecast.clone(),
-        current_weather: forecast.into_iter().next().unwrap(),
         forecast_sentence,
         raw_data: None,
     })
