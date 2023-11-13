@@ -47,7 +47,6 @@ pub fn delete(key: &str) -> crate::Result<()> {
         .into_iter()
         .position(|row| row.key == key)
         .ok_or(format!("Key not found, {key}"))?;
-    let key_index_usize = key_index;
     rows.remove(key_index);
     write_cache(rows)?;
     Ok(())
