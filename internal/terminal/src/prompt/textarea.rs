@@ -26,18 +26,23 @@ pub fn textarea() -> Result<String> {
         match read()? {
             Event::Key(KeyEvent {
                 code: KeyCode::Home,
+                modifiers: KeyModifiers::NONE,
                 ..
             }) => {
                 cursor_char = 0;
             }
 
             Event::Key(KeyEvent {
-                code: KeyCode::End, ..
+                code: KeyCode::End,
+                modifiers: KeyModifiers::NONE,
+                ..
             }) => {
                 cursor_char = text[cursor_line].len() - 1;
             }
             Event::Key(KeyEvent {
-                code: KeyCode::Up, ..
+                code: KeyCode::Up,
+                modifiers: KeyModifiers::NONE,
+                ..
             }) => {
                 cursor_line = cursor_line.saturating_sub(1);
                 cursor_char = lagged_cursor_char.min(text[cursor_line].len());
@@ -45,6 +50,7 @@ pub fn textarea() -> Result<String> {
 
             Event::Key(KeyEvent {
                 code: KeyCode::Down,
+                modifiers: KeyModifiers::NONE,
                 ..
             }) => {
                 if text.len() - 1 > cursor_line {
@@ -54,6 +60,7 @@ pub fn textarea() -> Result<String> {
             }
             Event::Key(KeyEvent {
                 code: KeyCode::Left,
+                modifiers: KeyModifiers::NONE,
                 ..
             }) => {
                 if cursor_char > 0 {
@@ -65,10 +72,45 @@ pub fn textarea() -> Result<String> {
             }
             Event::Key(KeyEvent {
                 code: KeyCode::Right,
+                modifiers: KeyModifiers::NONE,
                 ..
             }) => {
                 if text[cursor_line].len() > cursor_char {
                     cursor_char = cursor_char.saturating_add(1);
+                } else if text.len() - 1 > cursor_line {
+                    cursor_line = cursor_line.saturating_add(1);
+                    cursor_char = 0;
+                }
+            }
+            Event::Key(KeyEvent {
+                code: KeyCode::Left,
+                modifiers: KeyModifiers::CONTROL,
+                ..
+            }) => {
+                if cursor_char > 0 {
+                    if text[cursor_line].chars().nth(cursor_char - 1).unwrap().is_whitespace() {
+                        cursor_char = cursor_char.saturating_sub(1);
+                    }
+                    while cursor_char > 0 && !text[cursor_line].chars().nth(cursor_char - 1).unwrap().is_whitespace() {
+                        cursor_char = cursor_char.saturating_sub(1);
+                    }
+                } else if cursor_line > 0 {
+                    cursor_line = cursor_line.saturating_sub(1);
+                    cursor_char = text[cursor_line].len();
+                }
+            }
+            Event::Key(KeyEvent {
+                code: KeyCode::Right,
+                modifiers: KeyModifiers::CONTROL,
+                ..
+            }) => {
+                if text[cursor_line].len() > cursor_char {
+                    if text[cursor_line].chars().nth(cursor_char).unwrap().is_whitespace() {
+                        cursor_char = cursor_char.saturating_add(1);
+                    }
+                    while text[cursor_line].len() > cursor_char && !text[cursor_line].chars().nth(cursor_char).unwrap().is_whitespace() {
+                        cursor_char = cursor_char.saturating_add(1);
+                    }
                 } else if text.len() - 1 > cursor_line {
                     cursor_line = cursor_line.saturating_add(1);
                     cursor_char = 0;
@@ -84,14 +126,21 @@ pub fn textarea() -> Result<String> {
                 modifiers: KeyModifiers::CONTROL,
                 ..
             }) => {
+                break; // TODO: Panic instead
+            }
+            Event::Key(KeyEvent {
+                code: KeyCode::Char('d'),
+                modifiers: KeyModifiers::CONTROL,
+                ..
+            }) => {
                 break;
             }
             Event::Key(KeyEvent {
-                code: KeyCode::Char(c),
+                code: KeyCode::Char(ch),
                 modifiers: KeyModifiers::NONE | KeyModifiers::SHIFT,
                 ..
             }) => {
-                text[cursor_line].insert(cursor_char, c);
+                text[cursor_line].insert(cursor_char, ch);
                 execute!(stdout(), Clear(ClearType::CurrentLine))?;
                 execute!(stdout(), cursor::MoveToColumn(0))?;
                 cursor_char += 1;
@@ -115,6 +164,7 @@ pub fn textarea() -> Result<String> {
                     cursor_char = text[cursor_line].len();
                     text[cursor_line].push_str(&old_text);
                 }
+                execute!(stdout(), Clear(ClearType::UntilNewLine))?;
             }
             Event::Key(KeyEvent {
                 code: KeyCode::Enter,
@@ -137,7 +187,7 @@ pub fn textarea() -> Result<String> {
         execute!(stdout(), Clear(ClearType::FromCursorDown))?;
         #[allow(clippy::cast_possible_truncation)]
         execute!(stdout(), cursor::MoveTo(cursor_char as u16, cursor_line as u16))?;
-        if text[cursor_line].len() != cursor_char {
+        if text[cursor_line].len() < lagged_cursor_char {
             lagged_cursor_char = cursor_line;
         }
         thread::sleep(Duration::from_millis(5));

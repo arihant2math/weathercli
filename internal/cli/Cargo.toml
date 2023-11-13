@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.2", features = ["derive"] }
+chrono = "0.4"
 image = "0.24"
 shared_deps = { path = "../shared_deps" }
 serde = "1.0"

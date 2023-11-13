@@ -1,10 +1,11 @@
+use std::collections::HashMap;
+use shared_deps::simd_json;
+use chrono::DateTime;
+
 use crate::openweathermap::json::OpenWeatherMapForecastItemJson;
 use crate::WeatherCondition;
 use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
-use local::now;
-use std::collections::HashMap;
-use shared_deps::simd_json;
 
 pub fn get_future(
     data: OpenWeatherMapForecastItemJson,
@@ -15,7 +16,7 @@ pub fn get_future(
         conditions.push(WeatherCondition::new(condition.id, &weather_codes)?);
     }
     Ok(WeatherData {
-        time: now() as i128,
+        time: DateTime::from_timestamp(data.dt as i64, 0).ok_or("Failed to parse future timestamp for data".to_string())?.into(),
         temperature: data.main.temp as f32,
         min_temp: data.main.temp_min as f32,
         max_temp: data.main.temp_max as f32,

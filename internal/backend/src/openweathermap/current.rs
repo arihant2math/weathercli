@@ -4,8 +4,8 @@ use crate::openweathermap::json::{OpenWeatherMapAirQualityJson, OpenWeatherMapJs
 use crate::WeatherCondition;
 use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
-use local::now;
 use std::collections::HashMap;
+use chrono::DateTime;
 
 pub fn get_current(
     data: OpenWeatherMapJson,
@@ -17,7 +17,7 @@ pub fn get_current(
         conditions.push(WeatherCondition::new(condition.id, &weather_codes)?);
     }
     Ok(WeatherData {
-        time: now() as i128,
+        time: DateTime::from_timestamp(data.dt as i64, 0).ok_or("Failed to parse current timestamp for data".to_string())?.into(),
         temperature: data.main.temp as f32,
         min_temp: data.main.temp_min as f32,
         max_temp: data.main.temp_max as f32,

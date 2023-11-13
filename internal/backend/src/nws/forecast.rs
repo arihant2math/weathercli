@@ -15,7 +15,7 @@ pub fn get_forecast(
     Ok(WeatherForecast {
         datasource: String::from("National Weather Service"),
         location: loc,
-        forecast: vec![current.clone()],
+        forecast: vec![current.clone()], // TODO: Implement
         current_weather: current,
         forecast_sentence: String::new(),
         raw_data: None,

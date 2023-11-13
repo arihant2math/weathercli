@@ -110,6 +110,7 @@ fn run() -> Result<()> {
                 Command::Place(opts) => weather(
                     datasource,
                     local::location::geocode(opts.query, &settings_s.bing_maps_api_key.clone())?,
+                    args.global_opts.future.unwrap_or(0),
                     settings_s,
                     true_metric,
                     args.global_opts.json,
@@ -130,6 +131,7 @@ fn run() -> Result<()> {
         None => weather(
             datasource,
             local::location::get(args.global_opts.no_sys_loc, settings_s.constant_location)?,
+            args.global_opts.future.unwrap_or(0),
             settings_s,
             true_metric,
             args.global_opts.json,

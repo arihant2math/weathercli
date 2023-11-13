@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::WeatherCondition;
 use crate::WindData;
+use chrono::{DateTime, Utc};
+use chrono::serde::ts_seconds;
 
 pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
     let mut data = conditions;
@@ -22,7 +24,8 @@ pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct WeatherData {
-    pub time: i128,
+    #[serde(with = "ts_seconds")]
+    pub time: DateTime<Utc>,
     pub temperature: f32,
     pub min_temp: f32,
     pub max_temp: f32,

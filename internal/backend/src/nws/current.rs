@@ -4,9 +4,9 @@ use crate::nws::json::NWSJSON;
 use crate::WeatherCondition;
 use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
-use local::now;
 use local::weather_file::WeatherFile;
 use std::collections::HashMap;
+use chrono::DateTime;
 use crate::weather_condition::get_clouds_condition;
 
 fn convert_temp(value: f64, metric: bool) -> f64 {
@@ -68,7 +68,7 @@ pub fn get_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData> {
     let cloud_cover = data.properties.sky_cover.values[0].value.unwrap_or(-1) as u8;
     let conditions = get_conditions(data.clone(), metric, 0, cloud_cover)?;
     let d = WeatherData {
-        time: now() as i128,
+        time: DateTime::parse_from_rfc3339(&data.properties.temperature.values[0].valid_time)?.into(),
         temperature: convert_temp(
             data.properties.temperature.values[0]
                 .value

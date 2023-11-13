@@ -3,9 +3,9 @@ use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 use crate::WeatherCondition;
 use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
-use local::now;
 use std::collections::HashMap;
 use crate::weather_condition::get_clouds_condition;
+use chrono::DateTime;
 
 pub fn get_weather_data(
     data: MeteoForecastJson,
@@ -17,7 +17,7 @@ pub fn get_weather_data(
     let cloud_cover = data.hourly.cloudcover[index];
     let conditions = get_conditions(data.clone(), metric, index, cloud_cover, weather_codes)?;
     let d = WeatherData {
-        time: now() as i128,
+        time: DateTime::parse_from_rfc3339(&data.hourly.time[index])?.into(),
         temperature: data.current_weather.temperature,
         min_temp: data.daily.temperature_2m_min[index / 24],
         max_temp: data.daily.temperature_2m_max[index / 24],

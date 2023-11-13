@@ -54,6 +54,7 @@ pub struct OpenWeatherMapJson {
     pub id: i64,
     pub name: String,
     pub cod: i32,
+    pub dt: u128,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

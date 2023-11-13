@@ -3,6 +3,8 @@ use shared_deps::*;
 use std::fmt;
 use std::fmt::Debug;
 
+use chrono::ParseError;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -143,6 +145,12 @@ impl From<&str> for Error {
 impl From<LayoutErr> for Error {
     fn from(error: LayoutErr) -> Self {
         Self::LayoutError(error)
+    }
+}
+
+impl From<ParseError> for Error {
+    fn from(error: ParseError) -> Self {
+        Self::SerializationError(format!("Parse Error: {error}"))
     }
 }
 

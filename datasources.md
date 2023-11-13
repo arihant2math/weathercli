@@ -14,7 +14,7 @@
 | API Key Required      | No                  | No                      | Yes                         | No                                      |
 | AQI                   | No                  | Yes                     | Yes                         | No                                      |
 | Forecast              | No                  | Yes (1 hour)            | Yes (3 hours)               | Yes (1 hour, minute implementation TBD) |
-| Network Requests      | 1+reverse geocode   | 1+reverse geocode       | 3                           | 1+reverse geocode                       |
+| Network Requests      | 1+reverse geocode   | 1+reverse geocode       | 3+reverse geocode           | 1+reverse geocode                       |
 | Website               | https://weather.gov | https://open-meteo.com/ | https://openweathermap.org/ | https://openweathermap.org/             |
 
 Reverse Geocode requests are cached
