@@ -10,12 +10,7 @@ use std::collections::HashMap;
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 pub fn get_latest_version() -> crate::Result<String> {
-    let mut data = networking::get_url(
-        "https://arihant2math.github.io/weathercli/index.json",
-        None,
-        None,
-        None,
-    )?;
+    let mut data = networking::get!("https://arihant2math.github.io/weathercli/index.json")?;
     unsafe {
         let json: HashMap<String, String> = simd_json::from_str(&mut data.text)?;
         Ok(json

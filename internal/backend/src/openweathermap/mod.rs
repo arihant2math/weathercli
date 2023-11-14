@@ -46,7 +46,7 @@ pub fn get_combined_data_formatted(
         coordinates,
         metric,
     );
-    let mut n = networking::get_urls(&urls, None, None, None)?;
+    let mut n = networking::gets!(&urls)?;
     let r1: OpenWeatherMapJson = unsafe { simd_json::from_str(&mut n[0].text) }?;
     let r2: OpenWeatherMapAirQualityJson = unsafe { simd_json::from_str(&mut n[1].text) }?;
     let r3: OpenWeatherMapForecastJson = unsafe { simd_json::from_str(&mut n[2].text) }?;

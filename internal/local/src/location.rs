@@ -31,7 +31,7 @@ fn get_windows() -> crate::Result<Coordinates> {
 }
 
 fn get_web() -> crate::Result<Coordinates> {
-    let mut resp = networking::get_url("https://ipinfo.io", None, None, None)?.text;
+    let mut resp = networking::get!("https://ipinfo.io")?.text;
     let json: HashMap<String, String> = unsafe { simd_json::from_str(&mut resp)? };
     let location_vec: Vec<&str> = json
         .get("loc")
@@ -45,13 +45,10 @@ fn get_web() -> crate::Result<Coordinates> {
 }
 
 fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> crate::Result<Coordinates> {
-    let mut r = networking::get_url(
+    let mut r = networking::get!(
         format!(
             "https://dev.virtualearth.net/REST/v1/Locations?query=\"{query}\"&maxResults=5&key={bing_maps_api_key}"
-        ),
-        None,
-        None,
-        None,
+        )
     )?;
     if r.status > 399 {
         return Err("Bing maps geocoding failed")?;
@@ -65,11 +62,8 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> crate::Result<Coor
 }
 
 fn nominatim_geocode(query: &str) -> crate::Result<Coordinates> {
-    let mut r = networking::get_url(
-        format!("https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"),
-        None,
-        None,
-        None,
+    let mut r = networking::get!(
+        format!("https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2")
     )?;
     let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
     let latitude = j[0]["lat"]
@@ -87,16 +81,13 @@ fn nominatim_geocode(query: &str) -> crate::Result<Coordinates> {
 }
 
 fn nominatim_reverse_geocode(coordinates: &Coordinates) -> crate::Result<String> {
-    let r = networking::get_url(
+    let r = networking::get!(
         format!(
             "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
             coordinates.latitude, coordinates.longitude
-        ),
-        None,
-        None,
-        None,
-    );
-    Ok(r?.text)
+        )
+    )?;
+    Ok(r.text)
 }
 
 /// :param `no_sys_loc`: if true the location will not be retrieved with the OS location api,

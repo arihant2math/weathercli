@@ -68,7 +68,7 @@ fn update_web_resource(
                 println!("{}Downloading {}", color::FORE_YELLOW, resource.pretty_name);
             }
         }
-        let data = networking::get_url(web_path, None, None, None)?.text;
+        let data = networking::get!(web_path)?.text;
         f.data = Vec::from(data);
         f.write()?;
     }
@@ -80,7 +80,7 @@ fn update_web_resource(
 pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Result<()> {
     debug!("updating web resources");
     let real_quiet = quiet.unwrap_or(false);
-    let resp = networking::get_url(format!("{server}index.json"), None, None, None)?;
+    let resp = networking::get!(format!("{server}index.json"))?;
     unsafe {
         if resp.status == 200 {
             let mut web_text = resp.text;

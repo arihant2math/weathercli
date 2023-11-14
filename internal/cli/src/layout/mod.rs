@@ -87,7 +87,7 @@ fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
 
 impl LayoutFile {
     pub fn new(path: &str) -> crate::Result<Self> {
-        let file = WeatherFile::new("layouts/".to_string() + path)?;
+        let file = WeatherFile::new(format!("layouts/{path}"))?;
         let ext = file
             .path
             .extension()

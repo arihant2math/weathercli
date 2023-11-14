@@ -1,4 +1,3 @@
-use chrono::DateTime;
 use backend::{WeatherData, WeatherForecast};
 use weather_error;
 use weather_error::LayoutErr;
@@ -12,7 +11,7 @@ pub mod layout;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub enum Datasource {
     Meteo,
     Openweathermap,

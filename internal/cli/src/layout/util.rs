@@ -2,6 +2,7 @@ use regex::Regex;
 use std::fs;
 use std::io::Write;
 use terminal::color;
+use weather_error::{Error, LayoutErr};
 
 pub fn color_aqi(aqi: u8) -> crate::Result<String> {
     Ok(match aqi {
@@ -20,15 +21,21 @@ fn url_validator(u: &str) -> bool {
 pub fn image(source: String, scale: f64) -> crate::Result<String> {
     let is_url = url_validator(&source);
     if is_url {
-        return Err("layout networking has been temporarily disabled".to_string())?; // TODO: re-enable networking
-        let response = networking::get_url(&source, None, None, None)?;
+        let response = networking::get!(&source)?;
+        let mut path = weather_dirs::weathercli_dir()?;
+        let file_name = "temp.img";
+        path.push(file_name);
         let mut f = fs::OpenOptions::new()
             .write(true)
             .truncate(true)
             .create(true)
-            .open("temp.img")?;
+            .open(&path)?;
         f.write_all(&response.bytes)?;
-        return crate::layout::image_to_text::ascii_image("temp.img", scale);
+        return crate::layout::image_to_text::ascii_image(&path.to_str().ok_or(Error::LayoutError(LayoutErr {
+            message: "Temp image save path is not valid of unicode".to_string(),
+            row: None,
+            item: None,
+        }))?, scale);
     }
     Err("source is not a url".to_string())? // TODO: Fix
 }

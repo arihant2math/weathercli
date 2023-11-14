@@ -51,6 +51,7 @@ impl fmt::Display for LayoutErr {
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Error {
     LayoutError(LayoutErr),
+    BackendError(String),
     NetworkError(String),
     SerializationError(String),
     IoError(String),
@@ -67,6 +68,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::LayoutError(e) => write!(f, "Layout Error: {e}"),
+            Self::BackendError(e) => write!(f, "Backend Error: {e}"),
             Self::NetworkError(e) => write!(f, "Network Error: {e}"),
             Self::SerializationError(e) => write!(f, "Serialization Error: {e}"),
             Self::IoError(e) => write!(f, "I/O Error: {e}"),

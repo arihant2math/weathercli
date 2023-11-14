@@ -52,6 +52,7 @@ pub fn get_data_from_datasource(
             updater::resource::update_web_resources(update_server, None).unwrap_or(());
         });
     }
+    debug!("Getting data from datasource: {datasource:?}");
     match datasource {
         Datasource::Openweathermap => {
             openweathermap::forecast::get_forecast(&coordinates, settings)
@@ -91,7 +92,7 @@ pub fn weather(
     let mut s = settings.clone();
     s.metric_default = true_metric;
     let data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
-    let requested_weather = data.get_best_forecast(get_requested_time(time));
+    let requested_weather = data.get_best_forecast(get_requested_time(time))?;
     print_out(&settings.layout_file, data, requested_weather, json, true_metric)?;
     Ok(())
 }

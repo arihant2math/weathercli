@@ -9,14 +9,10 @@ pub mod forecast;
 mod json;
 
 fn get_api_url(location: &Coordinates, _metric: bool) -> crate::Result<String> {
-    let mut get_point = networking::get_url(
-        format!(
+    let mut get_point = networking::get!(format!(
             "https://api.weather.gov/points/{},{}",
             location.latitude, location.longitude
-        ),
-        None,
-        None,
-        None,
+        )
     )?
     .text;
     let point_json: NWSPointJSON = unsafe { simd_json::from_str(&mut get_point) }?;
@@ -24,7 +20,7 @@ fn get_api_url(location: &Coordinates, _metric: bool) -> crate::Result<String> {
 }
 
 pub fn get_combined_data_formatted(location: &Coordinates, metric: bool) -> crate::Result<NWSJSON> {
-    let mut raw_data = networking::get_url(get_api_url(location, metric)?, None, None, None)?;
+    let mut raw_data = networking::get!(get_api_url(location, metric)?)?;
     let data: NWSJSON = unsafe { simd_json::from_str(&mut raw_data.text) }?;
     Ok(data)
 }
