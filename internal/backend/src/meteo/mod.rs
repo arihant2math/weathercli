@@ -34,7 +34,7 @@ pub fn get_combined_data_formatted(
     metric: bool,
 ) -> crate::Result<MeteoFormattedData> {
     let urls = get_api_urls(coordinates, metric);
-    let mut n = networking::get_urls(&urls, None, None, None)?;
+    let mut n = networking::gets!(&urls)?;
     unsafe {
         let r1: MeteoForecastJson = simd_json::from_str(&mut n[0].text)?;
         let r2: MeteoAirQualityJson = simd_json::from_str(&mut n[1].text)?;

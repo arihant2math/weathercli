@@ -30,7 +30,7 @@ pub fn get_combined_data_formatted(
         coordinates,
         metric,
     );
-    let mut n = networking::get!(&*url, Some(networking::SNEAK_USER_AGENT), None, None)?;
+    let mut n = networking::get!(&*url, Some(networking::SNEAK_USER_AGENT))?;
     let r: MainJson = unsafe { simd_json::from_str(&mut n.text) }?;
     Ok(r)
 }
