@@ -7,7 +7,8 @@ use networking;
 
 pub mod forecast;
 pub mod json;
-mod weather_data;
+mod future;
+mod current;
 
 /// Gets the urls from the openweathermap api server
 fn get_api_url(url: &str, api_key: &str, location: &Coordinates, metric: bool) -> String {
@@ -38,7 +39,7 @@ pub fn get_combined_data_formatted(
 #[cfg(test)]
 mod tests {
     #[test]
-    fn test_get_data() {
+    fn test_get_forecast() {
         let location = local::location::Coordinates {
             latitude: 37.354,
             longitude: -121.955,

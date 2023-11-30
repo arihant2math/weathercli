@@ -60,9 +60,9 @@ fn open_weather_map_api_key(settings: Settings) -> crate::Result<()> {
             "Length of api key is not 32, this likely means you have entered an invalid api key.",
         )?;
     }
-    // TODO: verify key
+    // TODO: verify key first
     println!("{}Saving api key as {s}", color::FORE_BLUE); // TODO: Fix
-    let mut settings = Settings::new()?; // TODO: Fix excess read
+    let mut settings = Settings::new()?; // TODO: Fix excess read (pass in mutable ref)
     settings.open_weather_map_api_key = s;
     settings.write()?;
     Ok(())

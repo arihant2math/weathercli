@@ -15,7 +15,7 @@ use local::cache::prune;
 use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
-use log::{debug, warn};
+use log::{debug, error, warn};
 use shared_deps::serde_json::Value;
 use std::path::Path;
 use chrono::{DateTime, Duration, Utc};
@@ -67,7 +67,7 @@ pub fn get_data_from_datasource(
                 custom_backends.call(&s, &coordinates, settings)
             } else {
                 return Err(weather_error::Error::Other(
-                    "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help
+                    "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help (specifically which commands to run)
                 ));
             }
         }
@@ -91,7 +91,10 @@ pub fn weather(
     debug!("json: {json}");
     let mut s = settings.clone();
     s.metric_default = true_metric;
-    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends)?;
+    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends).map_err(|e| {
+        error!("Error getting data from datasource: {e}");
+        e
+    })?;
     let requested_weather = data.get_best_forecast(get_requested_time(time))?;
     print_out(&settings.layout_file, data, requested_weather, json, true_metric)?;
     Ok(())
@@ -136,7 +139,8 @@ pub fn cache(opts: CacheOpts) -> crate::Result<()> {
 }
 
 pub fn about() {
-    println!("Weather, in your terminal") // TODO: Incorperate command
+    println!("Weather, in your terminal"); // TODO: Incorperate command
+    println!("Version: {}", env!("CARGO_PKG_VERSION"));
 }
 
 pub fn credits() {

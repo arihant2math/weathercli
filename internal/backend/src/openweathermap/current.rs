@@ -5,7 +5,9 @@ use crate::WeatherCondition;
 use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
 use std::collections::HashMap;
-use chrono::DateTime;
+use chrono::{DateTime, Duration};
+use crate::openweathermap_shared::json::PrecipitationJson;
+use crate::weather_data::PrecipitationData;
 
 pub fn get_current(
     data: OpenWeatherMapJson,
@@ -36,5 +38,15 @@ pub fn get_current(
         cloud_cover: data.clouds.all,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions.clone()),
+        rain_data: PrecipitationData {
+            amount: data.rain.unwrap_or(PrecipitationJson::default()).one_hour as f32,
+            time: Duration::hours(1),
+            probability: 100, // TODO: really?
+        },
+        snow_data: PrecipitationData {
+            amount: data.snow.unwrap_or(PrecipitationJson::default()).one_hour as f32,
+            time: Duration::hours(1),
+            probability: 100, // TODO: really?
+        },
     })
 }

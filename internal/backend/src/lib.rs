@@ -14,7 +14,7 @@ pub use weather_forecast::WeatherForecast;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub struct WindData {
     pub speed: f64,
     pub heading: u16,

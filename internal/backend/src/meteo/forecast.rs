@@ -19,13 +19,13 @@ fn get_forecast_sentence(
         .hourly
         .rain
         .iter()
-        .map(|x| (x - 0.0).abs() > f32::EPSILON)
+        .map(|x| x.abs() > 0.0001)
         .collect::<Vec<bool>>();
     let mut snow = raw_data
         .hourly
         .snowfall
         .iter()
-        .map(|x| (x - 0.0).abs() > f32::EPSILON)
+        .map(|x| x.abs() > 0.0001)
         .collect::<Vec<bool>>();
     rain.drain(0..start);
     snow.drain(0..start);
@@ -65,18 +65,18 @@ fn get_forecast_sentence(
     snow.reverse();
     let rain_end = rain.into_iter().position(|x| x);
     let snow_end = snow.into_iter().position(|x| x);
-    if rain_start.is_some() {
+    if let Some(rain_start_r) = rain_start {
         return format!(
             "It will rain in {} hours for {} hours",
-            rain_start.unwrap(),
-            rain_end.unwrap() - rain_start.unwrap()
+            rain_start_r,
+            rain_end.unwrap() - rain_start_r
         );
     }
-    if snow_start.is_some() {
+    if let Some(snow_start_r) = snow_start {
         return format!(
             "It will snow in {} hours for {} hours",
-            snow_start.unwrap(),
-            snow_end.unwrap() - snow_start.unwrap()
+            snow_start_r,
+            snow_end.unwrap() - snow_start_r
         );
     }
     String::from("Conditions are predicted to be clear for the next 7 days.")

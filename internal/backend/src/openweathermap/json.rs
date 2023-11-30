@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::openweathermap_shared::json::PrecipitationJson;
 use crate::openweathermap_shared::json::OpenWeatherMapConditionJson;
 use serde::{Deserialize, Serialize};
 
@@ -50,6 +51,8 @@ pub struct OpenWeatherMapJson {
     pub wind: OpenWeatherMapWindJson,
     pub clouds: OpenWeatherMapCloudsJson,
     pub sys: OpenWeatherMapSysJson,
+    pub rain: Option<PrecipitationJson>,
+    pub snow: Option<PrecipitationJson>,
     pub timezone: i64,
     pub id: i64,
     pub name: String,
@@ -81,6 +84,7 @@ pub struct OpenWeatherMapForecastMainJson {
     pub grnd_level: i32,
     pub humidity: i32,
     pub temp_kf: f64,
+
 }
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -103,9 +107,11 @@ pub struct OpenWeatherMapForecastItemJson {
     pub clouds: OpenWeatherMapCloudsJson,
     pub wind: OpenWeatherMapForecastWindJson,
     pub visibility: i32,
-    pub pop: f64,
     pub sys: OpenWeatherMapForecastSysJson,
     pub dt_txt: String,
+    pub rain: Option<PrecipitationJson>,
+    pub snow: Option<PrecipitationJson>,
+    pub pop: f64,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

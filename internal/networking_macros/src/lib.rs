@@ -2,10 +2,9 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 
-use quote::{quote, quote_spanned};
+use quote::quote;
 use syn::parse::{Parse, ParseStream, Result};
-use syn::spanned::Spanned;
-use syn::{parse_macro_input, parse_quote, Expr, Ident, Token, Type, Visibility};
+use syn::{parse_macro_input, parse_quote, Expr, Token};
 
 struct Networking {
     url: Expr,
@@ -72,6 +71,15 @@ pub fn get(input: TokenStream) -> TokenStream {
 }
 
 #[proc_macro]
+pub fn getf(input: TokenStream) -> TokenStream {
+    let e: Expr = parse_macro_input!(input as Expr);
+    let expanded = quote! {
+        networking::get_url(format!(#e), None, None, None)
+    };
+    return TokenStream::from(expanded);
+}
+
+#[proc_macro]
 pub fn gets(input: TokenStream) -> TokenStream {
     let Networking {
         url,
@@ -99,7 +107,7 @@ pub fn post(input: TokenStream) -> TokenStream {
         cookies
     } = parse_macro_input!(input as Networking);
     let expanded = quote! {
-        networking::post(
+        networking::post_url(
             #url,
             #user_agent,
             #headers,
@@ -109,3 +117,11 @@ pub fn post(input: TokenStream) -> TokenStream {
     return TokenStream::from(expanded);
 }
 
+#[proc_macro]
+pub fn postf(input: TokenStream) -> TokenStream {
+    let e: Expr = parse_macro_input!(input as Expr);
+    let expanded = quote! {
+        networking::post_url(format!(#e), None, None, None)
+    };
+    return TokenStream::from(expanded);
+}

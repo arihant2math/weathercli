@@ -4,9 +4,10 @@ use crate::nws::json::NWSJSON;
 use crate::WeatherCondition;
 use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
+use crate::weather_data::PrecipitationData;
 use local::weather_file::WeatherFile;
 use std::collections::HashMap;
-use chrono::DateTime;
+use chrono::{DateTime, Duration};
 use crate::weather_condition::get_clouds_condition;
 
 fn convert_temp(value: f64, metric: bool) -> f64 {
@@ -111,6 +112,24 @@ pub fn get_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData> {
         cloud_cover,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions),
+        rain_data: PrecipitationData {
+            amount: data.properties.quantitative_precipitation.values[0]
+                .value
+                .unwrap_or(-1.0) as f32,
+            probability: (data.properties.probability_of_precipitation.values[0]
+                .value
+                .unwrap_or(-1.0) * 100.0) as u8,
+            time: Duration::hours(1),
+        },
+        snow_data: PrecipitationData {
+            amount: data.properties.snowfall_amount.values[0]
+                .value
+                .unwrap_or(-1.0) as f32,
+            probability: (data.properties.probability_of_precipitation.values[0]
+                .value
+                .unwrap_or(-1.0) * 100.0) as u8,
+            time: Duration::hours(1),
+        },
     };
     Ok(d)
 }

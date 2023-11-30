@@ -40,10 +40,10 @@ const DEFAULT_LAYOUT: WebResource = WebResource {
 fn update_web_resource(
     resource: WebResource,
     web_resp: Value,
-    server: String,
+    server: &str,
     quiet: bool,
 ) -> crate::Result<()> {
-    let web_path = server + resource.url;
+    let web_path = format!("{server}{}", resource.url);
     trace!("Checking for update for {} ", resource.hash_name);
     let mut f = WeatherFile::new(resource.local_path)?;
     let file_hash = hash_file(&f.path.display().to_string())?;
@@ -68,7 +68,15 @@ fn update_web_resource(
                 println!("{}Downloading {}", color::FORE_YELLOW, resource.pretty_name);
             }
         }
-        let data = networking::get!(web_path)?.text;
+        let data = reqwest::blocking::get(web_path).or_else(|_| {
+            Err(weather_error::Error::NetworkError(
+                "Failed to download file".to_string(),
+            ))
+        })?.text().or_else(|_| {
+            Err(weather_error::Error::NetworkError(
+                "Failed to download file".to_string(),
+            ))
+        })?;
         f.data = Vec::from(data);
         f.write()?;
     }
@@ -80,19 +88,24 @@ fn update_web_resource(
 pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Result<()> {
     debug!("updating web resources");
     let real_quiet = quiet.unwrap_or(false);
-    let resp = networking::get!(format!("{server}index.json"))?;
+    let fixed_server = if server.ends_with("/") {
+        server.clone()
+    } else {
+        server.clone() + "/"
+    };
+    let resp = networking::get!(format!("{fixed_server}index.json"))?;
     unsafe {
         if resp.status == 200 {
             let mut web_text = resp.text;
-            let web_json: Value = simd_json::from_str(&mut web_text)?; // Real unsafe here
-            update_web_resource(WEATHER_CODES, web_json.clone(), server.clone(), real_quiet)?;
+            let web_json: Value = simd_json::from_str(&mut web_text)?; // Real unsafe stuff here
+            update_web_resource(WEATHER_CODES, web_json.clone(), &server, real_quiet)?;
             update_web_resource(
                 WEATHER_ASCII_IMAGES,
                 web_json.clone(),
-                server.clone(),
+                &server,
                 real_quiet,
             )?;
-            update_web_resource(DEFAULT_LAYOUT, web_json, server, real_quiet)?;
+            update_web_resource(DEFAULT_LAYOUT, web_json, &server, real_quiet)?;
             return Ok(());
         }
     }

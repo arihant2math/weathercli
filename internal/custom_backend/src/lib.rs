@@ -37,6 +37,7 @@ pub trait WeatherForecastPlugin {
 #[derive(Clone)]
 pub struct PluginDeclaration {
     pub core_version: &'static str,
+    #[allow(improper_ctypes_definitions)] // TODO: Remove this once we have a proper solution
     pub register: unsafe extern "C" fn(&mut dyn PluginRegistrar),
 }
 

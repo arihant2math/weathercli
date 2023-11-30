@@ -17,7 +17,7 @@ fn get_api_urls(location: &Coordinates, metric: bool) -> [String; 2] {
     let longitude = location.longitude;
     let base_forecast_url = "https://api.open-meteo.com/v1/forecast";
     let base_air_quaility_url = "https://air-quality-api.open-meteo.com/v1/air-quality";
-    let hourly = "temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,pressure_msl,visibility,windspeed_10m,winddirection_10m";
+    let hourly = "temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,pressure_msl,visibility,windspeed_10m,winddirection_10m,precipitation_probability";
     let daily = "temperature_2m_max,temperature_2m_min";
     let units = if metric {
         "" // TODO: Strong units here

@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 backend = { path = "../backend" }
 custom_backend = { path = "../custom_backend" }
+chrono = "0.4"
+shared_deps = { path = "../shared_deps" }
 networking = { path = "../networking" }
 local = { path = "../local" }
 weather_error = { path = "../weather_error" }

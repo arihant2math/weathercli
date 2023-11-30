@@ -16,6 +16,7 @@ pub struct MeteoHourlyJson {
     pub visibility: Vec<f64>,
     pub windspeed_10m: Vec<f32>,
     pub winddirection_10m: Vec<f32>,
+    pub precipitation_probability: Vec<u8>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]

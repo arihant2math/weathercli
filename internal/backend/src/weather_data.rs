@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::WeatherCondition;
 use crate::WindData;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Utc, Duration};
 use chrono::serde::ts_seconds;
 
 pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
@@ -22,7 +22,19 @@ pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
     conditions_sentences
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+fn _default_duration() -> Duration {
+    Duration::hours(1)
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
+pub struct PrecipitationData {
+    pub amount: f32,
+    #[serde(skip_serializing, skip_deserializing, default = "_default_duration")] // TODO: Fix
+    pub time: Duration,
+    pub probability: u8,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct WeatherData {
     #[serde(with = "ts_seconds")]
     pub time: DateTime<Utc>,
@@ -37,4 +49,6 @@ pub struct WeatherData {
     pub cloud_cover: u8,
     pub conditions: Vec<WeatherCondition>,
     pub condition_sentence: String,
+    pub rain_data: PrecipitationData,
+    pub snow_data: PrecipitationData,
 }

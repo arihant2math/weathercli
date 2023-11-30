@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
+use crate::openweathermap_shared::json::PrecipitationJson;
 use crate::openweathermap_shared::json::OpenWeatherMapConditionJson;
 use serde::{Deserialize, Serialize};
+
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MomentJson {
@@ -18,9 +20,30 @@ pub struct MomentJson {
     pub visibility: u64,
     pub wind_speed: f64,
     pub wind_deg: u16,
+    pub pop: f32,
     pub weather: Vec<OpenWeatherMapConditionJson>,
-    pub rain: Option<HashMap<String, f64>>,
-    pub snow: Option<HashMap<String, f64>>,
+    pub rain: Option<PrecipitationJson>,
+    pub snow: Option<PrecipitationJson>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct CurrentJson {
+    pub dt: i64,
+    pub sunrise: Option<i64>,
+    pub sunset: Option<i64>,
+    pub temp: f64,
+    pub feels_like: f64,
+    pub pressure: i64,
+    pub humidity: i64,
+    pub dew_point: f64,
+    pub uvi: f64,
+    pub clouds: u8,
+    pub visibility: u64,
+    pub wind_speed: f64,
+    pub wind_deg: u16,
+    pub weather: Vec<OpenWeatherMapConditionJson>,
+    pub rain: Option<PrecipitationJson>,
+    pub snow: Option<PrecipitationJson>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -68,7 +91,7 @@ pub struct MainJson {
     pub lon: f64,
     pub timezone: String,
     pub timezone_offset: i64,
-    pub current: MomentJson,
+    pub current: CurrentJson,
     pub minutely: Option<Vec<MinutelyJson>>,
     pub hourly: Vec<MomentJson>,
     pub daily: Vec<DailyJson>,

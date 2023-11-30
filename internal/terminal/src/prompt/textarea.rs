@@ -44,8 +44,12 @@ pub fn textarea() -> Result<String> {
                 modifiers: KeyModifiers::NONE,
                 ..
             }) => {
-                cursor_line = cursor_line.saturating_sub(1);
-                cursor_char = lagged_cursor_char.min(text[cursor_line].len());
+                if 0 < cursor_line {
+                    cursor_line = cursor_line.saturating_sub(1);
+                    cursor_char = lagged_cursor_char.min(text[cursor_line].len());
+                } else {
+                    cursor_char = 0;
+                }
             }
 
             Event::Key(KeyEvent {
@@ -56,6 +60,9 @@ pub fn textarea() -> Result<String> {
                 if text.len() - 1 > cursor_line {
                     cursor_line = cursor_line.saturating_add(1);
                     cursor_char = lagged_cursor_char.min(text[cursor_line].len());
+                } else {
+                    // Move to the end of the line
+                    cursor_char = text[cursor_line].len();
                 }
             }
             Event::Key(KeyEvent {
@@ -126,7 +133,9 @@ pub fn textarea() -> Result<String> {
                 modifiers: KeyModifiers::CONTROL,
                 ..
             }) => {
-                break; // TODO: Panic instead
+                execute!(stdout(), LeaveAlternateScreen)?;
+                disable_raw_mode()?;
+                panic!("Ctrl+C pressed");
             }
             Event::Key(KeyEvent {
                 code: KeyCode::Char('d'),
@@ -141,8 +150,7 @@ pub fn textarea() -> Result<String> {
                 ..
             }) => {
                 text[cursor_line].insert(cursor_char, ch);
-                execute!(stdout(), Clear(ClearType::CurrentLine))?;
-                execute!(stdout(), cursor::MoveToColumn(0))?;
+                execute!(stdout(), Clear(ClearType::CurrentLine), cursor::MoveToColumn(0))?;
                 cursor_char += 1;
             }
             Event::Key(KeyEvent {
@@ -184,11 +192,10 @@ pub fn textarea() -> Result<String> {
         }
         execute!(stdout(), cursor::MoveTo(0, 0))?;
         print!("{}", text.join("\n"));
-        execute!(stdout(), Clear(ClearType::FromCursorDown))?;
         #[allow(clippy::cast_possible_truncation)]
-        execute!(stdout(), cursor::MoveTo(cursor_char as u16, cursor_line as u16))?;
-        if text[cursor_line].len() < lagged_cursor_char {
-            lagged_cursor_char = cursor_line;
+        execute!(stdout(), Clear(ClearType::FromCursorDown), cursor::MoveTo(cursor_char as u16, cursor_line as u16))?;
+        if text[cursor_line].len() > cursor_char || text[cursor_line].len() > lagged_cursor_char {
+            lagged_cursor_char = cursor_char;
         }
         thread::sleep(Duration::from_millis(5));
         stdout().flush()?;

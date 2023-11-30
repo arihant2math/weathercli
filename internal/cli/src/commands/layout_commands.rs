@@ -72,9 +72,8 @@ fn delete(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn info(settings: Settings, name: String) -> crate::Result<()> { // TODO: Fix
+fn info(name: String) -> crate::Result<()> { // TODO: Add more info
     let paths = fs::read_dir(layouts_dir()?)?;
-    let current_layout = settings.layout_file;
     for path in paths {
         let tmp = path?.file_name();
         let file_name = tmp.to_str().unwrap();
@@ -93,7 +92,7 @@ pub fn subcommand(arg: LayoutOpts, settings: Settings) -> crate::Result<()> {
         LayoutOpts::List => list(settings)?,
         LayoutOpts::Select => select(settings)?,
         LayoutOpts::Delete => delete(settings)?,
-        LayoutOpts::Info(opts) => info(settings, opts.name)?
+        LayoutOpts::Info(opts) => info(opts.name)?
     };
     Ok(())
 }

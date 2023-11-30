@@ -6,7 +6,7 @@ use crate::{get_conditions_sentence, WeatherData};
 use std::collections::HashMap;
 use crate::weather_condition::get_clouds_condition;
 use chrono::DateTime;
-
+use chrono::Duration;
 pub fn get_weather_data(
     data: MeteoForecastJson,
     aqi: MeteoAirQualityJson,
@@ -37,6 +37,16 @@ pub fn get_weather_data(
         cloud_cover,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions),
+        rain_data: crate::weather_data::PrecipitationData {
+            amount: data.hourly.rain[index],
+            time: Duration::hours(1),
+            probability: data.hourly.precipitation_probability[index],
+        },
+        snow_data: crate::weather_data::PrecipitationData {
+            amount: data.hourly.snowfall[index],
+            time: Duration::hours(1),
+            probability: data.hourly.precipitation_probability[index],
+        },
     };
     Ok(d)
 }

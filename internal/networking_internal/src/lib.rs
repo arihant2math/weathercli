@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::io;
 use std::io::Read;
 
 use cookie_store::{CookieResult, CookieStore};
@@ -6,7 +7,7 @@ use log::trace;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Serialize, Deserialize};
 
-use ureq::Agent;
+use ureq::{Agent, Response};
 
 use url::Url;
 
@@ -19,6 +20,31 @@ pub struct Resp {
     pub bytes: Vec<u8>,
     pub text: String,
     pub headers: HashMap<String, String>
+}
+
+impl Resp {
+    pub fn new(value: Response) -> io::Result<Self> {
+        let mut headers = HashMap::new();
+        for header in value.headers_names() {
+            headers.insert(header.to_string(), value.header(&header).unwrap().to_string());
+        }
+        let status = value.status();
+        let mut bytes: Vec<u8> = Vec::with_capacity(256);
+        value.into_reader()
+            .take(u64::MAX - 4)
+            .read_to_end(&mut bytes)?;
+        let mut text = String::new();
+        for byte in &bytes {
+            text += &(*byte as char).to_string();
+        }
+
+        Ok(Resp {
+            status,
+            bytes,
+            text,
+            headers
+        })
+    }
 }
 
 fn get_user_agent<S: AsRef<str>>(custom: Option<S>) -> String {
@@ -59,7 +85,7 @@ pub fn get_url<S: AsRef<str>>(
     user_agent: Option<S>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
-) -> std::io::Result<Resp> {
+) -> io::Result<Resp> {
     let url = url_s.as_ref();
     trace!("Retrieving {url}");
     let client = get_client(vec![url.to_string()], user_agent, headers, cookies);
@@ -79,25 +105,7 @@ pub fn get_url<S: AsRef<str>>(
         ));
     }
     let data = real_resp.unwrap();
-    let mut headers = HashMap::new();
-    for header in data.headers_names() {
-        headers.insert(header.to_string(), data.header(&header).unwrap().to_string());
-    }
-    let status = data.status();
-    let mut bytes: Vec<u8> = Vec::with_capacity(256);
-    data.into_reader()
-        .take(10_000_000)
-        .read_to_end(&mut bytes)?;
-    let mut text = String::new();
-    for byte in &bytes {
-        text += &(*byte as char).to_string();
-    }
-    Ok(Resp {
-        status,
-        bytes,
-        text,
-        headers
-    })
+    Resp::new(data)
 }
 
 /// post to a url
@@ -107,7 +115,7 @@ pub fn post_url<S: AsRef<str>>(
     user_agent: Option<S>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
-) -> std::io::Result<Resp> {
+) -> io::Result<Resp> {
     let url = url_s.as_ref();
     trace!("Retrieving {url}");
     let client = get_client(vec![url.to_string()], user_agent, headers, cookies);
@@ -131,25 +139,7 @@ pub fn post_url<S: AsRef<str>>(
         ));
     }
     let data = real_resp.unwrap();
-    let mut headers = HashMap::new();
-    for header in data.headers_names() {
-        headers.insert(header.to_string(), data.header(&header).unwrap().to_string());
-    }
-    let status = data.status();
-    let mut bytes: Vec<u8> = Vec::with_capacity(256);
-    data.into_reader()
-        .take(10_000_000)
-        .read_to_end(&mut bytes)?;
-    let mut text = String::new();
-    for byte in &bytes {
-        text += &(*byte as char).to_string();
-    }
-    Ok(Resp {
-        status,
-        bytes,
-        text,
-        headers
-    })
+    Resp::new(data)
 }
 
 /// Async retrival of multiple urls
@@ -162,7 +152,7 @@ pub fn get_urls(
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
-) -> std::io::Result<Vec<Resp>> {
+) -> io::Result<Vec<Resp>> { // TODO: Allow ok status codes (4xx, 5xx, etc.)
     trace!("Retrieving {urls:?}");
     let client = get_client(urls.to_vec().clone(), user_agent, headers, cookies);
     let data: Vec<_> = urls
@@ -170,27 +160,7 @@ pub fn get_urls(
         .map(|url| {
             let req = client.get(url);
             let data = req.call().expect("Request failed");
-            let mut headers = HashMap::new();
-            for header in data.headers_names() {
-                headers.insert(header.to_string(), data.header(&header).unwrap().to_string());
-            }
-            let status = data.status();
-            let mut bytes: Vec<u8> = Vec::with_capacity(256);
-            data.into_reader()
-                .take(u64::MAX - 4)
-                .read_to_end(&mut bytes)
-                .expect("read failed");
-
-            let mut text = String::new();
-            for byte in &bytes {
-                text += &(*byte as char).to_string();
-            }
-            Resp {
-                status,
-                bytes,
-                text,
-                headers
-            }
+            Resp::new(data).unwrap()
         })
         .collect();
     Ok(data)
