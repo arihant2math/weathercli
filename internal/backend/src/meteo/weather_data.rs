@@ -5,8 +5,8 @@ use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
 use std::collections::HashMap;
 use crate::weather_condition::get_clouds_condition;
-use chrono::DateTime;
-use chrono::Duration;
+use chrono::{Utc, Duration, NaiveDateTime};
+
 pub fn get_weather_data(
     data: MeteoForecastJson,
     aqi: MeteoAirQualityJson,
@@ -16,8 +16,10 @@ pub fn get_weather_data(
 ) -> crate::Result<WeatherData> {
     let cloud_cover = data.hourly.cloudcover[index];
     let conditions = get_conditions(data.clone(), metric, index, cloud_cover, weather_codes)?;
+    let native_time = NaiveDateTime::parse_from_str(&data.hourly.time[index], "%Y-%m-%dT%H:%M")?;
+    let time = native_time.and_local_timezone(Utc).unwrap(); // TODO: Remove unwrap
     let d = WeatherData {
-        time: DateTime::parse_from_rfc3339(&data.hourly.time[index])?.into(),
+        time,
         temperature: data.current_weather.temperature,
         min_temp: data.daily.temperature_2m_min[index / 24],
         max_temp: data.daily.temperature_2m_max[index / 24],
