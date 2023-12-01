@@ -1,4 +1,8 @@
 pub const RESET: &str = "\x1b[0m";
+pub const FORE_RESET: &str = "\x1b[39m";
+pub const BACK_RESET: &str = "\x1b[49m";
+
+
 pub const FORE_BLACK: &str = "\x1b[30m";
 pub const FORE_RED: &str = "\x1b[31m";
 pub const FORE_GREEN: &str = "\x1b[32m";
@@ -7,6 +11,7 @@ pub const FORE_BLUE: &str = "\x1b[34m";
 pub const FORE_MAGENTA: &str = "\x1b[35m";
 pub const FORE_CYAN: &str = "\x1b[36m";
 pub const FORE_WHITE: &str = "\x1b[37m";
+
 pub const FORE_LIGHTBLACK: &str = "\x1b[90m";
 pub const FORE_LIGHTRED: &str = "\x1b[91m";
 pub const FORE_LIGHTGREEN: &str = "\x1b[92m";
@@ -15,7 +20,7 @@ pub const FORE_LIGHTBLUE: &str = "\x1b[94m";
 pub const FORE_LIGHTMAGENTA: &str = "\x1b[95m";
 pub const FORE_LIGHTCYAN: &str = "\x1b[96m";
 pub const FORE_LIGHTWHITE: &str = "\x1b[97m";
-pub const FORE_RESET: &str = "\x1b[39m";
+
 
 pub const BACK_BLACK: &str = "\x1b[40m";
 pub const BACK_RED: &str = "\x1b[41m";
@@ -25,6 +30,7 @@ pub const BACK_BLUE: &str = "\x1b[44m";
 pub const BACK_MAGENTA: &str = "\x1b[45m";
 pub const BACK_CYAN: &str = "\x1b[46m";
 pub const BACK_WHITE: &str = "\x1b[47m";
+
 pub const BACK_LIGHTBLACK: &str = "\x1b[100m";
 pub const BACK_LIGHTRED: &str = "\x1b[101m";
 pub const BACK_LIGHTGREEN: &str = "\x1b[102m";
@@ -33,7 +39,7 @@ pub const BACK_LIGHTBLUE: &str = "\x1b[104m";
 pub const BACK_LIGHTMAGENTA: &str = "\x1b[105m";
 pub const BACK_LIGHTCYAN: &str = "\x1b[106m";
 pub const BACK_LIGHTWHITE: &str = "\x1b[107m";
-pub const BACK_RESET: &str = "\x1b[49m";
+
 
 pub fn rgb(red: u8, green: u8, blue: u8) -> String {
     format!("\x1b[38;2;{red};{green};{blue}m")
