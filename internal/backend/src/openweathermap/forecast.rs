@@ -82,13 +82,11 @@ pub fn get_forecast(
     )?);
     let mut futures = data.forecast.list.iter().map(|item| get_future(item.clone(), weather_codes.clone()).unwrap()).collect();
     forecast.append(&mut futures);
-    let forecast_sentence = get_forecast_sentence(forecast.clone());
     let loc = location::reverse_geocode(coordinates)?;
     Ok(WeatherForecast {
         datasource: String::from("Open Weather Map"),
         location: loc,
         forecast: forecast.clone(),
-        forecast_sentence,
         raw_data: None,
     })
 }

@@ -1,6 +1,5 @@
 use shared_deps::bincode;
 use crate::meteo::get_combined_data_formatted;
-use crate::meteo::json::MeteoForecastJson;
 use crate::meteo::weather_data::get_weather_data;
 use crate::WeatherData;
 use crate::WeatherForecast;
@@ -10,77 +9,6 @@ use local::weather_file::WeatherFile;
 use location::Coordinates;
 use std::collections::HashMap;
 
-fn get_forecast_sentence(
-    data: Vec<WeatherData>,
-    raw_data: MeteoForecastJson,
-    start: usize,
-) -> String {
-    let mut rain = raw_data
-        .hourly
-        .rain
-        .iter()
-        .map(|x| x.abs() > 0.0001)
-        .collect::<Vec<bool>>();
-    let mut snow = raw_data
-        .hourly
-        .snowfall
-        .iter()
-        .map(|x| x.abs() > 0.0001)
-        .collect::<Vec<bool>>();
-    rain.drain(0..start);
-    snow.drain(0..start);
-    if data[0]
-        .conditions
-        .clone()
-        .into_iter()
-        .map(|condition| condition.condition_id / 100 == 5)
-        .any(|x| x)
-    {
-        let mut t: u8 = 0;
-        for i in rain {
-            if !i {
-                break;
-            }
-            t += 1;
-        }
-        return format!("It will continue raining for {t} hours.");
-    }
-    if data[0]
-        .conditions
-        .clone()
-        .into_iter()
-        .map(|condition| condition.condition_id / 100 == 6)
-        .any(|x| x)
-    {
-        let t = snow.iter().position(|&b| b).unwrap_or(0);
-        return format!("It will continue snowing for {t} hours.");
-    }
-    let rain_start = rain.clone().into_iter().position(|x| x);
-    let snow_start = snow.clone().into_iter().position(|x| x);
-
-    if rain_start.is_none() && snow_start.is_none() {
-        return "Conditions are predicted to be clear for the next 7 days.".to_string();
-    }
-    rain.reverse();
-    snow.reverse();
-    let rain_end = rain.into_iter().position(|x| x);
-    let snow_end = snow.into_iter().position(|x| x);
-    if let Some(rain_start_r) = rain_start {
-        return format!(
-            "It will rain in {} hours for {} hours",
-            rain_start_r,
-            rain_end.unwrap() - rain_start_r
-        );
-    }
-    if let Some(snow_start_r) = snow_start {
-        return format!(
-            "It will snow in {} hours for {} hours",
-            snow_start_r,
-            snow_end.unwrap() - snow_start_r
-        );
-    }
-    String::from("Conditions are predicted to be clear for the next 7 days.")
-}
 
 pub fn get_forecast(
     coordinates: &Coordinates,
@@ -115,12 +43,10 @@ pub fn get_forecast(
         )?);
     }
     let loc = location::reverse_geocode(coordinates)?;
-    let forecast_sentence = get_forecast_sentence(forecast.clone(), data.weather, now);
     let f = WeatherForecast {
         datasource: String::from("meteo"),
         location: loc,
         forecast: forecast.clone(),
-        forecast_sentence,
         raw_data: None,
     };
     Ok(f)
