@@ -55,7 +55,7 @@ fn update_web_resource(
         .to_string();
     if web_hash != file_hash {
         debug!(
-            "updating {} web: {web_hash} file: {file_hash}",
+            "Updating {} web: {web_hash} file: {file_hash}",
             resource.hash_name
         );
         if !quiet {
@@ -88,7 +88,7 @@ fn update_web_resource(
 /// # Arguments
 /// * `dev` gets passed `update_web_resource`, if true `update_web_resource` will print the hashes if they don't match
 pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Result<()> {
-    debug!("updating web resources");
+    debug!("Updating web resources");
     let real_quiet = quiet.unwrap_or(false);
     let fixed_server = if server.ends_with("/") {
         server.clone()
