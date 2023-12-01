@@ -64,7 +64,7 @@ pub fn get(input: TokenStream) -> TokenStream {
             #url,
             #user_agent,
             #headers,
-            #cookies,
+            #cookies
         )
     };
     return TokenStream::from(expanded);
@@ -92,7 +92,7 @@ pub fn gets(input: TokenStream) -> TokenStream {
             #url,
             #user_agent,
             #headers,
-            #cookies,
+            #cookies
         )
     };
     return TokenStream::from(expanded);
@@ -111,7 +111,7 @@ pub fn post(input: TokenStream) -> TokenStream {
             #url,
             #user_agent,
             #headers,
-            #cookies,
+            #cookies
         )
     };
     return TokenStream::from(expanded);
