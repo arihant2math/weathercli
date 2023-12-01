@@ -85,7 +85,8 @@ fn update_web_resource(
 }
 
 /// Updates all the web resources, run on a separate thread as there is no return value
-/// :param dev: gets passed `update_web_resource`, if true `update_web_resource` will print the hashes if they don't match
+/// # Arguments
+/// * `dev` gets passed `update_web_resource`, if true `update_web_resource` will print the hashes if they don't match
 pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Result<()> {
     debug!("updating web resources");
     let real_quiet = quiet.unwrap_or(false);
