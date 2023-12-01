@@ -46,6 +46,8 @@ fn print_out(
         if out.is_err() {
             out = LayoutFile::new("default.res");
         }
+        let datasource = data.datasource.clone();
+        let location = data.location.clone();
         println!(
             "{}",
             out.map_err(|e| weather_error::Error::LayoutError(LayoutErr {
@@ -54,10 +56,10 @@ fn print_out(
                 item: None
             }))?
             .to_string(LayoutInput {
-                datasource: data.datasource,
-                location: data.location,
+                datasource,
+                location,
                 current_weather: requested_weather,
-                forecast_sentence: data.forecast_sentence,
+                forecast_sentence: data.get_forecast_sentence(chrono::offset::Utc::now())?,
             }, metric)?
         );
     }

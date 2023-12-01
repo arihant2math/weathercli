@@ -152,7 +152,7 @@ impl From<LayoutErr> for Error {
 
 impl From<ParseError> for Error {
     fn from(error: ParseError) -> Self {
-        Self::SerializationError(format!("Parse Error: {error}"))
+        Self::SerializationError(format!("DateTime Parse Error: {error}"))
     }
 }
 
