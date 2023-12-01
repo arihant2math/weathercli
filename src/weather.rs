@@ -57,6 +57,8 @@ pub fn init_logging() -> Result<Handle> {
         .appender(logfile_appender)
         .appender(stderr_appender)
         .logger(Logger::builder().build("ureq", LevelFilter::Info))
+        .logger(Logger::builder().build("reqwest", LevelFilter::Info))
+        .logger(Logger::builder().build("rustls", LevelFilter::Info))
         .build(builder)
         .unwrap();
 
