@@ -36,7 +36,8 @@ const DEFAULT_LAYOUT: WebResource = WebResource {
 };
 /// Updates the web resource at `$weathercli_dir/$local_path` if the hash of the local file does not match with
 /// the hash at index.json of the index name, if the hashes do not match it download a copy and replaces the existing file
-/// :param dev: if true the hashes will be printed if they do not match
+/// # Arguments
+/// * `dev` if true the hashes will be printed if they do not match
 fn update_web_resource(
     resource: WebResource,
     web_resp: Value,
