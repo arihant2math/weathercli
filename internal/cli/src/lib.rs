@@ -58,7 +58,7 @@ fn print_out(
             .to_string(LayoutInput {
                 datasource,
                 location,
-                current_weather: requested_weather,
+                weather: requested_weather,
                 forecast_sentence: data.get_forecast_sentence(chrono::offset::Utc::now())?,
             }, metric)?
         );

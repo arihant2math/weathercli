@@ -1,6 +1,7 @@
 use shared_deps::serde_json::Value;
 
 use log::error;
+use shared_deps::serde_json;
 
 use crate::layout::layout_serde::ItemSerde;
 use crate::layout::{util, LayoutSettings};
@@ -49,22 +50,24 @@ impl Item {
             }
             split.remove(0);
         }
-        match current.as_str() {
-            Some(t) => Ok(t.to_string()),
-            None => match current.as_f64() {
-                Some(t) => Ok(round(t)),
-                None => Ok(current
-                    .as_i64()
-                    .ok_or_else(|| {
-                        weather_error::Error::LayoutError(LayoutErr {
-                            message: "Variable type not supported".to_string(),
-                            row: None,
-                            item: None,
-                        })
-                    })?
-                    .to_string()),
-            },
+        if let Some(c) = current.as_str() {
+            return Ok(c.to_string());
+        } else if let Some(c) = current.as_f64() {
+            return Ok(round(c));
+        } else if let Some(c) = current.as_i64() {
+            return Ok(c.to_string());
+        } else if let Some(c) = current.as_bool() {
+            return Ok(c.to_string());
+        } else if let Some(_) = current.as_array() {
+            return Ok(serde_json::to_string_pretty(current).unwrap()); // TODO: Remove unwrap
+        } else if current.is_null() {
+            return Ok("null".to_string());
         }
+        return Err(weather_error::Error::LayoutError(LayoutErr {
+            message: format!("Variable {} has an unsupported type.", current.to_string()),
+            row: None,
+            item: None,
+        }));
     }
 
     fn get_function_value(&self, data: &Value) -> crate::Result<String> {
@@ -83,6 +86,11 @@ impl Item {
                     .get_value(data)?
                     .parse()
                     .unwrap_or(1.),
+            ),
+            "location" => util::location(
+                Self::new(args[0].clone()).get_value(data)?,
+                Self::new(args[1].clone()).get_value(data)?,
+                Self::new(args[2].clone()).get_value(data)?,
             ),
             _ => Err(weather_error::Error::LayoutError(LayoutErr {
                 message: "Function not found".to_string(),

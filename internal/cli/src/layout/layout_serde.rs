@@ -29,8 +29,7 @@ pub struct LayoutDefaultsSerde {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct LayoutSerde {
-    pub version: u64,
-    pub layout_version: u64,
+    pub layout_version: u64, // layout version for debugging purposes
     pub name: String,
     pub author: Option<String>,
     pub description: Option<String>,

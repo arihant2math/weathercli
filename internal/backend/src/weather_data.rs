@@ -34,6 +34,17 @@ pub struct PrecipitationData {
     pub probability: u8,
 }
 
+impl Default for PrecipitationData {
+    fn default() -> Self {
+        Self {
+            amount: 0.0,
+            time: Duration::hours(1),
+            probability: 0,
+        }
+    }
+}
+
+
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct WeatherData {
     #[serde(with = "ts_seconds")]

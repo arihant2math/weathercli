@@ -76,10 +76,10 @@ pub fn multiselect<S: AsRef<str>>(
         // matching the key
         match read()? {
             Event::Key(KeyEvent {
-                code: KeyCode::Char('q'),
-                modifiers: KeyModifiers::CONTROL,
-                ..
-            }) => {
+                           code: KeyCode::Char('q'),
+                           modifiers: KeyModifiers::CONTROL,
+                           ..
+                       }) => {
                 break;
             }
             Event::Key(KeyEvent {

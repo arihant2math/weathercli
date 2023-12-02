@@ -4,8 +4,12 @@ use regex::Regex;
 
 use cli::layout::layout_serde::{ItemSerde, LayoutDefaultsSerde, LayoutSerde};
 
-fn strip(line: &str) -> &str { // TODO: Fix function (its actually good for now, but it can be better)
-    return line.trim_end();
+fn strip(line: &str) -> Option<String> {
+    let l = line.trim_end(); // TODO: Improve comments support `//` anywhere
+    if l.starts_with("//") {
+        return None;
+    }
+    return Some(l.to_string());
 }
 
 pub fn string_to_item(s: &str) -> ItemSerde {
@@ -117,29 +121,30 @@ fn string_to_row(s: String) -> Vec<ItemSerde> {
     item_list
 }
 
-pub fn compile_layout(s: String) -> weather_error::Result<LayoutSerde> {
+fn compile_layout_serde(s: String) -> weather_error::Result<(u64, LayoutSerde)> {
     let lines: Vec<&str> = s.split("\n").collect();
     let mut rows: Vec<Vec<ItemSerde>> = Vec::new();
     let mut is_layout = false;
     let mut variables: HashMap<String, String> = HashMap::new();
     for line in lines {
-        let stripped_line = strip(line);
-        if stripped_line.chars().find(|&x| x != '-' && x != ' ').is_none() {
-            is_layout = true;
-        } else if is_layout {
-            rows.push(string_to_row(stripped_line.to_string()));
-        } else {
-            let variable = Regex::new(r#"\w*=\w*"#).unwrap();
-            if variable.is_match(line) {
-                let split: Vec<&str> = line.split("=").collect();
-                let variable = split[0].trim_end().trim_start().to_lowercase();
-                let value = split[1].trim_end().trim_start();
-                variables.insert(variable, value.to_string());
+        let stripped_line_option = strip(line);
+        if let Some(stripped_line) = stripped_line_option {
+            if stripped_line.chars().find(|&x| x != '-' && x != ' ').is_none() {
+                is_layout = true;
+            } else if is_layout {
+                rows.push(string_to_row(stripped_line));
+            } else {
+                let variable = Regex::new(r#"\w*=\w*"#).unwrap();
+                if variable.is_match(line) {
+                    let split: Vec<&str> = line.split("=").collect();
+                    let variable = split[0].trim_end().trim_start().to_lowercase();
+                    let value = split[1].trim_end().trim_start();
+                    variables.insert(variable, value.to_string());
+                }
             }
         }
     }
-    Ok(LayoutSerde {
-        version: variables.get("version").expect("version header not found").parse().unwrap(),
+    Ok((variables.get("version").expect("version header not found").parse().unwrap(), LayoutSerde {
         name: variables.get("name").expect("name header not found").to_string(),
         author: variables.get("author").cloned(),
         description: variables.get("description").cloned(),
@@ -153,5 +158,18 @@ pub fn compile_layout(s: String) -> weather_error::Result<LayoutSerde> {
             unit_bg_color: variables.get("unit_bg_color").unwrap_or(&"BACK_RESET".to_string()).to_string(),
         },
         layout: rows,
-    })
+    }))
+}
+
+pub fn compile_layout(s: String) -> weather_error::Result<Vec<u8>> {
+    let (version, layout) = compile_layout_serde(s)?;
+    let bincode_data = bincode::serialize(&layout)?;
+    let mut v = vec![0x6C, 0x61, 0x79, 0x6F, 0x75, 0x74, 0x0A,
+                     ((version >> 24) & 0xFF) as u8,
+                     ((version >> 16) & 0xFF) as u8,
+                     ((version >> 8) & 0xFF) as u8,
+                     (version & 0xFF) as u8,
+    ];
+    v.append(&mut bincode_data.clone());
+    Ok(v)
 }

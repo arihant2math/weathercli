@@ -40,6 +40,7 @@ struct Task {
     /// enough to know that `future` is only mutated from one thread,
     /// so we need to use the `Mutex` to prove thread-safety. A production
     /// executor would not need this, and could use `UnsafeCell` instead.
+    /// TODO: Replace Mutex with UnsafeCell
     future: Mutex<Option<BoxFuture<'static, ()>>>,
 
     /// Handle to place the task itself back onto the task queue.

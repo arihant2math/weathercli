@@ -1,11 +1,11 @@
 {
   "daemon-version": "2023.11.1",
-  "default-layout-hash": "0a1cbcb739527c651489d3ba32fc9cb440a2e52da07ad41101eca3224a096062",
+  "default-layout-hash": "deb8f37714dbbdd705cfbf860463665ee24ee233505fe49f4c7ec46a6dbd4c9a",
   "version": "2023.11.1",
-  "weather-ascii-images-hash": "bfcf6956375369febb0de68d1c2a7e6a2a74e7cfa750c7b16b7e09b57b1af97c",
-  "weather-codes-hash": "bfcf6956375369febb0de68d1c2a7e6a2a74e7cfa750c7b16b7e09b57b1af97c",
+  "weather-ascii-images-hash": "5dba03c7268bdb6bb3b56ec3c1574b07af638acd818ce77b74d1a2124b181ef7",
+  "weather-codes-hash": "e932a1ab7b26e2f4233e1a14c860c5f098f190704aa8b772b050482a9c776105",
   "weather-exe-hash-unix": "e597bfd269eeb9e995637d83851dc1516b989d599c72fcd30abff35adebcfe87",
-  "weather-exe-hash-windows": "854eefdcf0f65d13339c81e9fdcfd69cd251e3da4a9552a225660d6374283333",
+  "weather-exe-hash-windows": "947f8fa1737518bc60f39d524d1c665e0c120f90343009bc64a31ae081094108",
   "weatherd-exe-hash-unix": "e395838c92be917e42d6c3136ea2053901ec6e32a73a80411382ee7c64258065",
-  "weatherd-exe-hash-windows": "3b1c4e3dd3522aa58626766da2ae96c002fcaa1c3331ae9091d883afa8702a0d"
+  "weatherd-exe-hash-windows": "e51621d69330fc26922c7dd46bafbc7400d34979f50e57e0c32b5b6c9639c577"
 }

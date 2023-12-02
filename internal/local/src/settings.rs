@@ -123,3 +123,13 @@ impl Settings {
         Ok(())
     }
 }
+
+impl Default for Settings {
+    fn default() -> Self {
+        unsafe {
+            let mut s = String::from("{}");
+            let res = simd_json::from_str(&mut s);
+            return res.unwrap();
+        }
+    }
+}

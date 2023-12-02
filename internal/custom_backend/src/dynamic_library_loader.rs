@@ -12,29 +12,26 @@ use weather_error::InvocationError;
 
 #[cfg(target_os = "windows")]
 pub fn is_valid_ext(f: &str) -> bool {
-    let len = f.len();
-    &f[len - 4..] == ".dll"
+    f.ends_with(".dll")
 }
 
 #[cfg(target_os = "linux")]
 pub fn is_valid_ext(f: &str) -> bool {
-    let len = f.len();
-    &f[len - 3..] == ".so"
+    f.ends_with(".so")
 }
 
 #[cfg(target_os = "macos")]
 pub fn is_valid_ext(f: &str) -> bool {
-    let len = f.len();
-    &f[len - 6..] == ".dylib"
+    f.ends_with(".dylib")
 }
 
 pub fn load(paths: Vec<String>) -> ExternalBackends {
-    let mut functions = ExternalBackends::new();
+    let mut backends = ExternalBackends::new();
     unsafe {
         for path in paths {
             if is_valid_ext(&path) {
-                trace!("Loading {}", path);
-                let l = functions.load(&path);
+                debug!("Loading {}", path);
+                let l = backends.load(&path);
                 match l {
                     Ok(()) => trace!("Loaded {path} successfully"),
                     Err(e) => error!("Failed to load external backend at {path}: {e}"),
@@ -42,7 +39,7 @@ pub fn load(paths: Vec<String>) -> ExternalBackends {
             }
         }
     }
-    functions
+    backends
 }
 
 pub fn run(

@@ -17,7 +17,7 @@ mod row;
 pub mod util;
 pub mod layout_input;
 
-pub const VERSION: u64 = 20;
+pub const VERSION: u64 = 21;
 
 #[derive(Clone)]
 pub struct LayoutSettings {
@@ -30,9 +30,9 @@ pub struct LayoutSettings {
 }
 
 pub struct LayoutFile {
-    layout: Vec<Row>,
-    pub(crate) version: u64,
-    settings: LayoutSettings,
+    pub layout: Vec<Row>,
+    pub version: u64,
+    pub settings: LayoutSettings,
 }
 
 fn reemit_layout_error(e: Error, count: usize) -> Error {
@@ -87,21 +87,33 @@ fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
 
 impl LayoutFile {
     pub fn new(path: &str) -> crate::Result<Self> {
-        let file = WeatherFile::new(format!("layouts/{path}"))?;
+        LayoutFile::from_path(&format!("layouts/{path}"))
+    }
+
+    pub fn from_path(path: &str) -> crate::Result<Self> {
+        let file = WeatherFile::new(path)?;
         let ext = file
             .path
             .extension()
             .unwrap_or_else(|| "res".as_ref())
             .to_str()
             .unwrap();
-        if ext == "res" {
-            return Self::from_serde(bincode::deserialize(&file.data)?);
+        if ext != "res" {
+            return Err("Layout file does not have an extension of .res")?;
         }
-        Err("Layout file does not have an extension of .res")?
+        let mut d = file.data;
+        let magic_bytes = d[0..7].to_vec();
+        if magic_bytes != [0x6C, 0x61, 0x79, 0x6F, 0x75, 0x74, 0x0A] {
+            return Err("Layout file does not have the correct magic bytes")?;
+        }
+        d = d[7..].to_vec();
+        let version = ((d[0] as u64) << 24) + ((d[1] as u64) << 16) + ((d[2] as u64) << 8) + d[3] as u64;
+        d = d[4..].to_vec();
+        return Self::from_serde(bincode::deserialize(&d)?, version);
     }
 
-    fn from_serde(file_data: layout_serde::LayoutSerde) -> crate::Result<Self> {
-        check_version(file_data.version)?;
+    fn from_serde(file_data: layout_serde::LayoutSerde, version: u64) -> crate::Result<Self> {
+        check_version(version)?;
         let layout = file_data.layout;
         let mut internal_layout: Vec<Row> = Vec::new();
         for row in layout {
@@ -109,7 +121,7 @@ impl LayoutFile {
         }
         Ok(Self {
             layout: internal_layout,
-            version: file_data.version,
+            version,
             settings: get_layout_settings(file_data.defaults),
         })
     }

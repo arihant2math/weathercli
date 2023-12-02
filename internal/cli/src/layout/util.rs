@@ -40,4 +40,11 @@ pub fn image(source: String, scale: f64) -> crate::Result<String> {
     Err("source is not a url".to_string())? // TODO: Fix
 }
 
+pub fn location(city: String, state: String, country: String) -> crate::Result<String> {
+    if city == "null" || city == "" {
+        return Ok(format!("{}, {}", state, country));
+    }
+    Ok(format!("{}, {}, {}", city, state, country))
+}
+
 // TODO: Implement to_ascii and rainbow

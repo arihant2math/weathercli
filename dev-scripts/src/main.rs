@@ -27,7 +27,7 @@ pub enum Command {
     Docs,
     #[command(about = "Bump docs executable")]
     UpdateDocs(UpdateDocsOpts),
-    CompileJSON,
+    CompileResources,
     CompileCustomLayout(CompileCustomLayoutOpts),
     #[command(about = "Update index hashes")]
     IndexHashes,
@@ -72,7 +72,7 @@ fn build_docs() -> weather_error::Result<()> {
 }
 
 
-fn compile_json() -> weather_error::Result<()> {
+fn compile_resources() -> weather_error::Result<()> {
     println!("Compile weather_codes");
     let path = "./docs_templates/weather_codes";
     let d: HashMap<String, Vec<String>> = serde_json::from_slice(&*fs::read(path.to_string() + ".json")?.to_vec())?;
@@ -88,7 +88,7 @@ fn compile_json() -> weather_error::Result<()> {
     println!("Compiling default_layout");
     let path = "./docs_templates/default_layout";
     let d = default_layout::get_default_layout();
-    let v = bincode::serialize(&compile_layout(d)?)?;
+    let v = compile_layout(d)?;
     let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(path.to_string() + ".res")?;
     f.write_all(&*v)?;
     Ok(())
@@ -96,7 +96,7 @@ fn compile_json() -> weather_error::Result<()> {
 
 fn compile_layout_from_path(p: String) -> weather_error::Result<()> {
     let bytes = fs::read(&p)?;
-    let v = bincode::serialize(&compile_layout(String::from_utf8(bytes).unwrap())?)?;
+    let v = compile_layout(String::from_utf8(bytes).unwrap())?;
     let mut f = OpenOptions::new().create(true).truncate(true).write(true).open(format!("{p}.res"))?;
     f.write_all(&*v)?;
     Ok(())
@@ -119,7 +119,7 @@ fn main() -> weather_error::Result<()> {
     match args.command {
         Command::Docs => build_docs(),
         Command::UpdateDocs(opts) => update_docs::update_docs(&*opts.github_api_token),
-        Command::CompileJSON => compile_json(),
+        Command::CompileResources => compile_resources(),
         Command::CompileCustomLayout(opts) => compile_layout_from_path(opts.path),
         Command::IndexHashes => index_hashes()
     }

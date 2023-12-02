@@ -10,25 +10,27 @@ use weather_dirs::layouts_dir;
 
 fn install(path: String) -> crate::Result<()> {
     let real_path = PathBuf::from_str(&path).unwrap();
-    let file_name = real_path.file_name().ok_or("Not a file")?.to_str().ok_or("to_str failed")?;
+    let mut file_name = real_path.file_name().ok_or("Not a file")?.to_str().ok_or("to_str failed")?.to_string();
     let ext = real_path.extension().unwrap_or_else(|| "".as_ref());
     if ext != "res" {
         return Err("File has to have an extension of .res")?;
     }
-    if file_name == "default.res" {
-        return Err("File name cannot be default.res,\
+    while file_name == "default.res" {
+        println!("File name cannot be default.res,\
         as it conflicts with the default layout filename,\
-        please rename the file and try again.")?; // TODO: Prompt for a new name?
+        please rename the file and try again.");
+        file_name = terminal::prompt::input(Some("Enter a new name: ".to_string()), None)?;
     }
-    fs::copy(&real_path, layouts_dir()?.join(file_name))?;
-    println!("Checking validity ..."); // TODO: Tech debt (don't copy, check first)
-    let test = LayoutFile::new(file_name);
+    println!("Checking validity ...");
+    let test = LayoutFile::from_path(real_path.to_str().unwrap());
     match test {
         Err(e) => {
             println!("Invalid layout, {e}");
-            fs::remove_file(layouts_dir()?.join(file_name))?;
         }
-        Ok(_) => println!("Valid layout!"),
+        Ok(_) => {
+            println!("Valid layout!");
+            fs::copy(&real_path, layouts_dir()?.join(&file_name))?;
+        },
     }
     Ok(())
 }
@@ -51,7 +53,8 @@ fn list(settings: Settings) -> crate::Result<()> {
 fn select(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
     let current = &*settings.layout_file;
-    let current_index = paths.iter().position(|c| c == current).unwrap_or(0); // TODO: make it default.res
+    let current_index = paths.iter().position(|c| c == current)
+        .unwrap_or(paths.iter().position(|c| c == "default.res").unwrap_or(0));
     let choice = terminal::prompt::radio(&paths, current_index, None)?;
     let mut settings = Settings::new()?; // TODO: Fix excess read
     settings.layout_file = paths[choice].to_string();
@@ -62,7 +65,8 @@ fn select(settings: Settings) -> crate::Result<()> {
 fn delete(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
     let current = &*settings.layout_file;
-    let current_index = paths.iter().position(|c| c == current).unwrap_or(0); // TODO: make it default.res
+    let current_index = paths.iter().position(|c| c == current)
+        .unwrap_or(paths.iter().position(|c| c == "default.res").unwrap_or(0));
     let choice = paths[terminal::prompt::radio(&paths, current_index, None)?].to_string();
     fs::remove_file(layouts_dir()?.join(&*choice))?;
     if choice == current {

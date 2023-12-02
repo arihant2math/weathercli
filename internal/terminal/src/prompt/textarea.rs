@@ -12,8 +12,7 @@ use std::{io, thread};
 
 pub fn textarea() -> Result<String> {
     enable_raw_mode()?;
-    execute!(stdout(), EnterAlternateScreen)?;
-    execute!(stdout(), cursor::MoveTo(0, 0))?;
+    execute!(stdout(), EnterAlternateScreen, cursor::MoveTo(0, 0))?;
     io::stdout().flush()?;
     let mut text: Vec<String> = Vec::new();
     text.push(String::new());

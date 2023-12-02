@@ -24,6 +24,8 @@ fn list(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(custom_backends_dir()?)?;
     for path in paths {
         // TODO: Check which ones are valid (hard to do)
+        // magic bytes
+        let _dll_bytes = vec![77, 90];
         let file_name = &*path;
         if is_valid_ext(file_name) {
             let valid = settings.enable_custom_backends;

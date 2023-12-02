@@ -52,9 +52,9 @@ pub fn string_to_rgb(s: String) -> Option<String> {
         return None;
     }
     Some(rgb(
-        split[0].parse().ok()?,
-        split[1].parse().ok()?,
-        split[2].parse().ok()?,
+        split.get(0)?.parse().ok()?,
+        split.get(1)?.parse().ok()?,
+        split.get(2)?.parse().ok()?,
     ))
 }
 

@@ -6,6 +6,6 @@ use local::location::LocationData;
 pub struct LayoutInput {
     pub datasource: String,
     pub location: LocationData,
-    pub current_weather: WeatherData, // For legacy access purposes :(
+    pub weather: WeatherData,
     pub forecast_sentence: String,
 }
