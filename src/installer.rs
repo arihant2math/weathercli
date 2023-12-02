@@ -79,8 +79,6 @@ async fn run() -> Result<()> {
     update_component(
         &url,
         &path.display().to_string(),
-        "Downloading weathercli from ".to_string(),
-        "Installed weathercli".to_string(),
         args.quiet,
     )?;
     let url = settings.update_server.clone() + &CONFIG.weather_d_file_name;
@@ -91,8 +89,6 @@ async fn run() -> Result<()> {
     update_component(
         &url,
         &path.display().to_string(),
-        "Downloading daemon from ".to_string(),
-        "Installed daemon".to_string(),
         args.quiet,
     )?;
     if args.add_to_path {
