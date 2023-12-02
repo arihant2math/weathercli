@@ -1,7 +1,7 @@
 {
   "daemon-version": "2023.11.1",
   "default-layout-hash": "deb8f37714dbbdd705cfbf860463665ee24ee233505fe49f4c7ec46a6dbd4c9a",
-  "version": "2023.11.1",
+  "version": "2023.12.1",
   "weather-ascii-images-hash": "5dba03c7268bdb6bb3b56ec3c1574b07af638acd818ce77b74d1a2124b181ef7",
   "weather-codes-hash": "e932a1ab7b26e2f4233e1a14c860c5f098f190704aa8b772b050482a9c776105",
   "weather-exe-hash-unix": "e597bfd269eeb9e995637d83851dc1516b989d599c72fcd30abff35adebcfe87",
