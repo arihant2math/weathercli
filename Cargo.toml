@@ -1,9 +1,4 @@
 [[bin]]
-required-features = ["support"]
-name = "weatherd"
-path = "src/weatherd.rs"
-
-[[bin]]
 required-features = ["support", "installer"]
 name = "installer"
 path = "src/installer.rs"

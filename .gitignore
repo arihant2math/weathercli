@@ -6,7 +6,6 @@ target/*
 *.pyc
 .pytest_cache/*
 weather.exe
-weatherd.exe
 weather.spec
 test.http
 

@@ -61,8 +61,6 @@ fn build_docs() -> weather_error::Result<()> {
     fs::copy("./docs_templates/logo.png", "./docs/logo.png")?;
     fs::copy("./docs_templates/weather.exe", "./docs/weather.exe")?;
     fs::copy("./docs_templates/weather", "./docs/weather")?;
-    fs::copy("./docs_templates/weatherd.exe", "./docs/weatherd.exe")?;
-    fs::copy("./docs_templates/weatherd", "./docs/weatherd")?;
     fs::copy("./docs_templates/theme.js", "./docs/theme.js")?;
     fs::copy("./docs_templates/weather_ascii_images.res", "./docs/weather_ascii_images.res")?;
     fs::copy("./docs_templates/weather_codes.res", "./docs/weather_codes.res")?;
@@ -108,8 +106,6 @@ fn index_hashes() -> weather_error::Result<()> {
     update_hash("./docs_templates/default_layout.res", "default-layout-hash")?;
     update_hash("./docs_templates/weather.exe", "weather-exe-hash-windows")?;
     update_hash("./docs_templates/weather", "weather-exe-hash-unix")?;
-    update_hash("./docs_templates/weatherd.exe", "weatherd-exe-hash-windows")?;
-    update_hash("./docs_templates/weatherd", "weatherd-exe-hash-unix")?;
     Ok(())
 }
 

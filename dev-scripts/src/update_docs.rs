@@ -63,7 +63,5 @@ pub fn update_docs(gh_token: &str) -> weather_error::Result<()> {
     update_hash("./docs_templates/weather", "weather-exe-hash-unix")?;
     update_hash("./docs_templates/updater.exe", "updater-exe-hash-windows")?;
     update_hash("./docs_templates/updater", "updater-exe-hash-unix")?;
-    update_hash("./docs_templates/weatherd.exe", "weatherd-exe-hash-windows")?;
-    update_hash("./docs_templates/weatherd", "weatherd-exe-hash-unix")?;
     Ok(())
 }

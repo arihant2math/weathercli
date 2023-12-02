@@ -22,20 +22,17 @@ pub fn get_latest_version() -> crate::Result<String> {
 
 pub struct Config<'a> {
     pub weather_file_name: &'a str,
-    pub weather_d_file_name: &'a str,
     pub updater_file_name: &'a str,
 }
 
 #[cfg(target_os = "windows")]
 pub const CONFIG: Config<'static> = Config {
     weather_file_name: "weather.exe",
-    weather_d_file_name: "weatherd.exe",
     updater_file_name: "updater.exe",
 };
 
 #[cfg(not(target_os = "windows"))]
 pub const CONFIG: Config<'static> = Config {
     weather_file_name: "weather",
-    weather_d_file_name: "weatherd",
     updater_file_name: "updater",
 };

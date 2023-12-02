@@ -38,18 +38,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'windows')
         with:
-          name: weatherd (Windows)
-          path: ./target/release/weatherd.exe
-
-      - uses: actions/upload-artifact@v3
-        if: startsWith(matrix.os, 'ubuntu')
-        with:
-          name: weatherd (Linux)
-          path: ./target/release/weatherd
-
-      - uses: actions/upload-artifact@v3
-        if: startsWith(matrix.os, 'windows')
-        with:
           name: installer (Windows)
           path: ./target/release/installer.exe
 
