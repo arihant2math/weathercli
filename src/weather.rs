@@ -89,6 +89,11 @@ fn run() -> Result<()> {
     if settings_s.debug || args.global_opts.debug {
         let _handle = init_logging();
     }
+
+    if args.global_opts.metric && args.global_opts.imperial {
+        return Err("Cannot use both metric and imperial units at the same time.")?;
+    }
+
     let true_metric = if args.global_opts.metric {
         true
     } else if args.global_opts.imperial {
