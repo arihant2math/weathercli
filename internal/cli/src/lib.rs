@@ -2,12 +2,11 @@ use backend::{WeatherData, WeatherForecast};
 use weather_error;
 use weather_error::LayoutErr;
 
-use crate::layout::LayoutFile;
-use crate::layout::layout_input::LayoutInput;
+use layout::LayoutFile;
+use layout::layout_input::LayoutInput;
 
 pub mod arguments;
 pub mod commands;
-pub mod layout;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 

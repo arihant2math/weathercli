@@ -31,7 +31,7 @@ pub fn image(source: String, scale: f64) -> crate::Result<String> {
             .create(true)
             .open(&path)?;
         f.write_all(&response.bytes)?;
-        return crate::layout::image_to_text::ascii_image(&path.to_str().ok_or(Error::LayoutError(LayoutErr {
+        return crate::image_to_text::ascii_image(&path.to_str().ok_or(Error::LayoutError(LayoutErr {
             message: "Temp image save path is not valid of unicode".to_string(),
             row: None,
             item: None,

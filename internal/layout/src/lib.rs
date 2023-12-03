@@ -5,10 +5,12 @@ use local::weather_file::WeatherFile;
 use terminal::color;
 use weather_error::{Error, LayoutErr};
 
-use crate::layout::layout_serde::LayoutDefaultsSerde;
-use crate::layout::row::Row;
-use crate::layout::layout_input::LayoutInput;
+use crate::layout_serde::LayoutDefaultsSerde;
+use crate::row::Row;
+use crate::layout_input::LayoutInput;
 
+
+pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 mod image_to_text;
 pub mod item;

@@ -3,8 +3,8 @@ use shared_deps::serde_json::Value;
 use log::error;
 use shared_deps::serde_json;
 
-use crate::layout::layout_serde::ItemSerde;
-use crate::layout::{util, LayoutSettings};
+use crate::layout_serde::ItemSerde;
+use crate::{util, LayoutSettings};
 use terminal::color;
 use weather_error::LayoutErr;
 

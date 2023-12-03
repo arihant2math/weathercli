@@ -1,8 +1,8 @@
 use shared_deps::serde_json::Value;
 
-use crate::layout::item::Item;
-use crate::layout::layout_serde::ItemSerde;
-use crate::layout::LayoutSettings;
+use crate::item::Item;
+use crate::layout_serde::ItemSerde;
+use crate::LayoutSettings;
 use weather_error::{Error, LayoutErr};
 
 pub struct Row {

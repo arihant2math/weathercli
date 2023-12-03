@@ -5,9 +5,9 @@ use iced::theme::palette::Pair;
 pub fn get_light_theme() -> Theme {
      let mut custom = Custom::new(Palette {
             background: Color::from_rgb(
-                251 as f32 / 255.0,
-                251 as f32 / 255.0,
-                251 as f32 / 255.0,
+                249 as f32 / 255.0,
+                249 as f32 / 255.0,
+                249 as f32 / 255.0,
             ),
             text:  Color::from_rgb(
                 26 as f32 / 255.0,
@@ -47,6 +47,18 @@ pub fn get_light_theme() -> Theme {
             25 as f32 / 255.0,
             117 as f32 / 255.0,
             197 as f32 / 255.0,
+        ),
+        Color::from_rgb(
+            255 as f32 / 255.0,
+            255 as f32 / 255.0,
+            255 as f32 / 255.0,
+        ),
+    );
+    custom.extended.primary.weak = Pair::new(
+        Color::from_rgb(
+            191 as f32 / 255.0,
+            191 as f32 / 255.0,
+            191 as f32 / 255.0,
         ),
         Color::from_rgb(
             255 as f32 / 255.0,

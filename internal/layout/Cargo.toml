@@ -1,28 +1,23 @@
 [package]
-name = "cli"
+name = "layout"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { version = "4.2", features = ["derive"] }
-chrono = "0.4"
-shared_deps = { path = "../shared_deps" }
+image = "0.24"
 serde = { version = "1.0", features = ["derive"] }
 regex = "1.10"
 log = "0.4"
+
+shared_deps = { path = "../shared_deps" }
 async_runner = { path = "../async_runner" }
 custom_backend = { path = "../custom_backend" }
 updater = { path = "../updater" }
 local = { path = "../local" }
 backend = { path = "../backend" }
 terminal = { path = "../terminal" }
-layout = { path = "../layout" }
 networking = { path = "../networking" }
 weather_dirs = { path = "../weather_dirs" }
 weather_error = { path = "../weather_error" }
-settings_app = { path = "../settings_app", optional = true }
-
-[features]
-gui = ["dep:settings_app"]

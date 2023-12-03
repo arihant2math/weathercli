@@ -178,30 +178,31 @@ impl Sandbox for App {
                 .align_items(Alignment::Center),
             row![layout_file_label, layout_file, pick_layout_file]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center),
             row![show_alerts]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center),
             row![auto_update_internet_resources]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center),
             row![constant_location]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center),
             row![cancel, save]
                 .spacing(10)
                 .align_items(Alignment::Center),
         ]
         .spacing(20)
+        .padding(20)
         .max_width(600);
         let backend_column = column![
             row![backend]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center),
             row![data_source]
                 .spacing(10)
@@ -209,27 +210,27 @@ impl Sandbox for App {
                 .align_items(Alignment::Center),
             row![metric_default]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center),
             row![api_keys]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center),
             row![openweathermap_api_key_label, openweathermap_api_key, one_call]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center),
             row![bing_maps_api_key_label, bing_maps_api_key]
                 .spacing(10)
-                .height(50)
+                .height(40)
                 .align_items(Alignment::Center)
         ]
         .spacing(20)
+        .padding(20)
         .max_width(900);
 
         let content = row![general_column, backend_column]
             .spacing(10)
-            .padding(20)
             .align_items(Alignment::Start);
 
         container(content)

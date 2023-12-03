@@ -1,5 +1,5 @@
 use crate::arguments::LayoutOpts;
-use crate::layout::LayoutFile;
+use layout::LayoutFile;
 use local::list_dir;
 use local::settings::Settings;
 use std::fs;
