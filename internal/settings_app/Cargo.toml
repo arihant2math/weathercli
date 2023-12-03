@@ -7,5 +7,7 @@ edition = "2021"
 
 [dependencies]
 dark-light = "1.0"
-iced = { version = "0.9", features = ["image"] }
+iced = { version = "0.10", features = ["image"], path = "../../lib/iced" }
+rfd = "0.12"
 local = { path = "../local" }
+weather_dirs = { path = "../weather_dirs" }

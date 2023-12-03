@@ -81,13 +81,8 @@ pub struct Settings {
     pub show_alerts: bool,
     #[serde(default = "_default_layout")]
     pub layout_file: String,
-    #[serde(default)]
-    pub enable_daemon: bool,
-    #[serde(default = "_default_daemon_update_interval")]
-    pub daemon_update_interval: i64,
     #[serde(default = "_true")]
     pub auto_update_internet_resources: bool,
-    pub installed_components: Option<Vec<String>>,
     #[serde(default = "_update_server")]
     pub update_server: String,
     #[serde(default)]

@@ -59,6 +59,10 @@ pub fn init_logging() -> Result<Handle> {
         .logger(Logger::builder().build("ureq", LevelFilter::Info))
         .logger(Logger::builder().build("reqwest", LevelFilter::Info))
         .logger(Logger::builder().build("rustls", LevelFilter::Info))
+        .logger(Logger::builder().build("wgpu_core", LevelFilter::Warn))
+        .logger(Logger::builder().build("wgpu_hal", LevelFilter::Warn))
+        .logger(Logger::builder().build("iced_wgpu", LevelFilter::Warn))
+        .logger(Logger::builder().build("naga", LevelFilter::Info))
         .build(builder)
         .unwrap();
 
