@@ -1,14 +1,11 @@
-use std::collections::HashMap;
-use std::io;
-use std::io::Read;
-
 use cookie_store::{CookieResult, CookieStore};
 use log::trace;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::io;
+use std::io::Read;
 use ureq::{Agent, Response};
-
 use url::Url;
 
 pub const USER_AGENT: &str = "weathercli/1";
@@ -152,15 +149,24 @@ pub fn get_urls(
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
     cookies: Option<HashMap<String, String>>,
-) -> io::Result<Vec<Resp>> { // TODO: Allow ok status codes (4xx, 5xx, etc.)
+) -> io::Result<Vec<Resp>> {
     trace!("Retrieving {urls:?}");
     let client = get_client(urls.to_vec().clone(), user_agent, headers, cookies);
     let data: Vec<_> = urls
         .par_iter()
         .map(|url| {
             let req = client.get(url);
-            let data = req.call().expect("Request failed");
-            Resp::new(data).unwrap()
+            let data_r = req.call();
+            let data = if let Err(e) = data_r {
+                match e {
+                    ureq::Error::Status(_s, d) => d,
+                    ureq::Error::Transport(d) => panic!("Request failed: {}", d),
+                }
+            } else {
+                data_r.unwrap()
+            };
+            let resp = Resp::new(data).unwrap();
+            resp
         })
         .collect();
     Ok(data)

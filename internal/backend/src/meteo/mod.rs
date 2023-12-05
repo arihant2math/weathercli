@@ -1,11 +1,10 @@
-use serde::{Deserialize, Serialize};
-
-use shared_deps::simd_json;
-
-use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 use local::location::Coordinates;
 use networking;
 use networking::Resp;
+use serde::{Deserialize, Serialize};
+use shared_deps::simd_json;
+
+use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 
 pub mod forecast;
 mod json;
@@ -20,7 +19,7 @@ fn get_api_urls(location: &Coordinates, metric: bool) -> [String; 2] {
     let hourly = "temperature_2m,rain,showers,snowfall,cloudcover,dewpoint_2m,apparent_temperature,pressure_msl,visibility,windspeed_10m,winddirection_10m,precipitation_probability";
     let daily = "temperature_2m_max,temperature_2m_min";
     let units = if metric {
-        "" // TODO: Strong units here
+        ""
     } else {
         "&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch"
     };

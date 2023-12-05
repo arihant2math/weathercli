@@ -1,9 +1,8 @@
+use clap::{Args, Parser, Subcommand};
+
 // TODO: Arguments to add
-// - alternative to weather config
 // - warnings and downloads in weather config
 mod global;
-
-use clap::{Args, Parser, Subcommand};
 
 #[derive(Clone, Parser)]
 #[command(version, author, about, name = "weathercli")]

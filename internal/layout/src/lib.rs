@@ -1,14 +1,12 @@
+use local::weather_file::WeatherFile;
 use shared_deps::bincode;
 use shared_deps::serde_json;
-
-use local::weather_file::WeatherFile;
 use terminal::color;
 use weather_error::{Error, LayoutErr};
 
+use crate::layout_input::LayoutInput;
 use crate::layout_serde::LayoutDefaultsSerde;
 use crate::row::Row;
-use crate::layout_input::LayoutInput;
-
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
@@ -119,7 +117,7 @@ impl LayoutFile {
         let layout = file_data.layout;
         let mut internal_layout: Vec<Row> = Vec::new();
         for row in layout {
-            internal_layout.push(Row::new(row));
+            internal_layout.push(Row::new(row)?);
         }
         Ok(Self {
             layout: internal_layout,

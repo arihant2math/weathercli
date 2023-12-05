@@ -1,9 +1,9 @@
 use shared_deps::serde_json::Value;
+use weather_error::{Error, LayoutErr};
 
 use crate::item::Item;
 use crate::layout_serde::ItemSerde;
 use crate::LayoutSettings;
-use weather_error::{Error, LayoutErr};
 
 pub struct Row {
     items: Vec<Item>,
@@ -21,12 +21,12 @@ fn reemit_layout_error(e: Error, count: usize) -> Error {
 }
 
 impl Row {
-    pub fn new(data: Vec<ItemSerde>) -> Self {
+    pub fn new(data: Vec<ItemSerde>) -> crate::Result<Self> {
         let mut items: Vec<Item> = Vec::new();
         for item in data {
-            items.push(Item::new(item));
+            items.push(Item::new(item)?);
         }
-        Self { items }
+        Ok(Self { items })
     }
 
     pub fn to_string(

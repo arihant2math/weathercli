@@ -1,13 +1,13 @@
-use shared_deps::simd_json;
-
-use crate::openweathermap::json::{OpenWeatherMapAirQualityJson, OpenWeatherMapJson};
-use crate::WeatherCondition;
-use crate::WindData;
-use crate::{get_conditions_sentence, WeatherData};
-use std::collections::HashMap;
 use chrono::{DateTime, Duration};
+use shared_deps::simd_json;
+use std::collections::HashMap;
+
+use crate::{get_conditions_sentence, WeatherData};
+use crate::openweathermap::json::{OpenWeatherMapAirQualityJson, OpenWeatherMapJson};
 use crate::openweathermap_shared::json::PrecipitationJson;
 use crate::weather_data::PrecipitationData;
+use crate::WeatherCondition;
+use crate::WindData;
 
 pub fn get_current(
     data: OpenWeatherMapJson,
@@ -41,12 +41,12 @@ pub fn get_current(
         rain_data: PrecipitationData {
             amount: data.rain.unwrap_or(PrecipitationJson::default()).one_hour as f32,
             time: Duration::hours(1),
-            probability: 100, // TODO: really?
+            probability: 100
         },
         snow_data: PrecipitationData {
             amount: data.snow.unwrap_or(PrecipitationJson::default()).one_hour as f32,
             time: Duration::hours(1),
-            probability: 100, // TODO: really?
+            probability: 100
         },
     })
 }

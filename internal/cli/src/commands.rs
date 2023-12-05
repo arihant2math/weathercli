@@ -1,15 +1,5 @@
-pub mod backend_commands;
-pub mod layout_commands;
-pub mod util;
-
-use std::str::FromStr;
-use std::thread;
-
-use shared_deps::simd_json;
-
-use crate::arguments::CacheOpts;
-use crate::{print_out, Datasource};
 use backend::{meteo, nws, openweathermap, openweathermap_onecall, WeatherForecast};
+use chrono::{DateTime, Duration, Utc};
 use custom_backend::dynamic_library_loader::ExternalBackends;
 use local::cache::prune;
 use local::location::Coordinates;
@@ -17,10 +7,19 @@ use local::settings::Settings;
 use local::weather_file::WeatherFile;
 use log::{debug, error, warn};
 use shared_deps::serde_json::Value;
+use shared_deps::simd_json;
 use std::path::Path;
-use chrono::{DateTime, Duration, Utc};
+use std::str::FromStr;
+use std::thread;
 use terminal::prompt;
 use weather_dirs::resources_dir;
+
+use crate::{Datasource, print_out};
+use crate::arguments::CacheOpts;
+
+pub mod backend_commands;
+pub mod layout_commands;
+pub mod util;
 
 fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
     match time {
@@ -139,7 +138,7 @@ pub fn cache(opts: CacheOpts) -> crate::Result<()> {
 }
 
 pub fn about() {
-    println!("Weather, in your terminal"); // TODO: Incorperate command
+    println!("Weather, in your terminal");
     println!("Version: {}", env!("CARGO_PKG_VERSION"));
 }
 

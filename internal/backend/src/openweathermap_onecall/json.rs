@@ -1,9 +1,8 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::openweathermap_shared::json::PrecipitationJson;
 use crate::openweathermap_shared::json::OpenWeatherMapConditionJson;
-use serde::{Deserialize, Serialize};
-
+use crate::openweathermap_shared::json::PrecipitationJson;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MomentJson {
@@ -60,7 +59,7 @@ pub struct DailyJson {
     pub moonrise: i64,
     pub moonset: i64,
     pub moon_phase: f64,
-    pub temp: HashMap<String, f64>, // TODO: Optimize this into actual structs
+    pub temp: HashMap<String, f64>,
     pub feels_like: HashMap<String, f64>,
     pub pressure: i64,
     pub humidity: i64,

@@ -1,14 +1,15 @@
-use std::{collections::HashMap, ffi::OsStr, io, rc::Rc};
-
-use libloading::Library;
-use log::{debug, error, trace};
-
-use crate::{PluginDeclaration, WeatherForecastPlugin};
 use backend::WeatherForecast;
+use libloading::Library;
 use local::location::Coordinates;
 use local::settings::Settings;
+use local::weather_file::WeatherFile;
+use log::{debug, error, trace};
+use std::{collections::HashMap, ffi::OsStr, io, rc::Rc};
+use weather_dirs::custom_backends_dir;
 use weather_error::Error;
 use weather_error::InvocationError;
+
+use crate::{PluginDeclaration, WeatherForecastPlugin};
 
 #[cfg(target_os = "windows")]
 pub fn is_valid_ext(f: &str) -> bool {
@@ -24,6 +25,26 @@ pub fn is_valid_ext(f: &str) -> bool {
 pub fn is_valid_ext(f: &str) -> bool {
     f.ends_with(".dylib")
 }
+
+#[cfg(target_os = "windows")]
+pub fn is_valid_file(f: &str) -> bool {
+    let file = WeatherFile::new(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap())?;
+    file.data.starts_with(&[0x4d, 0x5a])
+}
+
+#[cfg(target_os = "linux")]
+pub fn is_valid_file(f: &str) -> bool {
+    let file = WeatherFile::new(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap())?;
+    file.data.starts_with(&[0x7f, 0x45, 0x4c, 0x46]) // TODO: untested
+
+}
+
+#[cfg(target_os = "macos")]
+pub fn is_valid_file(f: &str) -> bool {
+    let file = WeatherFile::new(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap())?;
+    file.data.starts_with(&[0xcf, 0xfa, 0xed, 0xfe]) // TODO: untested
+}
+
 
 pub fn load(paths: Vec<String>) -> ExternalBackends {
     let mut backends = ExternalBackends::new();

@@ -1,13 +1,15 @@
-use crate::arguments::BackendOpts;
 use custom_backend::dynamic_library_loader::is_valid_ext;
 use local::list_dir;
 use local::settings::Settings;
+use local::weather_file::WeatherFile;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use terminal::color;
 use terminal::prompt;
 use weather_dirs::custom_backends_dir;
+
+use crate::arguments::BackendOpts;
 
 fn install(path: String) -> crate::Result<()> {
     // TODO: Add validity checks (prompt user for permission first)
@@ -20,15 +22,13 @@ fn install(path: String) -> crate::Result<()> {
     Ok(())
 }
 
-fn list(settings: Settings) -> crate::Result<()> {
+fn list(settings: &mut Settings) -> crate::Result<()> {
     let paths = list_dir(custom_backends_dir()?)?;
     for path in paths {
         // TODO: Check which ones are valid (hard to do)
-        // magic bytes
-        let _dll_bytes = vec![77, 90];
         let file_name = &*path;
         if is_valid_ext(file_name) {
-            let valid = settings.enable_custom_backends;
+            let mut valid = settings.enable_custom_backends && is_valid_file(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap());
             if valid {
                 println!("{}{file_name}", color::FORE_GREEN);
             } else {
@@ -39,8 +39,8 @@ fn list(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn select(settings: Settings) -> crate::Result<()> {
-    let selected = settings.default_backend;
+fn select(settings: &mut Settings) -> crate::Result<()> {
+    let selected = &settings.default_backend;
     let mut settings = Settings::new()?;
     let choices = ["openweathermap", "meteo", "nws", "openweathermap_onecall"];
     let selected_usize = choices.iter().position(|&i| i == selected).unwrap_or(0);
@@ -50,11 +50,11 @@ fn select(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn open_weather_map_api_key(settings: Settings) -> crate::Result<()> {
-    let original = settings.open_weather_map_api_key;
+fn open_weather_map_api_key(settings: &mut Settings) -> crate::Result<()> {
+    let original = &settings.open_weather_map_api_key;
     let mut s = prompt::input(
         Some("Enter your openweathermap api key: ".to_string()),
-        Some(original),
+        Some(original.to_string()),
     )?;
     s = s.trim().to_string();
     if s.len() != 32 {
@@ -63,23 +63,21 @@ fn open_weather_map_api_key(settings: Settings) -> crate::Result<()> {
         )?;
     }
     // TODO: verify key first
-    println!("{}Saving api key as {s}", color::FORE_BLUE); // TODO: Fix
-    let mut settings = Settings::new()?; // TODO: Fix excess read (pass in mutable ref)
+    println!("{}Saving api key as {s}", color::FORE_BLUE); // TODO: bold
     settings.open_weather_map_api_key = s;
     settings.write()?;
     Ok(())
 }
 
-fn bing_maps_api_key(settings: Settings) -> crate::Result<()> {
-    let original = settings.bing_maps_api_key;
+fn bing_maps_api_key(settings: &mut Settings) -> crate::Result<()> {
+    let original = &settings.bing_maps_api_key;
     let mut s = prompt::input(
         Some("Enter your bing maps api key: ".to_string()),
-        Some(original),
+        Some(original.to_string()),
     )?;
     s = s.trim().to_string();
     // TODO: verify key
     println!("{}Saving api key as {s}", color::FORE_BLUE);
-    let mut settings = Settings::new()?; // TODO: Fix excess read
     settings.bing_maps_api_key = s;
     settings.write()?;
     Ok(())
@@ -92,7 +90,7 @@ fn delete() -> crate::Result<()> {
     Ok(())
 }
 
-pub fn subcommand(arg: BackendOpts, settings: Settings) -> crate::Result<()> {
+pub fn subcommand(arg: BackendOpts, settings: &mut Settings) -> crate::Result<()> {
     match arg {
         BackendOpts::Install(opts) => install(opts.path)?,
         BackendOpts::List => list(settings)?,

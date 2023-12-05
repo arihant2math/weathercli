@@ -37,7 +37,7 @@ pub fn image(source: String, scale: f64) -> crate::Result<String> {
             item: None,
         }))?, scale);
     }
-    Err("source is not a url".to_string())? // TODO: Fix
+    Err("source is not a url".to_string())?
 }
 
 pub fn location(city: String, state: String, country: String) -> crate::Result<String> {

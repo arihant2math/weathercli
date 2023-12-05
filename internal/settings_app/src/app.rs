@@ -1,9 +1,9 @@
 use dark_light::Mode;
-use iced::widget::{button, column, container, radio, row, text, text_input, toggler};
 use iced::{Alignment, Element, Length, Sandbox, Theme};
-use rfd::FileDialog;
-
+use iced::widget::{button, checkbox, column, container, radio, row, text, text_input, toggler};
 use local::settings;
+use log::error;
+use rfd::FileDialog;
 
 use crate::datasource::DataSource;
 use crate::message::Message;
@@ -34,7 +34,7 @@ impl Sandbox for App {
 
     fn update(&mut self, message: Message) {
         match message {
-            Message::Save => self.data.write().unwrap_or(()),
+            Message::Save => self.data.write().unwrap_or(error!("Saving settings failed")),
             Message::Cancel => {
                 self.data = settings::Settings::new().expect("Loading settings failed")
             },
@@ -115,7 +115,7 @@ impl Sandbox for App {
         .on_input(Message::OpenWeatherMapAPIKey)
         .padding(10);
 
-        let one_call = toggler(
+        let one_call = checkbox(
             String::from("OneCall Compatable"),
             self.data.open_weather_map_one_call_key,
             Message::OpenWeatherMapOneCallKey,
@@ -169,7 +169,7 @@ impl Sandbox for App {
         .spacing(10);
 
         let save = button("Save").padding(10).on_press(Message::Save);
-        let cancel = button("Cancel").padding(10).on_press(Message::Cancel);
+        let cancel = button("Cancel").style(iced::theme::Button::Secondary).padding(10).on_press(Message::Cancel);
 
         let general_column = column![
             row![general]
@@ -178,7 +178,7 @@ impl Sandbox for App {
                 .align_items(Alignment::Center),
             row![layout_file_label, layout_file, pick_layout_file]
                 .spacing(10)
-                .height(40)
+                .height(45)
                 .align_items(Alignment::Center),
             row![show_alerts]
                 .spacing(10)
@@ -191,9 +191,6 @@ impl Sandbox for App {
             row![constant_location]
                 .spacing(10)
                 .height(40)
-                .align_items(Alignment::Center),
-            row![cancel, save]
-                .spacing(10)
                 .align_items(Alignment::Center),
         ]
         .spacing(20)
@@ -218,20 +215,24 @@ impl Sandbox for App {
                 .align_items(Alignment::Center),
             row![openweathermap_api_key_label, openweathermap_api_key, one_call]
                 .spacing(10)
-                .height(40)
+                .height(45)
                 .align_items(Alignment::Center),
             row![bing_maps_api_key_label, bing_maps_api_key]
                 .spacing(10)
-                .height(40)
+                .height(45)
                 .align_items(Alignment::Center)
         ]
         .spacing(20)
         .padding(20)
         .max_width(900);
-
-        let content = row![general_column, backend_column]
+        let save_cancel = row![cancel, save]
             .spacing(10)
-            .align_items(Alignment::Start);
+            .height(40)
+            .align_items(Alignment::Center);
+        let content = column![row![general_column, backend_column].spacing(10)
+            .align_items(Alignment::Start), save_cancel]
+            .spacing(10)
+            .align_items(Alignment::Center);
 
         container(content)
             .width(Length::Fill)

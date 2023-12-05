@@ -1,15 +1,15 @@
-use crate::openweathermap_onecall::current::get_current;
-use shared_deps::bincode;
-use crate::openweathermap_onecall::get_combined_data_formatted;
-use crate::openweathermap_onecall::future::get_future;
-use crate::WeatherData;
-use crate::WeatherForecast;
 use local::location;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 use location::Coordinates;
+use shared_deps::bincode;
 use std::collections::HashMap;
 
+use crate::openweathermap_onecall::current::get_current;
+use crate::openweathermap_onecall::future::get_future;
+use crate::openweathermap_onecall::get_combined_data_formatted;
+use crate::WeatherData;
+use crate::WeatherForecast;
 
 pub fn get_forecast(
     coordinates: &Coordinates,
@@ -35,7 +35,7 @@ pub fn get_forecast(
             item,
             &data.daily[count / 24],
             weather_codes.clone(),
-        )?); //TODO: Test
+        )?);
     }
     let loc = location::reverse_geocode(coordinates)?;
     Ok(WeatherForecast {
