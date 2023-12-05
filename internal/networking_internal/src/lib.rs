@@ -52,13 +52,13 @@ fn get_user_agent<S: AsRef<str>>(custom: Option<S>) -> String {
     app_user_agent
 }
 
-fn get_client<S: AsRef<str>>(urls: Vec<String>, user_agent: Option<S>, headers: Option<HashMap<String, String>>, cookies: Option<HashMap<String, String>>) -> Agent {
+fn get_client<S: AsRef<str>>(urls: &[String], user_agent: Option<S>, headers: Option<HashMap<String, String>>, cookies: &Option<HashMap<String, String>>) -> Agent {
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
-    for (key, value) in &cookies.clone().unwrap_or(HashMap::new()).clone() {
-        for url in &urls {
+    for (key, value) in &cookies.clone().unwrap_or_default().clone() {
+        for url in urls {
             cookies_vec.push(cookie_store::Cookie::parse(
                 format!("{key}={value}"),
-                &Url::parse(url).expect(&format!("url parse failed: {url}")),
+                &Url::parse(url).unwrap_or_else(|_| panic!("url parse failed: {url}")),
             ));
         }
     }
@@ -76,16 +76,16 @@ fn get_client<S: AsRef<str>>(urls: Vec<String>, user_agent: Option<S>, headers: 
 }
 
 /// get a url, with the ability the user agent, headers, and cookies
-/// If you are faking the user agent, use SNEAK_USER_AGENT, otherwise this defaults to USER_AGENT
+/// If you are faking the user agent, use `SNEAK_USER_AGENT`, otherwise this defaults to `USER_AGENT`
 pub fn get_url<S: AsRef<str>>(
     url_s: S,
     user_agent: Option<S>,
     headers: Option<HashMap<String, String>>,
-    cookies: Option<HashMap<String, String>>,
+    cookies: &Option<HashMap<String, String>>,
 ) -> io::Result<Resp> {
     let url = url_s.as_ref();
     trace!("Retrieving {url}");
-    let client = get_client(vec![url.to_string()], user_agent, headers, cookies);
+    let client = get_client(&[url.to_string()], user_agent, headers, cookies);
     let req = client.get(url);
     let resp = req.call();
     let real_resp = match resp {
@@ -111,11 +111,11 @@ pub fn post_url<S: AsRef<str>>(
     data: Option<String>,
     user_agent: Option<S>,
     headers: Option<HashMap<String, String>>,
-    cookies: Option<HashMap<String, String>>,
+    cookies: &Option<HashMap<String, String>>,
 ) -> io::Result<Resp> {
     let url = url_s.as_ref();
     trace!("Retrieving {url}");
-    let client = get_client(vec![url.to_string()], user_agent, headers, cookies);
+    let client = get_client(&[url.to_string()], user_agent, headers, cookies);
     let mut real_data = String::new();
     if let Some(ad) = data {
         real_data = ad;
@@ -148,10 +148,10 @@ pub fn get_urls(
     urls: &[String],
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
-    cookies: Option<HashMap<String, String>>,
+    cookies: &Option<HashMap<String, String>>,
 ) -> io::Result<Vec<Resp>> {
     trace!("Retrieving {urls:?}");
-    let client = get_client(urls.to_vec().clone(), user_agent, headers, cookies);
+    let client = get_client(&urls.to_vec().clone(), user_agent, headers, cookies);
     let data: Vec<_> = urls
         .par_iter()
         .map(|url| {
@@ -160,13 +160,13 @@ pub fn get_urls(
             let data = if let Err(e) = data_r {
                 match e {
                     ureq::Error::Status(_s, d) => d,
-                    ureq::Error::Transport(d) => panic!("Request failed: {}", d),
+                    ureq::Error::Transport(d) => panic!("Request failed: {d}"),
                 }
             } else {
                 data_r.unwrap()
             };
-            let resp = Resp::new(data).unwrap();
-            resp
+            
+            Resp::new(data).unwrap()
         })
         .collect();
     Ok(data)

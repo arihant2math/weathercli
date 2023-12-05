@@ -45,10 +45,10 @@ pub fn get_data_from_datasource(
     let update_server = settings.update_server.clone();
     if !(Path::exists(&dir) && Path::exists(&f1) && Path::exists(&f2)) {
         warn!("Forcing downloading of web resources");
-        updater::resource::update_web_resources(update_server, None)?;
+        updater::resource::update_web_resources(&update_server, None)?;
     } else if settings.auto_update_internet_resources {
         thread::spawn(move || {
-            updater::resource::update_web_resources(update_server, None).unwrap_or(());
+            updater::resource::update_web_resources(&update_server, None).unwrap_or(());
         });
     }
     debug!("Getting data from datasource: {datasource:?}");

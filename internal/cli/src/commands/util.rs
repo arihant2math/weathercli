@@ -3,12 +3,12 @@ use std::thread;
 use std::time::Duration;
 use terminal::color::{FORE_CYAN, FORE_LIGHTMAGENTA};
 use terminal::prompt::{input, yes_no};
-use updater::component::update_component;
+use updater::component::update as update_component;
 
 pub fn setup(settings_s: Settings) -> crate::Result<()> {
     let mut settings = settings_s;
     println!("{FORE_CYAN}===== Weather CLI Setup =====");
-    updater::resource::update_web_resources(settings.update_server.clone(), None)?;
+    updater::resource::update_web_resources(&settings.update_server, None)?;
     println!("{FORE_LIGHTMAGENTA}Choose the default weather backend: ");
     let options = [
         "Meteo",
