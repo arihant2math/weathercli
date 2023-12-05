@@ -6,7 +6,7 @@ use crate::openweathermap::json::OpenWeatherMapForecastItemJson;
 use crate::WeatherCondition;
 use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
-use crate::openweathermap_shared::json::PrecipitationJson;
+
 use crate::weather_data::PrecipitationData;
 
 pub fn get_future(
@@ -18,7 +18,7 @@ pub fn get_future(
         conditions.push(WeatherCondition::new(condition.id, &weather_codes)?);
     }
     Ok(WeatherData {
-        time: DateTime::from_timestamp(data.dt as i64, 0).ok_or("Failed to parse future timestamp for data".to_string())?.into(),
+        time: DateTime::from_timestamp(data.dt, 0).ok_or("Failed to parse future timestamp for data".to_string())?,
         temperature: data.main.temp as f32,
         min_temp: data.main.temp_min as f32,
         max_temp: data.main.temp_max as f32,
@@ -34,12 +34,12 @@ pub fn get_future(
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions.clone()),
         rain_data: PrecipitationData {
-            amount: data.rain.unwrap_or(PrecipitationJson::default()).three_hour as f32,
+            amount: data.rain.unwrap_or_default().three_hour,
             time: Duration::hours(3),
             probability: (data.pop * 100.0) as u8,
         },
         snow_data: PrecipitationData {
-            amount: data.snow.unwrap_or(PrecipitationJson::default()).three_hour as f32,
+            amount: data.snow.unwrap_or_default().three_hour,
             time: Duration::hours(3),
             probability: (data.pop * 100.0) as u8,
         },

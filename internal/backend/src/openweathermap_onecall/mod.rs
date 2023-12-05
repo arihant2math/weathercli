@@ -44,6 +44,6 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let data = crate::openweathermap_onecall::forecast::get_forecast(&location, local::settings::Settings::new().unwrap()).unwrap();
+        let _data = crate::openweathermap_onecall::forecast::get_forecast(&location, local::settings::Settings::new().unwrap()).unwrap();
     }
 }

@@ -7,7 +7,7 @@ use crate::WeatherCondition;
 use crate::WindData;
 use crate::{get_conditions_sentence, WeatherData};
 use std::collections::HashMap;
-use crate::openweathermap_shared::json::PrecipitationJson;
+
 
 pub fn get_current(
     data: &CurrentJson,
@@ -19,7 +19,7 @@ pub fn get_current(
         conditions.push(WeatherCondition::new(condition.id, &weather_codes)?);
     }
     Ok(WeatherData {
-        time: DateTime::from_timestamp(data.dt as i64, 0).ok_or("Failed to parse timestamp for data".to_string())?.into(),
+        time: DateTime::from_timestamp(data.dt, 0).ok_or("Failed to parse timestamp for data".to_string())?,
         temperature: data.temp as f32,
         min_temp: daily.temp["min"] as f32,
         max_temp: daily.temp["max"] as f32,

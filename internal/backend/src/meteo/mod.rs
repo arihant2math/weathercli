@@ -60,7 +60,7 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let urls = crate::meteo::get_api_urls(&location, true);
+        let _urls = crate::meteo::get_api_urls(&location, true);
         // TODO: actual test
     }
 
@@ -70,7 +70,7 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let data = crate::meteo::get_combined_data_formatted(&location, true).unwrap();
+        let _data = crate::meteo::get_combined_data_formatted(&location, true).unwrap();
     }
 
     #[test]
@@ -79,6 +79,6 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let data = crate::meteo::forecast::get_forecast(&location, local::settings::Settings::new().unwrap()).unwrap();
+        let _data = crate::meteo::forecast::get_forecast(&location, local::settings::Settings::new().unwrap()).unwrap();
     }
 }

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::{get_conditions_sentence, WeatherData};
 use crate::openweathermap::json::{OpenWeatherMapAirQualityJson, OpenWeatherMapJson};
-use crate::openweathermap_shared::json::PrecipitationJson;
+
 use crate::weather_data::PrecipitationData;
 use crate::WeatherCondition;
 use crate::WindData;
@@ -19,7 +19,7 @@ pub fn get_current(
         conditions.push(WeatherCondition::new(condition.id, &weather_codes)?);
     }
     Ok(WeatherData {
-        time: DateTime::from_timestamp(data.dt as i64, 0).ok_or("Failed to parse current timestamp for data".to_string())?.into(),
+        time: DateTime::from_timestamp(data.dt as i64, 0).ok_or("Failed to parse current timestamp for data".to_string())?,
         temperature: data.main.temp as f32,
         min_temp: data.main.temp_min as f32,
         max_temp: data.main.temp_max as f32,
@@ -39,12 +39,12 @@ pub fn get_current(
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions.clone()),
         rain_data: PrecipitationData {
-            amount: data.rain.unwrap_or(PrecipitationJson::default()).one_hour as f32,
+            amount: data.rain.unwrap_or_default().one_hour,
             time: Duration::hours(1),
             probability: 100
         },
         snow_data: PrecipitationData {
-            amount: data.snow.unwrap_or(PrecipitationJson::default()).one_hour as f32,
+            amount: data.snow.unwrap_or_default().one_hour,
             time: Duration::hours(1),
             probability: 100
         },

@@ -26,7 +26,7 @@ impl WeatherForecast {
         let is_raining = current.rain_data.amount > 0.01;
         let is_snowing = current.snow_data.amount > 0.01;
         let is_cloudy = current.cloud_cover > 25;
-        let is_windy = current.wind.speed > 5.0;
+        let _is_windy = current.wind.speed > 5.0;
         let rain_start = if is_raining {
             Some(current.time)
         } else {

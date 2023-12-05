@@ -43,6 +43,6 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let data = crate::nws::get_combined_data_formatted(&location, true).unwrap();
+        let _data = crate::nws::get_combined_data_formatted(&location, true).unwrap();
     }
 }

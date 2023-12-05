@@ -15,7 +15,7 @@ pub fn get_forecast(
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
     if settings.open_weather_map_api_key.is_empty() {
-        return Err(format!(
+        Err(format!(
             "Improper openweathermap api key, {}",
             settings.open_weather_map_api_key
         ))?;
