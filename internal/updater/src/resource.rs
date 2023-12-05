@@ -39,7 +39,7 @@ const DEFAULT_LAYOUT: WebResource = WebResource {
 /// # Arguments
 /// * `dev` if true the hashes will be printed if they do not match
 fn update_web_resource(
-    resource: WebResource,
+    resource: &WebResource,
     web_resp: Value,
     server: &str,
     quiet: bool,
@@ -69,15 +69,11 @@ fn update_web_resource(
                 println!("{}Downloading {}", color::FORE_YELLOW, resource.pretty_name);
             }
         }
-        let data = reqwest::blocking::get(web_path).or_else(|_| {
-            Err(weather_error::Error::NetworkError(
+        let data = reqwest::blocking::get(web_path).map_err(|_| weather_error::Error::NetworkError(
                 "Failed to download file".to_string(),
-            ))
-        })?.text().or_else(|_| {
-            Err(weather_error::Error::NetworkError(
+            ))?.text().map_err(|_| weather_error::Error::NetworkError(
                 "Failed to download file".to_string(),
-            ))
-        })?;
+            ))?;
         f.data = Vec::from(data);
         f.write()?;
     }
@@ -87,27 +83,27 @@ fn update_web_resource(
 /// Updates all the web resources, run on a separate thread as there is no return value
 /// # Arguments
 /// * `dev` gets passed `update_web_resource`, if true `update_web_resource` will print the hashes if they don't match
-pub fn update_web_resources(server: String, quiet: Option<bool>) -> crate::Result<()> {
+pub fn update_web_resources(server: &str, quiet: Option<bool>) -> crate::Result<()> {
     debug!("Updating web resources");
     let real_quiet = quiet.unwrap_or(false);
-    let fixed_server = if server.ends_with("/") {
-        server.clone()
+    let fixed_server = if server.ends_with('/') {
+        server.to_string()
     } else {
-        server.clone() + "/"
+        server.to_string() + "/"
     };
     let resp = networking::get!(format!("{fixed_server}index.json"))?;
     unsafe {
         if resp.status == 200 {
             let mut web_text = resp.text;
             let web_json: Value = simd_json::from_str(&mut web_text)?; // Real unsafe stuff here
-            update_web_resource(WEATHER_CODES, web_json.clone(), &server, real_quiet)?;
+            update_web_resource(&WEATHER_CODES, web_json.clone(), server, real_quiet)?;
             update_web_resource(
-                WEATHER_ASCII_IMAGES,
+                &WEATHER_ASCII_IMAGES,
                 web_json.clone(),
-                &server,
+                server,
                 real_quiet,
             )?;
-            update_web_resource(DEFAULT_LAYOUT, web_json, &server, real_quiet)?;
+            update_web_resource(&DEFAULT_LAYOUT, web_json, server, real_quiet)?;
             return Ok(());
         }
     }

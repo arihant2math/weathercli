@@ -48,9 +48,9 @@ impl ItemType for Function {
 
     fn to_string(&self, data: &Value, _settings: LayoutSettings, _metric: bool) -> crate::Result<String> {
         let item_color =
-            color::from_string(self.color.clone().unwrap_or_default()).unwrap_or_default();
+            color::from_string(&self.color.clone().unwrap_or_default()).unwrap_or_default();
         let item_bg_color =
-            color::from_string(self.bg_color.clone().unwrap_or_default()).unwrap_or_default();
+            color::from_string(&self.bg_color.clone().unwrap_or_default()).unwrap_or_default();
         let item_color_string = item_color + &item_bg_color;
         let value = self.get_value(data)?;
         return Ok(format!("{item_color_string}{value}"));

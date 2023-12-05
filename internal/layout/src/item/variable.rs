@@ -75,9 +75,9 @@ impl ItemType for Variable {
         let unit_color = settings.unit_color;
         let unit_bg_color = settings.unit_bg_color;
         let item_color =
-            color::from_string(self.color.clone().unwrap_or_default()).unwrap_or_default();
+            color::from_string(&self.color.clone().unwrap_or_default()).unwrap_or_default();
         let item_bg_color =
-            color::from_string(self.bg_color.clone().unwrap_or_default()).unwrap_or_default();
+            color::from_string(&self.bg_color.clone().unwrap_or_default()).unwrap_or_default();
         let item_color_string = item_color + &item_bg_color;
         let value = self.get_value(data)?;
             let s = format!("{variable_color}{variable_bg_color}{item_color_string}{value}{unit_color}{unit_bg_color}");

@@ -67,14 +67,14 @@ fn check_version(version: u64) -> crate::Result<()> {
 fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
     let retrieved_settings = data;
     let variable_color =
-        color::from_string(retrieved_settings.clone().variable_color).unwrap_or_default();
-    let text_color = color::from_string(retrieved_settings.clone().text_color).unwrap_or_default();
-    let unit_color = color::from_string(retrieved_settings.clone().unit_color).unwrap_or_default();
+        color::from_string(&retrieved_settings.clone().variable_color).unwrap_or_default();
+    let text_color = color::from_string(&retrieved_settings.clone().text_color).unwrap_or_default();
+    let unit_color = color::from_string(&retrieved_settings.clone().unit_color).unwrap_or_default();
     let variable_bg_color =
-        color::from_string(retrieved_settings.clone().variable_bg_color).unwrap_or_default();
+        color::from_string(&retrieved_settings.clone().variable_bg_color).unwrap_or_default();
     let text_bg_color =
-        color::from_string(retrieved_settings.clone().text_bg_color).unwrap_or_default();
-    let unit_bg_color = color::from_string(retrieved_settings.unit_bg_color).unwrap_or_default();
+        color::from_string(&retrieved_settings.clone().text_bg_color).unwrap_or_default();
+    let unit_bg_color = color::from_string(&retrieved_settings.clone().unit_bg_color).unwrap_or_default();
     LayoutSettings {
         variable_color,
         text_color,

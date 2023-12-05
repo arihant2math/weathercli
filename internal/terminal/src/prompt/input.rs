@@ -5,7 +5,7 @@ use std::io::Write;
 use std::time::Duration;
 use std::{io, thread};
 
-fn modify(choice: String, to_add: &str, position: usize) -> String {
+fn modify(choice: &str, to_add: &str, position: usize) -> String {
     let first = &choice[..position];
     let second = &choice[position..];
     format!("{first}{to_add}{second}")
@@ -85,11 +85,11 @@ pub fn input(prompt: Option<String>, default: Option<String>) -> io::Result<Stri
                 code: KeyCode::Char(c),
                 ..
             }) => {
-                choice = modify(choice, &c.to_string(), cursor_position);
+                choice = modify(&choice, &c.to_string(), cursor_position);
                 cursor_position += 1;
             }
             Event::Paste(s) => {
-                choice = modify(choice, &s, cursor_position);
+                choice = modify(&choice, &s, cursor_position);
                 cursor_position += s.len();
             }
             _ => {}

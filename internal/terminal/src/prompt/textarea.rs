@@ -10,6 +10,7 @@ use std::io::Write;
 use std::time::Duration;
 use std::{io, thread};
 
+#[allow(clippy::too_many_lines)] // TODO: Fix at some point
 pub fn textarea() -> Result<String> {
     enable_raw_mode()?;
     execute!(stdout(), EnterAlternateScreen, cursor::MoveTo(0, 0))?;
