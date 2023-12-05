@@ -87,9 +87,9 @@ impl WeatherForecast {
                 sentence.push(format!("It will be cloudy at {} for atleast {} hours.", start.format("%H:%M"), (future_forecasts.last().unwrap().time - start).num_hours()));
             }
         }
-        if sentence.len() == 0 {
+        if sentence.is_empty() {
             sentence.push("No precipitation".into());
         }
-        return Ok(sentence.join(". "));
+        Ok(sentence.join(". "))
     }
 }

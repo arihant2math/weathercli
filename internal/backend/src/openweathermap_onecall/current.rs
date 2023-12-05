@@ -35,12 +35,12 @@ pub fn get_current(
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions.clone()),
         rain_data: crate::weather_data::PrecipitationData {
-            amount: data.rain.unwrap_or(PrecipitationJson::default()).one_hour,
+            amount: data.rain.unwrap_or_default().one_hour,
             time: Duration::hours(1),
             probability: 100,
         },
         snow_data: crate::weather_data::PrecipitationData {
-            amount: data.snow.unwrap_or(PrecipitationJson::default()).one_hour,
+            amount: data.snow.unwrap_or_default().one_hour,
             time: Duration::hours(1),
             probability: 100,
         },

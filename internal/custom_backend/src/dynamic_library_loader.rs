@@ -27,22 +27,21 @@ pub fn is_valid_ext(f: &str) -> bool {
 }
 
 #[cfg(target_os = "windows")]
-pub fn is_valid_file(f: &str) -> bool {
-    let file = WeatherFile::new(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap())?;
-    file.data.starts_with(&[0x4d, 0x5a])
+pub fn is_valid_file(f: &str) -> weather_error::Result<bool> {
+    let file = WeatherFile::new(custom_backends_dir()?.join(f).as_path().to_str().unwrap())?;
+    Ok(file.data.starts_with(&[0x4d, 0x5a]))
 }
 
 #[cfg(target_os = "linux")]
-pub fn is_valid_file(f: &str) -> bool {
-    let file = WeatherFile::new(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap())?;
-    file.data.starts_with(&[0x7f, 0x45, 0x4c, 0x46]) // TODO: untested
-
+pub fn is_valid_file(f: &str) -> weather_error::Result<bool> {
+    let file = WeatherFile::new(custom_backends_dir()?.join(f).as_path().to_str().unwrap())?;
+    Ok(file.data.starts_with(&[0x7f, 0x45, 0x4c, 0x46])) // TODO: untested
 }
 
 #[cfg(target_os = "macos")]
-pub fn is_valid_file(f: &str) -> bool {
-    let file = WeatherFile::new(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap())?;
-    file.data.starts_with(&[0xcf, 0xfa, 0xed, 0xfe]) // TODO: untested
+pub fn is_valid_file(f: &str) -> weather_error::Result<bool> {
+    let file = WeatherFile::new(custom_backends_dir()?.join(f).as_path().to_str().unwrap())?;
+    Ok(file.data.starts_with(&[0xcf, 0xfa, 0xed, 0xfe])) // TODO: untested
 }
 
 

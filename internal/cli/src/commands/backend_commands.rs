@@ -1,14 +1,13 @@
 use custom_backend::dynamic_library_loader::is_valid_ext;
 use local::list_dir;
 use local::settings::Settings;
-use local::weather_file::WeatherFile;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
 use terminal::color;
 use terminal::prompt;
 use weather_dirs::custom_backends_dir;
-
+use custom_backend::dynamic_library_loader::is_valid_file;
 use crate::arguments::BackendOpts;
 
 fn install(path: String) -> crate::Result<()> {
@@ -28,7 +27,7 @@ fn list(settings: &mut Settings) -> crate::Result<()> {
         // TODO: Check which ones are valid (hard to do)
         let file_name = &*path;
         if is_valid_ext(file_name) {
-            let mut valid = settings.enable_custom_backends && is_valid_file(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap());
+            let valid = settings.enable_custom_backends && is_valid_file(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap())?;
             if valid {
                 println!("{}{file_name}", color::FORE_GREEN);
             } else {
