@@ -124,7 +124,7 @@ impl Default for Settings {
         unsafe {
             let mut s = String::from("{}");
             let res = simd_json::from_str(&mut s);
-            return res.unwrap();
+            res.unwrap()
         }
     }
 }

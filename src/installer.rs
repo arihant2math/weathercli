@@ -8,7 +8,7 @@ use winreg::enums::HKEY_LOCAL_MACHINE;
 use winreg::RegKey;
 
 use local::settings::Settings;
-use updater::component::update_component;
+use updater::component::update as update_component;
 use updater::CONFIG;
 use updater::resource::update_web_resources;
 
@@ -89,6 +89,6 @@ async fn run() -> Result<()> {
     if args.add_to_path {
         add_to_path(dir_path.display().to_string())?;
     }
-    update_web_resources(settings.update_server, Some(false))?;
+    update_web_resources(&settings.update_server, Some(false))?;
     Ok(())
 }

@@ -51,7 +51,7 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> crate::Result<Coor
         )
     )?;
     if r.status > 399 {
-        return Err("Bing maps geocoding failed")?;
+        Err("Bing maps geocoding failed")?;
     }
     let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
     let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
@@ -183,7 +183,19 @@ pub struct LocationData { // TODO: Use this
     country: String,
 }
 
+fn option_to_string(option: Option<&str>) -> Option<String> {
+    option.map(std::string::ToString::to_string)
+}
+
 pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<LocationData> {
+    fn convert_string(s: String) -> Option<String> {
+        if s.is_empty() {
+            None
+        } else {
+            Some(s)
+        }
+    }
+
     let k = "coordinates".to_string()
         + &coordinates.latitude.to_string()
         + ","
@@ -198,24 +210,18 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<LocationData>
                     .as_str()
                     .ok_or("country not found")?
                     .to_string();
-                fn option_to_string(option: Option<&str>) -> Option<String> {
-                    return if let Some(s) = option {
-                        Some(s.to_string())
-                    } else {
-                        None
-                    };
-                }
                 let village: Option<String> = option_to_string(place["address"]["village"].as_str());
                 let suburb: Option<String> = option_to_string(place["address"]["suburb"].as_str());
                 let city: Option<String> = option_to_string(place["address"]["city"].as_str());
+                #[allow(clippy::similar_names)]
                 let county: Option<String> = option_to_string(place["address"]["county"].as_str());
                 let state: Option<String> = option_to_string(place["address"]["state"].as_str());
                 let v = format!("{}||{}||{}||{}||{}||{}",
-                                village.clone().unwrap_or(String::from("")),
-                                suburb.clone().unwrap_or(String::from("")),
-                                city.clone().unwrap_or(String::from("")),
-                                county.clone().unwrap_or(String::from("")),
-                                state.clone().unwrap_or(String::from("")),
+                                village.clone().unwrap_or_default(),
+                                suburb.clone().unwrap_or_default(),
+                                city.clone().unwrap_or_default(),
+                                county.clone().unwrap_or_default(),
+                                state.clone().unwrap_or_default(),
                                 country);
                 thread::spawn(move || {
                     cache::write(&k, &v).unwrap_or_default();
@@ -245,16 +251,11 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<LocationData>
                 let county_string = vec_collect[3].to_string();
                 let state_string = vec_collect[4].to_string();
                 let country = vec_collect[5].to_string();
-                fn convert_string(s: String) -> Option<String> {
-                    return if s.is_empty() {
-                        None
-                    } else {
-                        Some(s)
-                    };
-                }
+
                 let village = convert_string(village_string);
                 let suburb = convert_string(suburb_string);
                 let city = convert_string(city_string);
+                #[allow(clippy::similar_names)]
                 let county = convert_string(county_string);
                 let state = convert_string(state_string);
                 Ok(LocationData {

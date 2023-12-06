@@ -24,29 +24,31 @@ impl Parse for Networking {
                 let headers: Expr = input.parse()?;
                 input.parse::<Token![,]>()?;
                 let cookies: Expr = input.parse()?;
-                return Ok(Networking {
+                Ok(Networking {
                     url,
                     user_agent,
                     headers,
                     cookies,
-                });
+                })
             } else {
                 let none_syn: Expr = parse_quote! { None };
-                return Ok(Networking {
+                let none_syn_borrow: Expr = parse_quote! { &None };
+                Ok(Networking {
                         url,
                         user_agent,
-                        headers: none_syn.clone(),
-                        cookies: none_syn,
-                });
+                        headers: none_syn,
+                        cookies: none_syn_borrow,
+                })
             }
         } else {
             let none_syn: Expr = parse_quote! { None };
-            return Ok(Networking {
+            let none_syn_borrow: Expr = parse_quote! { &None };
+            Ok(Networking {
                 url,
                 user_agent: none_syn.clone(),
-                headers: none_syn.clone(),
-                cookies: none_syn,
-            });
+                headers: none_syn,
+                cookies: none_syn_borrow,
+            })
         }
     }
 }
@@ -67,7 +69,7 @@ pub fn get(input: TokenStream) -> TokenStream {
             #cookies
         )
     };
-    return TokenStream::from(expanded);
+    TokenStream::from(expanded)
 }
 
 #[proc_macro]
@@ -76,7 +78,7 @@ pub fn getf(input: TokenStream) -> TokenStream {
     let expanded = quote! {
         networking::get_url(format!(#e), None, None, None)
     };
-    return TokenStream::from(expanded);
+    TokenStream::from(expanded)
 }
 
 #[proc_macro]
@@ -95,7 +97,7 @@ pub fn gets(input: TokenStream) -> TokenStream {
             #cookies
         )
     };
-    return TokenStream::from(expanded);
+    TokenStream::from(expanded)
 }
 
 #[proc_macro]
@@ -114,7 +116,7 @@ pub fn post(input: TokenStream) -> TokenStream {
             #cookies
         )
     };
-    return TokenStream::from(expanded);
+    TokenStream::from(expanded)
 }
 
 #[proc_macro]
@@ -123,5 +125,5 @@ pub fn postf(input: TokenStream) -> TokenStream {
     let expanded = quote! {
         networking::post_url(format!(#e), None, None, None)
     };
-    return TokenStream::from(expanded);
+    TokenStream::from(expanded)
 }
