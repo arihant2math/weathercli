@@ -42,11 +42,11 @@ pub const BACK_LIGHTWHITE: &str = "\x1b[107m";
 
 
 pub fn rgb(red: u8, green: u8, blue: u8) -> String {
+    // TODO: This is Foreground only
     format!("\x1b[38;2;{red};{green};{blue}m")
 }
 
 pub fn string_to_rgb(s: &str) -> Option<String> {
-    // TODO: This is Foreground only
     let split: Vec<&str> = s.split(',').collect();
     if split.len() != 3 {
         return None;

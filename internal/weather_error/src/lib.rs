@@ -1,9 +1,8 @@
-use shared_deps::bincode::ErrorKind;
+use chrono::ParseError;
 use shared_deps::{serde_json, simd_json, wasmer, windows};
+use shared_deps::bincode::ErrorKind;
 use std::fmt;
 use std::fmt::Debug;
-
-use chrono::ParseError;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -72,7 +71,7 @@ impl fmt::Display for Error {
             Self::NetworkError(e) => write!(f, "Network Error: {e}"),
             Self::SerializationError(e) => write!(f, "Serialization Error: {e}"),
             Self::IoError(e) => write!(f, "I/O Error: {e}"),
-            Self::InvocationError(e) => write!(f, "Custom Backend Invocation failed, {e}"), // TODO: Fix
+            Self::InvocationError(e) => write!(f, "Custom Backend Invocation failed, {e}"),
             Self::Other(s) => write!(f, "{s}"),
         }
     }
