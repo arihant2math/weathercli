@@ -95,10 +95,21 @@ pub fn textarea() -> Result<String> {
                 ..
             }) => {
                 if cursor_char > 0 {
-                    if text[cursor_line].chars().nth(cursor_char - 1).unwrap().is_whitespace() {
+                    if text[cursor_line]
+                        .chars()
+                        .nth(cursor_char - 1)
+                        .unwrap()
+                        .is_whitespace()
+                    {
                         cursor_char = cursor_char.saturating_sub(1);
                     }
-                    while cursor_char > 0 && !text[cursor_line].chars().nth(cursor_char - 1).unwrap().is_whitespace() {
+                    while cursor_char > 0
+                        && !text[cursor_line]
+                            .chars()
+                            .nth(cursor_char - 1)
+                            .unwrap()
+                            .is_whitespace()
+                    {
                         cursor_char = cursor_char.saturating_sub(1);
                     }
                 } else if cursor_line > 0 {
@@ -112,10 +123,21 @@ pub fn textarea() -> Result<String> {
                 ..
             }) => {
                 if text[cursor_line].len() > cursor_char {
-                    if text[cursor_line].chars().nth(cursor_char).unwrap().is_whitespace() {
+                    if text[cursor_line]
+                        .chars()
+                        .nth(cursor_char)
+                        .unwrap()
+                        .is_whitespace()
+                    {
                         cursor_char = cursor_char.saturating_add(1);
                     }
-                    while text[cursor_line].len() > cursor_char && !text[cursor_line].chars().nth(cursor_char).unwrap().is_whitespace() {
+                    while text[cursor_line].len() > cursor_char
+                        && !text[cursor_line]
+                            .chars()
+                            .nth(cursor_char)
+                            .unwrap()
+                            .is_whitespace()
+                    {
                         cursor_char = cursor_char.saturating_add(1);
                     }
                 } else if text.len() - 1 > cursor_line {
@@ -150,7 +172,11 @@ pub fn textarea() -> Result<String> {
                 ..
             }) => {
                 text[cursor_line].insert(cursor_char, ch);
-                execute!(stdout(), Clear(ClearType::CurrentLine), cursor::MoveToColumn(0))?;
+                execute!(
+                    stdout(),
+                    Clear(ClearType::CurrentLine),
+                    cursor::MoveToColumn(0)
+                )?;
                 cursor_char += 1;
             }
             Event::Key(KeyEvent {
@@ -193,7 +219,11 @@ pub fn textarea() -> Result<String> {
         execute!(stdout(), cursor::MoveTo(0, 0))?;
         print!("{}", text.join("\n"));
         #[allow(clippy::cast_possible_truncation)]
-        execute!(stdout(), Clear(ClearType::FromCursorDown), cursor::MoveTo(cursor_char as u16, cursor_line as u16))?;
+        execute!(
+            stdout(),
+            Clear(ClearType::FromCursorDown),
+            cursor::MoveTo(cursor_char as u16, cursor_line as u16)
+        )?;
         if text[cursor_line].len() > cursor_char || text[cursor_line].len() > lagged_cursor_char {
             lagged_cursor_char = cursor_char;
         }

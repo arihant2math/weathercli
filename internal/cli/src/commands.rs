@@ -11,6 +11,7 @@ use shared_deps::simd_json;
 use std::path::Path;
 use std::str::FromStr;
 use std::thread;
+use layout::layout_input::LayoutInput;
 use terminal::prompt;
 use weather_dirs::resources_dir;
 
@@ -20,11 +21,14 @@ use crate::arguments::CacheOpts;
 pub mod backend_commands;
 pub mod layout_commands;
 pub mod util;
+pub mod saved_commands;
+
+use parse_duration::parse as parse_duration;
 
 fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
     match time {
         Some(t) => {
-            let time = chrono::Utc::now() + Duration::hours(t.parse().unwrap());
+            let time = chrono::Utc::now() + chrono::Duration::from_std(parse_duration(&t).unwrap_or(std::time::Duration::new(0, 0))).unwrap_or(Duration::zero());
             return time;
         }
         None => {
@@ -94,8 +98,7 @@ pub fn weather(
         error!("Error getting data from datasource: {e}");
         e
     })?;
-    let requested_weather = data.get_best_forecast(get_requested_time(time))?;
-    print_out(&settings.layout_file, data, requested_weather, json, true_metric)?;
+    print_out(&settings.layout_file, LayoutInput::from_forecast(data, get_requested_time(time))?, json, true_metric)?;
     Ok(())
 }
 

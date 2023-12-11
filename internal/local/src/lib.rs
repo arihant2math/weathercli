@@ -1,4 +1,5 @@
 pub mod cache;
+pub(crate) mod json;
 pub mod location;
 pub mod settings;
 pub mod weather_file;

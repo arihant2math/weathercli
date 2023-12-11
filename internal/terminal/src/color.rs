@@ -2,7 +2,6 @@ pub const RESET: &str = "\x1b[0m";
 pub const FORE_RESET: &str = "\x1b[39m";
 pub const BACK_RESET: &str = "\x1b[49m";
 
-
 pub const FORE_BLACK: &str = "\x1b[30m";
 pub const FORE_RED: &str = "\x1b[31m";
 pub const FORE_GREEN: &str = "\x1b[32m";
@@ -21,7 +20,6 @@ pub const FORE_LIGHTMAGENTA: &str = "\x1b[95m";
 pub const FORE_LIGHTCYAN: &str = "\x1b[96m";
 pub const FORE_LIGHTWHITE: &str = "\x1b[97m";
 
-
 pub const BACK_BLACK: &str = "\x1b[40m";
 pub const BACK_RED: &str = "\x1b[41m";
 pub const BACK_GREEN: &str = "\x1b[42m";
@@ -39,7 +37,6 @@ pub const BACK_LIGHTBLUE: &str = "\x1b[104m";
 pub const BACK_LIGHTMAGENTA: &str = "\x1b[105m";
 pub const BACK_LIGHTCYAN: &str = "\x1b[106m";
 pub const BACK_LIGHTWHITE: &str = "\x1b[107m";
-
 
 pub fn rgb(red: u8, green: u8, blue: u8) -> String {
     // TODO: This is Foreground only

@@ -17,11 +17,13 @@ pub struct App {
 pub enum Command {
     #[command(about = "Get the weather for a specific place")]
     Place(PlaceOpts),
+    #[command(subcommand)]
+    Saved(SavedOpts),
     #[command(about = "Open a partial settings editor")]
     Settings,
     #[command(about = "Open the gui settings editor")]
     GuiSettings,
-    #[command(about = "Set a config variable via weather config [key] [value]")]
+    #[command(about = "Set a config variable via weather config [key] [value]", long_about = "Set a config variable via weather config [key] [value]\n\nIf [value] is not provided, the value of [key] will be printed. `weather setup` and `weather gui-settings` are similar commands")]
     Config(ConfigOpts),
     #[command(subcommand)]
     Cache(CacheOpts),
@@ -37,6 +39,16 @@ pub enum Command {
     About,
     #[command(about = "Various Credits")]
     Credits,
+}
+
+#[derive(Clone, Subcommand)]
+pub enum SavedOpts {
+    #[command(about = "Save a place")]
+    Save(PlaceOpts),
+    #[command(about = "List all saved places")]
+    List,
+    #[command(about = "Delete a saved place")]
+    Delete,
 }
 
 #[derive(Clone, Subcommand)]
@@ -92,7 +104,7 @@ pub struct ConfigOpts {
 
 #[derive(Clone, Args)]
 pub struct PlaceOpts {
-    pub query: String,
+    pub query: Option<String>,
 }
 
 #[derive(Clone, Copy, Args)]

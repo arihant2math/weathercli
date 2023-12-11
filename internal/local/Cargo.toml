@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 shared_deps = { path = "../shared_deps" }
 networking = { path = "../networking" }
+terminal = { path = "../terminal" }
 serde = "1.0"
 log = "0.4"
 hex = "0.4"

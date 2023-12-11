@@ -4,6 +4,7 @@ use shared_deps::simd_json;
 
 #[cfg(windows)]
 use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
+use crate::location::Coordinates;
 
 use crate::weather_file::WeatherFile;
 
@@ -60,6 +61,25 @@ fn _constant_location() -> bool {
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 #[allow(clippy::struct_excessive_bools)]
+pub struct SavedLocation { // TODO: Save all the reverse geocode data too
+    pub name: String,
+    pub latitude: f64,
+    pub longitude: f64
+}
+
+impl Into<Coordinates> for SavedLocation {
+    fn into(self) -> Coordinates {
+        Coordinates {
+            latitude: self.latitude,
+            longitude: self.longitude,
+        }
+    }
+}
+
+
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[allow(clippy::struct_excessive_bools)]
 pub struct Settings {
     #[serde(default)]
     pub open_weather_map_api_key: String,
@@ -92,6 +112,8 @@ pub struct Settings {
     file: WeatherFile,
     #[serde(default)]
     pub open_weather_map_one_call_key: bool, // True if open_weather_map_api_key is one_call compatable
+    #[serde(default)]
+    pub saved_locations: Vec<SavedLocation>,
 }
 
 impl Settings {

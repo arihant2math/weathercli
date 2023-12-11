@@ -1,13 +1,6 @@
+use std::mem::discriminant;
+
 use clap::Parser;
-use cli::arguments::{App, Command};
-use cli::commands::{
-    about, backend_commands, cache, credits, layout_commands, open_settings_app, settings, weather,
-};
-use cli::commands::util::{setup, update};
-use cli::Datasource;
-use custom_backend::dynamic_library_loader::ExternalBackends;
-use custom_backend::load_custom_backends;
-use local::settings::Settings;
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Logger, Root};
@@ -15,7 +8,16 @@ use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use log4rs::Handle;
 use log::LevelFilter;
-use std::mem::discriminant;
+
+use cli::arguments::{App, Command};
+use cli::commands::{
+    about, backend_commands, cache, credits, layout_commands, open_settings_app, saved_commands, settings, weather,
+};
+use cli::commands::util::{setup, update};
+use cli::Datasource;
+use custom_backend::dynamic_library_loader::ExternalBackends;
+use custom_backend::load_custom_backends;
+use local::settings::Settings;
 use terminal::color;
 use weather_dirs::{custom_backends_dir, weathercli_dir};
 
@@ -117,15 +119,29 @@ fn run() -> Result<()> {
     match args.command {
         Some(command) => {
             match command {
-                Command::Place(opts) => weather(
-                    datasource,
-                    local::location::geocode(opts.query, &settings_s.bing_maps_api_key.clone())?,
-                    args.global_opts.future,
-                    settings_s,
-                    true_metric,
-                    args.global_opts.json,
-                    custom_backends,
-                )?,
+                Command::Place(opts) => {
+                    if let Some(query) = opts.query {
+                        weather(
+                            datasource,
+                            local::location::geocode(query, &settings_s.bing_maps_api_key.clone())?,
+                            args.global_opts.future,
+                            settings_s,
+                            true_metric,
+                            args.global_opts.json,
+                            custom_backends,
+                        )?
+                    } else {
+                        weather(
+                            datasource,
+                            saved_commands::select(settings_s.clone())?.into(),
+                            args.global_opts.future,
+                            settings_s,
+                            true_metric,
+                            args.global_opts.json,
+                            custom_backends,
+                        )?
+                    }
+                },
                 Command::About => about(),
                 Command::Backend(arg) => backend_commands::subcommand(arg, &mut settings_s)?,
                 Command::Cache(arg) => cache(arg)?,
@@ -136,6 +152,7 @@ fn run() -> Result<()> {
                 Command::Layout(arg) => layout_commands::subcommand(arg, settings_s)?,
                 Command::Setup => setup(settings_s)?,
                 Command::Update(opts) => update(opts.force, opts.dry_run, version())?,
+                Command::Saved(arg) => saved_commands::subcommand(arg, settings_s)?,
             };
         }
         None => weather(

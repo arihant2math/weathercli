@@ -1,6 +1,6 @@
 use chrono::ParseError;
-use shared_deps::{serde_json, simd_json, wasmer, windows};
 use shared_deps::bincode::ErrorKind;
+use shared_deps::{serde_json, simd_json, wasmer, windows};
 use std::fmt;
 use std::fmt::Debug;
 

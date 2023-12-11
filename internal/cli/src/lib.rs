@@ -1,9 +1,9 @@
-use backend::{WeatherData, WeatherForecast};
 use weather_error;
 use weather_error::LayoutErr;
 
 use layout::LayoutFile;
 use layout::layout_input::LayoutInput;
+use shared_deps::serde_json;
 
 pub mod arguments;
 pub mod commands;
@@ -33,20 +33,17 @@ impl Datasource {
 
 fn print_out(
     layout_file: &str,
-    data: WeatherForecast,
-    requested_weather: WeatherData,
+    data: LayoutInput,
     json: bool,
     metric: bool,
 ) -> crate::Result<()> {
     if json {
-        println!("{:#?}", data.raw_data.expect("No raw data to print"));
+        println!("{}", serde_json::to_string_pretty(&data)?);
     } else {
         let mut out = LayoutFile::new(layout_file);
         if out.is_err() {
             out = LayoutFile::new("default.res");
         }
-        let datasource = data.datasource.clone();
-        let location = data.location.clone();
         println!(
             "{}",
             out.map_err(|e| weather_error::Error::LayoutError(LayoutErr {
@@ -54,12 +51,7 @@ fn print_out(
                 row: None,
                 item: None
             }))?
-            .to_string(LayoutInput {
-                datasource,
-                location,
-                weather: requested_weather,
-                forecast_sentence: data.get_forecast_sentence(chrono::offset::Utc::now())?,
-            }, metric)?
+            .to_string(data, metric)?
         );
     }
     Ok(())

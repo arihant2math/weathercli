@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 use std::thread;
 
-use serde::{Serialize, Deserialize};
+use crate::json::bing::{ResourceSetsJSON, BingJSON};
+
+use serde::{Deserialize, Serialize};
 use shared_deps::serde_json::Value;
 use shared_deps::simd_json;
 #[cfg(target_os = "windows")]
@@ -11,6 +13,7 @@ use windows::Devices::Geolocation::PositionAccuracy;
 
 use crate::cache;
 use networking;
+use shared_deps::simd_json::prelude::ArrayTrait;
 
 #[derive(Clone, Copy)]
 pub struct Coordinates {
@@ -44,7 +47,7 @@ fn get_web() -> crate::Result<Coordinates> {
     })
 }
 
-fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> crate::Result<Coordinates> {
+fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> crate::Result<ResourceSetsJSON> {
     let mut r = networking::get!(
         format!(
             "https://dev.virtualearth.net/REST/v1/Locations?query=\"{query}\"&maxResults=5&key={bing_maps_api_key}"
@@ -53,18 +56,14 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> crate::Result<Coor
     if r.status > 399 {
         Err("Bing maps geocoding failed")?;
     }
-    let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
-    let j_data = &j["resourceSets"][0]["resources"][0]["point"]["coordinates"];
-    Ok(Coordinates {
-        latitude: j_data[0].as_f64().ok_or("latitude not found")?,
-        longitude: j_data[1].as_f64().ok_or("longitude not found")?,
-    })
+    let j: BingJSON = unsafe { simd_json::from_str(&mut r.text) }?;
+    Ok(j.resource_sets[0].clone())
 }
 
-fn nominatim_geocode(query: &str) -> crate::Result<Coordinates> {
-    let mut r = networking::get!(
-        format!("https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2")
-    )?;
+fn nominatim_geocode(query: &str) -> crate::Result<Vec<Coordinates>> { // TODO: return multiple results
+    let mut r = networking::get!(format!(
+        "https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"
+    ))?;
     let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
     let latitude = j[0]["lat"]
         .as_f64()
@@ -74,19 +73,17 @@ fn nominatim_geocode(query: &str) -> crate::Result<Coordinates> {
         .as_f64()
         .ok_or("longitude not found")?
         .to_string();
-    Ok(Coordinates {
+    Ok(vec![Coordinates {
         latitude: latitude.parse().unwrap(),
         longitude: longitude.parse().unwrap(),
-    })
+    }])
 }
 
 fn nominatim_reverse_geocode(coordinates: &Coordinates) -> crate::Result<String> {
-    let r = networking::get!(
-        format!(
-            "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
-            coordinates.latitude, coordinates.longitude
-        )
-    )?;
+    let r = networking::get!(format!(
+        "https://nominatim.openstreetmap.org/reverse?lat={}&lon={}&format=jsonv2",
+        coordinates.latitude, coordinates.longitude
+    ))?;
     Ok(r.text)
 }
 
@@ -138,43 +135,57 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> crate::Result<Coordinat
 }
 
 pub fn geocode(query: String, bing_maps_api_key: &str) -> crate::Result<Coordinates> {
-    let attempt_cache = cache::read(&("location".to_string() + &query));
+    let coordinates: crate::Result<Coordinates>;
+    if !bing_maps_api_key.is_empty() {
+        let coordinates_list = bing_maps_geocode(&query, bing_maps_api_key)?.resources;
 
-    match attempt_cache {
-        Err(_e) => {
-            let mut coordinates: crate::Result<Coordinates>;
-            if bing_maps_api_key.is_empty() {
-                coordinates = nominatim_geocode(&query);
-            } else {
-                coordinates = bing_maps_geocode(&query, bing_maps_api_key);
-                if coordinates.is_err() {
-                    println!("Bing maps geocoding failed");
-                    coordinates = nominatim_geocode(&query);
-                }
-            }
-            let real_coordinate = coordinates?;
-            let v = format!("{},{}", real_coordinate.latitude, real_coordinate.longitude);
-            thread::spawn(move || {
-                cache::write(&("location".to_string() + &query.to_lowercase()), &v).unwrap();
+        if coordinates_list.len() > 1 {
+            println!("Multiple choices found, please choose one");
+            let formatted_coordinates_list: Vec<String> = coordinates_list
+                .iter()
+                .map(|coordinate| {
+                    format!("{} ({} Confidence)", coordinate.name, coordinate.confidence)
+                })
+                .collect();
+            let index = terminal::prompt::radio(&formatted_coordinates_list, 0, None)?;
+            coordinates = Ok(Coordinates {
+                latitude: coordinates_list[index].point.coordinates[0],
+                longitude: coordinates_list[index].point.coordinates[1],
             });
-            Ok(real_coordinate)
+        } else {
+            let index = 0;
+            coordinates = Ok(Coordinates {
+                latitude: coordinates_list[index].point.coordinates[0],
+                longitude: coordinates_list[index].point.coordinates[1],
+            });
         }
-        Ok(real_cache) => {
-            let cache_string = "location".to_string() + &query.to_lowercase();
-            thread::spawn(move || {
-                cache::update_hits(&cache_string).unwrap_or(());
-            });
-            let vec_collect: Vec<&str> = real_cache.split(',').collect();
-            Ok(Coordinates {
-                latitude: vec_collect[0].to_string().parse().unwrap(),
-                longitude: vec_collect[1].to_string().parse().unwrap(),
-            })
+    } else {
+        let coordinates_list = nominatim_geocode(&query)?;
+        if coordinates_list.len() > 1 {
+            println!("Multiple choices found, please choose one");
+            let formatted_coordinates_list: Vec<String> = coordinates_list
+                .iter()
+                .map(|coordinate| {
+                    format!("{},{}", coordinate.latitude, coordinate.longitude)
+                })
+                .collect();
+            let index = terminal::prompt::radio(&formatted_coordinates_list, 0, None)?;
+            coordinates = Ok(coordinates_list[index]);
+        } else {
+            coordinates = Ok(coordinates_list[0]);
         }
     }
+    let real_coordinate = coordinates?;
+    let v = format!("{},{}", real_coordinate.latitude, real_coordinate.longitude);
+    thread::spawn(move || {
+        cache::write(&("location".to_string() + &query.to_lowercase()), &v).unwrap();
+    });
+    Ok(real_coordinate)
 }
 
 #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
-pub struct LocationData { // TODO: Use this
+pub struct LocationData {
+    // TODO: Use this
     village: Option<String>,
     suburb: Option<String>,
     city: Option<String>,
@@ -210,19 +221,22 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> crate::Result<LocationData>
                     .as_str()
                     .ok_or("country not found")?
                     .to_string();
-                let village: Option<String> = option_to_string(place["address"]["village"].as_str());
+                let village: Option<String> =
+                    option_to_string(place["address"]["village"].as_str());
                 let suburb: Option<String> = option_to_string(place["address"]["suburb"].as_str());
                 let city: Option<String> = option_to_string(place["address"]["city"].as_str());
                 #[allow(clippy::similar_names)]
                 let county: Option<String> = option_to_string(place["address"]["county"].as_str());
                 let state: Option<String> = option_to_string(place["address"]["state"].as_str());
-                let v = format!("{}||{}||{}||{}||{}||{}",
-                                village.clone().unwrap_or_default(),
-                                suburb.clone().unwrap_or_default(),
-                                city.clone().unwrap_or_default(),
-                                county.clone().unwrap_or_default(),
-                                state.clone().unwrap_or_default(),
-                                country);
+                let v = format!(
+                    "{}||{}||{}||{}||{}||{}",
+                    village.clone().unwrap_or_default(),
+                    suburb.clone().unwrap_or_default(),
+                    city.clone().unwrap_or_default(),
+                    county.clone().unwrap_or_default(),
+                    state.clone().unwrap_or_default(),
+                    country
+                );
                 thread::spawn(move || {
                     cache::write(&k, &v).unwrap_or_default();
                 });

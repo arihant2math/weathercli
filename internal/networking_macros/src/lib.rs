@@ -34,10 +34,10 @@ impl Parse for Networking {
                 let none_syn: Expr = parse_quote! { None };
                 let none_syn_borrow: Expr = parse_quote! { &None };
                 Ok(Networking {
-                        url,
-                        user_agent,
-                        headers: none_syn,
-                        cookies: none_syn_borrow,
+                    url,
+                    user_agent,
+                    headers: none_syn,
+                    cookies: none_syn_borrow,
                 })
             }
         } else {
@@ -59,7 +59,7 @@ pub fn get(input: TokenStream) -> TokenStream {
         url,
         user_agent,
         headers,
-        cookies
+        cookies,
     } = parse_macro_input!(input as Networking);
     let expanded = quote! {
         networking::get_url(
@@ -87,7 +87,7 @@ pub fn gets(input: TokenStream) -> TokenStream {
         url,
         user_agent,
         headers,
-        cookies
+        cookies,
     } = parse_macro_input!(input as Networking);
     let expanded = quote! {
         networking::get_urls(
@@ -106,7 +106,7 @@ pub fn post(input: TokenStream) -> TokenStream {
         url,
         user_agent,
         headers,
-        cookies
+        cookies,
     } = parse_macro_input!(input as Networking);
     let expanded = quote! {
         networking::post_url(

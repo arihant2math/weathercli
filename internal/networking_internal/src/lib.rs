@@ -9,25 +9,30 @@ use ureq::{Agent, Response};
 use url::Url;
 
 pub const USER_AGENT: &str = "weathercli/1";
-pub const SNEAK_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0";
+pub const SNEAK_USER_AGENT: &str =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0";
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Resp {
     pub status: u16,
     pub bytes: Vec<u8>,
     pub text: String,
-    pub headers: HashMap<String, String>
+    pub headers: HashMap<String, String>,
 }
 
 impl Resp {
     pub fn new(value: Response) -> io::Result<Self> {
         let mut headers = HashMap::new();
         for header in value.headers_names() {
-            headers.insert(header.to_string(), value.header(&header).unwrap().to_string());
+            headers.insert(
+                header.to_string(),
+                value.header(&header).unwrap().to_string(),
+            );
         }
         let status = value.status();
         let mut bytes: Vec<u8> = Vec::with_capacity(256);
-        value.into_reader()
+        value
+            .into_reader()
             .take(u64::MAX - 4)
             .read_to_end(&mut bytes)?;
         let mut text = String::new();
@@ -39,7 +44,7 @@ impl Resp {
             status,
             bytes,
             text,
-            headers
+            headers,
         })
     }
 }
@@ -52,7 +57,12 @@ fn get_user_agent<S: AsRef<str>>(custom: Option<S>) -> String {
     app_user_agent
 }
 
-fn get_client<S: AsRef<str>>(urls: &[String], user_agent: Option<S>, headers: Option<HashMap<String, String>>, cookies: &Option<HashMap<String, String>>) -> Agent {
+fn get_client<S: AsRef<str>>(
+    urls: &[String],
+    user_agent: Option<S>,
+    headers: Option<HashMap<String, String>>,
+    cookies: &Option<HashMap<String, String>>,
+) -> Agent {
     let mut cookies_vec: Vec<CookieResult> = Vec::new();
     for (key, value) in &cookies.clone().unwrap_or_default().clone() {
         for url in urls {
@@ -165,7 +175,7 @@ pub fn get_urls(
             } else {
                 data_r.unwrap()
             };
-            
+
             Resp::new(data).unwrap()
         })
         .collect();
