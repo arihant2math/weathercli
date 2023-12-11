@@ -13,6 +13,7 @@ pub fn string_to_item(s: &str) -> ItemSerde {
     let mut new_s: String = s.to_string();
     if !new_s.is_empty() {
         let mut color = None;
+        // Coloring TODO: background colors too
         if new_s.chars().next().expect("0th char expected") == '$' {
             new_s = new_s[1..].to_string();
             let mut tmp_color = String::default();
@@ -23,6 +24,21 @@ pub fn string_to_item(s: &str) -> ItemSerde {
             new_s = new_s[1..].to_string();
             color = Some(tmp_color);
         }
+        if new_s.is_empty() {
+            return ItemSerde {
+                item_type: "text".to_string(),
+                color,
+                bg_color: None,
+                metric: None,
+                imperial: None,
+                unit_color: None,
+                value: new_s,
+                args: None,
+                kwargs: None,
+                scale: None,
+            };
+        }
+        // Now the real stuff
         if new_s.chars().next().expect("Oth char expected") == '@' {
             new_s = new_s[1..].to_string();
             let splt: Vec<&str> = new_s.split('|').collect();

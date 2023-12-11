@@ -1,3 +1,4 @@
+use log::warn;
 use weather_error;
 use weather_error::LayoutErr;
 
@@ -42,6 +43,7 @@ fn print_out(
     } else {
         let mut out = LayoutFile::new(layout_file);
         if out.is_err() {
+            warn!("Layout file had errors, defaulting to default.res.");
             out = LayoutFile::new("default.res");
         }
         println!(

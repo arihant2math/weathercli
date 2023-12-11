@@ -64,6 +64,12 @@ pub fn string_to_rgb(s: &str) -> Option<String> {
 
 pub fn from_string(s: &str) -> Option<String> {
     match s {
+        "BOLD" => Some(BOLD.to_string()),
+        "ITALIC" => Some(ITALIC.to_string()),
+        "UNDERLINE" => Some(UNDERLINE.to_string()),
+        "BLINK" => Some(BLINK.to_string()),
+        "STRIKETHROUGH" => Some(STRIKETHROUGH.to_string()),
+
         "RESET" => Some(RESET.to_string()),
         "FORE_BLACK" => Some(FORE_BLACK.to_string()),
         "FORE_RED" => Some(FORE_RED.to_string()),

@@ -1,3 +1,4 @@
+use log::debug;
 use local::weather_file::WeatherFile;
 use shared_deps::bincode;
 use shared_deps::serde_json;
@@ -17,7 +18,7 @@ mod row;
 pub mod util;
 pub mod layout_input;
 
-pub const VERSION: u64 = 21;
+pub const VERSION: u64 = 22;
 
 #[derive(Clone)]
 pub struct LayoutSettings {
@@ -91,6 +92,7 @@ impl LayoutFile {
     }
 
     pub fn from_path(path: &str) -> crate::Result<Self> {
+        debug!("Loading layout from {}", path);
         let file = WeatherFile::new(path)?;
         let ext = file
             .path

@@ -1,9 +1,9 @@
 {
   "daemon-version": "2023.11.1",
-  "default-layout-hash": "deb8f37714dbbdd705cfbf860463665ee24ee233505fe49f4c7ec46a6dbd4c9a",
+  "default-layout-hash": "f6f490cc9e662eb88d5c1771554c92da335aecaeaef83e6aa4ea63dc448d4121",
   "version": "2023.12.1",
-  "weather-ascii-images-hash": "5dba03c7268bdb6bb3b56ec3c1574b07af638acd818ce77b74d1a2124b181ef7",
-  "weather-codes-hash": "e932a1ab7b26e2f4233e1a14c860c5f098f190704aa8b772b050482a9c776105",
-  "weather-exe-hash-unix": "e597bfd269eeb9e995637d83851dc1516b989d599c72fcd30abff35adebcfe87",
-  "weather-exe-hash-windows": "947f8fa1737518bc60f39d524d1c665e0c120f90343009bc64a31ae081094108"
+  "weather-ascii-images-hash": "967b64fab05f7e44309a140b9802275f60678033a3e3aea2697ca1062f83e638",
+  "weather-codes-hash": "00a516ba7a67c8c33b379df7dcc100c212f713452c5002b9930269b21e3b5c7c",
+  "weather-exe-hash-unix": "ae050bd94d3588513808ddace6d54441457058d9c90a78a2fee8dc4db33961cb",
+  "weather-exe-hash-windows": "dde0f0277cb871d718d2488dcc183b8e2e7f37ad00412c59edae1932f3bb4912"
 }

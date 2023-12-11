@@ -15,6 +15,8 @@ use layout::layout_input::LayoutInput;
 use terminal::prompt;
 use weather_dirs::resources_dir;
 
+use terminal::color::*;
+
 use crate::{Datasource, print_out};
 use crate::arguments::CacheOpts;
 
@@ -142,7 +144,7 @@ pub fn cache(opts: CacheOpts) -> crate::Result<()> {
 
 pub fn about() {
     println!("Weather, in your terminal");
-    println!("Version: {}", env!("CARGO_PKG_VERSION"));
+    println!("{BOLD}{FORE_LIGHTBLUE}Version{RESET} {FORE_GREEN}{}", env!("CARGO_PKG_VERSION"));
 }
 
 pub fn credits() {

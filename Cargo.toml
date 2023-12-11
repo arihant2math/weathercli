@@ -10,7 +10,7 @@ path = "src/weather.rs"
 
 [package]
 name = "weather"
-version = "2023.12.1"
+version = "2023.12.10"
 edition = "2021"
 authors = ["Ashwin Naren"]
 rust-version = "1.64.0"
