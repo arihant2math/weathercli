@@ -40,17 +40,8 @@ fn _constant_location() -> bool {
 #[cfg(windows)]
 unsafe fn _constant_location_base() -> crate::Result<bool> {
     let mut power_status = SYSTEM_POWER_STATUS::default();
-    let success = windows::Win32::System::Power::GetSystemPowerStatus(&mut power_status).0;
-    match success {
-        0 => {
-            let error = windows::Win32::Foundation::GetLastError()
-                .to_hresult()
-                .message()
-                .to_string();
-            Err(error)?
-        }
-        _ => Ok(power_status.ACLineStatus == 255),
-    }
+    windows::Win32::System::Power::GetSystemPowerStatus(&mut power_status)?;
+    Ok(power_status.ACLineStatus == 255)
 }
 
 #[cfg(windows)]
