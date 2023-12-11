@@ -1,8 +1,11 @@
 use chrono::ParseError;
 use shared_deps::bincode::ErrorKind;
-use shared_deps::{serde_json, simd_json, wasmer, windows};
+use shared_deps::{serde_json, simd_json, wasmer};
 use std::fmt;
 use std::fmt::Debug;
+
+#[cfg(target_os = "windows")]
+use shared_deps::windows;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
