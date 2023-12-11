@@ -17,4 +17,4 @@ weather_dirs = { path = "../weather_dirs" }
 weather_error = { path = "../weather_error" }
 
 [target.'cfg(windows)'.dependencies]
-windows = { version = "0.48", features = ["Foundation", "Devices_Geolocation", "System_Power", "Win32_System_Power", "Win32_Foundation"] }
+windows = { version = "0.52", features = ["Foundation", "Devices_Geolocation", "System_Power", "Win32_System_Power", "Win32_Foundation"] }
