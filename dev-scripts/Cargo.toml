@@ -9,6 +9,7 @@ edition = "2021"
 clap = { version = "4.4", features = ["derive"] }
 weather_error = { path = "../internal/weather_error" }
 cli = { path = "../internal/cli" }
+layout = { path = "../internal/layout" }
 local = { path = "../internal/local" }
 networking = { path = "../internal/networking" }
 serde = "1.0"

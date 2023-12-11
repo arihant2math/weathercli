@@ -2,14 +2,11 @@ use std::collections::HashMap;
 
 use regex::Regex;
 
-use cli::layout::layout_serde::{ItemSerde, LayoutDefaultsSerde, LayoutSerde};
+use layout::layout_serde::{ItemSerde, LayoutDefaultsSerde, LayoutSerde};
 
 fn strip(line: &str) -> Option<String> {
-    let l = line.trim_end(); // TODO: Improve comments support `//` anywhere
-    if l.starts_with("//") {
-        return None;
-    }
-    return Some(l.to_string());
+    let mut split = line.split("//");
+    return Some(split.next()?.trim_end().to_string());
 }
 
 pub fn string_to_item(s: &str) -> ItemSerde {
