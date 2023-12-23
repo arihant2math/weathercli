@@ -1,21 +1,22 @@
 use backend::{meteo, nws, openweathermap, openweathermap_onecall, WeatherForecast};
 use chrono::{DateTime, Duration, Utc};
 use custom_backend::dynamic_library_loader::ExternalBackends;
+use custom_backend::wasm_loader::WasmLoader;
+use layout::layout_input::LayoutInput;
 use local::cache::prune;
 use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 use log::{debug, error, warn};
+use parse_duration::parse as parse_duration;
 use shared_deps::serde_json::Value;
 use shared_deps::simd_json;
 use std::path::Path;
 use std::str::FromStr;
 use std::thread;
-use layout::layout_input::LayoutInput;
+use terminal::color::*;
 use terminal::prompt;
 use weather_dirs::resources_dir;
-
-use terminal::color::*;
 
 use crate::{Datasource, print_out};
 use crate::arguments::CacheOpts;
@@ -24,8 +25,6 @@ pub mod backend_commands;
 pub mod layout_commands;
 pub mod util;
 pub mod saved_commands;
-
-use parse_duration::parse as parse_duration;
 
 fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
     match time {
@@ -44,6 +43,7 @@ pub fn get_data_from_datasource(
     coordinates: Coordinates,
     settings: Settings,
     custom_backends: ExternalBackends,
+    wasm_loader: &mut WasmLoader
 ) -> crate::Result<WeatherForecast> {
     let dir = resources_dir()?;
     let f1 = dir.join("weather_codes.res");
@@ -68,8 +68,12 @@ pub fn get_data_from_datasource(
         Datasource::NWS => nws::forecast::get_forecast(&coordinates, settings),
         Datasource::Meteo => meteo::forecast::get_forecast(&coordinates, settings),
         Datasource::Other(s) => {
-            if settings.enable_custom_backends {
+            if settings.enable_wasm_backends {
+                wasm_loader.call(&s, coordinates, settings)
+            }
+            else if settings.enable_custom_backends {
                 custom_backends.call(&s, &coordinates, settings)
+
             } else {
                 return Err(weather_error::Error::Other(
                     "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help (specifically which commands to run)
@@ -87,6 +91,7 @@ pub fn weather(
     true_metric: bool,
     json: bool,
     custom_backends: ExternalBackends,
+    wasm_backends: &mut WasmLoader
 ) -> crate::Result<()> {
     debug!(
         "Coordinates: {} {}",
@@ -96,7 +101,7 @@ pub fn weather(
     debug!("json: {json}");
     let mut s = settings.clone();
     s.metric_default = true_metric;
-    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends).map_err(|e| {
+    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends, wasm_backends).map_err(|e| {
         error!("Error getting data from datasource: {e}");
         e
     })?;

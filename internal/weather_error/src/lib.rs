@@ -1,11 +1,12 @@
 use chrono::ParseError;
+use shared_deps::{serde_json, simd_json};
 use shared_deps::bincode::ErrorKind;
-use shared_deps::{serde_json, simd_json, wasmer};
-use std::fmt;
-use std::fmt::Debug;
-
+#[cfg(not(target_arch = "wasm32"))]
+use shared_deps::extism;
 #[cfg(target_os = "windows")]
 use shared_deps::windows;
+use std::fmt;
+use std::fmt::Debug;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -23,6 +24,15 @@ impl fmt::Display for InvocationError {
             Self::NotFound => write!(f, "Not found"),
             Self::Other { msg } => write!(f, "{msg}"),
         }
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+impl From<extism::Error> for Error {
+    fn from(error: extism::Error) -> Self {
+        Self::InvocationError(InvocationError::Other {
+            msg: error.to_string(),
+        })
     }
 }
 
@@ -95,12 +105,6 @@ impl From<serde_json::Error> for Error {
 impl From<simd_json::Error> for Error {
     fn from(error: simd_json::Error) -> Self {
         Self::SerializationError(format!("JSON parsing error: {error}"))
-    }
-}
-
-impl From<wasmer::CompileError> for Error {
-    fn from(error: wasmer::CompileError) -> Self {
-        Self::Other(format!("Failed to compile wasm: {error}"))
     }
 }
 

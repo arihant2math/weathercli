@@ -1,13 +1,12 @@
-use shared_deps::simd_json;
 use chrono::DateTime;
 use chrono::Duration;
+use shared_deps::simd_json;
+use std::collections::HashMap;
 
+use crate::{get_conditions_sentence, WeatherData};
 use crate::openweathermap_onecall::json::{DailyJson, MomentJson};
 use crate::WeatherCondition;
 use crate::WindData;
-use crate::{get_conditions_sentence, WeatherData};
-use std::collections::HashMap;
-
 
 pub fn get_future(
     data: &MomentJson,
@@ -34,12 +33,12 @@ pub fn get_future(
         cloud_cover: data.clouds,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions.clone()),
-        rain_data: crate::weather_data::PrecipitationData {
+        rain_data: weather_structs::PrecipitationData {
             amount: data.rain.unwrap_or_default().one_hour,
             time: Duration::hours(1),
             probability: (data.pop * 100.0) as u8,
         },
-        snow_data: crate::weather_data::PrecipitationData {
+        snow_data: weather_structs::PrecipitationData {
             amount: data.snow.unwrap_or_default().one_hour,
             time: Duration::hours(1),
             probability: (data.pop * 100.0) as u8,

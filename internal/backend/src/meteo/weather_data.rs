@@ -1,11 +1,12 @@
+use chrono::{Duration, NaiveDateTime, Utc};
 use shared_deps::simd_json;
-use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
-use crate::WeatherCondition;
-use crate::WindData;
-use crate::{get_conditions_sentence, WeatherData};
 use std::collections::HashMap;
-use crate::weather_condition::get_clouds_condition;
-use chrono::{Utc, Duration, NaiveDateTime};
+use weather_structs::{get_conditions_sentence, WeatherData};
+use weather_structs::get_clouds_condition;
+use weather_structs::WeatherCondition;
+use weather_structs::WindData;
+
+use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 
 pub fn get_weather_data(
     data: MeteoForecastJson,
@@ -39,12 +40,12 @@ pub fn get_weather_data(
         cloud_cover,
         conditions: conditions.clone(),
         condition_sentence: get_conditions_sentence(conditions),
-        rain_data: crate::weather_data::PrecipitationData {
+        rain_data: weather_structs::PrecipitationData {
             amount: data.hourly.rain[index],
             time: Duration::hours(1),
             probability: data.hourly.precipitation_probability[index],
         },
-        snow_data: crate::weather_data::PrecipitationData {
+        snow_data: weather_structs::PrecipitationData {
             amount: data.hourly.snowfall[index],
             time: Duration::hours(1),
             probability: data.hourly.precipitation_probability[index],

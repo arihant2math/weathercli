@@ -1,18 +1,14 @@
+pub use backend::get_conditions_sentence;
+use backend::WeatherForecast;
+use local::location::Coordinates;
+use local::settings::Settings;
+use log::debug;
+use std::{fs, io};
+use weather_dirs::custom_backends_dir;
+
 pub mod dynamic_library_loader;
 pub mod loader;
 pub mod wasm_loader;
-
-pub use backend::get_conditions_sentence;
-
-use std::{fs, io};
-
-use backend::WeatherForecast;
-use local::settings::Settings;
-
-use weather_dirs::custom_backends_dir;
-
-use local::location::Coordinates;
-use log::debug;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
@@ -89,4 +85,12 @@ pub fn load_custom_backends() -> crate::Result<dynamic_library_loader::ExternalB
     debug!("Loading: {plugins:?}");
     let custom_backends = dynamic_library_loader::load(plugins);
     Ok(custom_backends)
+}
+
+pub fn is_valid_ext(f: &str) -> bool {
+    wasm_loader::is_valid_ext(f) || dynamic_library_loader::is_valid_ext(f)
+}
+
+pub fn is_valid_file(f: &str) -> bool {
+    true // TODO: fix
 }

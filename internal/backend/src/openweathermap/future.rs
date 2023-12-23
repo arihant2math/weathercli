@@ -1,13 +1,12 @@
-use std::collections::HashMap;
-use shared_deps::simd_json;
 use chrono::{DateTime, Duration};
+use shared_deps::simd_json;
+use std::collections::HashMap;
+use weather_structs::{get_conditions_sentence, WeatherData};
+use weather_structs::PrecipitationData;
+use weather_structs::WeatherCondition;
+use weather_structs::WindData;
 
 use crate::openweathermap::json::OpenWeatherMapForecastItemJson;
-use crate::WeatherCondition;
-use crate::WindData;
-use crate::{get_conditions_sentence, WeatherData};
-
-use crate::weather_data::PrecipitationData;
 
 pub fn get_future(
     data: OpenWeatherMapForecastItemJson,

@@ -1,25 +1,18 @@
-use std::collections::HashMap;
-use std::thread;
-
-use crate::json::bing::{ResourceSetsJSON, BingJSON};
-
-use serde::{Deserialize, Serialize};
+use networking;
 use shared_deps::serde_json::Value;
 use shared_deps::simd_json;
+use shared_deps::simd_json::prelude::ArrayTrait;
+use std::collections::HashMap;
+use std::thread;
+pub use weather_structs::Coordinates;
+pub use weather_structs::LocationData;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::PositionAccuracy;
 
 use crate::cache;
-use networking;
-use shared_deps::simd_json::prelude::ArrayTrait;
-
-#[derive(Clone, Copy)]
-pub struct Coordinates {
-    pub latitude: f64,
-    pub longitude: f64,
-}
+use crate::json::bing::{BingJSON, ResourceSetsJSON};
 
 #[cfg(target_os = "windows")]
 fn get_windows() -> crate::Result<Coordinates> {
@@ -181,17 +174,6 @@ pub fn geocode(query: String, bing_maps_api_key: &str) -> crate::Result<Coordina
         cache::write(&("location".to_string() + &query.to_lowercase()), &v).unwrap();
     });
     Ok(real_coordinate)
-}
-
-#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
-pub struct LocationData {
-    // TODO: Use this
-    village: Option<String>,
-    suburb: Option<String>,
-    city: Option<String>,
-    county: Option<String>,
-    state: Option<String>,
-    country: String,
 }
 
 fn option_to_string(option: Option<&str>) -> Option<String> {

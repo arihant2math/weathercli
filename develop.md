@@ -2,10 +2,7 @@
 
 ## Prerequisites
 
-* [Rust](https://www.rust-lang.org/) (1.60+, the earliest supported release is at worst 1 year old)
-* [Python](https://python.org) (3.9+, any supported python version is supported, optional and only used for some
-  scripts)
-
+* [Rust](https://www.rust-lang.org/) (latest version if possible, the earliest supported release is at worst 1 year old)
 ## Build for Development
 
 ```shell
@@ -44,9 +41,11 @@ new artifacts.
 A GitHub PAT is needed for the script to work.
 
 ```shell
-[command coming soon] [gh token here]
+./dev-scripts/target/debug/dev-scripts update-docs [gh token here]
 ```
 
 ### Update Index Hashes
 
-Documentation coming soon
+```shell
+./dev-scripts/target/debug/dev-scripts update-index-hashes
+```

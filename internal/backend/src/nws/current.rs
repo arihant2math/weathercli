@@ -1,14 +1,14 @@
+use chrono::{DateTime, Duration};
+use local::weather_file::WeatherFile;
 use shared_deps::bincode;
+use std::collections::HashMap;
+use weather_structs::get_clouds_condition;
+use weather_structs::weather_data::PrecipitationData;
 
+use crate::{get_conditions_sentence, WeatherData};
 use crate::nws::json::NWSJSON;
 use crate::WeatherCondition;
 use crate::WindData;
-use crate::{get_conditions_sentence, WeatherData};
-use crate::weather_data::PrecipitationData;
-use local::weather_file::WeatherFile;
-use std::collections::HashMap;
-use chrono::{DateTime, Duration};
-use crate::weather_condition::get_clouds_condition;
 
 fn convert_temp(value: f64, metric: bool) -> f64 {
     if metric {

@@ -11,5 +11,10 @@ rayon = "1.8"
 serde = "1.0"
 log = "0.4"
 shared_deps = { path = "../shared_deps" }
-ureq = { version = "2.8", default-features = false, features = ["tls", "gzip", "cookies", "json"], path = "../../lib/ureq" }
 url = "2.4"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+ureq = { version = "2.8", default-features = false, features = ["tls", "gzip", "cookies", "json"], path = "../../lib/ureq" }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+extism-pdk = "1.0.0-rc1"

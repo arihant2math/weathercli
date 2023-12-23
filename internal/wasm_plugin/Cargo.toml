@@ -1,7 +1,0 @@
-[package]
-name = "wasm_plugin"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-shared_deps = { path = "../shared_deps" }

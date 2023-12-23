@@ -1,11 +1,10 @@
 use log::warn;
 use serde::{Deserialize, Serialize};
 use shared_deps::simd_json;
-
 #[cfg(windows)]
 use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
-use crate::location::Coordinates;
 
+use crate::location::Coordinates;
 use crate::weather_file::WeatherFile;
 
 const fn _true() -> bool {
@@ -98,6 +97,8 @@ pub struct Settings {
     pub update_server: String,
     #[serde(default)]
     pub enable_custom_backends: bool,
+    #[serde(default = "_true")]
+    pub enable_wasm_backends: bool,
     #[serde(skip_serializing, skip_deserializing)]
     #[serde(default = "_file")]
     file: WeatherFile,
@@ -107,6 +108,7 @@ pub struct Settings {
     pub saved_locations: Vec<SavedLocation>,
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl Settings {
     pub fn new() -> crate::Result<Self> {
         unsafe {

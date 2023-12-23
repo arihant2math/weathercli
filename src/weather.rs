@@ -1,14 +1,4 @@
-use std::mem::discriminant;
-
 use clap::Parser;
-use log4rs::append::console::{ConsoleAppender, Target};
-use log4rs::append::file::FileAppender;
-use log4rs::config::{Appender, Logger, Root};
-use log4rs::encode::pattern::PatternEncoder;
-use log4rs::filter::threshold::ThresholdFilter;
-use log4rs::Handle;
-use log::LevelFilter;
-
 use cli::arguments::{App, Command};
 use cli::commands::{
     about, backend_commands, cache, credits, layout_commands, open_settings_app, saved_commands, settings, weather,
@@ -18,6 +8,14 @@ use cli::Datasource;
 use custom_backend::dynamic_library_loader::ExternalBackends;
 use custom_backend::load_custom_backends;
 use local::settings::Settings;
+use log4rs::append::console::{ConsoleAppender, Target};
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Logger, Root};
+use log4rs::encode::pattern::PatternEncoder;
+use log4rs::filter::threshold::ThresholdFilter;
+use log4rs::Handle;
+use log::LevelFilter;
+use std::mem::discriminant;
 use terminal::color;
 use weather_dirs::{custom_backends_dir, weathercli_dir};
 
@@ -64,6 +62,11 @@ pub fn init_logging() -> Result<Handle> {
         .logger(Logger::builder().build("iced_wgpu", LevelFilter::Warn))
         .logger(Logger::builder().build("cosmic_text", LevelFilter::Warn))
         .logger(Logger::builder().build("naga", LevelFilter::Info))
+        .logger(Logger::builder().build("wasmtime_jit", LevelFilter::Warn))
+        .logger(Logger::builder().build("wasmtime_cache", LevelFilter::Warn))
+        .logger(Logger::builder().build("wasmtime_cranelift", LevelFilter::Warn))
+        .logger(Logger::builder().build("cranelift_codegen", LevelFilter::Warn))
+        .logger(Logger::builder().build("cranelift_wasm", LevelFilter::Warn))
         .build(builder)
         .unwrap();
 
@@ -116,6 +119,14 @@ fn run() -> Result<()> {
     } else {
         ExternalBackends::default()
     };
+    let mut wasm_backends = if settings_s.enable_wasm_backends
+        && discriminant(&datasource) == discriminant(&Datasource::Other(String::new()))
+        && custom_backends_dir()?.exists()
+    {
+        custom_backend::wasm_loader::WasmLoader::new()?
+    } else {
+        custom_backend::wasm_loader::WasmLoader::default()
+    };
     match args.command {
         Some(command) => {
             match command {
@@ -129,6 +140,7 @@ fn run() -> Result<()> {
                             true_metric,
                             args.global_opts.json,
                             custom_backends,
+                            &mut wasm_backends
                         )?
                     } else {
                         weather(
@@ -139,6 +151,7 @@ fn run() -> Result<()> {
                             true_metric,
                             args.global_opts.json,
                             custom_backends,
+                            &mut wasm_backends
                         )?
                     }
                 },
@@ -163,6 +176,7 @@ fn run() -> Result<()> {
             true_metric,
             args.global_opts.json,
             custom_backends,
+            &mut wasm_backends
         )?,
     };
     Ok(())
