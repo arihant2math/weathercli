@@ -1,7 +1,7 @@
 use std::io::Cursor;
 
 use iced;
-use iced::{Font, Sandbox};
+use iced::{Font, Sandbox, Size};
 use iced::window::{Icon, icon, Level};
 use image::io::Reader as ImageReader;
 
@@ -41,10 +41,19 @@ pub fn run_settings_app() -> iced::Result {
     App::run(iced::Settings {
         id: Default::default(),
         window: iced::window::Settings {
-            size: (1000, 900),
+            size: (Size {
+                width: 1000f32,
+                height: 900f32
+            }),
             position: Default::default(),
-            min_size: Some((750, 500)),
-            max_size: Some((2250, 1750)),
+            min_size: Some(Size {
+                width: 750f32,
+                height: 500f32
+            }),
+            max_size: Some(Size {
+                width: 2250f32,
+                height: 1750f32
+            }),
             visible: true,
             resizable: true,
             decorations: true,
@@ -52,11 +61,12 @@ pub fn run_settings_app() -> iced::Result {
             icon: Some(icon()),
             platform_specific: Default::default(),
             level: Level::Normal,
+            exit_on_close_request: true,
         },
         flags: (),
         default_font: font(),
-        default_text_size: 16.0,
+        default_text_size: iced::Pixels(16.0),
         antialiasing: true,
-        exit_on_close_request: true,
+        fonts: Default::default(),
     })
 }

@@ -118,8 +118,8 @@ impl Sandbox for App {
         let one_call = checkbox(
             String::from("OneCall Compatable"),
             self.data.open_weather_map_one_call_key,
-            Message::OpenWeatherMapOneCallKey,
         )
+        .on_toggle(Message::OpenWeatherMapOneCallKey)
         .width(Length::Shrink)
         .spacing(10);
 

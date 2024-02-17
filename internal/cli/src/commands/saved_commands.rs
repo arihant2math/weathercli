@@ -1,4 +1,6 @@
 use local::settings::{SavedLocation, Settings};
+#[allow(unused_imports)]
+use terminal::color::*;
 
 use crate::arguments::{PlaceOpts, SavedOpts};
 

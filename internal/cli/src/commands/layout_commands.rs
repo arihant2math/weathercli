@@ -5,6 +5,8 @@ use std::str::FromStr;
 use layout::LayoutFile;
 use local::list_dir;
 use local::settings::Settings;
+#[allow(unused_imports)]
+use terminal::color::*;
 use weather_dirs::layouts_dir;
 
 use crate::arguments::LayoutOpts;
