@@ -1,13 +1,13 @@
 use dark_light::Mode;
 use iced::{Alignment, Element, Length, Sandbox, Theme};
 use iced::widget::{button, checkbox, column, container, radio, row, text, text_input, toggler};
-use local::settings;
 use log::error;
 use rfd::FileDialog;
 
+use local::settings;
+
 use crate::datasource::DataSource;
 use crate::message::Message;
-use crate::theme::{get_dark_theme, get_light_theme};
 
 pub(crate) struct App {
     theme: Theme,
@@ -21,8 +21,8 @@ impl Sandbox for App {
         let mode = dark_light::detect();
         let theme = match mode {
             Mode::Default => Theme::default(),
-            Mode::Light => get_light_theme(),
-            Mode::Dark => get_dark_theme(),
+            Mode::Light => Theme::Light,
+            Mode::Dark => Theme::Dark,
         };
         let data = settings::Settings::new().expect("Loading settings failed");
         App { theme, data }

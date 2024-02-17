@@ -1,14 +1,15 @@
-use app::App;
+use std::io::Cursor;
+
 use iced;
 use iced::{Font, Sandbox};
 use iced::window::{Icon, icon, Level};
 use image::io::Reader as ImageReader;
-use std::io::Cursor;
+
+use app::App;
 
 mod app;
 mod datasource;
 mod message;
-mod theme;
 
 #[cfg(target_os = "windows")]
 fn font() -> Font {
