@@ -1,15 +1,17 @@
-use networking;
-use shared_deps::serde_json::Value;
-use shared_deps::simd_json;
-use shared_deps::simd_json::prelude::ArrayTrait;
 use std::collections::HashMap;
 use std::thread;
-pub use weather_structs::Coordinates;
-pub use weather_structs::LocationData;
+
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::PositionAccuracy;
+
+use networking;
+use shared_deps::serde_json::Value;
+use shared_deps::simd_json;
+use shared_deps::simd_json::prelude::ArrayTrait;
+pub use weather_structs::Coordinates;
+pub use weather_structs::LocationData;
 
 use crate::cache;
 use crate::json::bing::{BingJSON, ResourceSetsJSON};
@@ -60,15 +62,13 @@ fn nominatim_geocode(query: &str) -> crate::Result<Vec<Coordinates>> { // TODO: 
     let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
     let latitude = j[0]["lat"]
         .as_f64()
-        .ok_or("latitude not found")?
-        .to_string();
+        .ok_or("latitude not found")?;
     let longitude = j[0]["lon"]
         .as_f64()
-        .ok_or("longitude not found")?
-        .to_string();
+        .ok_or("longitude not found")?;
     Ok(vec![Coordinates {
-        latitude: latitude.parse().unwrap(),
-        longitude: longitude.parse().unwrap(),
+        latitude,
+        longitude
     }])
 }
 

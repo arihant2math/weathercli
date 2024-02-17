@@ -59,7 +59,7 @@ enum BodyType {
 /// When dropping a `Response` instance, one one of two things can happen. If
 /// the response has unread bytes, the underlying socket cannot be reused,
 /// and the connection is closed. If there are no unread bytes, the connection
-/// is returned to the [`Agent`](crate::Agent) connection pool used (notice there is always
+/// is returned to the [`Agent`] connection pool used (notice there is always
 /// an agent present, even when not explicitly configured by the user).
 ///
 /// ```
@@ -201,8 +201,8 @@ impl Response {
     /// ```
     /// # fn main() -> Result<(), ureq::Error> {
     /// # ureq::is_test(true);
-    /// let resp = ureq::get("http://example.com/").call()?;
-    /// assert!(matches!(resp.header("content-type"), Some("text/html; charset=ISO-8859-1")));
+    /// let resp = ureq::get("http://example.com/charset/iso").call()?;
+    /// assert_eq!(resp.header("content-type"), Some("text/html; charset=ISO-8859-1"));
     /// assert_eq!("text/html", resp.content_type());
     /// # Ok(())
     /// # }
@@ -225,8 +225,8 @@ impl Response {
     /// ```
     /// # fn main() -> Result<(), ureq::Error> {
     /// # ureq::is_test(true);
-    /// let resp = ureq::get("http://example.com/").call()?;
-    /// assert!(matches!(resp.header("content-type"), Some("text/html; charset=ISO-8859-1")));
+    /// let resp = ureq::get("http://example.com/charset/iso").call()?;
+    /// assert_eq!(resp.header("content-type"), Some("text/html; charset=ISO-8859-1"));
     /// assert_eq!("ISO-8859-1", resp.charset());
     /// # Ok(())
     /// # }
@@ -435,7 +435,7 @@ impl Response {
     /// ```
     /// # fn main() -> Result<(), ureq::Error> {
     /// # ureq::is_test(true);
-    /// let text = ureq::get("http://httpbin.org/get/success")
+    /// let text = ureq::get("http://httpbin.org/get?success")
     ///     .call()?
     ///     .into_string()?;
     ///
@@ -489,8 +489,6 @@ impl Response {
     ///
     /// [turbofish operator]: https://matematikaadit.github.io/posts/rust-turbofish.html
     ///
-    /// Requires feature `ureq = { version = "*", features = ["json"] }`
-    ///
     /// Example:
     ///
     /// ```
@@ -502,15 +500,15 @@ impl Response {
     ///
     /// #[derive(Deserialize)]
     /// struct Message {
-    ///     hello: String,
+    ///     text: String,
     /// }
     ///
     /// let message: Message =
-    ///     ureq::get("http://example.com/hello_world.json")
+    ///     ureq::get("http://example.com/get/hello_world.json")
     ///         .call()?
     ///         .into_json()?;
     ///
-    /// assert_eq!(message.hello, "world");
+    /// assert_eq!(message.text, "Ok");
     /// # Ok(())
     /// # }
     /// ```
@@ -522,11 +520,11 @@ impl Response {
     /// ```
     /// # fn main() -> Result<(), ureq::Error> {
     /// # ureq::is_test(true);
-    /// let json: serde_json::Value = ureq::get("http://example.com/hello_world.json")
+    /// let json: serde_json::Value = ureq::get("http://example.com/get/hello_world.json")
     ///     .call()?
     ///     .into_json()?;
     ///
-    /// assert_eq!(json["hello"], "world");
+    /// assert_eq!(json["text"], "Ok");
     /// # Ok(())
     /// # }
     /// ```

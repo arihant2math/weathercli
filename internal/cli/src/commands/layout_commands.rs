@@ -1,12 +1,13 @@
-use crate::arguments::LayoutOpts;
-use layout::LayoutFile;
-use local::list_dir;
-use local::settings::Settings;
 use std::fs;
 use std::path::PathBuf;
 use std::str::FromStr;
-use terminal::color::*;
+
+use layout::LayoutFile;
+use local::list_dir;
+use local::settings::Settings;
 use weather_dirs::layouts_dir;
+
+use crate::arguments::LayoutOpts;
 
 fn install(path: String) -> crate::Result<()> {
     let real_path = PathBuf::from_str(&path).unwrap();
@@ -85,6 +86,7 @@ fn info(name: String) -> crate::Result<()> { // TODO: Add more info
             println!("{FORE_LIGHTBLUE}==={FORE_LIGHTGREEN} {file_name} {FORE_LIGHTBLUE}==={RESET}");
             let layout = LayoutFile::new(file_name)?;
             println!("Version: {}", layout.version);
+            // TODO: print the type of file
         }
     }
     Ok(())

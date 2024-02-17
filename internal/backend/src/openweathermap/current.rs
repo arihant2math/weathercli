@@ -1,6 +1,8 @@
-use chrono::{DateTime, Duration};
-use shared_deps::simd_json;
 use std::collections::HashMap;
+
+use chrono::{DateTime, Duration};
+
+use shared_deps::simd_json;
 use weather_structs::{get_conditions_sentence, WeatherData};
 use weather_structs::weather_data::PrecipitationData;
 use weather_structs::WeatherCondition;
@@ -35,8 +37,8 @@ pub fn get_current(
             .expect("aqi not found")
             .abs_diff(0),
         cloud_cover: data.clouds.all,
-        conditions: conditions.clone(),
-        condition_sentence: get_conditions_sentence(conditions.clone()),
+        condition_sentence: get_conditions_sentence(&conditions),
+        conditions: conditions,
         rain_data: PrecipitationData {
             amount: data.rain.unwrap_or_default().one_hour,
             time: Duration::hours(1),

@@ -1,6 +1,8 @@
-use chrono::{Duration, NaiveDateTime, Utc};
-use shared_deps::simd_json;
 use std::collections::HashMap;
+
+use chrono::{Duration, NaiveDateTime, Utc};
+
+use shared_deps::simd_json;
 use weather_structs::{get_conditions_sentence, WeatherData};
 use weather_structs::get_clouds_condition;
 use weather_structs::WeatherCondition;
@@ -38,8 +40,8 @@ pub fn get_weather_data(
             .unwrap_or(&Some(0))
             .unwrap_or(0_u8),
         cloud_cover,
-        conditions: conditions.clone(),
-        condition_sentence: get_conditions_sentence(conditions),
+        condition_sentence: get_conditions_sentence(&conditions),
+        conditions: conditions,
         rain_data: weather_structs::PrecipitationData {
             amount: data.hourly.rain[index],
             time: Duration::hours(1),

@@ -1,8 +1,8 @@
-use url::{ParseError, Url};
-
 use std::error;
 use std::fmt::{self, Display};
 use std::io;
+
+use url::{ParseError, Url};
 
 use crate::Response;
 
@@ -212,7 +212,7 @@ impl Display for Error {
         match self {
             Error::Status(status, response) => {
                 write!(f, "{}: status code {}", response.get_url(), status)?;
-                if let Some(original) = response.history.get(0) {
+                if let Some(original) = response.history.first() {
                     write!(f, " (redirected from {})", original)?;
                 }
             }

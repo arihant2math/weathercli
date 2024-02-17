@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::WeatherCondition;
 use crate::WindData;
 
-pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
+pub fn get_conditions_sentence(conditions: &[WeatherCondition]) -> String {
     let mut data = conditions;
     let conditions_match = data
         .get(0)
@@ -13,7 +13,7 @@ pub fn get_conditions_sentence(conditions: Vec<WeatherCondition>) -> String {
         .sentence
         .to_string();
     let mut conditions_sentences = conditions_match;
-    data.remove(0);
+    data = &data[1..];
     for condition in data {
         conditions_sentences += ". Also, ";
         conditions_sentences += &*condition.sentence.to_lowercase();

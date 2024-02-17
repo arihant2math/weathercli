@@ -11,7 +11,7 @@ use crate::update_hash::update_hash;
 
 fn get_artifact_urls(h: HashMap<String, String>, run_id: &str) -> weather_error::Result<Value> {
     let artifact_request = networking::get!(
-        format!("https://api.github.com/repos/arihant2math/weathercli/actions/runs/{}/artifacts", run_id),
+        format!("https://api.github.com/repos/arihant2math/weathercli/actions/runs/{run_id}/artifacts"),
         None, Some(h), &None)?;
     let json: Value = serde_json::from_str(&artifact_request.text)?;
     return Ok(json["artifacts"].clone());
@@ -44,7 +44,7 @@ pub fn update_docs(gh_token: &str) -> weather_error::Result<()> {
     let working_dir = env::current_dir()?;
     fs::create_dir_all(working_dir.join("tmp"))?;
     let mut headers = HashMap::new();
-    headers.insert("Authorization".to_string(), format!("Bearer {}", gh_token));
+    headers.insert("Authorization".to_string(), format!("Bearer {gh_token}"));
     let get_run_id = networking::get!("https://api.github.com/repos/arihant2math/weathercli/actions/runs?per_page=10&status=completed",
                                          None, Some(headers.clone()), &None)?;
     let runs_json: Value = serde_json::from_str(&get_run_id.text)?;

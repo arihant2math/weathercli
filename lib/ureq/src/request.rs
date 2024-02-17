@@ -1,5 +1,5 @@
-use std::io::Read;
 use std::{fmt, time};
+use std::io::Read;
 
 use url::{form_urlencoded, ParseError, Url};
 
@@ -8,8 +8,8 @@ use crate::body::Payload;
 use crate::error::{Error, ErrorKind};
 use crate::header::{self, Header};
 use crate::middleware::MiddlewareNext;
-use crate::unit::{self, Unit};
 use crate::Response;
+use crate::unit::{self, Unit};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -18,7 +18,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 /// ```
 /// # fn main() -> Result<(), ureq::Error> {
 /// # ureq::is_test(true);
-/// let response = ureq::get("http://example.com/form")
+/// let response = ureq::get("http://example.com/get")
 ///     .query("foo", "bar baz")  // add ?foo=bar+baz
 ///     .call()?;                 // run the request
 /// # Ok(())
@@ -47,10 +47,10 @@ impl fmt::Debug for Request {
 impl Request {
     pub(crate) fn new(agent: Agent, method: String, url: String) -> Request {
         Request {
-            agent: agent.clone(),
+            agent,
             method,
             url,
-            headers: agent.config.headers.clone(),
+            headers: vec![],
             timeout: None,
         }
     }
@@ -174,8 +174,6 @@ impl Request {
     }
 
     /// Send data a json value.
-    ///
-    /// Requires feature `ureq = { version = "*", features = ["json"] }`
     ///
     /// The `Content-Length` header is implicitly set to the length of the serialized value.
     ///

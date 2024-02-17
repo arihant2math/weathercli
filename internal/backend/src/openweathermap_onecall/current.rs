@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use chrono::DateTime;
 use chrono::Duration;
+
 use shared_deps::simd_json;
-use std::collections::HashMap;
 
 use crate::{get_conditions_sentence, WeatherData};
 use crate::openweathermap_onecall::json::{CurrentJson, DailyJson};
@@ -31,8 +33,8 @@ pub fn get_current(
         feels_like: data.feels_like as f32,
         aqi: 42, // TODO: Fix
         cloud_cover: data.clouds,
-        conditions: conditions.clone(),
-        condition_sentence: get_conditions_sentence(conditions.clone()),
+        condition_sentence: get_conditions_sentence(&conditions),
+        conditions: conditions,
         rain_data: weather_structs::PrecipitationData {
             amount: data.rain.unwrap_or_default().one_hour,
             time: Duration::hours(1),

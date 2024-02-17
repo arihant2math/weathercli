@@ -12,9 +12,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#![allow(dead_code)]
-mod decoder;
-pub use decoder::Decoder;
+#![allow(dead_code, unused_imports)]
 
-mod encoder;
+pub use decoder::Decoder;
 pub use encoder::Encoder;
+
+mod decoder;
+mod encoder;

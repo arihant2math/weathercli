@@ -14,6 +14,7 @@
 #![allow(clippy::uninlined_format_args)]
 // if we want a range, we will make a range.
 #![allow(clippy::manual_range_patterns)]
+#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 //!<div align="center">
 //!  <!-- Version -->
@@ -103,7 +104,7 @@
 //! # fn main() -> std::result::Result<(), ureq::Error> {
 //! # ureq::is_test(true);
 //!   // Requires the `json` feature enabled.
-//!   let resp: String = ureq::post("http://myapi.example.com/ingest")
+//!   let resp: String = ureq::post("http://myapi.example.com/post/ingest")
 //!       .set("X-My-Header", "Secret")
 //!       .send_json(ureq::json!({
 //!           "name": "martin",
@@ -162,7 +163,8 @@
 //!   does nothing for `native-tls`.
 //! * `gzip` enables requests of gzip-compressed responses and decompresses them. This is enabled by default.
 //! * `brotli` enables requests brotli-compressed responses and decompresses them.
-//! * `http-interop` enables conversion methods to and from `http::Response` and `http::request::Builder`.
+//! * `http-interop` enables conversion methods to and from `http::Response` and `http::request::Builder` (v0.2).
+//! * `http` enables conversion methods to and from `http::Response` and `http::request::Builder` (v1.0).
 //!
 //! # Plain requests
 //!
@@ -352,6 +354,30 @@
 //! [actix-web](https://crates.io/crates/actix-web), and [hyper](https://crates.io/crates/hyper).
 //!
 
+use std::sync::atomic::{AtomicBool, Ordering};
+
+// re-export
+#[cfg(feature = "cookies")]
+pub use cookie::Cookie;
+use once_cell::sync::Lazy;
+#[cfg(feature = "json")]
+pub use serde_json::json;
+use url::Url;
+
+#[cfg(feature = "json")]
+pub use {serde, serde_json};
+
+pub use crate::agent::Agent;
+pub use crate::agent::AgentBuilder;
+pub use crate::agent::RedirectAuthHeaders;
+pub use crate::error::{Error, ErrorKind, OrAnyStatus, Transport};
+pub use crate::middleware::{Middleware, MiddlewareNext};
+pub use crate::proxy::Proxy;
+pub use crate::request::{Request, RequestUrl};
+pub use crate::resolve::Resolver;
+pub use crate::response::Response;
+pub use crate::stream::{ReadWrite, TlsConnector};
+
 mod agent;
 mod body;
 mod chunked;
@@ -407,36 +433,18 @@ pub(crate) fn default_tls_config() -> std::sync::Arc<dyn TlsConnector> {
 #[cfg(feature = "cookies")]
 mod cookies;
 
-#[cfg(feature = "json")]
-pub use serde_json::json;
-use url::Url;
-
 #[cfg(test)]
 mod test;
 #[doc(hidden)]
 mod testserver;
 
 #[cfg(feature = "http-interop")]
+// 0.2 version dependency (deprecated)
 mod http_interop;
 
-pub use crate::agent::Agent;
-pub use crate::agent::AgentBuilder;
-pub use crate::agent::RedirectAuthHeaders;
-pub use crate::error::{Error, ErrorKind, OrAnyStatus, Transport};
-pub use crate::header::Header;
-pub use crate::middleware::{Middleware, MiddlewareNext};
-pub use crate::proxy::Proxy;
-pub use crate::request::{Request, RequestUrl};
-pub use crate::resolve::Resolver;
-pub use crate::response::Response;
-pub use crate::stream::{ReadWrite, TlsConnector};
-
-// re-export
-#[cfg(feature = "cookies")]
-pub use cookie::Cookie;
-
-#[cfg(feature = "json")]
-pub use {serde, serde_json};
+#[cfg(feature = "http-crate")]
+// 1.0 version dependency.
+mod http_crate;
 
 #[cfg(feature = "json")]
 #[deprecated(note = "use ureq::serde_json::Map instead")]
@@ -453,9 +461,6 @@ pub fn serde_to_value<T: serde::Serialize>(
 ) -> std::result::Result<serde_json::Value, serde_json::Error> {
     serde_json::to_value(value)
 }
-
-use once_cell::sync::Lazy;
-use std::sync::atomic::{AtomicBool, Ordering};
 
 /// Creates an [AgentBuilder].
 pub fn builder() -> AgentBuilder {
@@ -495,7 +500,7 @@ pub fn agent() -> Agent {
 /// This allows making requests with verbs that don't have a dedicated
 /// method.
 ///
-/// If you've got an already-parsed [Url], try [request_url][request_url].
+/// If you've got an already-parsed [`Url`], try [`request_url()`].
 ///
 /// ```
 /// # fn main() -> Result<(), ureq::Error> {
@@ -510,9 +515,9 @@ pub fn request(method: &str, path: &str) -> Request {
 }
 /// Make a request using an already-parsed [Url].
 ///
-/// This is useful if you've got a parsed Url from some other source, or if
+/// This is useful if you've got a parsed [`Url`] from some other source, or if
 /// you want to parse the URL and then modify it before making the request.
-/// If you'd just like to pass a String or a `&str`, try [request][request()].
+/// If you'd just like to pass a [`String`] or a [`&str`], try [`request()`].
 ///
 /// ```
 /// # fn main() -> Result<(), ureq::Error> {
@@ -521,7 +526,7 @@ pub fn request(method: &str, path: &str) -> Request {
 /// let agent = ureq::agent();
 ///
 /// let mut url: Url = "http://example.com/some-page".parse()?;
-/// url.set_path("/robots.txt");
+/// url.set_path("/get/robots.txt");
 /// let resp: ureq::Response = ureq::request_url("GET", &url)
 ///     .call()?;
 /// # Ok(())

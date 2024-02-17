@@ -1,10 +1,11 @@
+use std::fs;
+use std::path::PathBuf;
+use std::str::FromStr;
+
 use custom_backend::is_valid_ext;
 use custom_backend::is_valid_file;
 use local::list_dir;
 use local::settings::Settings;
-use std::fs;
-use std::path::PathBuf;
-use std::str::FromStr;
 use terminal::color;
 use terminal::prompt;
 use weather_dirs::custom_backends_dir;
@@ -28,7 +29,7 @@ fn list(settings: &mut Settings) -> crate::Result<()> {
         // TODO: Check which ones are valid (hard to do)
         let file_name = &*path;
         if is_valid_ext(file_name) {
-            let valid = settings.enable_custom_backends && is_valid_file(custom_backends_dir()?.join(file_name).as_path().to_str().unwrap());
+            let valid = settings.enable_custom_backends && is_valid_file(custom_backends_dir()?.join(file_name).to_str().unwrap());
             if valid {
                 println!("{}{file_name}", color::FORE_GREEN);
             } else {

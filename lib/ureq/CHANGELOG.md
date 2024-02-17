@@ -1,3 +1,60 @@
+# Unreleased
+
+# 2.9.6
+
+## Fixed
+
+  * `hootbin` is optional dep. Tests must be run with feature `testdeps` (#729)
+  * Exclude script files from cargo package (#728)
+
+# 2.9.5
+
+## Fixed
+
+  * Update deps (`cookie` 0.18, `cookie_store` 0.21, unpin `url`). (#722)
+
+# 2.9.4
+
+## Fixed
+
+  * MSRV 1.61 with CI tests
+
+# 2.9.3
+
+## Fixed
+
+  * docs.rs docs
+
+# 2.9.2
+
+## Added
+
+  * Replace dependency on httpbin.org for tests/doc-tests. (#703)
+
+## Fixed
+
+  * Remove Header struct that never should have been exported. (#696)
+  * Update deps (rustls 0.22) (#690)
+
+# 2.9.1
+
+## Fixed
+
+  * Unbreak feature `http-interop`. This feature is version locked to http crate 0.2
+  * New feature `http-crate`. This feature is for http crate 1.0
+  * New feature `proxy-from-env` to detect proxy settings for global Agent (ureq::get).
+
+# 2.9.0
+
+## Fixed
+  * Broken rustls dep (introduced new function in patch version) (#677)
+  * Doc and test fixes (#670, #673, #674)
+
+## Added
+  * Upgraded http dep to 1.0
+  * http_interop to not require utf-8 headers (#672)
+  * http_interop implement conversion for `http::request::Parts` (#669)
+
 # 2.8.0
 
 ## Fixed

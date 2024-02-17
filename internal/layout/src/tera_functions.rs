@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+
 use tera::{from_value, Function, to_value, Value};
 
 fn get_required_arg(args: &HashMap<String, Value>, arg: &str, function_name: &str) -> tera::Result<Value> {
@@ -8,8 +9,7 @@ fn get_required_arg(args: &HashMap<String, Value>, arg: &str, function_name: &st
     }
 }
 
-pub struct Color {
-}
+pub struct Color;
 
 impl Color {
     pub fn new() -> Self {
@@ -27,8 +27,7 @@ impl Function for Color {
     }
 }
 
-pub struct Units {
-}
+pub struct Units;
 
 impl Units {
     pub fn new() -> Self {
@@ -59,9 +58,9 @@ impl Function for Units {
                 match from_value::<String>(v.clone()) {
                     Ok(t) => {
                         match &*t {
-                            "t"|"temp"|"temperature" => Units::temperature(metric),
-                            "c"|"clouds" => Ok(to_value(format!("%"))?),
-                            "w"|"wind" => Units::wind(metric),
+                            "t" | "temp" | "temperature" => Units::temperature(metric),
+                            "c" | "clouds" => Ok(to_value(format!("%"))?),
+                            "w" | "wind" => Units::wind(metric),
                             _ => Err("Unknown type".into()),
                         }
                     },
@@ -73,14 +72,27 @@ impl Function for Units {
     }
 }
 
-// fn terminal_height(_: BTreeMap<String, String>) -> impl Function {
-//     Box::new(move |args| -> tera::Result<Value> {
-//         Ok(to_value(0).unwrap())
-//     })
-// }
-//
-// fn terminal_width(_: BTreeMap<String, String>) -> impl Function { // TODO: add to tera
-//     Box::new(move |args| -> tera::Result<Value> {
-//         Ok(to_value(0).unwrap())
-//     })
+struct TerminalInfo;
+
+impl TerminalInfo {
+    pub fn new() -> Self {
+        TerminalInfo {}
+    }
+}
+
+// impl Function for TerminalInfo {
+//     fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
+//         let v = get_required_arg(args, "type", "terminal_info")?;
+//         match from_value::<String>(v.clone()) {
+//             Ok(t) => {
+//                 match &*t {
+//                     "h" | "height" => Ok(to_value(terminal::terminal_size().unwrap()[0])),
+//                     "w" | "width" => Ok(to_value(terminal::terminal_size().unwrap()[1])),
+//                     "d" | "dimensions" => Ok(to_value(terminal::terminal_size().unwrap()).unwrap()),
+//                     _ => Err("Unknown type".into()),
+//                 }
+//             },
+//             Err(_) => Err("Could not convert \"type\" from val".into()),
+//         }
+//     }
 // }

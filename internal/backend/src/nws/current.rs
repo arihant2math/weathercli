@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use chrono::{DateTime, Duration};
+
 use local::weather_file::WeatherFile;
 use shared_deps::bincode;
-use std::collections::HashMap;
 use weather_structs::get_clouds_condition;
 use weather_structs::weather_data::PrecipitationData;
 
@@ -110,8 +112,8 @@ pub fn get_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData> {
         ) as f32,
         aqi: 0,
         cloud_cover,
-        conditions: conditions.clone(),
-        condition_sentence: get_conditions_sentence(conditions),
+        condition_sentence: get_conditions_sentence(&conditions),
+        conditions: conditions,
         rain_data: PrecipitationData {
             amount: data.properties.quantitative_precipitation.values[0]
                 .value

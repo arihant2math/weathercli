@@ -43,8 +43,8 @@ pub enum Command {
 
 #[derive(Clone, Subcommand)]
 pub enum SavedOpts {
-    #[command(about = "Save a place")]
-    Save(PlaceOpts),
+    #[command(about = "Add a saved place")]
+    Add(PlaceOpts),
     #[command(about = "List all saved places")]
     List,
     #[command(about = "Delete a saved place")]

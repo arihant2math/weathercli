@@ -1,9 +1,9 @@
+use std::net::TcpStream;
+use std::sync::Arc;
+
 use crate::error::Error;
 use crate::error::ErrorKind;
 use crate::stream::{ReadWrite, TlsConnector};
-
-use std::net::TcpStream;
-use std::sync::Arc;
 
 #[allow(dead_code)]
 pub(crate) fn default_tls_config() -> std::sync::Arc<dyn TlsConnector> {
@@ -17,9 +17,12 @@ impl TlsConnector for native_tls::TlsConnector {
                 native_tls::HandshakeError::Failure(e) => ErrorKind::ConnectionFailed
                     .msg("native_tls connect failed")
                     .src(e),
-                native_tls::HandshakeError::WouldBlock(_) => {
-                    ErrorKind::Io.msg("Unexpected native_tls::HandshakeError::WouldBlock")
-                }
+                native_tls::HandshakeError::WouldBlock(_) => ErrorKind::Io
+                    .msg("native_tls handshake timed out")
+                    .src(std::io::Error::new(
+                        std::io::ErrorKind::TimedOut,
+                        "native_tls handshake timed out",
+                    )),
             })?;
 
         Ok(Box::new(stream))

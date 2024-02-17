@@ -1,9 +1,10 @@
-use crate::nws::current::get_current;
-use crate::nws::get_combined_data_formatted;
-use crate::WeatherForecast;
 use local::location;
 use local::settings::Settings;
 use location::Coordinates;
+
+use crate::nws::current::get_current;
+use crate::nws::get_combined_data_formatted;
+use crate::WeatherForecast;
 
 pub fn get_forecast(
     coordinates: &Coordinates,
@@ -15,7 +16,7 @@ pub fn get_forecast(
     Ok(WeatherForecast {
         datasource: String::from("National Weather Service"),
         location: loc,
-        forecast: vec![current.clone()], // TODO: Implement
+        forecast: vec![current], // TODO: Implement
         raw_data: None,
     })
 }

@@ -1,6 +1,8 @@
-use chrono::{DateTime, Duration};
-use shared_deps::simd_json;
 use std::collections::HashMap;
+
+use chrono::{DateTime, Duration};
+
+use shared_deps::simd_json;
 use weather_structs::{get_conditions_sentence, WeatherData};
 use weather_structs::PrecipitationData;
 use weather_structs::WeatherCondition;
@@ -30,8 +32,8 @@ pub fn get_future(
         feels_like: data.main.feels_like as f32,
         aqi: 0,
         cloud_cover: data.clouds.all,
-        conditions: conditions.clone(),
-        condition_sentence: get_conditions_sentence(conditions.clone()),
+        condition_sentence: get_conditions_sentence(&conditions),
+        conditions: conditions,
         rain_data: PrecipitationData {
             amount: data.rain.unwrap_or_default().three_hour,
             time: Duration::hours(3),

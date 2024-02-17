@@ -1,6 +1,6 @@
 use local::settings::{SavedLocation, Settings};
+
 use crate::arguments::{PlaceOpts, SavedOpts};
-use terminal::color::*;
 
 fn list(settings: Settings) -> crate::Result<()> {
     let locations = settings.saved_locations;
@@ -27,10 +27,10 @@ fn delete(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn save(opts: PlaceOpts, settings: Settings) -> crate::Result<()> {
+fn add(opts: PlaceOpts, settings: Settings) -> crate::Result<()> {
     let query = opts.query.unwrap_or(terminal::prompt::input(Some("Search: ".to_string()), None)?);
-    let name = terminal::prompt::input(Some("Name: ".to_string()), None)?;
     let coords = local::location::geocode(query, &settings.bing_maps_api_key)?;
+    let name = terminal::prompt::input(Some("Save As: ".to_string()), None)?;
     let mut settings = Settings::new()?;
     settings.saved_locations.push(SavedLocation {
         name,
@@ -45,9 +45,7 @@ pub fn subcommand(arg: SavedOpts, settings: Settings) -> crate::Result<()> {
     match arg {
         SavedOpts::List => list(settings)?,
         SavedOpts::Delete => delete(settings)?,
-        SavedOpts::Save(opts) => {
-            save(opts, settings)?;
-        }
+        SavedOpts::Add(opts) => add(opts, settings)?
     };
     Ok(())
 }

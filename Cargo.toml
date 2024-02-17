@@ -7,10 +7,31 @@ path = "src/installer.rs"
 name = "weather"
 path = "src/weather.rs"
 
+[workspace]
+members = [
+    "internal/async_runner",
+    "internal/backend",
+    "internal/cli",
+    "internal/custom_backend",
+    "internal/layout",
+    "internal/local",
+    "internal/networking",
+    "internal/networking_internal",
+    "internal/networking_macros",
+    "internal/settings_app",
+    "internal/shared_deps",
+    "internal/terminal",
+    "internal/updater",
+    "internal/weather_dirs",
+    "internal/weather_error",
+    "internal/weather_plugin",
+    "internal/weather_structs",
+
+]
 
 [package]
 name = "weather"
-version = "2023.12.10"
+version = "2023.12.31"
 edition = "2021"
 authors = ["Ashwin Naren"]
 rust-version = "1.64.0"

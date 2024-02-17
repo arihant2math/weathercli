@@ -1,12 +1,12 @@
-use chrono::ParseError;
-use shared_deps::{serde_json, simd_json};
-use shared_deps::bincode::ErrorKind;
-#[cfg(not(target_arch = "wasm32"))]
-use shared_deps::extism;
-#[cfg(target_os = "windows")]
-use shared_deps::windows;
 use std::fmt;
 use std::fmt::Debug;
+
+use chrono::ParseError;
+
+use shared_deps::{serde_json, simd_json};
+use shared_deps::bincode::ErrorKind;
+#[cfg(target_os = "windows")]
+use shared_deps::windows;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -24,15 +24,6 @@ impl fmt::Display for InvocationError {
             Self::NotFound => write!(f, "Not found"),
             Self::Other { msg } => write!(f, "{msg}"),
         }
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-impl From<extism::Error> for Error {
-    fn from(error: extism::Error) -> Self {
-        Self::InvocationError(InvocationError::Other {
-            msg: error.to_string(),
-        })
     }
 }
 

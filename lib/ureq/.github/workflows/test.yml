@@ -36,10 +36,32 @@ jobs:
           override: true
       - name: Docs
         uses: actions-rs/cargo@v1
+        env:
+          RUSTDOCFLAGS: -Dwarnings
         with:
           command: doc
-          # Keep in sync with Cargo.toml's [package.metadata.docs.rs]
-          args: --no-default-features --no-deps --features "tls native-tls json charset cookies socks-proxy"
+          args: --no-deps --all-features --document-private-items
+
+  build_versions:
+    strategy:
+      matrix:
+        rust: [stable, beta, 1.61.0]
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+      - uses: Swatinem/rust-cache@v1
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+
   build_and_test:
     name: Test
     runs-on: ubuntu-latest
@@ -58,7 +80,9 @@ jobs:
           - native-certs
           - gzip
           - brotli
+          - http-crate
           - http-interop
+          - http-crate http-interop
     env:
       RUST_BACKTRACE: "1"
       RUSTFLAGS: "-D dead_code -D unused-variables -D unused"
@@ -73,7 +97,7 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --no-default-features --features "${{ matrix.tls }} ${{ matrix.feature }}"
+          args: --no-default-features --features "testdeps ${{ matrix.tls }} ${{ matrix.feature }}"
 
 
   cargo-deny:

@@ -1,10 +1,11 @@
-mod internal;
-
 use std::str::FromStr;
 use std::u128;
 
+use internal::{get_date_string, read_cache, Row, write_cache};
+
 use crate::now;
-use internal::{get_date_string, read_cache, write_cache, Row};
+
+mod internal;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
@@ -22,7 +23,7 @@ pub fn read(key: &str) -> crate::Result<String> {
 /// writes the key to the cache, overwriting it if it already exists
 pub fn write(key: &str, value: &str) -> crate::Result<()> {
     let mut rows: Vec<Row> = read_cache()?;
-    let key_index = rows.clone().into_iter().position(|row| row.key == key);
+    let key_index = rows.iter().position(|row| row.key == key);
     let new_row = Row {
         key: key.to_string(),
         value: value.to_string(),
@@ -43,8 +44,7 @@ pub fn write(key: &str, value: &str) -> crate::Result<()> {
 pub fn delete(key: &str) -> crate::Result<()> {
     let mut rows: Vec<Row> = read_cache()?;
     let key_index = rows
-        .clone()
-        .into_iter()
+        .iter()
         .position(|row| row.key == key)
         .ok_or(format!("Key not found, {key}"))?;
     rows.remove(key_index);
@@ -56,8 +56,7 @@ pub fn delete(key: &str) -> crate::Result<()> {
 pub fn update_hits(key: &str) -> crate::Result<()> {
     let mut rows: Vec<Row> = read_cache()?;
     let key_index = rows
-        .clone()
-        .into_iter()
+        .iter()
         .position(|row| row.key == key)
         .ok_or(format!("Key not found, {key}"))?;
     let key_index_usize = key_index;

@@ -2,21 +2,22 @@ use std::fmt;
 use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
+
 use url::Url;
 
+#[cfg(feature = "cookies")]
+use {
+    cookie_store::CookieStore,
+    crate::cookies::{CookieStoreGuard, CookieTin},
+};
+
+use crate::header::Header;
 use crate::middleware::Middleware;
 use crate::pool::ConnectionPool;
 use crate::proxy::Proxy;
 use crate::request::Request;
 use crate::resolve::{ArcResolver, StdResolver};
 use crate::stream::TlsConnector;
-use crate::Header;
-
-#[cfg(feature = "cookies")]
-use {
-    crate::cookies::{CookieStoreGuard, CookieTin},
-    cookie_store::CookieStore,
-};
 
 /// Strategy for keeping `authorization` headers during redirects.
 ///
@@ -95,11 +96,11 @@ pub(crate) struct AgentConfig {
 /// let mut agent = ureq::agent();
 ///
 /// agent
-///     .post("http://example.com/login")
+///     .post("http://example.com/post/login")
 ///     .call()?;
 ///
 /// let secret = agent
-///     .get("http://example.com/my-protected-page")
+///     .get("http://example.com/get/my-protected-page")
 ///     .call()?
 ///     .into_string()?;
 ///
@@ -175,7 +176,7 @@ impl Agent {
     /// let agent = ureq::agent();
     ///
     /// let mut url: Url = "http://example.com/some-page".parse()?;
-    /// url.set_path("/robots.txt");
+    /// url.set_path("/get/robots.txt");
     /// let resp: Response = agent
     ///     .request_url("GET", &url)
     ///     .call()?;
@@ -267,6 +268,9 @@ impl AgentBuilder {
                 tls_config: TlsConfig(crate::default_tls_config()),
                 headers: Vec::new(),
             },
+            #[cfg(feature = "proxy-from-env")]
+            try_proxy_from_env: true,
+            #[cfg(not(feature = "proxy-from-env"))]
             try_proxy_from_env: false,
             max_idle_connections: DEFAULT_MAX_IDLE_CONNECTIONS,
             max_idle_connections_per_host: DEFAULT_MAX_IDLE_CONNECTIONS_PER_HOST,
@@ -325,8 +329,9 @@ impl AgentBuilder {
 
     /// Attempt to detect proxy settings from the environment, i.e. HTTP_PROXY
     ///
-    /// The default is `false`, i.e. not detecting proxy from env since this is
-    /// a potential security risk.
+    /// The default is `false` without the `proxy-from-env` feature flag, i.e.
+    /// not detecting proxy from env, due to the potential security risk and to
+    /// maintain backward compatibility.
     ///
     /// If the `proxy` is set on the builder, this setting has no effect.
     pub fn try_proxy_from_env(mut self, do_try: bool) -> Self {
@@ -599,17 +604,11 @@ impl AgentBuilder {
     /// # fn main() -> Result<(), ureq::Error> {
     /// # ureq::is_test(true);
     /// use std::sync::Arc;
-    /// let mut root_store = rustls::RootCertStore::empty();
-    /// root_store.add_trust_anchors(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| {
-    ///     rustls::OwnedTrustAnchor::from_subject_spki_name_constraints(
-    ///         ta.subject,
-    ///         ta.spki,
-    ///         ta.name_constraints,
-    ///     )
-    /// }));
+    /// let mut root_store = rustls::RootCertStore {
+    ///   roots: webpki_roots::TLS_SERVER_ROOTS.iter().cloned().collect(),
+    /// };
     ///
     /// let tls_config = rustls::ClientConfig::builder()
-    ///     .with_safe_defaults()
     ///     .with_root_certificates(root_store)
     ///     .with_no_client_auth();
     /// let agent = ureq::builder()
@@ -732,7 +731,7 @@ impl fmt::Debug for AgentState {
 mod tests {
     use super::*;
 
-    ///////////////////// AGENT TESTS //////////////////////////////
+///////////////////// AGENT TESTS //////////////////////////////
 
     #[test]
     fn agent_implements_send_and_sync() {
