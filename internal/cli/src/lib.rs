@@ -1,4 +1,5 @@
 use log::warn;
+
 use weather_error;
 use weather_error::LayoutErr;
 
@@ -20,8 +21,8 @@ pub enum Datasource {
     Other(String),
 }
 
-impl Datasource {
-    pub fn from_str(s: &str) -> Datasource {
+impl From<&str> for Datasource {
+    fn from(s: &str) -> Self {
         match &*s.to_lowercase() {
             "nws" => Datasource::NWS,
             "openweathermap" => Datasource::Openweathermap,

@@ -105,8 +105,8 @@ fn run() -> Result<()> {
     } else {
         settings_s.metric_default
     };
-    let datasource = Datasource::from_str(
-        &args
+    let datasource = Datasource::from(
+        &*args
             .global_opts
             .datasource
             .unwrap_or_else(|| settings_s.default_backend.clone()),
