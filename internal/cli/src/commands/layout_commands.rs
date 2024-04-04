@@ -13,15 +13,24 @@ use crate::arguments::LayoutOpts;
 
 fn install(path: String) -> crate::Result<()> {
     let real_path = PathBuf::from_str(&path).unwrap();
-    let mut file_name = real_path.file_name().ok_or("Not a file")?.to_str().ok_or("to_str failed")?.to_string();
+    let mut file_name = real_path
+        .file_name()
+        .ok_or("Not a file")?
+        .to_str()
+        .ok_or("to_str failed")?
+        .to_string();
     let ext = real_path.extension().unwrap_or_else(|| "".as_ref());
     if ext != "res" {
-        return Err(layout::Error::Other("File has to have an extension of .res".to_string()))?;
+        return Err(layout::Error::Other(
+            "File has to have an extension of .res".to_string(),
+        ))?;
     }
     while file_name == "default.res" {
-        println!("File name cannot be default.res,\
+        println!(
+            "File name cannot be default.res,\
         as it conflicts with the default layout filename,\
-        please rename the file and try again.");
+        please rename the file and try again."
+        );
         file_name = terminal::prompt::input(Some("Enter a new name: ".to_string()), None)?;
     }
     println!("Checking validity ...");
@@ -33,7 +42,7 @@ fn install(path: String) -> crate::Result<()> {
         Ok(_) => {
             println!("Valid layout!");
             fs::copy(&real_path, layouts_dir()?.join(&file_name))?;
-        },
+        }
     }
     Ok(())
 }
@@ -56,7 +65,9 @@ fn list(settings: Settings) -> crate::Result<()> {
 fn select(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
     let current = &*settings.layout_file;
-    let current_index = paths.iter().position(|c| c == current)
+    let current_index = paths
+        .iter()
+        .position(|c| c == current)
         .unwrap_or(paths.iter().position(|c| c == "default.res").unwrap_or(0));
     let choice = terminal::prompt::radio(&paths, current_index, None)?;
     let mut settings = Settings::new()?; // TODO: Fix excess read
@@ -68,7 +79,9 @@ fn select(settings: Settings) -> crate::Result<()> {
 fn delete(settings: Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
     let current = &*settings.layout_file;
-    let current_index = paths.iter().position(|c| c == current)
+    let current_index = paths
+        .iter()
+        .position(|c| c == current)
         .unwrap_or(paths.iter().position(|c| c == "default.res").unwrap_or(0));
     let choice = paths[terminal::prompt::radio(&paths, current_index, None)?].to_string();
     fs::remove_file(layouts_dir()?.join(&*choice))?;
@@ -79,7 +92,8 @@ fn delete(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn info(name: String) -> crate::Result<()> { // TODO: Add more info
+fn info(name: String) -> crate::Result<()> {
+    // TODO: Add more info
     let paths = fs::read_dir(layouts_dir()?)?;
     for path in paths {
         let tmp = path?.file_name();
@@ -100,7 +114,7 @@ pub fn subcommand(arg: LayoutOpts, settings: Settings) -> crate::Result<()> {
         LayoutOpts::List => list(settings)?,
         LayoutOpts::Select => select(settings)?,
         LayoutOpts::Delete => delete(settings)?,
-        LayoutOpts::Info(opts) => info(opts.name)?
+        LayoutOpts::Info(opts) => info(opts.name)?,
     };
     Ok(())
 }

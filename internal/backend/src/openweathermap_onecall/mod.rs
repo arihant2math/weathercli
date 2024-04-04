@@ -5,10 +5,10 @@ use shared_deps::simd_json;
 use local::location::Coordinates;
 use networking;
 
-pub mod forecast;
-pub mod json;
-mod future;
 mod current;
+pub mod forecast;
+mod future;
+pub mod json;
 
 /// Gets the urls from the openweathermap api server
 fn get_api_url(url: &str, api_key: &str, location: &Coordinates, metric: bool) -> String {
@@ -44,6 +44,10 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let _data = crate::openweathermap_onecall::forecast::get_forecast(&location, local::settings::Settings::new().unwrap()).unwrap();
+        let _data = crate::openweathermap_onecall::forecast::get_forecast(
+            &location,
+            local::settings::Settings::new().unwrap(),
+        )
+        .unwrap();
     }
 }

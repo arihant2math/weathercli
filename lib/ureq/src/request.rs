@@ -1,5 +1,5 @@
-use std::{fmt, time};
 use std::io::Read;
+use std::{fmt, time};
 
 use url::{form_urlencoded, ParseError, Url};
 
@@ -8,8 +8,8 @@ use crate::body::Payload;
 use crate::error::{Error, ErrorKind};
 use crate::header::{self, Header};
 use crate::middleware::MiddlewareNext;
-use crate::Response;
 use crate::unit::{self, Unit};
+use crate::Response;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

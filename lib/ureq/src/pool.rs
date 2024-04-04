@@ -1,5 +1,5 @@
-use std::collections::{HashMap, VecDeque};
 use std::collections::hash_map::Entry;
+use std::collections::{HashMap, VecDeque};
 use std::fmt;
 use std::io::{self, Read};
 use std::sync::Mutex;
@@ -7,9 +7,9 @@ use std::sync::Mutex;
 use log::debug;
 use url::Url;
 
-use crate::{Agent, Proxy};
 use crate::agent::AgentState;
 use crate::stream::Stream;
+use crate::{Agent, Proxy};
 
 /// Holder of recycled connections.
 ///
@@ -309,8 +309,8 @@ impl<R: Read + Sized + Into<Stream>> Read for PoolReturnRead<R> {
 mod tests {
     use std::io;
 
-    use crate::ReadWrite;
     use crate::stream::{remote_addr_for_test, Stream};
+    use crate::ReadWrite;
 
     use super::*;
 

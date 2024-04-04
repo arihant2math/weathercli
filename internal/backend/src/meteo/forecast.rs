@@ -1,4 +1,3 @@
-use shared_deps::bincode;
 use crate::meteo::get_combined_data_formatted;
 use crate::meteo::weather_data::get_weather_data;
 use crate::WeatherData;
@@ -7,8 +6,8 @@ use local::location;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 use location::Coordinates;
+use shared_deps::bincode;
 use std::collections::HashMap;
-
 
 pub fn get_forecast(
     coordinates: &Coordinates,

@@ -1,7 +1,9 @@
 use chrono::{Duration, Utc};
 use extism_pdk::*;
-use weather_structs::{PrecipitationData, WasmPluginInput, WeatherCondition, WeatherData, WeatherForecast, WindData};
 use weather_structs::LocationData;
+use weather_structs::{
+    PrecipitationData, WasmPluginInput, WeatherCondition, WeatherData, WeatherForecast, WindData,
+};
 
 #[plugin_fn]
 pub fn name() -> FnResult<String> {
@@ -15,9 +17,10 @@ pub fn version() -> FnResult<String> {
 
 #[plugin_fn]
 pub fn about() -> FnResult<String> {
-    Ok(format!("This is a wasm test plugin, all data returned is meaningless."))
+    Ok(format!(
+        "This is a wasm test plugin, all data returned is meaningless."
+    ))
 }
-
 
 #[plugin_fn]
 pub fn get_forecast(input: Vec<u8>) -> FnResult<Vec<u8>> {
@@ -51,7 +54,7 @@ pub fn get_forecast(input: Vec<u8>) -> FnResult<Vec<u8>> {
                 condition_id: 71,
                 image_url: "https://openweathermap.org/img/wn/04d@4x".to_string(),
                 sentence: "Blank Condition".to_string(),
-                image_ascii: "No Ascii".to_string()
+                image_ascii: "No Ascii".to_string(),
             }],
             condition_sentence: "Blank".to_string(),
             rain_data: PrecipitationData {
@@ -65,7 +68,7 @@ pub fn get_forecast(input: Vec<u8>) -> FnResult<Vec<u8>> {
                 probability: 52,
             },
         }],
-        raw_data: None
+        raw_data: None,
     };
     let bytes = bincode::serialize(&forecast)?;
     Ok(bytes)

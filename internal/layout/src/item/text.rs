@@ -7,7 +7,7 @@ use crate::LayoutSettings;
 pub struct Text {
     pub color: Option<String>,
     pub bg_color: Option<String>,
-    pub value: String
+    pub value: String,
 }
 
 impl ItemType for Text {
@@ -15,7 +15,12 @@ impl ItemType for Text {
         Ok(self.value.clone())
     }
 
-    fn to_string(&self, _data: &Value, settings: LayoutSettings, _metric: bool) -> crate::Result<String> {
+    fn to_string(
+        &self,
+        _data: &Value,
+        settings: LayoutSettings,
+        _metric: bool,
+    ) -> crate::Result<String> {
         let text_color = settings.text_color;
         let text_bg_color = settings.text_bg_color;
         let item_color =
@@ -24,8 +29,8 @@ impl ItemType for Text {
             color::from_string(&self.bg_color.clone().unwrap_or_default()).unwrap_or_default();
         let item_color_string = item_color + &item_bg_color;
         return Ok(format!(
-                "{text_color}{text_bg_color}{item_color_string}{}",
-                &self.value
-            ));
+            "{text_color}{text_bg_color}{item_color_string}{}",
+            &self.value
+        ));
     }
 }

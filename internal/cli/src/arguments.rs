@@ -23,7 +23,10 @@ pub enum Command {
     Settings,
     #[command(about = "Open the gui settings editor")]
     GuiSettings,
-    #[command(about = "Set a config variable via weather config [key] [value]", long_about = "Set a config variable via weather config [key] [value]\n\nIf [value] is not provided, the value of [key] will be printed. `weather setup` and `weather gui-settings` are similar commands")]
+    #[command(
+        about = "Set a config variable via weather config [key] [value]",
+        long_about = "Set a config variable via weather config [key] [value]\n\nIf [value] is not provided, the value of [key] will be printed. `weather setup` and `weather gui-settings` are similar commands"
+    )]
     Config(ConfigOpts),
     #[command(subcommand)]
     Cache(CacheOpts),
@@ -86,7 +89,6 @@ pub struct InstallOpts {
 pub struct InfoOpts {
     pub name: String,
 }
-
 
 #[derive(Clone, Subcommand)]
 pub enum CacheOpts {

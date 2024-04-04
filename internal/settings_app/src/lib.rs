@@ -1,8 +1,8 @@
 use std::io::Cursor;
 
 use iced;
+use iced::window::{icon, Icon, Level};
 use iced::{Font, Sandbox, Size};
-use iced::window::{Icon, icon, Level};
 use image::io::Reader as ImageReader;
 
 use app::App;
@@ -28,13 +28,13 @@ fn font() -> Font {
 
 fn icon() -> Icon {
     let bytes = include_bytes!("../../../icon/icon.png").to_vec();
-    let image_parsed = ImageReader::new(Cursor::new(bytes)).with_guessed_format().unwrap().decode().unwrap(); // TODO: Force png (also fix unwraps)
+    let image_parsed = ImageReader::new(Cursor::new(bytes))
+        .with_guessed_format()
+        .unwrap()
+        .decode()
+        .unwrap(); // TODO: Force png (also fix unwraps)
     let image = image_parsed.to_rgba8();
-    icon::from_rgba(
-        image.into_raw(),
-        512,
-        512,
-    ).unwrap()
+    icon::from_rgba(image.into_raw(), 512, 512).unwrap()
 }
 
 pub fn run_settings_app() -> iced::Result {
@@ -43,16 +43,16 @@ pub fn run_settings_app() -> iced::Result {
         window: iced::window::Settings {
             size: (Size {
                 width: 1000f32,
-                height: 900f32
+                height: 900f32,
             }),
             position: Default::default(),
             min_size: Some(Size {
                 width: 750f32,
-                height: 500f32
+                height: 500f32,
             }),
             max_size: Some(Size {
                 width: 2250f32,
-                height: 1750f32
+                height: 1750f32,
             }),
             visible: true,
             resizable: true,

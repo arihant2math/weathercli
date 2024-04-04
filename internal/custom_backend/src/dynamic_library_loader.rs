@@ -10,7 +10,6 @@ use weather_dirs::custom_backends_dir;
 
 use crate::{PluginDeclaration, WeatherForecastPlugin};
 
-
 #[cfg(target_os = "windows")]
 pub fn is_valid_ext(f: &str) -> bool {
     f.ends_with(".dll")
@@ -25,7 +24,6 @@ pub fn is_valid_ext(f: &str) -> bool {
 pub fn is_valid_ext(f: &str) -> bool {
     f.ends_with(".dylib")
 }
-
 
 #[cfg(target_os = "windows")]
 pub fn is_valid_file(f: &str) -> Result<bool, local::weather_file::Error> {
@@ -44,7 +42,6 @@ pub fn is_valid_file(f: &str) -> weather_error::Result<bool> {
     let file = WeatherFile::new(custom_backends_dir()?.join(f).as_path().to_str().unwrap())?;
     Ok(file.data.starts_with(&[0xcf, 0xfa, 0xed, 0xfe])) // TODO: untested
 }
-
 
 pub fn load(paths: Vec<String>) -> ExternalBackends {
     let mut backends = ExternalBackends::new();

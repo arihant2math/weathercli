@@ -11,7 +11,6 @@ pub mod openweathermap;
 pub mod openweathermap_onecall;
 mod openweathermap_shared;
 
-
 #[derive(Debug, Error)]
 pub enum Error {
     #[error("Network error: {0}")]
@@ -31,7 +30,7 @@ pub enum Error {
     #[error("Bincode Error: {0}")]
     BincodeError(Box<shared_deps::bincode::ErrorKind>),
     #[error("Other Backend Error: {0}")]
-    Other(String)
+    Other(String),
 }
 
 impl From<String> for Error {

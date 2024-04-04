@@ -3,8 +3,8 @@ use log::trace;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::io;
 use std::fmt;
+use std::io;
 use std::io::Read;
 use ureq::{Agent, Response};
 use url::Url;
@@ -30,12 +30,9 @@ impl From<io::Error> for Error {
     }
 }
 
-impl ErrorTrait for Error {
-
-}
+impl ErrorTrait for Error {}
 
 pub type Result<T> = std::result::Result<T, Error>;
-
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Resp {

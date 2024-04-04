@@ -10,10 +10,9 @@ mod json;
 
 fn get_api_url(location: &Coordinates, _metric: bool) -> crate::Result<String> {
     let mut get_point = networking::get!(format!(
-            "https://api.weather.gov/points/{},{}",
-            location.latitude, location.longitude
-        )
-    )?
+        "https://api.weather.gov/points/{},{}",
+        location.latitude, location.longitude
+    ))?
     .text;
     let point_json: NWSPointJSON = unsafe { simd_json::from_str(&mut get_point) }?;
     Ok(point_json.properties.forecast_grid_data)

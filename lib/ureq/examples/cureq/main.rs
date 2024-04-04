@@ -1,9 +1,9 @@
-use std::{env, sync::Arc};
 use std::error;
 use std::fmt;
 use std::io;
 use std::thread;
 use std::time::Duration;
+use std::{env, sync::Arc};
 
 use rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
 use rustls::ClientConfig;

@@ -1,6 +1,6 @@
 use dark_light::Mode;
-use iced::{Alignment, Element, Length, Sandbox, Theme};
 use iced::widget::{button, checkbox, column, container, radio, row, text, text_input, toggler};
+use iced::{Alignment, Element, Length, Sandbox, Theme};
 use log::error;
 use rfd::FileDialog;
 
@@ -34,10 +34,13 @@ impl Sandbox for App {
 
     fn update(&mut self, message: Message) {
         match message {
-            Message::Save => self.data.write().unwrap_or(error!("Saving settings failed")),
+            Message::Save => self
+                .data
+                .write()
+                .unwrap_or(error!("Saving settings failed")),
             Message::Cancel => {
                 self.data = settings::Settings::new().expect("Loading settings failed")
-            },
+            }
             Message::PickLayoutFile => {
                 let file = FileDialog::new()
                     .add_filter("Layout File", &["res"])
@@ -46,7 +49,8 @@ impl Sandbox for App {
                 if let Some(real_file) = file {
                     let parent = real_file.parent().unwrap();
                     if parent == weather_dirs::layouts_dir().unwrap() {
-                        self.data.layout_file = real_file.file_name().unwrap().to_str().unwrap().to_string();
+                        self.data.layout_file =
+                            real_file.file_name().unwrap().to_str().unwrap().to_string();
                     }
                 }
             }
@@ -57,11 +61,13 @@ impl Sandbox for App {
                 self.data.auto_update_internet_resources = value
             }
             Message::OpenWeatherMapAPIKey(value) => self.data.open_weather_map_api_key = value,
-            Message::OpenWeatherMapOneCallKey(value) => self.data.open_weather_map_one_call_key = value,
+            Message::OpenWeatherMapOneCallKey(value) => {
+                self.data.open_weather_map_one_call_key = value
+            }
             Message::BingMapsAPIKey(value) => self.data.bing_maps_api_key = value,
             Message::DataSource(value) => {
                 self.data.default_backend = value.to_string().to_uppercase()
-            },
+            }
             Message::LayoutFile(value) => self.data.layout_file = value,
         }
     }
@@ -92,17 +98,15 @@ impl Sandbox for App {
             },
         );
 
-
         let layout_file_label = text("Layout File: ");
 
-        let layout_file = text_input(
-            "Layout File",
-            &self.data.layout_file.clone(),
-        )
-        .on_input(Message::LayoutFile)
-        .padding(10);
+        let layout_file = text_input("Layout File", &self.data.layout_file.clone())
+            .on_input(Message::LayoutFile)
+            .padding(10);
 
-        let pick_layout_file = button("Pick Layout File").padding(10).on_press(Message::PickLayoutFile);
+        let pick_layout_file = button("Pick Layout File")
+            .padding(10)
+            .on_press(Message::PickLayoutFile);
         let api_keys = text("API Keys").size(30);
         let backend = text("Backend").size(30);
         let general = text("General").size(30);
@@ -123,15 +127,11 @@ impl Sandbox for App {
         .width(Length::Shrink)
         .spacing(10);
 
-
         let bing_maps_api_key_label = text("Bing Maps API key: ");
-        let bing_maps_api_key = text_input(
-            "Bing Maps API key",
-            &self.data.bing_maps_api_key.clone(),
-        )
-        .on_input(Message::BingMapsAPIKey)
-        .padding(10);
-
+        let bing_maps_api_key =
+            text_input("Bing Maps API key", &self.data.bing_maps_api_key.clone())
+                .on_input(Message::BingMapsAPIKey)
+                .padding(10);
 
         let metric_default = toggler(
             String::from("Use Metric by default"),
@@ -141,7 +141,6 @@ impl Sandbox for App {
         .width(Length::Shrink)
         .spacing(10);
 
-
         let show_alerts = toggler(
             String::from("Show Alerts"),
             self.data.show_alerts,
@@ -150,7 +149,6 @@ impl Sandbox for App {
         .width(Length::Shrink)
         .spacing(10);
 
-
         let auto_update_internet_resources = toggler(
             String::from("Auto Update Internet Resources"),
             self.data.auto_update_internet_resources,
@@ -158,7 +156,6 @@ impl Sandbox for App {
         )
         .width(Length::Shrink)
         .spacing(10);
-
 
         let constant_location = toggler(
             String::from("Constant Location"),
@@ -169,7 +166,10 @@ impl Sandbox for App {
         .spacing(10);
 
         let save = button("Save").padding(10).on_press(Message::Save);
-        let cancel = button("Cancel").style(iced::theme::Button::Secondary).padding(10).on_press(Message::Cancel);
+        let cancel = button("Cancel")
+            .style(iced::theme::Button::Secondary)
+            .padding(10)
+            .on_press(Message::Cancel);
 
         let general_column = column![
             row![general]
@@ -213,10 +213,14 @@ impl Sandbox for App {
                 .spacing(10)
                 .height(40)
                 .align_items(Alignment::Center),
-            row![openweathermap_api_key_label, openweathermap_api_key, one_call]
-                .spacing(10)
-                .height(45)
-                .align_items(Alignment::Center),
+            row![
+                openweathermap_api_key_label,
+                openweathermap_api_key,
+                one_call
+            ]
+            .spacing(10)
+            .height(45)
+            .align_items(Alignment::Center),
             row![bing_maps_api_key_label, bing_maps_api_key]
                 .spacing(10)
                 .height(45)
@@ -229,10 +233,14 @@ impl Sandbox for App {
             .spacing(10)
             .height(40)
             .align_items(Alignment::Center);
-        let content = column![row![general_column, backend_column].spacing(10)
-            .align_items(Alignment::Start), save_cancel]
-            .spacing(10)
-            .align_items(Alignment::Center);
+        let content = column![
+            row![general_column, backend_column]
+                .spacing(10)
+                .align_items(Alignment::Start),
+            save_cancel
+        ]
+        .spacing(10)
+        .align_items(Alignment::Center);
 
         container(content)
             .width(Length::Fill)

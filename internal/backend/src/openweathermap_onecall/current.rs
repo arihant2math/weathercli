@@ -5,10 +5,10 @@ use chrono::Duration;
 
 use shared_deps::simd_json;
 
-use crate::{get_conditions_sentence, WeatherData};
 use crate::openweathermap_onecall::json::{CurrentJson, DailyJson};
 use crate::WeatherCondition;
 use crate::WindData;
+use crate::{get_conditions_sentence, WeatherData};
 
 pub fn get_current(
     data: &CurrentJson,
@@ -20,7 +20,8 @@ pub fn get_current(
         conditions.push(WeatherCondition::new(condition.id, &weather_codes)?);
     }
     Ok(WeatherData {
-        time: DateTime::from_timestamp(data.dt, 0).ok_or("Failed to parse timestamp for data".to_string())?,
+        time: DateTime::from_timestamp(data.dt, 0)
+            .ok_or("Failed to parse timestamp for data".to_string())?,
         temperature: data.temp as f32,
         min_temp: daily.temp["min"] as f32,
         max_temp: daily.temp["max"] as f32,

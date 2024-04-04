@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use chrono::{DateTime, Duration};
 
 use shared_deps::simd_json;
-use weather_structs::{get_conditions_sentence, WeatherData};
 use weather_structs::PrecipitationData;
 use weather_structs::WeatherCondition;
 use weather_structs::WindData;
+use weather_structs::{get_conditions_sentence, WeatherData};
 
 use crate::openweathermap::json::OpenWeatherMapForecastItemJson;
 
@@ -19,7 +19,8 @@ pub fn get_future(
         conditions.push(WeatherCondition::new(condition.id, &weather_codes)?);
     }
     Ok(WeatherData {
-        time: DateTime::from_timestamp(data.dt, 0).ok_or("Failed to parse future timestamp for data".to_string())?,
+        time: DateTime::from_timestamp(data.dt, 0)
+            .ok_or("Failed to parse future timestamp for data".to_string())?,
         temperature: data.main.temp as f32,
         min_temp: data.main.temp_min as f32,
         max_temp: data.main.temp_max as f32,

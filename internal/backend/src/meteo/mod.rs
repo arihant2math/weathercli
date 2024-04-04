@@ -79,6 +79,10 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        let _data = crate::meteo::forecast::get_forecast(&location, local::settings::Settings::new().unwrap()).unwrap();
+        let _data = crate::meteo::forecast::get_forecast(
+            &location,
+            local::settings::Settings::new().unwrap(),
+        )
+        .unwrap();
     }
 }

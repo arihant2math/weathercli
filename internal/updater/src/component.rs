@@ -6,11 +6,11 @@ use std::time::Duration;
 
 use log::{debug, trace};
 
-
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum UpdateError { // TODO: Merge with the one in resource
+pub enum UpdateError {
+    // TODO: Merge with the one in resource
     #[error("Network error: {0}")]
     NetworkError(#[from] networking::Error),
     #[error("Reqwuest error: {0}")]
@@ -22,14 +22,10 @@ pub enum UpdateError { // TODO: Merge with the one in resource
     #[error("Weather file Error: {0}")]
     WeatherFileError(#[from] local::weather_file::Error),
     #[error("Server Error: {0}")]
-    ServerError(String)
+    ServerError(String),
 }
 
-pub fn update(
-    url: &str,
-    path: &str,
-    quiet: bool,
-) -> Result<(), UpdateError> {
+pub fn update(url: &str, path: &str, quiet: bool) -> Result<(), UpdateError> {
     let replace = std::env::current_exe()?.display().to_string() == path;
     let download_path = if replace {
         path.to_string() + ".tmp"
@@ -37,9 +33,8 @@ pub fn update(
         path.to_string()
     };
     debug!("Downloading to {download_path} from {url}");
-    let res = reqwest::blocking::get(url).map_err(|_| UpdateError::ServerError(format!(
-            "Failed to download file from {url}"
-        )))?;
+    let res = reqwest::blocking::get(url)
+        .map_err(|_| UpdateError::ServerError(format!("Failed to download file from {url}")))?;
     let status = res.status().as_u16();
     trace!("Status code: {status}");
     assert_eq!(
@@ -62,7 +57,10 @@ pub fn update(
         thread::sleep(Duration::from_millis(100));
     }
     let mut file = file_expect?;
-    file.write_all(&res.bytes().map_err(|_| UpdateError::ServerError("Cannot get bytes".to_string()))?)?;
+    file.write_all(
+        &res.bytes()
+            .map_err(|_| UpdateError::ServerError("Cannot get bytes".to_string()))?,
+    )?;
     if replace {
         if !quiet {
             println!("Replacing {path}");

@@ -7,10 +7,10 @@ use shared_deps::bincode;
 use weather_structs::get_clouds_condition;
 use weather_structs::weather_data::PrecipitationData;
 
-use crate::{get_conditions_sentence, WeatherData};
 use crate::nws::json::NWSJSON;
 use crate::WeatherCondition;
 use crate::WindData;
+use crate::{get_conditions_sentence, WeatherData};
 
 fn convert_temp(value: f64, metric: bool) -> f64 {
     if metric {
@@ -37,7 +37,7 @@ fn get_conditions(
     let weather_file = WeatherFile::weather_codes()?;
     let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&weather_file.data)?;
     let mut conditions: Vec<WeatherCondition> = Vec::new();
-        conditions.push(get_clouds_condition(cloud_cover, &weather_codes)?);
+    conditions.push(get_clouds_condition(cloud_cover, &weather_codes)?);
     if data.properties.quantitative_precipitation.values[index]
         .value
         .unwrap_or(0.0)
@@ -71,7 +71,8 @@ pub fn get_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData> {
     let cloud_cover = data.properties.sky_cover.values[0].value.unwrap_or(-1) as u8;
     let conditions = get_conditions(data.clone(), metric, 0, cloud_cover)?;
     let d = WeatherData {
-        time: DateTime::parse_from_rfc3339(&data.properties.temperature.values[0].valid_time)?.into(),
+        time: DateTime::parse_from_rfc3339(&data.properties.temperature.values[0].valid_time)?
+            .into(),
         temperature: convert_temp(
             data.properties.temperature.values[0]
                 .value
@@ -120,7 +121,8 @@ pub fn get_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData> {
                 .unwrap_or(-1.0) as f32,
             probability: (data.properties.probability_of_precipitation.values[0]
                 .value
-                .unwrap_or(-1.0) * 100.0) as u8,
+                .unwrap_or(-1.0)
+                * 100.0) as u8,
             time: Duration::hours(1),
         },
         snow_data: PrecipitationData {
@@ -129,7 +131,8 @@ pub fn get_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData> {
                 .unwrap_or(-1.0) as f32,
             probability: (data.properties.probability_of_precipitation.values[0]
                 .value
-                .unwrap_or(-1.0) * 100.0) as u8,
+                .unwrap_or(-1.0)
+                * 100.0) as u8,
             time: Duration::hours(1),
         },
     };

@@ -1,24 +1,20 @@
+use std::io;
 use std::str::FromStr;
 use std::u128;
-use std::io;
 
 use thiserror::Error;
 
-use internal::{get_date_string, read_cache, Row, write_cache};
+use internal::{get_date_string, read_cache, write_cache, Row};
 
 use crate::now;
 
 mod internal;
 
-
 /// Reads the value of a key from the cache. This does not update the count value, use `update_hits` to do that
 /// Returns None if the key does not exist and returns a string otherwise
 pub fn read(key: &str) -> Option<String> {
     let rows = read_cache().ok()?; // TODO: Log
-    Some(rows
-        .into_iter()
-        .find(|row| row.key == key)?
-        .value)
+    Some(rows.into_iter().find(|row| row.key == key)?.value)
 }
 
 /// writes the key to the cache, overwriting it if it already exists
@@ -48,7 +44,7 @@ pub enum CacheError {
     #[error("Row not found: {0}")]
     RowNotFound(usize),
     #[error("I/O Error: {0}")]
-    IoError(#[from] io::Error)
+    IoError(#[from] io::Error),
 }
 
 /// Deletes the key from the cache
@@ -71,7 +67,9 @@ pub fn update_hits(key: &str) -> Result<(), CacheError> {
         .position(|row| row.key == key)
         .ok_or(CacheError::KeyNotFound(key.to_string()))?;
     let key_index_usize = key_index;
-    let row = rows.get(key_index_usize).ok_or(CacheError::RowNotFound(key_index_usize))?;
+    let row = rows
+        .get(key_index_usize)
+        .ok_or(CacheError::RowNotFound(key_index_usize))?;
     rows.push(Row {
         key: row.key.to_string(),
         value: row.value.to_string(),

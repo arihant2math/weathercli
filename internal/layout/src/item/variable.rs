@@ -1,8 +1,8 @@
+use crate::LayoutErr;
 use log::error;
 use shared_deps::serde_json;
 use shared_deps::serde_json::Value;
 use terminal::color;
-use crate::LayoutErr;
 
 use crate::item::ItemType;
 use crate::LayoutSettings;
@@ -69,7 +69,12 @@ impl ItemType for Variable {
             item: None,
         }));
     }
-    fn to_string(&self, data: &Value, settings: LayoutSettings, metric: bool) -> crate::Result<String> {
+    fn to_string(
+        &self,
+        data: &Value,
+        settings: LayoutSettings,
+        metric: bool,
+    ) -> crate::Result<String> {
         let variable_color = settings.variable_color;
         let variable_bg_color = settings.variable_bg_color;
         let unit_color = settings.unit_color;
@@ -80,11 +85,11 @@ impl ItemType for Variable {
             color::from_string(&self.bg_color.clone().unwrap_or_default()).unwrap_or_default();
         let item_color_string = item_color + &item_bg_color;
         let value = self.get_value(data)?;
-            let s = format!("{variable_color}{variable_bg_color}{item_color_string}{value}{unit_color}{unit_bg_color}");
-            return if metric {
-                Ok(s + &self.metric.clone().unwrap_or_default())
-            } else {
-                Ok(s + &self.imperial.clone().unwrap_or_default())
-            };
+        let s = format!("{variable_color}{variable_bg_color}{item_color_string}{value}{unit_color}{unit_bg_color}");
+        return if metric {
+            Ok(s + &self.metric.clone().unwrap_or_default())
+        } else {
+            Ok(s + &self.imperial.clone().unwrap_or_default())
+        };
     }
 }

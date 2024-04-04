@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use chrono::{Duration, NaiveDateTime, Utc};
 
 use shared_deps::simd_json;
-use weather_structs::{get_conditions_sentence, WeatherData};
 use weather_structs::get_clouds_condition;
 use weather_structs::WeatherCondition;
 use weather_structs::WindData;
+use weather_structs::{get_conditions_sentence, WeatherData};
 
 use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 
@@ -20,7 +20,10 @@ pub fn get_weather_data(
     let cloud_cover = data.hourly.cloudcover[index];
     let conditions = get_conditions(data.clone(), metric, index, cloud_cover, weather_codes)?;
     let native_time = NaiveDateTime::parse_from_str(&data.hourly.time[index], "%Y-%m-%dT%H:%M")?;
-    let time = native_time.and_local_timezone(Utc).single().ok_or("timezone offset failure".to_string())?; // TODO: ugh string error
+    let time = native_time
+        .and_local_timezone(Utc)
+        .single()
+        .ok_or("timezone offset failure".to_string())?; // TODO: ugh string error
     let d = WeatherData {
         time,
         temperature: data.current_weather.temperature,

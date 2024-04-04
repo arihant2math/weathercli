@@ -1,8 +1,12 @@
 use std::collections::HashMap;
 
-use tera::{from_value, Function, to_value, Value};
+use tera::{from_value, to_value, Function, Value};
 
-fn get_required_arg(args: &HashMap<String, Value>, arg: &str, function_name: &str) -> tera::Result<Value> {
+fn get_required_arg(
+    args: &HashMap<String, Value>,
+    arg: &str,
+    function_name: &str,
+) -> tera::Result<Value> {
     match args.get(arg) {
         Some(val) => Ok(val.clone()),
         None => Err(format!("Arg \"{arg}\" not found for {function_name}({arg}=_____)").into()),
@@ -53,20 +57,18 @@ impl Function for Units {
     fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
         let val = get_required_arg(args, "metric", "units")?;
         match from_value::<bool>(val.clone()) {
-            Ok(metric) =>  {
+            Ok(metric) => {
                 let v = get_required_arg(args, "type", "units")?;
                 match from_value::<String>(v.clone()) {
-                    Ok(t) => {
-                        match &*t {
-                            "t" | "temp" | "temperature" => Units::temperature(metric),
-                            "c" | "clouds" => Ok(to_value(format!("%"))?),
-                            "w" | "wind" => Units::wind(metric),
-                            _ => Err("Unknown type".into()),
-                        }
+                    Ok(t) => match &*t {
+                        "t" | "temp" | "temperature" => Units::temperature(metric),
+                        "c" | "clouds" => Ok(to_value(format!("%"))?),
+                        "w" | "wind" => Units::wind(metric),
+                        _ => Err("Unknown type".into()),
                     },
                     Err(_) => Err("Could not convert \"type\" from val".into()),
                 }
-            },
+            }
             Err(_) => Err("Could not convert \"metric\" from val".into()),
         }
     }

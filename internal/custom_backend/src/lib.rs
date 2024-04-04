@@ -23,7 +23,7 @@ pub enum Error {
     #[error("Function not found")]
     FunctionNotFound, // TODO: Include name
     #[error("Other Error: {0}")]
-    Other(String)
+    Other(String),
 }
 
 impl From<String> for Error {
@@ -103,9 +103,7 @@ pub fn load_custom_backends() -> crate::Result<dynamic_library_loader::ExternalB
     let plugins: Vec<String> = path
         .read_dir()
         .map_err(|e| {
-            Error::Other(
-                "Reading custom backends dir failed: ".to_string() + &e.to_string(),
-            )
+            Error::Other("Reading custom backends dir failed: ".to_string() + &e.to_string())
         })?
         .filter(is_ext) // We only care about files
         .map(|f| f.unwrap().path().display().to_string())

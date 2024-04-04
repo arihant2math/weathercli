@@ -1,5 +1,5 @@
-use thiserror::Error;
 use std::fmt;
+use thiserror::Error;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct LayoutErr {
@@ -25,9 +25,7 @@ impl fmt::Display for LayoutErr {
     }
 }
 
-impl std::error::Error for LayoutErr {
-
-}
+impl std::error::Error for LayoutErr {}
 
 #[derive(Debug, Error)]
 pub enum Error {
@@ -50,7 +48,7 @@ pub enum Error {
     #[error("Bincode Error: {0}")]
     BincodeError(Box<shared_deps::bincode::ErrorKind>),
     #[error("Other Error: {0}")]
-    Other(String)
+    Other(String),
 }
 
 impl From<String> for Error {

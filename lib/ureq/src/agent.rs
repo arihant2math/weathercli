@@ -7,8 +7,8 @@ use url::Url;
 
 #[cfg(feature = "cookies")]
 use {
-    cookie_store::CookieStore,
     crate::cookies::{CookieStoreGuard, CookieTin},
+    cookie_store::CookieStore,
 };
 
 use crate::header::Header;
@@ -731,7 +731,7 @@ impl fmt::Debug for AgentState {
 mod tests {
     use super::*;
 
-///////////////////// AGENT TESTS //////////////////////////////
+    ///////////////////// AGENT TESTS //////////////////////////////
 
     #[test]
     fn agent_implements_send_and_sync() {

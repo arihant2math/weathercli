@@ -9,8 +9,8 @@ use winreg::RegKey;
 
 use local::settings::Settings;
 use updater::component::update as update_component;
-use updater::CONFIG;
 use updater::resource::update_web_resources;
+use updater::CONFIG;
 
 pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
@@ -76,16 +76,8 @@ async fn run() -> Result<()> {
     }
     let url = settings.update_server.clone() + &CONFIG.weather_file_name;
     let path = dir_path.to_path_buf().join(CONFIG.weather_file_name);
-    update_component(
-        &url,
-        &path.display().to_string(),
-        args.quiet,
-    )?;
-    update_component(
-        &url,
-        &path.display().to_string(),
-        args.quiet,
-    )?;
+    update_component(&url, &path.display().to_string(), args.quiet)?;
+    update_component(&url, &path.display().to_string(), args.quiet)?;
     if args.add_to_path {
         add_to_path(dir_path.display().to_string())?;
     }

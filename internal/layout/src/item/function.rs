@@ -1,11 +1,11 @@
+use crate::LayoutErr;
 use shared_deps::serde_json::Value;
 use std::collections::HashMap;
 use terminal::color;
-use crate::LayoutErr;
 
-use crate::{LayoutSettings, util};
 use crate::item::{Item, ItemType};
 use crate::layout_serde::ItemSerde;
+use crate::{util, LayoutSettings};
 
 pub struct Function {
     pub color: Option<String>,
@@ -27,7 +27,10 @@ impl ItemType for Function {
                     .unwrap_or(0),
             ),
             "image" => util::image(
-                Item::new(args[0].clone())?.get_value(data)?.parse().unwrap(),
+                Item::new(args[0].clone())?
+                    .get_value(data)?
+                    .parse()
+                    .unwrap(),
                 Item::new(args[1].clone())?
                     .get_value(data)?
                     .parse()
@@ -46,7 +49,12 @@ impl ItemType for Function {
         }
     }
 
-    fn to_string(&self, data: &Value, _settings: LayoutSettings, _metric: bool) -> crate::Result<String> {
+    fn to_string(
+        &self,
+        data: &Value,
+        _settings: LayoutSettings,
+        _metric: bool,
+    ) -> crate::Result<String> {
         let item_color =
             color::from_string(&self.color.clone().unwrap_or_default()).unwrap_or_default();
         let item_bg_color =

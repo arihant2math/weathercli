@@ -14,11 +14,20 @@ pub struct WeatherForecast {
 impl WeatherForecast {
     /// If None is returned there is no forecast (forecast attr has length zero). There is likely an issue with the backend, try --json for more info.
     pub fn get_best_forecast(&self, time: DateTime<Utc>) -> Option<WeatherData> {
-        self.forecast.iter().min_by_key(|&d| (time - d.time).abs().num_seconds()).cloned()
+        self.forecast
+            .iter()
+            .min_by_key(|&d| (time - d.time).abs().num_seconds())
+            .cloned()
     }
     pub fn get_forecast_sentence(&self, time: DateTime<Utc>) -> Result<String, String> {
-        let future_forecasts: Vec<&WeatherData> = self.forecast.iter().filter(|&d| (d.time - time).num_seconds() > 0).collect();
-        let current = self.get_best_forecast(time).ok_or(String::from("No current forecast"))?;
+        let future_forecasts: Vec<&WeatherData> = self
+            .forecast
+            .iter()
+            .filter(|&d| (d.time - time).num_seconds() > 0)
+            .collect();
+        let current = self
+            .get_best_forecast(time)
+            .ok_or(String::from("No current forecast"))?;
         if future_forecasts.len() < 2 {
             return Ok("No future forecasts".into());
         }
@@ -29,61 +38,121 @@ impl WeatherForecast {
         let rain_start = if is_raining {
             Some(current.time)
         } else {
-            future_forecasts.iter().find(|&d| d.rain_data.amount > 0.01).map(|d| d.time)
+            future_forecasts
+                .iter()
+                .find(|&d| d.rain_data.amount > 0.01)
+                .map(|d| d.time)
         };
-        let rain_end = future_forecasts.iter().rfind(|&d| d.rain_data.amount > 0.01).map(|d| d.time);
+        let rain_end = future_forecasts
+            .iter()
+            .rfind(|&d| d.rain_data.amount > 0.01)
+            .map(|d| d.time);
         let snow_start = if is_snowing {
             Some(current.time)
         } else {
-            future_forecasts.iter().find(|&d| d.snow_data.amount > 0.01).map(|d| d.time)
+            future_forecasts
+                .iter()
+                .find(|&d| d.snow_data.amount > 0.01)
+                .map(|d| d.time)
         };
-        let snow_end = future_forecasts.iter().rfind(|&d| d.snow_data.amount > 0.01).map(|d| d.time);
+        let snow_end = future_forecasts
+            .iter()
+            .rfind(|&d| d.snow_data.amount > 0.01)
+            .map(|d| d.time);
         let cloud_start = if is_cloudy {
             Some(current.time)
         } else {
-            future_forecasts.iter().find(|&d| d.cloud_cover > 25).map(|d| d.time)
+            future_forecasts
+                .iter()
+                .find(|&d| d.cloud_cover > 25)
+                .map(|d| d.time)
         };
-        let cloud_end = future_forecasts.iter().rfind(|&d| d.cloud_cover > 25).map(|d| d.time);
+        let cloud_end = future_forecasts
+            .iter()
+            .rfind(|&d| d.cloud_cover > 25)
+            .map(|d| d.time);
         let mut sentence = Vec::new();
         if is_raining {
             if let Some(end) = rain_end {
-                sentence.push(format!("It will continue raining for {} hours.", (end - time).num_hours()));
+                sentence.push(format!(
+                    "It will continue raining for {} hours.",
+                    (end - time).num_hours()
+                ));
             } else {
-                sentence.push(format!("It is currently raining and will be for atleast {} hours.", (future_forecasts.last().unwrap().time - time).num_hours()));
+                sentence.push(format!(
+                    "It is currently raining and will be for atleast {} hours.",
+                    (future_forecasts.last().unwrap().time - time).num_hours()
+                ));
             }
         } else if let Some(start) = rain_start {
             if let Some(end) = rain_end {
-                sentence.push(format!("It will start raining at {} for {} hours.", start.format("%H:%M"), (end - start).num_hours()));
+                sentence.push(format!(
+                    "It will start raining at {} for {} hours.",
+                    start.format("%H:%M"),
+                    (end - start).num_hours()
+                ));
             } else {
-                sentence.push(format!("It will start raining at {} for atleast {} hours.", start.format("%H:%M"), (future_forecasts.last().unwrap().time - start).num_hours()));
+                sentence.push(format!(
+                    "It will start raining at {} for atleast {} hours.",
+                    start.format("%H:%M"),
+                    (future_forecasts.last().unwrap().time - start).num_hours()
+                ));
             }
         }
 
         if is_snowing {
             if let Some(end) = snow_end {
-                sentence.push(format!("It will continue snowing for {} hours.", (end - snow_start.unwrap()).num_hours()));
+                sentence.push(format!(
+                    "It will continue snowing for {} hours.",
+                    (end - snow_start.unwrap()).num_hours()
+                ));
             } else {
-                sentence.push(format!("It is currently snowing and will be for atleast {} hours.", (future_forecasts.last().unwrap().time - current.time).num_hours()));
+                sentence.push(format!(
+                    "It is currently snowing and will be for atleast {} hours.",
+                    (future_forecasts.last().unwrap().time - current.time).num_hours()
+                ));
             }
         } else if let Some(start) = snow_start {
             if let Some(end) = snow_end {
-                sentence.push(format!("It will start snowing at {} for {} hours.", start.format("%H:%M"), (end - start).num_hours()));
+                sentence.push(format!(
+                    "It will start snowing at {} for {} hours.",
+                    start.format("%H:%M"),
+                    (end - start).num_hours()
+                ));
             } else {
-                sentence.push(format!("It will start snowing at {} for atleast {} hours.", start.format("%H:%M"), (future_forecasts.last().unwrap().time - start).num_hours()));
+                sentence.push(format!(
+                    "It will start snowing at {} for atleast {} hours.",
+                    start.format("%H:%M"),
+                    (future_forecasts.last().unwrap().time - start).num_hours()
+                ));
             }
         }
 
         if is_cloudy {
             if let Some(end) = cloud_end {
-                sentence.push(format!("It will remain cloudy for {} hours.", (end - cloud_start.unwrap()).num_hours()));
+                sentence.push(format!(
+                    "It will remain cloudy for {} hours.",
+                    (end - cloud_start.unwrap()).num_hours()
+                ));
             } else {
-                sentence.push(format!("It is currently cloudy and will be for atleast {} hours.", (future_forecasts.last().unwrap().time - current.time).num_hours()));
+                sentence.push(format!(
+                    "It is currently cloudy and will be for atleast {} hours.",
+                    (future_forecasts.last().unwrap().time - current.time).num_hours()
+                ));
             }
         } else if let Some(start) = cloud_start {
             if let Some(end) = cloud_end {
-                sentence.push(format!("It will be cloudy at {} for {} hours.", start.format("%H:%M"), (end - start).num_hours()));
+                sentence.push(format!(
+                    "It will be cloudy at {} for {} hours.",
+                    start.format("%H:%M"),
+                    (end - start).num_hours()
+                ));
             } else {
-                sentence.push(format!("It will be cloudy at {} for atleast {} hours.", start.format("%H:%M"), (future_forecasts.last().unwrap().time - start).num_hours()));
+                sentence.push(format!(
+                    "It will be cloudy at {} for atleast {} hours.",
+                    start.format("%H:%M"),
+                    (future_forecasts.last().unwrap().time - start).num_hours()
+                ));
             }
         }
         if sentence.is_empty() {

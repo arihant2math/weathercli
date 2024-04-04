@@ -11,17 +11,17 @@ use crate::layout_serde::LayoutDefaultsSerde;
 use crate::row::Row;
 use crate::tera_functions::{Color, Units};
 
-mod image_to_text;
 pub mod error;
+mod image_to_text;
 pub mod item;
+pub mod layout_input;
 pub mod layout_serde;
 mod row;
-pub mod util;
-pub mod layout_input;
 mod tera_functions;
+pub mod util;
 
-pub use crate::error::LayoutErr;
 pub use crate::error::Error;
+pub use crate::error::LayoutErr;
 
 pub type Result<T> = std::result::Result<T, error::Error>;
 
@@ -129,7 +129,8 @@ fn get_layout_settings(data: LayoutDefaultsSerde) -> LayoutSettings {
         color::from_string(&retrieved_settings.clone().variable_bg_color).unwrap_or_default();
     let text_bg_color =
         color::from_string(&retrieved_settings.clone().text_bg_color).unwrap_or_default();
-    let unit_bg_color = color::from_string(&retrieved_settings.clone().unit_bg_color).unwrap_or_default();
+    let unit_bg_color =
+        color::from_string(&retrieved_settings.clone().unit_bg_color).unwrap_or_default();
     LayoutSettings {
         variable_color,
         text_color,
@@ -151,7 +152,8 @@ impl LayoutFile {
         Ok(Self {
             layout: LayoutFileFormat::Template(text),
             version: VERSION,
-            settings: get_layout_settings(LayoutDefaultsSerde { // TODO: Make this configurable
+            settings: get_layout_settings(LayoutDefaultsSerde {
+                // TODO: Make this configurable
                 variable_color: "FORE_LIGHTGREEN".to_string(),
                 text_color: "FORE_LIGHTBLUE".to_string(),
                 unit_color: "FORE_MAGENTA".to_string(),
@@ -169,7 +171,8 @@ impl LayoutFile {
             return Err("Layout file does not have the correct magic bytes".to_string())?;
         }
         d = d[7..].to_vec();
-        let version = ((d[0] as u64) << 24) + ((d[1] as u64) << 16) + ((d[2] as u64) << 8) + d[3] as u64;
+        let version =
+            ((d[0] as u64) << 24) + ((d[1] as u64) << 16) + ((d[2] as u64) << 8) + d[3] as u64;
         d = d[4..].to_vec();
         return Self::from_serde(bincode::deserialize(&d)?, version);
     }
@@ -190,7 +193,6 @@ impl LayoutFile {
         } else {
             return Err("Layout file does not have an extension of .res or .layout".to_string())?;
         }
-
     }
 
     fn from_serde(file_data: layout_serde::LayoutSerde, version: u64) -> crate::Result<Self> {
@@ -231,7 +233,7 @@ impl LayoutFile {
                 context.insert("settings", &self.settings);
                 context.insert("metric", &metric);
                 Ok(tera.render("layout", &context).unwrap())
-            },
+            }
         }
     }
 }

@@ -4,14 +4,13 @@ pub mod location;
 pub mod settings;
 pub mod weather_file;
 
-use std::io;
 use std::fs;
+use std::io;
 use std::path::Path;
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use sha2::Digest;
-
 
 /// returns the sha-256 of the file
 pub fn hash_file(filename: &str) -> io::Result<String> {

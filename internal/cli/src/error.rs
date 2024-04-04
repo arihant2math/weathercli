@@ -33,7 +33,7 @@ pub enum Error {
     #[error("Update Error: {0}")]
     UpdaterError3(#[from] updater::LatestVersionError),
     #[error("Other: {0}")]
-    Other(String)
+    Other(String),
 }
 
 impl From<String> for Error {

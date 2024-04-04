@@ -22,7 +22,7 @@ pub enum UpdateError {
     #[error("Weather file Error: {0}")]
     WeatherFileError(#[from] local::weather_file::Error),
     #[error("Server Error: {0}")]
-    ServerError(String)
+    ServerError(String),
 }
 
 struct WebResource {
@@ -69,7 +69,9 @@ fn update_web_resource(
     let web_json: Value = web_resp;
     let web_hash: String = web_json[resource.hash_name]
         .as_str()
-        .ok_or(UpdateError::ServerError("Failed to get hash from web".to_string()))?
+        .ok_or(UpdateError::ServerError(
+            "Failed to get hash from web".to_string(),
+        ))?
         .to_string();
     if web_hash != file_hash {
         debug!(
@@ -87,11 +89,10 @@ fn update_web_resource(
                 println!("{}Downloading {}", color::FORE_YELLOW, resource.pretty_name);
             }
         }
-        let data = reqwest::blocking::get(web_path).map_err(|_| UpdateError::ReqwuestError(
-                "Failed to download file".to_string(),
-            ))?.text().map_err(|_| UpdateError::ReqwuestError(
-                "Failed to download file".to_string(),
-            ))?;
+        let data = reqwest::blocking::get(web_path)
+            .map_err(|_| UpdateError::ReqwuestError("Failed to download file".to_string()))?
+            .text()
+            .map_err(|_| UpdateError::ReqwuestError("Failed to download file".to_string()))?;
         f.data = Vec::from(data);
         f.write()?;
     }
@@ -115,17 +116,10 @@ pub fn update_web_resources(server: &str, quiet: Option<bool>) -> Result<(), Upd
             let mut web_text = resp.text;
             let web_json: Value = simd_json::from_str(&mut web_text)?; // Real unsafe stuff here
             update_web_resource(&WEATHER_CODES, web_json.clone(), server, real_quiet)?;
-            update_web_resource(
-                &WEATHER_ASCII_IMAGES,
-                web_json.clone(),
-                server,
-                real_quiet,
-            )?;
+            update_web_resource(&WEATHER_ASCII_IMAGES, web_json.clone(), server, real_quiet)?;
             update_web_resource(&DEFAULT_LAYOUT, web_json, server, real_quiet)?;
             return Ok(());
         }
     }
-    Err(UpdateError::ServerError(
-        "Status not 200".to_string(),
-    ))
+    Err(UpdateError::ServerError("Status not 200".to_string()))
 }

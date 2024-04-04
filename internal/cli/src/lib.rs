@@ -2,8 +2,8 @@ use log::warn;
 
 use layout::LayoutErr;
 
-use layout::LayoutFile;
 use layout::layout_input::LayoutInput;
+use layout::LayoutFile;
 use shared_deps::serde_json;
 
 pub mod arguments;
@@ -35,12 +35,7 @@ impl From<&str> for Datasource {
     }
 }
 
-fn print_out(
-    layout_file: &str,
-    data: LayoutInput,
-    json: bool,
-    metric: bool,
-) -> crate::Result<()> {
+fn print_out(layout_file: &str, data: LayoutInput, json: bool, metric: bool) -> crate::Result<()> {
     if json {
         println!("{}", serde_json::to_string_pretty(&data)?);
     } else {

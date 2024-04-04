@@ -1,8 +1,8 @@
+use crate::{Error, LayoutErr};
 use regex::Regex;
 use std::fs;
 use std::io::Write;
 use terminal::color;
-use crate::{Error, LayoutErr};
 
 pub fn color_aqi(aqi: u8) -> crate::Result<String> {
     Ok(match aqi {
@@ -31,11 +31,14 @@ pub fn image(source: String, scale: f64) -> crate::Result<String> {
             .create(true)
             .open(&path)?;
         f.write_all(&response.bytes)?;
-        return crate::image_to_text::ascii_image(&path.to_str().ok_or(Error::LayoutError(LayoutErr {
-            message: "Temp image save path is not valid of unicode".to_string(),
-            row: None,
-            item: None,
-        }))?, scale);
+        return crate::image_to_text::ascii_image(
+            &path.to_str().ok_or(Error::LayoutError(LayoutErr {
+                message: "Temp image save path is not valid of unicode".to_string(),
+                row: None,
+                item: None,
+            }))?,
+            scale,
+        );
     }
     Err("source is not a url".to_string())?
 }

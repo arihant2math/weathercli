@@ -30,7 +30,9 @@ fn delete(settings: Settings) -> crate::Result<()> {
 }
 
 fn add(opts: PlaceOpts, settings: Settings) -> crate::Result<()> {
-    let query = opts.query.unwrap_or(terminal::prompt::input(Some("Search: ".to_string()), None)?);
+    let query = opts
+        .query
+        .unwrap_or(terminal::prompt::input(Some("Search: ".to_string()), None)?);
     let coords = local::location::geocode(query, &settings.bing_maps_api_key)?;
     let name = terminal::prompt::input(Some("Save As: ".to_string()), None)?;
     let mut settings = Settings::new()?;
@@ -47,7 +49,7 @@ pub fn subcommand(arg: SavedOpts, settings: Settings) -> crate::Result<()> {
     match arg {
         SavedOpts::List => list(settings)?,
         SavedOpts::Delete => delete(settings)?,
-        SavedOpts::Add(opts) => add(opts, settings)?
+        SavedOpts::Add(opts) => add(opts, settings)?,
     };
     Ok(())
 }

@@ -45,6 +45,10 @@ pub struct GlobalOpts {
     pub no_sys_loc: bool,
     #[arg(long, action, global = true, help = "Enables debugging")]
     pub debug: bool,
-    #[arg(long, global = true, help = "Look into the future by the specified time")]
+    #[arg(
+        long,
+        global = true,
+        help = "Look into the future by the specified time"
+    )]
     pub future: Option<String>,
 }

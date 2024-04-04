@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use backend::{WeatherData, WeatherForecast};
 use local::location::LocationData;
+use serde::{Deserialize, Serialize};
 
 use chrono::{DateTime, Utc};
 
@@ -17,8 +17,10 @@ impl LayoutInput {
         Ok(LayoutInput {
             datasource: forecast.datasource.clone(),
             location: forecast.location.clone(),
-            weather: forecast.get_best_forecast(time).ok_or("Failed to get best forecast".to_string())?,
-            forecast_sentence: forecast.get_forecast_sentence(time)?
+            weather: forecast
+                .get_best_forecast(time)
+                .ok_or("Failed to get best forecast".to_string())?,
+            forecast_sentence: forecast.get_forecast_sentence(time)?,
         })
     }
 }

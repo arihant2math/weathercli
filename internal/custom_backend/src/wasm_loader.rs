@@ -47,10 +47,14 @@ impl WasmPlugin {
         todo!("WasmPlugin::about")
     }
 
-    pub fn run(&mut self, coordinates: Coordinates, settings: Settings) -> crate::Result<WeatherForecast> {
+    pub fn run(
+        &mut self,
+        coordinates: Coordinates,
+        settings: Settings,
+    ) -> crate::Result<WeatherForecast> {
         let bytes = shared_deps::bincode::serialize(&WasmPluginInput {
             coordinates: coordinates,
-            metric: settings.metric_default
+            metric: settings.metric_default,
         })?;
         // let res = self.plugin.call::<&[u8], &[u8]>("get_forecast", &bytes)?;
         // let forecast: WeatherForecast = shared_deps::bincode::deserialize(&res)?;
@@ -60,13 +64,13 @@ impl WasmPlugin {
 }
 
 pub struct WasmLoader {
-    pub plugins: Vec<WasmPlugin>
+    pub plugins: Vec<WasmPlugin>,
 }
 
 impl Default for WasmLoader {
     fn default() -> Self {
         Self {
-            plugins: Vec::new()
+            plugins: Vec::new(),
         }
     }
 }
@@ -83,13 +87,15 @@ impl WasmLoader {
                     info!("Loaded wasm plugin {}", path.to_str().unwrap());
                     plugins.push(plugin);
                 } else if let Err(e) = plugin_result {
-                    warn!("Failed to load wasm plugin {}: {:?}", path.to_str().unwrap(), e);
+                    warn!(
+                        "Failed to load wasm plugin {}: {:?}",
+                        path.to_str().unwrap(),
+                        e
+                    );
                 }
             }
         }
-        Ok(Self {
-            plugins
-        })
+        Ok(Self { plugins })
     }
 
     pub fn names(&mut self) -> crate::Result<Vec<String>> {
@@ -100,7 +106,12 @@ impl WasmLoader {
         Ok(names)
     }
 
-    pub fn call(&mut self, name: &str, coordinates: Coordinates, settings: Settings) -> crate::Result<WeatherForecast> {
+    pub fn call(
+        &mut self,
+        name: &str,
+        coordinates: Coordinates,
+        settings: Settings,
+    ) -> crate::Result<WeatherForecast> {
         for plugin in &mut self.plugins {
             if plugin.name()? == name {
                 let forecast = plugin.run(coordinates, settings.clone())?;

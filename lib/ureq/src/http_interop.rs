@@ -5,7 +5,7 @@ use std::{
 
 use http_02 as http;
 
-use crate::{header::HeaderLine, Request, Response, response::ResponseStatusIndex};
+use crate::{header::HeaderLine, response::ResponseStatusIndex, Request, Response};
 
 /// Converts an [`http::Response`] into a [`Response`].
 ///

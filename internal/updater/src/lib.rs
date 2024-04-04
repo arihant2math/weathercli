@@ -2,7 +2,6 @@ pub mod component;
 pub mod resource;
 mod update_server_json;
 
-
 use shared_deps::simd_json;
 
 use std::collections::HashMap;
@@ -16,7 +15,7 @@ pub enum LatestVersionError {
     #[error("Json error: {0}")]
     JsonError(#[from] simd_json::Error),
     #[error("Version Key not found")]
-    VersionKeyNotFound
+    VersionKeyNotFound,
 }
 
 pub fn get_latest_version() -> Result<String, LatestVersionError> {

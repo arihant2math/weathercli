@@ -34,7 +34,12 @@ pub fn get_forecast(
         data.air_quality.clone(),
         weather_codes.clone(),
     )?);
-    let mut futures = data.forecast.list.iter().map(|item| get_future(item.clone(), weather_codes.clone()).unwrap()).collect();
+    let mut futures = data
+        .forecast
+        .list
+        .iter()
+        .map(|item| get_future(item.clone(), weather_codes.clone()).unwrap())
+        .collect();
     forecast.append(&mut futures);
     let loc = location::reverse_geocode(coordinates)?;
     Ok(WeatherForecast {

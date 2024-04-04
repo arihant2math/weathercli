@@ -6,7 +6,7 @@ use thiserror::Error;
 #[derive(Copy, Clone, Debug, Error)]
 pub enum WeatherConditionError {
     #[error("No Such Condition")]
-    NoSuchCondition
+    NoSuchCondition,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
@@ -37,26 +37,16 @@ impl WeatherCondition {
     }
 }
 
-
-pub fn get_clouds_condition(cloud_cover: u8, weather_codes: &HashMap<String, Vec<String>>) -> Result<WeatherCondition, WeatherConditionError> {
+pub fn get_clouds_condition(
+    cloud_cover: u8,
+    weather_codes: &HashMap<String, Vec<String>>,
+) -> Result<WeatherCondition, WeatherConditionError> {
     match cloud_cover {
-        0..=2 => {
-            WeatherCondition::new(800, weather_codes)
-        }
-        3..=25 => {
-            WeatherCondition::new(801, weather_codes)
-        }
-        26..=50 => {
-            WeatherCondition::new(802, weather_codes)
-        }
-        51..=85 => {
-            WeatherCondition::new(803, weather_codes)
-        }
-        86..=100 => {
-            WeatherCondition::new(804, weather_codes)
-        }
-        _ => {
-            WeatherCondition::new(804, weather_codes)
-        }
+        0..=2 => WeatherCondition::new(800, weather_codes),
+        3..=25 => WeatherCondition::new(801, weather_codes),
+        26..=50 => WeatherCondition::new(802, weather_codes),
+        51..=85 => WeatherCondition::new(803, weather_codes),
+        86..=100 => WeatherCondition::new(804, weather_codes),
+        _ => WeatherCondition::new(804, weather_codes),
     }
 }

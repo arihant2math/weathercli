@@ -29,7 +29,8 @@ fn list(settings: &mut Settings) -> crate::Result<()> {
         // TODO: Check which ones are valid (hard to do)
         let file_name = &*path;
         if is_valid_ext(file_name) {
-            let valid = settings.enable_custom_backends && is_valid_file(custom_backends_dir()?.join(file_name).to_str().unwrap());
+            let valid = settings.enable_custom_backends
+                && is_valid_file(custom_backends_dir()?.join(file_name).to_str().unwrap());
             if valid {
                 println!("{}{file_name}", color::FORE_GREEN);
             } else {

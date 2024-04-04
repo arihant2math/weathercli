@@ -1,18 +1,22 @@
-use shared_deps::serde_json::Value;
 use crate::LayoutErr;
+use shared_deps::serde_json::Value;
 
 use crate::layout_serde::ItemSerde;
 use crate::LayoutSettings;
 
+mod function;
 mod text;
 mod variable;
-mod function;
 
 trait ItemType {
     fn get_value(&self, data: &Value) -> crate::Result<String>;
-    fn to_string(&self, data: &Value, settings: LayoutSettings, metric: bool) -> crate::Result<String>;
+    fn to_string(
+        &self,
+        data: &Value,
+        settings: LayoutSettings,
+        metric: bool,
+    ) -> crate::Result<String>;
 }
-
 
 pub enum Item {
     Text(text::Text),

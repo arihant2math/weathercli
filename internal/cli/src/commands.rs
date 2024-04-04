@@ -18,18 +18,22 @@ use terminal::color::*;
 use terminal::prompt;
 use weather_dirs::resources_dir;
 
-use crate::{Datasource, print_out};
 use crate::arguments::CacheOpts;
+use crate::{print_out, Datasource};
 
 pub mod backend_commands;
 pub mod layout_commands;
-pub mod util;
 pub mod saved_commands;
+pub mod util;
 
 fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
     match time {
         Some(t) => {
-            let time = chrono::Utc::now() + chrono::Duration::from_std(parse_duration(&t).unwrap_or(std::time::Duration::new(0, 0))).unwrap_or(Duration::zero());
+            let time = chrono::Utc::now()
+                + chrono::Duration::from_std(
+                    parse_duration(&t).unwrap_or(std::time::Duration::new(0, 0)),
+                )
+                .unwrap_or(Duration::zero());
             return time;
         }
         None => {
@@ -43,7 +47,7 @@ pub fn get_data_from_datasource(
     coordinates: Coordinates,
     settings: Settings,
     custom_backends: ExternalBackends,
-    wasm_loader: &mut WasmLoader
+    wasm_loader: &mut WasmLoader,
 ) -> crate::Result<WeatherForecast> {
     let dir = resources_dir()?;
     let f1 = dir.join("weather_codes.res");
@@ -59,19 +63,20 @@ pub fn get_data_from_datasource(
     }
     debug!("Getting data from datasource: {datasource:?}");
     match datasource {
-        Datasource::Openweathermap => {
-            Ok(openweathermap::forecast::get_forecast(&coordinates, settings)?)
-        }
-        Datasource::OpenweathermapOneCall => {
-            Ok(openweathermap_onecall::forecast::get_forecast(&coordinates, settings)?)
-        }
+        Datasource::Openweathermap => Ok(openweathermap::forecast::get_forecast(
+            &coordinates,
+            settings,
+        )?),
+        Datasource::OpenweathermapOneCall => Ok(openweathermap_onecall::forecast::get_forecast(
+            &coordinates,
+            settings,
+        )?),
         Datasource::NWS => Ok(nws::forecast::get_forecast(&coordinates, settings)?),
         Datasource::Meteo => Ok(meteo::forecast::get_forecast(&coordinates, settings)?),
         Datasource::Other(s) => {
             if settings.enable_wasm_backends {
                 Ok(wasm_loader.call(&s, coordinates, settings)?)
-            }
-            else if settings.enable_custom_backends {
+            } else if settings.enable_custom_backends {
                 Ok(custom_backends.call(&s, &coordinates, settings)?)
             } else {
                 return Err(backend::Error::Other(
@@ -90,7 +95,7 @@ pub fn weather(
     true_metric: bool,
     json: bool,
     custom_backends: ExternalBackends,
-    wasm_backends: &mut WasmLoader
+    wasm_backends: &mut WasmLoader,
 ) -> crate::Result<()> {
     debug!(
         "Coordinates: {} {}",
@@ -100,11 +105,17 @@ pub fn weather(
     debug!("json: {json}");
     let mut s = settings.clone();
     s.metric_default = true_metric;
-    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends, wasm_backends).map_err(|e| {
-        error!("Error getting data from datasource: {e}");
-        e
-    })?;
-    print_out(&settings.layout_file, LayoutInput::from_forecast(data, get_requested_time(time))?, json, true_metric)?;
+    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends, wasm_backends)
+        .map_err(|e| {
+            error!("Error getting data from datasource: {e}");
+            e
+        })?;
+    print_out(
+        &settings.layout_file,
+        LayoutInput::from_forecast(data, get_requested_time(time))?,
+        json,
+        true_metric,
+    )?;
     Ok(())
 }
 
@@ -148,7 +159,10 @@ pub fn cache(opts: CacheOpts) -> crate::Result<()> {
 
 pub fn about() {
     println!("Weather, in your terminal");
-    println!("{BOLD}{FORE_LIGHTBLUE}Version{RESET} {FORE_GREEN}{}", env!("CARGO_PKG_VERSION"));
+    println!(
+        "{BOLD}{FORE_LIGHTBLUE}Version{RESET} {FORE_GREEN}{}",
+        env!("CARGO_PKG_VERSION")
+    );
 }
 
 pub fn credits() {

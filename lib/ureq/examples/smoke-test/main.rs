@@ -1,8 +1,8 @@
-use std::{env, error, fmt, result};
 use std::io::{self, BufRead, BufReader, Read};
 use std::sync::{Arc, Mutex};
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
+use std::{env, error, fmt, result};
 
 use log::{error, info};
 

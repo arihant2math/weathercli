@@ -3,7 +3,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
 };
 
-use crate::{header::HeaderLine, Request, Response, response::ResponseStatusIndex};
+use crate::{header::HeaderLine, response::ResponseStatusIndex, Request, Response};
 
 /// Converts an [`http::Response`] into a [`Response`].
 ///

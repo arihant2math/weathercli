@@ -7,9 +7,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(Copy, Clone, Debug, Error)]
 pub enum Error {
     #[error("Home Directory not found")]
-    HomeDirectoryNotFound
+    HomeDirectoryNotFound,
 }
-
 
 pub fn weathercli_dir() -> crate::Result<PathBuf> {
     Ok(home::home_dir()

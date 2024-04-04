@@ -25,7 +25,7 @@ pub enum Error {
     #[error("Failed to convert bytes to string")]
     UTF8ConversionFailed,
     #[error("Parent Dir not found")]
-    ParentDirNotFound
+    ParentDirNotFound,
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -66,8 +66,7 @@ impl WeatherFile {
     }
 
     pub fn get_text(&self) -> Result<String> {
-        Ok(String::from_utf8(self.data.clone())
-            .map_err(|_e| Error::UTF8ConversionFailed)?)
+        Ok(String::from_utf8(self.data.clone()).map_err(|_e| Error::UTF8ConversionFailed)?)
     }
 
     pub fn settings() -> Result<Self> {

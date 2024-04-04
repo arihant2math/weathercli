@@ -3,18 +3,19 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 
-use weather_plugin::{chrono, WeatherData, WeatherForecast, WindData};
 use weather_plugin::backend::PrecipitationData;
 use weather_plugin::custom_backend::PluginRegistrar;
 use weather_plugin::custom_backend::WeatherForecastPlugin;
 use weather_plugin::export_plugin;
 use weather_plugin::location::Coordinates;
 use weather_plugin::settings::Settings;
+use weather_plugin::{chrono, WeatherData, WeatherForecast, WindData};
 
 mod json;
 
 fn get_the_weather_channel_current(data: &Value) -> Option<WeatherData> {
-    let current_data_total: &Map<String, Value> = data["dal"]["getSunV3CurrentObservationsUrlConfig"].as_object()?;
+    let current_data_total: &Map<String, Value> =
+        data["dal"]["getSunV3CurrentObservationsUrlConfig"].as_object()?;
     let key = current_data_total.keys().find(|_| true)?;
     let current_data: &Map<String, Value> = current_data_total[key]["data"].as_object()?;
     Some(WeatherData {
@@ -44,7 +45,10 @@ struct RequestArg {
     value: HashMap<String, String>,
 }
 
-fn get_the_weather_channel_forecast(coordinates: &Coordinates, settings: Settings) -> weather_plugin::Result<WeatherForecast> {
+fn get_the_weather_channel_forecast(
+    coordinates: &Coordinates,
+    settings: Settings,
+) -> weather_plugin::Result<WeatherForecast> {
     let mut headers = HashMap::new();
     if !settings.metric_default {
         headers.insert("unitOfMeasurement".to_string(), "e".to_string());
@@ -71,10 +75,16 @@ fn get_the_weather_channel_forecast(coordinates: &Coordinates, settings: Setting
     // All this to make it look legit
     let mut headers = HashMap::new();
     headers.insert(String::from("Accept"), String::from("application/json"));
-    headers.insert(String::from("Content-Type"), String::from("application/json"));
+    headers.insert(
+        String::from("Content-Type"),
+        String::from("application/json"),
+    );
     headers.insert(String::from("Host"), String::from("weather.com"));
     headers.insert(String::from("Origin"), String::from("https://weather.com"));
-    headers.insert(String::from("Referer"), String::from("https://weather.com/"));
+    headers.insert(
+        String::from("Referer"),
+        String::from("https://weather.com/"),
+    );
     headers.insert(String::from("DNT"), String::from("1"));
     headers.insert(String::from("Sec-Fetch-Dest"), String::from("empty"));
     headers.insert(String::from("Sec-Fetch-Mode"), String::from("cors"));
@@ -86,12 +96,14 @@ fn get_the_weather_channel_forecast(coordinates: &Coordinates, settings: Setting
     cookies.insert(String::from("wxu-user-poll"), String::from("skip"));
     cookies.insert(String::from("fv"), String::from("3"));
     let default_data = r#"[{"name":"getSunV3CurrentObservationsUrlConfig","params":{"geocode":"37.35,-121.95","units":"e"}},{"name":"getSunV3DailyForecastWithHeadersUrlConfig","params":{"duration":"7day","geocode":"37.35,-121.95","units":"e"}}]"#;
-    let resp = weather_plugin::networking::post_url("https://weather.com/api/v1/p/redux-dal",
-                                                    // Some(serde_json::to_string(&request_args)?),
-                                                    Some(default_data.to_string()),
-                                                    Some(weather_plugin::networking::SNEAK_USER_AGENT),
-                                                    Some(headers),
-                                                    Some(cookies))?;
+    let resp = weather_plugin::networking::post_url(
+        "https://weather.com/api/v1/p/redux-dal",
+        // Some(serde_json::to_string(&request_args)?),
+        Some(default_data.to_string()),
+        Some(weather_plugin::networking::SNEAK_USER_AGENT),
+        Some(headers),
+        Some(cookies),
+    )?;
     let j = serde_json::from_str(&resp.text)?;
     let current = get_the_weather_channel_current(&j).ok_or_else(|| "e".to_string())?;
 
@@ -115,7 +127,11 @@ extern "C" fn register(registrar: &mut dyn PluginRegistrar) {
 pub struct TheWeatherChannel;
 
 impl WeatherForecastPlugin for TheWeatherChannel {
-    fn call(&self, coordinates: &Coordinates, settings: Settings) -> weather_plugin::Result<WeatherForecast> {
+    fn call(
+        &self,
+        coordinates: &Coordinates,
+        settings: Settings,
+    ) -> weather_plugin::Result<WeatherForecast> {
         get_the_weather_channel_forecast(coordinates, settings)
     }
 
@@ -133,8 +149,6 @@ impl WeatherForecastPlugin for TheWeatherChannel {
     }
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use weather_plugin::location;
@@ -147,6 +161,10 @@ mod tests {
             latitude: 37.354,
             longitude: -121.955,
         };
-        get_the_weather_channel_forecast(&coordinates, weather_plugin::settings::Settings::default()).unwrap();
+        get_the_weather_channel_forecast(
+            &coordinates,
+            weather_plugin::settings::Settings::default(),
+        )
+        .unwrap();
     }
 }

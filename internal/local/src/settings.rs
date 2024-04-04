@@ -53,10 +53,11 @@ fn _constant_location() -> bool {
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 #[allow(clippy::struct_excessive_bools)]
-pub struct SavedLocation { // TODO: Save all the reverse geocode data too
+pub struct SavedLocation {
+    // TODO: Save all the reverse geocode data too
     pub name: String,
     pub latitude: f64,
-    pub longitude: f64
+    pub longitude: f64,
 }
 
 impl Into<Coordinates> for SavedLocation {
@@ -67,7 +68,6 @@ impl Into<Coordinates> for SavedLocation {
         }
     }
 }
-
 
 #[derive(Serialize, Deserialize, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -115,7 +115,7 @@ pub enum Error {
     #[error("File Handling Error: {0}")]
     FileError(#[from] crate::weather_file::Error),
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error)
+    JSONError(#[from] shared_deps::simd_json::Error),
 }
 
 type Result<T> = std::result::Result<T, Error>;

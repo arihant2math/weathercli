@@ -4,7 +4,6 @@ pub const UNDERLINE: &str = "\x1b[4m";
 pub const BLINK: &str = "\x1b[5m";
 pub const STRIKETHROUGH: &str = "\x1b[9m";
 
-
 pub const RESET: &str = "\x1b[0m";
 pub const FORE_RESET: &str = "\x1b[39m";
 pub const BACK_RESET: &str = "\x1b[49m";

@@ -1,5 +1,5 @@
-use chrono::{DateTime, Duration, Utc};
 use chrono::serde::ts_seconds;
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::WeatherCondition;
@@ -43,7 +43,6 @@ impl Default for PrecipitationData {
         }
     }
 }
-
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct WeatherData {

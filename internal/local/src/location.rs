@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::thread;
 use std::io;
+use std::thread;
 
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
@@ -30,7 +30,7 @@ pub enum CoordinateError {
     #[error("Parsing Error: {0}")]
     ParsingError(String),
     #[error("Server Error")]
-    ServerError
+    ServerError,
 }
 
 #[derive(Debug, Error)]
@@ -46,7 +46,7 @@ pub enum GeocodeError {
     #[error("Latitude not found")]
     Latitude,
     #[error("Server Error")]
-    BackendError
+    BackendError,
 }
 
 #[derive(Debug, Error)]
@@ -62,7 +62,7 @@ pub enum ReverseGeocodeError {
     #[error("Country not found")]
     CountryNotFound,
     #[error("Server Error")]
-    BackendError
+    BackendError,
 }
 
 #[cfg(target_os = "windows")]
@@ -91,7 +91,10 @@ fn get_web() -> Result<Coordinates, CoordinateError> {
     })
 }
 
-fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> Result<ResourceSetsJSON, GeocodeError> {
+fn bing_maps_geocode(
+    query: &str,
+    bing_maps_api_key: &str,
+) -> Result<ResourceSetsJSON, GeocodeError> {
     let mut r = networking::get!(
         format!(
             "https://dev.virtualearth.net/REST/v1/Locations?query=\"{query}\"&maxResults=5&key={bing_maps_api_key}"
@@ -104,20 +107,17 @@ fn bing_maps_geocode(query: &str, bing_maps_api_key: &str) -> Result<ResourceSet
     Ok(j.resource_sets[0].clone())
 }
 
-fn nominatim_geocode(query: &str) -> Result<Vec<Coordinates>, GeocodeError> { // TODO: return multiple results
+fn nominatim_geocode(query: &str) -> Result<Vec<Coordinates>, GeocodeError> {
+    // TODO: return multiple results
     let mut r = networking::get!(format!(
         "https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"
     ))?;
     let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
-    let latitude = j[0]["lat"]
-        .as_f64()
-        .ok_or(GeocodeError::Latitude)?;
-    let longitude = j[0]["lon"]
-        .as_f64()
-        .ok_or(GeocodeError::Longitude)?;
+    let latitude = j[0]["lat"].as_f64().ok_or(GeocodeError::Latitude)?;
+    let longitude = j[0]["lon"].as_f64().ok_or(GeocodeError::Longitude)?;
     Ok(vec![Coordinates {
         latitude,
-        longitude
+        longitude,
     }])
 }
 
@@ -207,9 +207,7 @@ pub fn geocode(query: String, bing_maps_api_key: &str) -> Result<Coordinates, Ge
             println!("Multiple choices found, please choose one");
             let formatted_coordinates_list: Vec<String> = coordinates_list
                 .iter()
-                .map(|coordinate| {
-                    format!("{},{}", coordinate.latitude, coordinate.longitude)
-                })
+                .map(|coordinate| format!("{},{}", coordinate.latitude, coordinate.longitude))
                 .collect();
             let index = terminal::prompt::radio(&formatted_coordinates_list, 0, None)?;
             coordinates = Ok(coordinates_list[index]);

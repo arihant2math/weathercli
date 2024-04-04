@@ -15,7 +15,11 @@ pub fn get_forecast(
     coordinates: &Coordinates,
     settings: Settings,
 ) -> crate::Result<WeatherForecast> {
-    let key = if settings.open_weather_map_one_call_key {settings.open_weather_map_api_key} else { String::from("439d4b804bc8187953eb36d2a8c26a02")};
+    let key = if settings.open_weather_map_one_call_key {
+        settings.open_weather_map_api_key
+    } else {
+        String::from("439d4b804bc8187953eb36d2a8c26a02")
+    };
     let data = get_combined_data_formatted(
         "https://openweathermap.org/data/2.5/",
         key,
