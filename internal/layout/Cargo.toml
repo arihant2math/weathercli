@@ -12,6 +12,7 @@ regex = "1.10"
 log = "0.4"
 chrono = "0.4"
 tera = "1"
+thiserror = "1"
 
 shared_deps = { path = "../shared_deps" }
 custom_backend = { path = "../custom_backend" }
@@ -21,4 +22,3 @@ backend = { path = "../backend" }
 terminal = { path = "../terminal" }
 networking = { path = "../networking" }
 weather_dirs = { path = "../weather_dirs" }
-weather_error = { path = "../weather_error" }

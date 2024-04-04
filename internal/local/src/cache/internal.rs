@@ -1,5 +1,6 @@
 use std::fs;
 use std::fs::File;
+use std::io;
 use std::io::{Read, Write};
 use std::path::PathBuf;
 use weather_dirs::weathercli_dir;
@@ -26,12 +27,12 @@ pub fn u8_to_string(i: u8) -> String {
     String::from(i as char)
 }
 
-pub fn get_path() -> crate::Result<PathBuf> {
+pub fn get_path() -> Result<PathBuf, weather_dirs::Error> {
     Ok(weathercli_dir()?.join("f.cache"))
 }
 
-fn read_from_file() -> crate::Result<Vec<u8>> {
-    let path = get_path()?;
+fn read_from_file() -> io::Result<Vec<u8>> {
+    let path = get_path().unwrap(); // TODO: Log error
     if !path.exists() {
         let mut f = File::create(path.display().to_string())?;
         let to_write: [u8; 0] = [];
@@ -47,8 +48,8 @@ fn read_from_file() -> crate::Result<Vec<u8>> {
     Ok(buffer)
 }
 
-fn write_to_file(bytes: &[u8]) -> crate::Result<()> {
-    let path = get_path()?;
+fn write_to_file(bytes: &[u8]) -> io::Result<()> {
+    let path = get_path().unwrap(); // TODO: Log error
     let mut file = File::options()
         .truncate(true)
         .write(true)
@@ -58,7 +59,7 @@ fn write_to_file(bytes: &[u8]) -> crate::Result<()> {
     Ok(())
 }
 
-pub fn read_cache() -> crate::Result<Vec<Row>> {
+pub fn read_cache() -> io::Result<Vec<Row>> {
     let original_bytes = read_from_file()?;
     if original_bytes.is_empty() {
         write_cache(Vec::new())?;
@@ -115,7 +116,7 @@ pub fn read_cache() -> crate::Result<Vec<Row>> {
     Ok(rows)
 }
 
-pub fn write_cache(rows: Vec<Row>) -> crate::Result<()> {
+pub fn write_cache(rows: Vec<Row>) -> io::Result<()> {
     let mut response: Vec<u8> = vec![VERSION];
     for row in rows {
         if !row.key.is_empty() {

@@ -20,7 +20,7 @@ pub fn get_weather_data(
     let cloud_cover = data.hourly.cloudcover[index];
     let conditions = get_conditions(data.clone(), metric, index, cloud_cover, weather_codes)?;
     let native_time = NaiveDateTime::parse_from_str(&data.hourly.time[index], "%Y-%m-%dT%H:%M")?;
-    let time = native_time.and_local_timezone(Utc).single().ok_or("timezone offset failure")?;
+    let time = native_time.and_local_timezone(Utc).single().ok_or("timezone offset failure".to_string())?; // TODO: ugh string error
     let d = WeatherData {
         time,
         temperature: data.current_weather.temperature,

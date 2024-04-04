@@ -8,11 +8,11 @@ edition = "2021"
 [dependencies]
 shared_deps = { path = "../shared_deps" }
 networking = { path = "../networking" }
+thiserror = "1.0"
 serde = "1.0"
 log = "0.4"
 hex = "0.4"
 sha2 = "0.10"
-weather_error = { path = "../weather_error" }
 weather_structs = { path = "../weather_structs" }
 
 [target.'cfg(windows)'.dependencies]

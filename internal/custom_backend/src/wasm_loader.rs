@@ -107,7 +107,7 @@ impl WasmLoader {
                 return Ok(forecast);
             }
         }
-        Err("No such plugin found")?
+        Err("No such plugin found".to_string())? // TODO: string error bad
     }
 }
 

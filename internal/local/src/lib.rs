@@ -4,6 +4,7 @@ pub mod location;
 pub mod settings;
 pub mod weather_file;
 
+use std::io;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
@@ -11,10 +12,9 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use sha2::Digest;
 
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 /// returns the sha-256 of the file
-pub fn hash_file(filename: &str) -> crate::Result<String> {
+pub fn hash_file(filename: &str) -> io::Result<String> {
     let input = Path::new(filename);
     let bytes = fs::read(input)?;
     Ok(hex::encode(sha2::Sha256::digest(bytes)))
@@ -28,7 +28,7 @@ pub fn now() -> u128 {
     since_the_epoch.as_millis()
 }
 
-pub fn list_dir(dir: PathBuf) -> crate::Result<Vec<String>> {
+pub fn list_dir(dir: PathBuf) -> io::Result<Vec<String>> {
     Ok(fs::read_dir(dir)?
         .map(|f| f.unwrap().file_name().into_string().unwrap())
         .collect())

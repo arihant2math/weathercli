@@ -10,7 +10,7 @@ chrono = { version = "0.4", features = ["serde"] }
 serde = "1.0"
 nestify = "0.3"
 shared_deps = { path = "../shared_deps" }
-weather_error = { path = "../weather_error" }
-weather_structs = { path = "../weather_structs" }
 local = { path = "../local" }
+thiserror = "1.0"
 networking = { path = "../networking" }
+weather_structs = { path = "../weather_structs" }

@@ -7,5 +7,3 @@ pub use local::location;
 pub use local::settings;
 pub use local::weather_file;
 pub use networking;
-
-pub type Result<T> = std::result::Result<T, weather_error::Error>;

@@ -13,11 +13,11 @@ pub struct LayoutInput {
 }
 
 impl LayoutInput {
-    pub fn from_forecast(forecast: WeatherForecast, time: DateTime<Utc>) -> weather_error::Result<Self> {
+    pub fn from_forecast(forecast: WeatherForecast, time: DateTime<Utc>) -> crate::Result<Self> {
         Ok(LayoutInput {
             datasource: forecast.datasource.clone(),
             location: forecast.location.clone(),
-            weather: forecast.get_best_forecast(time)?,
+            weather: forecast.get_best_forecast(time).ok_or("Failed to get best forecast".to_string())?,
             forecast_sentence: forecast.get_forecast_sentence(time)?
         })
     }

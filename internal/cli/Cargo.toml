@@ -18,10 +18,10 @@ updater = { path = "../updater" }
 local = { path = "../local" }
 backend = { path = "../backend" }
 terminal = { path = "../terminal" }
+thiserror = "1.0"
 layout = { path = "../layout" }
 networking = { path = "../networking" }
 weather_dirs = { path = "../weather_dirs" }
-weather_error = { path = "../weather_error" }
 settings_app = { path = "../settings_app", optional = true }
 
 [features]

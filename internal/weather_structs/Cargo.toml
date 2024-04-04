@@ -5,6 +5,6 @@ edition = "2021"
 
 
 [dependencies]
-chrono = { version = "0.4", features = ["serde"] }
+chrono = { version = "0.4.34", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
-weather_error = { path = "../weather_error" }
+thiserror = "1.0"

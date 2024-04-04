@@ -5,22 +5,25 @@ use shared_deps::bincode;
 use shared_deps::serde_json;
 use tera::{Context, Tera};
 use terminal::color;
-use weather_error::{Error, LayoutErr};
 
 use crate::layout_input::LayoutInput;
 use crate::layout_serde::LayoutDefaultsSerde;
 use crate::row::Row;
 use crate::tera_functions::{Color, Units};
 
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
-
 mod image_to_text;
+pub mod error;
 pub mod item;
 pub mod layout_serde;
 mod row;
 pub mod util;
 pub mod layout_input;
 mod tera_functions;
+
+pub use crate::error::LayoutErr;
+pub use crate::error::Error;
+
+pub type Result<T> = std::result::Result<T, error::Error>;
 
 const TEMPLATE_PREFIX: &str = r#"{% set BOLD = color(color="BOLD") %}
 {% set ITALIC = color(color="ITALIC") %}
@@ -163,7 +166,7 @@ impl LayoutFile {
         let mut d = file.data;
         let magic_bytes = d[0..7].to_vec();
         if magic_bytes != [0x6C, 0x61, 0x79, 0x6F, 0x75, 0x74, 0x0A] {
-            return Err("Layout file does not have the correct magic bytes")?;
+            return Err("Layout file does not have the correct magic bytes".to_string())?;
         }
         d = d[7..].to_vec();
         let version = ((d[0] as u64) << 24) + ((d[1] as u64) << 16) + ((d[2] as u64) << 8) + d[3] as u64;
@@ -185,7 +188,7 @@ impl LayoutFile {
         } else if ext == "res" {
             return Self::from_bincode_path(file);
         } else {
-            return Err("Layout file does not have an extension of .res or .layout")?;
+            return Err("Layout file does not have an extension of .res or .layout".to_string())?;
         }
 
     }

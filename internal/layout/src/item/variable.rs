@@ -2,7 +2,7 @@ use log::error;
 use shared_deps::serde_json;
 use shared_deps::serde_json::Value;
 use terminal::color;
-use weather_error::LayoutErr;
+use crate::LayoutErr;
 
 use crate::item::ItemType;
 use crate::LayoutSettings;
@@ -63,7 +63,7 @@ impl ItemType for Variable {
         } else if current.is_null() {
             return Ok("null".to_string());
         }
-        return Err(weather_error::Error::LayoutError(LayoutErr {
+        return Err(crate::Error::LayoutError(LayoutErr {
             message: format!("Variable {} has an unsupported type.", current.to_string()),
             row: None,
             item: None,

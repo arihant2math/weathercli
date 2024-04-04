@@ -10,8 +10,8 @@ backend = { path = "../backend" }
 log = "0.4"
 local = { path = "../local" }
 libloading = "0.8"
+thiserror = "1.0"
 shared_deps = { path = "../shared_deps" }
 serde = { version = "1.0", features = ["derive"] }
 weather_dirs = { path = "../weather_dirs" }
-weather_error = { path = "../weather_error" }
 weather_structs = { path = "../weather_structs" }

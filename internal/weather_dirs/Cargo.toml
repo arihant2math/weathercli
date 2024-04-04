@@ -7,5 +7,4 @@ edition = "2021"
 
 [dependencies]
 home = "0.5"
-weather_error = { path = "../weather_error" }
-
+thiserror = "1.0"

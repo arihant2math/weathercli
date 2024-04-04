@@ -11,8 +11,6 @@ pub mod weather_forecast;
 pub mod wind_data;
 mod location_data;
 
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
-
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct Coordinates {
     pub latitude: f64,

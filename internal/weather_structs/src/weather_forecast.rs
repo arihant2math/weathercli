@@ -12,16 +12,13 @@ pub struct WeatherForecast {
 }
 
 impl WeatherForecast {
-    pub fn get_best_forecast(&self, time: DateTime<Utc>) -> crate::Result<WeatherData> {
-        let best_forecast = self.forecast.iter().min_by_key(|&d| (time - d.time).abs().num_seconds());
-        Ok(match best_forecast {
-            Some(forecast) => forecast.clone(),
-            None => self.forecast.get(0).ok_or("No forecast (forecast has length zero). There is likely an issue with the backend, try --json for more info.")?.clone(),
-        })
+    /// If None is returned there is no forecast (forecast attr has length zero). There is likely an issue with the backend, try --json for more info.
+    pub fn get_best_forecast(&self, time: DateTime<Utc>) -> Option<WeatherData> {
+        self.forecast.iter().min_by_key(|&d| (time - d.time).abs().num_seconds()).cloned()
     }
-    pub fn get_forecast_sentence(&self, time: DateTime<Utc>) -> crate::Result<String> {
+    pub fn get_forecast_sentence(&self, time: DateTime<Utc>) -> Result<String, String> {
         let future_forecasts: Vec<&WeatherData> = self.forecast.iter().filter(|&d| (d.time - time).num_seconds() > 0).collect();
-        let current = self.get_best_forecast(time)?;
+        let current = self.get_best_forecast(time).ok_or(String::from("No current forecast"))?;
         if future_forecasts.len() < 2 {
             return Ok("No future forecasts".into());
         }
@@ -50,9 +47,9 @@ impl WeatherForecast {
         let mut sentence = Vec::new();
         if is_raining {
             if let Some(end) = rain_end {
-                sentence.push(format!("It will continue raining for {} hours.", (end - rain_start.unwrap()).num_hours()));
+                sentence.push(format!("It will continue raining for {} hours.", (end - time).num_hours()));
             } else {
-                sentence.push(format!("It is currently raining and will be for atleast {} hours.", (future_forecasts.last().unwrap().time - current.time).num_hours()));
+                sentence.push(format!("It is currently raining and will be for atleast {} hours.", (future_forecasts.last().unwrap().time - time).num_hours()));
             }
         } else if let Some(start) = rain_start {
             if let Some(end) = rain_end {
@@ -70,7 +67,7 @@ impl WeatherForecast {
             }
         } else if let Some(start) = snow_start {
             if let Some(end) = snow_end {
-                sentence.push(format!("It will start snowing at {} for {} hours..", start.format("%H:%M"), (end - start).num_hours()));
+                sentence.push(format!("It will start snowing at {} for {} hours.", start.format("%H:%M"), (end - start).num_hours()));
             } else {
                 sentence.push(format!("It will start snowing at {} for atleast {} hours.", start.format("%H:%M"), (future_forecasts.last().unwrap().time - start).num_hours()));
             }

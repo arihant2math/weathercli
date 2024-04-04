@@ -1,5 +1,8 @@
 use std::str::FromStr;
 use std::u128;
+use std::io;
+
+use thiserror::Error;
 
 use internal::{get_date_string, read_cache, Row, write_cache};
 
@@ -7,21 +10,19 @@ use crate::now;
 
 mod internal;
 
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
 
 /// Reads the value of a key from the cache. This does not update the count value, use `update_hits` to do that
 /// Returns None if the key does not exist and returns a string otherwise
-pub fn read(key: &str) -> crate::Result<String> {
-    let rows = read_cache()?;
-    Ok(rows
+pub fn read(key: &str) -> Option<String> {
+    let rows = read_cache().ok()?; // TODO: Log
+    Some(rows
         .into_iter()
-        .find(|row| row.key == key)
-        .ok_or("Key not found")?
+        .find(|row| row.key == key)?
         .value)
 }
 
 /// writes the key to the cache, overwriting it if it already exists
-pub fn write(key: &str, value: &str) -> crate::Result<()> {
+pub fn write(key: &str, value: &str) -> io::Result<()> {
     let mut rows: Vec<Row> = read_cache()?;
     let key_index = rows.iter().position(|row| row.key == key);
     let new_row = Row {
@@ -40,27 +41,37 @@ pub fn write(key: &str, value: &str) -> crate::Result<()> {
     Ok(())
 }
 
+#[derive(Debug, Error)]
+pub enum CacheError {
+    #[error("Key not found: {0}")]
+    KeyNotFound(String),
+    #[error("Row not found: {0}")]
+    RowNotFound(usize),
+    #[error("I/O Error: {0}")]
+    IoError(#[from] io::Error)
+}
+
 /// Deletes the key from the cache
-pub fn delete(key: &str) -> crate::Result<()> {
+pub fn delete(key: &str) -> Result<(), CacheError> {
     let mut rows: Vec<Row> = read_cache()?;
     let key_index = rows
         .iter()
         .position(|row| row.key == key)
-        .ok_or(format!("Key not found, {key}"))?;
+        .ok_or(CacheError::KeyNotFound(String::from(key)))?;
     rows.remove(key_index);
     write_cache(rows)?;
     Ok(())
 }
 
 /// Bumps the number of hits to the row, makes it so that the row is less likely to be deleted by the pruner
-pub fn update_hits(key: &str) -> crate::Result<()> {
+pub fn update_hits(key: &str) -> Result<(), CacheError> {
     let mut rows: Vec<Row> = read_cache()?;
     let key_index = rows
         .iter()
         .position(|row| row.key == key)
-        .ok_or(format!("Key not found, {key}"))?;
+        .ok_or(CacheError::KeyNotFound(key.to_string()))?;
     let key_index_usize = key_index;
-    let row = rows.get(key_index_usize).ok_or("row not found")?;
+    let row = rows.get(key_index_usize).ok_or(CacheError::RowNotFound(key_index_usize))?;
     rows.push(Row {
         key: row.key.to_string(),
         value: row.value.to_string(),
@@ -80,7 +91,7 @@ fn calculate_power(row: &Row) -> f64 {
     f64::from(row.hits) / (offset / 86_400_000.0)
 }
 
-pub fn prune() -> crate::Result<()> {
+pub fn prune() -> io::Result<()> {
     let mut rows: Vec<Row> = read_cache()?;
     while rows.len() > 100 {
         let powers: Vec<f64> = rows.iter().map(calculate_power).collect();

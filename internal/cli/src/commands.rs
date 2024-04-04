@@ -60,24 +60,23 @@ pub fn get_data_from_datasource(
     debug!("Getting data from datasource: {datasource:?}");
     match datasource {
         Datasource::Openweathermap => {
-            openweathermap::forecast::get_forecast(&coordinates, settings)
+            Ok(openweathermap::forecast::get_forecast(&coordinates, settings)?)
         }
         Datasource::OpenweathermapOneCall => {
-            openweathermap_onecall::forecast::get_forecast(&coordinates, settings)
+            Ok(openweathermap_onecall::forecast::get_forecast(&coordinates, settings)?)
         }
-        Datasource::NWS => nws::forecast::get_forecast(&coordinates, settings),
-        Datasource::Meteo => meteo::forecast::get_forecast(&coordinates, settings),
+        Datasource::NWS => Ok(nws::forecast::get_forecast(&coordinates, settings)?),
+        Datasource::Meteo => Ok(meteo::forecast::get_forecast(&coordinates, settings)?),
         Datasource::Other(s) => {
             if settings.enable_wasm_backends {
-                wasm_loader.call(&s, coordinates, settings)
+                Ok(wasm_loader.call(&s, coordinates, settings)?)
             }
             else if settings.enable_custom_backends {
-                custom_backends.call(&s, &coordinates, settings)
-
+                Ok(custom_backends.call(&s, &coordinates, settings)?)
             } else {
-                return Err(weather_error::Error::Other(
+                return Err(backend::Error::Other(
                     "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help (specifically which commands to run)
-                ));
+                ))?;
             }
         }
     }

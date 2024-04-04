@@ -7,6 +7,24 @@ use local::weather_file::WeatherFile;
 use networking;
 use terminal::color;
 
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum UpdateError {
+    #[error("Network error: {0}")]
+    NetworkError(#[from] networking::Error),
+    #[error("Reqwuest error: {0}")]
+    ReqwuestError(String), // TODO: Store actual error
+    #[error("JSON Error: {0}")]
+    JSONError(#[from] shared_deps::simd_json::Error),
+    #[error("I/O Error: {0}")]
+    IOError(#[from] std::io::Error),
+    #[error("Weather file Error: {0}")]
+    WeatherFileError(#[from] local::weather_file::Error),
+    #[error("Server Error: {0}")]
+    ServerError(String)
+}
+
 struct WebResource {
     local_path: &'static str,
     pretty_name: &'static str,
@@ -43,7 +61,7 @@ fn update_web_resource(
     web_resp: Value,
     server: &str,
     quiet: bool,
-) -> crate::Result<()> {
+) -> Result<(), UpdateError> {
     let web_path = format!("{server}{}", resource.url);
     trace!("Checking for update for {} ", resource.hash_name);
     let mut f = WeatherFile::new(resource.local_path)?;
@@ -51,7 +69,7 @@ fn update_web_resource(
     let web_json: Value = web_resp;
     let web_hash: String = web_json[resource.hash_name]
         .as_str()
-        .ok_or("Failed to get hash from web")?
+        .ok_or(UpdateError::ServerError("Failed to get hash from web".to_string()))?
         .to_string();
     if web_hash != file_hash {
         debug!(
@@ -69,9 +87,9 @@ fn update_web_resource(
                 println!("{}Downloading {}", color::FORE_YELLOW, resource.pretty_name);
             }
         }
-        let data = reqwest::blocking::get(web_path).map_err(|_| weather_error::Error::NetworkError(
+        let data = reqwest::blocking::get(web_path).map_err(|_| UpdateError::ReqwuestError(
                 "Failed to download file".to_string(),
-            ))?.text().map_err(|_| weather_error::Error::NetworkError(
+            ))?.text().map_err(|_| UpdateError::ReqwuestError(
                 "Failed to download file".to_string(),
             ))?;
         f.data = Vec::from(data);
@@ -83,7 +101,7 @@ fn update_web_resource(
 /// Updates all the web resources, run on a separate thread as there is no return value
 /// # Arguments
 /// * `dev` gets passed `update_web_resource`, if true `update_web_resource` will print the hashes if they don't match
-pub fn update_web_resources(server: &str, quiet: Option<bool>) -> crate::Result<()> {
+pub fn update_web_resources(server: &str, quiet: Option<bool>) -> Result<(), UpdateError> {
     debug!("Updating web resources");
     let real_quiet = quiet.unwrap_or(false); // TODO: Fix naming (don't call it real_)
     let fixed_server = if server.ends_with('/') {
@@ -107,7 +125,7 @@ pub fn update_web_resources(server: &str, quiet: Option<bool>) -> crate::Result<
             return Ok(());
         }
     }
-    Err(weather_error::Error::NetworkError(
+    Err(UpdateError::ServerError(
         "Status not 200".to_string(),
     ))
 }

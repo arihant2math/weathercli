@@ -4,12 +4,12 @@ use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 use log::{debug, error, trace};
+
 use std::{collections::HashMap, ffi::OsStr, io, rc::Rc};
 use weather_dirs::custom_backends_dir;
-use weather_error::Error;
-use weather_error::InvocationError;
 
 use crate::{PluginDeclaration, WeatherForecastPlugin};
+
 
 #[cfg(target_os = "windows")]
 pub fn is_valid_ext(f: &str) -> bool {
@@ -26,8 +26,9 @@ pub fn is_valid_ext(f: &str) -> bool {
     f.ends_with(".dylib")
 }
 
+
 #[cfg(target_os = "windows")]
-pub fn is_valid_file(f: &str) -> weather_error::Result<bool> {
+pub fn is_valid_file(f: &str) -> Result<bool, local::weather_file::Error> {
     let file = WeatherFile::new(custom_backends_dir()?.join(f).as_path().to_str().unwrap())?;
     Ok(file.data.starts_with(&[0x4d, 0x5a]))
 }
@@ -94,7 +95,7 @@ impl ExternalBackends {
         debug!("Calling function {name}");
         self.functions
             .get(name)
-            .ok_or(Error::InvocationError(InvocationError::NotFound))?
+            .ok_or(crate::Error::FunctionNotFound)?
             .call(coordinates, settings)
     }
 
@@ -111,7 +112,7 @@ impl ExternalBackends {
         let path = library_path
             .as_ref()
             .to_str()
-            .ok_or("Failed to get library path")?;
+            .ok_or("Failed to get library path".to_string())?;
         // load the library into memory
         let library = Rc::new(
             Library::new(path)

@@ -24,7 +24,6 @@ members = [
     "internal/terminal",
     "internal/updater",
     "internal/weather_dirs",
-    "internal/weather_error",
     "internal/weather_plugin",
     "internal/weather_structs",
 
@@ -53,7 +52,6 @@ custom_backend = { path = "./internal/custom_backend" }
 cli = { path = "./internal/cli" }
 terminal = { path = "./internal/terminal" }
 weather_dirs = { path = "./internal/weather_dirs" }
-weather_error = { path = "./internal/weather_error" }
 local = { path = "./internal/local" }
 updater = { path = "./internal/updater" }
 auto-launch = { version = "0.5", optional = true }
@@ -65,7 +63,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 simd-json = "0.13"
 reqwest = { version = "0.11", features = ["blocking"] }
-tokio = "1.33"
+tokio = { version = "1", features = ["full"] }
 
 [dev-dependencies]
 rand = "0.8"
@@ -78,6 +76,9 @@ support = ["dep:auto-launch", "dep:bincode"]
 installer = ["tokio/full"]
 gui = ["cli/gui"]
 default = ["gui"]
+
+[profile.release]
+debug = 1
 
 [profile.bench]
 debug = true

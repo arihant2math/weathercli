@@ -4,6 +4,8 @@ use shared_deps::simd_json;
 #[cfg(windows)]
 use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
 
+use thiserror::Error;
+
 use crate::location::Coordinates;
 use crate::weather_file::WeatherFile;
 
@@ -37,7 +39,7 @@ fn _constant_location() -> bool {
 }
 
 #[cfg(windows)]
-unsafe fn _constant_location_base() -> crate::Result<bool> {
+unsafe fn _constant_location_base() -> windows::core::Result<bool> {
     let mut power_status = SYSTEM_POWER_STATUS::default();
     windows::Win32::System::Power::GetSystemPowerStatus(&mut power_status)?;
     Ok(power_status.ACLineStatus == 255)
@@ -108,9 +110,19 @@ pub struct Settings {
     pub saved_locations: Vec<SavedLocation>,
 }
 
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("File Handling Error: {0}")]
+    FileError(#[from] crate::weather_file::Error),
+    #[error("JSON Error: {0}")]
+    JSONError(#[from] shared_deps::simd_json::Error)
+}
+
+type Result<T> = std::result::Result<T, Error>;
+
 #[cfg(not(target_arch = "wasm32"))]
 impl Settings {
-    pub fn new() -> crate::Result<Self> {
+    pub fn new() -> Result<Self> {
         unsafe {
             let file = _file();
             let mut s = file.get_text()?.clone();
@@ -127,7 +139,7 @@ impl Settings {
         }
     }
 
-    pub fn write(&mut self) -> crate::Result<()> {
+    pub fn write(&mut self) -> Result<()> {
         self.file.data = Vec::from(simd_json::to_string(&self)?);
         self.file.write()?;
         Ok(())

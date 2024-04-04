@@ -19,7 +19,7 @@ use std::mem::discriminant;
 use terminal::color;
 use weather_dirs::{custom_backends_dir, weathercli_dir};
 
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
+pub type Result<T> = std::result::Result<T, cli::Error>;
 
 pub fn version() -> String {
     env!("CARGO_PKG_VERSION").to_string()

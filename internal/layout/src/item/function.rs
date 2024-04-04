@@ -1,7 +1,7 @@
 use shared_deps::serde_json::Value;
 use std::collections::HashMap;
 use terminal::color;
-use weather_error::LayoutErr;
+use crate::LayoutErr;
 
 use crate::{LayoutSettings, util};
 use crate::item::{Item, ItemType};
@@ -38,7 +38,7 @@ impl ItemType for Function {
                 Item::new(args[1].clone())?.get_value(data)?,
                 Item::new(args[2].clone())?.get_value(data)?,
             ),
-            _ => Err(weather_error::Error::LayoutError(LayoutErr {
+            _ => Err(crate::Error::LayoutError(LayoutErr {
                 message: "Function not found".to_string(),
                 row: None,
                 item: None,

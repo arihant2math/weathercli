@@ -4,13 +4,38 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io;
+use std::fmt;
 use std::io::Read;
 use ureq::{Agent, Response};
 use url::Url;
 
+use std::error::Error as ErrorTrait;
+
 pub const USER_AGENT: &str = "weathercli/1";
 pub const SNEAK_USER_AGENT: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0";
+
+#[derive(Debug)]
+pub struct Error(io::Error);
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl From<io::Error> for Error {
+    fn from(e: io::Error) -> Self {
+        Error(e)
+    }
+}
+
+impl ErrorTrait for Error {
+
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
+
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Resp {
@@ -21,7 +46,7 @@ pub struct Resp {
 }
 
 impl Resp {
-    pub fn new(value: Response) -> io::Result<Self> {
+    pub fn new(value: Response) -> Result<Self> {
         let mut headers = HashMap::new();
         for header in value.headers_names() {
             headers.insert(
@@ -92,7 +117,7 @@ pub fn get_url<S: AsRef<str>>(
     user_agent: Option<S>,
     headers: Option<HashMap<String, String>>,
     cookies: &Option<HashMap<String, String>>,
-) -> io::Result<Resp> {
+) -> Result<Resp> {
     let url = url_s.as_ref();
     trace!("Retrieving {url}");
     let client = get_client(&[url.to_string()], user_agent, headers, cookies);
@@ -109,7 +134,7 @@ pub fn get_url<S: AsRef<str>>(
         return Err(std::io::Error::new(
             std::io::ErrorKind::ConnectionAborted,
             format!("Get to {url} failed"),
-        ));
+        ))?;
     }
     let data = real_resp.unwrap();
     Resp::new(data)
@@ -122,7 +147,7 @@ pub fn post_url<S: AsRef<str>>(
     user_agent: Option<S>,
     headers: Option<HashMap<String, String>>,
     cookies: &Option<HashMap<String, String>>,
-) -> io::Result<Resp> {
+) -> Result<Resp> {
     let url = url_s.as_ref();
     trace!("Retrieving {url}");
     let client = get_client(&[url.to_string()], user_agent, headers, cookies);
@@ -143,7 +168,7 @@ pub fn post_url<S: AsRef<str>>(
         return Err(std::io::Error::new(
             std::io::ErrorKind::ConnectionAborted,
             format!("Get to {url} failed"),
-        ));
+        ))?;
     }
     let data = real_resp.unwrap();
     Resp::new(data)
@@ -159,7 +184,7 @@ pub fn get_urls(
     user_agent: Option<String>,
     headers: Option<HashMap<String, String>>,
     cookies: &Option<HashMap<String, String>>,
-) -> io::Result<Vec<Resp>> {
+) -> Result<Vec<Resp>> {
     trace!("Retrieving {urls:?}");
     let client = get_client(&urls.to_vec().clone(), user_agent, headers, cookies);
     let data: Vec<_> = urls

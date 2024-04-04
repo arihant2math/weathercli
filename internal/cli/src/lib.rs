@@ -1,7 +1,6 @@
 use log::warn;
 
-use weather_error;
-use weather_error::LayoutErr;
+use layout::LayoutErr;
 
 use layout::LayoutFile;
 use layout::layout_input::LayoutInput;
@@ -9,8 +8,11 @@ use shared_deps::serde_json;
 
 pub mod arguments;
 pub mod commands;
+pub mod error;
 
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
+pub use error::Error;
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum Datasource {
@@ -49,7 +51,7 @@ fn print_out(
         }
         println!(
             "{}",
-            out.map_err(|e| weather_error::Error::LayoutError(LayoutErr {
+            out.map_err(|e| layout::Error::LayoutError(LayoutErr {
                 message: e.to_string(),
                 row: None,
                 item: None

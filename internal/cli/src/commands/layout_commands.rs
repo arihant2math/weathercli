@@ -16,7 +16,7 @@ fn install(path: String) -> crate::Result<()> {
     let mut file_name = real_path.file_name().ok_or("Not a file")?.to_str().ok_or("to_str failed")?.to_string();
     let ext = real_path.extension().unwrap_or_else(|| "".as_ref());
     if ext != "res" {
-        return Err("File has to have an extension of .res")?;
+        return Err(layout::Error::Other("File has to have an extension of .res".to_string()))?;
     }
     while file_name == "default.res" {
         println!("File name cannot be default.res,\

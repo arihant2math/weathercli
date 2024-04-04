@@ -2,7 +2,7 @@ use regex::Regex;
 use std::fs;
 use std::io::Write;
 use terminal::color;
-use weather_error::{Error, LayoutErr};
+use crate::{Error, LayoutErr};
 
 pub fn color_aqi(aqi: u8) -> crate::Result<String> {
     Ok(match aqi {

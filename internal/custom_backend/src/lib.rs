@@ -6,11 +6,39 @@ use log::debug;
 use std::{fs, io};
 use weather_dirs::custom_backends_dir;
 
+use thiserror::Error;
+
 pub mod dynamic_library_loader;
 pub mod loader;
 pub mod wasm_loader;
 
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Weather Dirs Error: {0}")]
+    WeatherDirsError(#[from] weather_dirs::Error),
+    #[error("I/O Error: {0}")]
+    IOError(#[from] std::io::Error),
+    #[error("Bincode Error: {0}")]
+    BincodeError(Box<shared_deps::bincode::ErrorKind>),
+    #[error("Function not found")]
+    FunctionNotFound, // TODO: Include name
+    #[error("Other Error: {0}")]
+    Other(String)
+}
+
+impl From<String> for Error {
+    fn from(s: String) -> Self {
+        Self::Other(s)
+    }
+}
+
+impl From<Box<shared_deps::bincode::ErrorKind>> for Error {
+    fn from(b: Box<shared_deps::bincode::ErrorKind>) -> Self {
+        Self::BincodeError(b)
+    }
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
 
 pub static CORE_VERSION: &str = "0.0";
 
@@ -75,7 +103,7 @@ pub fn load_custom_backends() -> crate::Result<dynamic_library_loader::ExternalB
     let plugins: Vec<String> = path
         .read_dir()
         .map_err(|e| {
-            weather_error::Error::IoError(
+            Error::Other(
                 "Reading custom backends dir failed: ".to_string() + &e.to_string(),
             )
         })?
