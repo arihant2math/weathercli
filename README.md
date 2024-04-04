@@ -33,3 +33,4 @@ See custom_layouts.md for more info.
 ## TODO
 - combine terminal and local
 - move to async rendering for layout engine
+- Make everything else async after that

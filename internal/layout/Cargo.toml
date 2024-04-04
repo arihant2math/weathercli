@@ -14,7 +14,6 @@ chrono = "0.4"
 tera = "1"
 
 shared_deps = { path = "../shared_deps" }
-async_runner = { path = "../async_runner" }
 custom_backend = { path = "../custom_backend" }
 updater = { path = "../updater" }
 local = { path = "../local" }

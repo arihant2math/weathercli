@@ -13,7 +13,6 @@ serde = { version = "1.0", features = ["derive"] }
 parse_duration = "2.1.1"
 regex = "1.10"
 log = "0.4"
-async_runner = { path = "../async_runner" }
 custom_backend = { path = "../custom_backend" }
 updater = { path = "../updater" }
 local = { path = "../local" }
