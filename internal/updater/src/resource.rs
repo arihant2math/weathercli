@@ -85,7 +85,7 @@ fn update_web_resource(
 /// * `dev` gets passed `update_web_resource`, if true `update_web_resource` will print the hashes if they don't match
 pub fn update_web_resources(server: &str, quiet: Option<bool>) -> crate::Result<()> {
     debug!("Updating web resources");
-    let real_quiet = quiet.unwrap_or(false);
+    let real_quiet = quiet.unwrap_or(false); // TODO: Fix naming (don't call it real_)
     let fixed_server = if server.ends_with('/') {
         server.to_string()
     } else {
