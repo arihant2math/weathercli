@@ -12,6 +12,7 @@ mod update_docs;
 mod update_hash;
 mod default_layout;
 mod layout;
+mod parser;
 
 
 #[derive(Clone, Parser)]
