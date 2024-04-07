@@ -9,7 +9,9 @@ pub mod meteo;
 pub mod nws;
 pub mod openweathermap;
 pub mod openweathermap_onecall;
-mod openweathermap_shared;
+pub mod openweathermap_shared;
+
+pub mod datasource;
 
 #[derive(Debug, Error)]
 pub enum Error {

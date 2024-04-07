@@ -78,12 +78,21 @@ pub fn init_logging() -> Result<Handle> {
     Ok(log4rs::init_config(config).expect("Logging init failed"))
 }
 
+
+fn print_backtrace(error: Box<dyn std::error::Error>) {
+    if let Some(source) = error.source() {
+        println!("{:?}", source);
+    }
+}
+
 fn main() {
     let r = run();
     match r {
         Ok(()) => {}
         Err(e) => {
             println!("{}{e}", color::FORE_RED);
+            #[cfg(debug_assertions)]
+            print_backtrace(Box::new(e));
         }
     };
 }

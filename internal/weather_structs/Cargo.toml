@@ -5,6 +5,6 @@ edition = "2021"
 
 
 [dependencies]
-chrono = { version = "0.4.34", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"

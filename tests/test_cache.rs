@@ -13,7 +13,7 @@ fn test_write_read() {
         .take(7)
         .map(char::from)
         .collect();
-    local::cache::write(&key, &value)?;
+    local::cache::write(&key, &value).unwrap();
     let r = local::cache::read(&key);
     assert!(r.is_some());
     assert_eq!(r.unwrap(), value);

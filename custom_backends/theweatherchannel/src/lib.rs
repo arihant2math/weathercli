@@ -27,7 +27,7 @@ fn get_the_weather_channel_current(data: &Value) -> Option<WeatherData> {
             speed: current_data["windSpeed"].as_f64()?,
             heading: current_data["windDirection"].as_i64()? as u16,
         },
-        raw_data: serde_json::to_string_pretty(&data).ok()?,
+        raw_data: simd_json::to_string_pretty(&data).ok()?,
         dewpoint: current_data["temperatureDewPoint"].as_f64()? as f32,
         feels_like: current_data["temperatureFeelsLike"].as_f64()? as f32,
         aqi: 0,
@@ -96,15 +96,15 @@ fn get_the_weather_channel_forecast(
     cookies.insert(String::from("wxu-user-poll"), String::from("skip"));
     cookies.insert(String::from("fv"), String::from("3"));
     let default_data = r#"[{"name":"getSunV3CurrentObservationsUrlConfig","params":{"geocode":"37.35,-121.95","units":"e"}},{"name":"getSunV3DailyForecastWithHeadersUrlConfig","params":{"duration":"7day","geocode":"37.35,-121.95","units":"e"}}]"#;
-    let resp = weather_plugin::networking::post_url(
+    let mut resp = weather_plugin::networking::post_url(
         "https://weather.com/api/v1/p/redux-dal",
         // Some(serde_json::to_string(&request_args)?),
         Some(default_data.to_string()),
         Some(weather_plugin::networking::SNEAK_USER_AGENT),
         Some(headers),
-        Some(cookies),
+        &Some(cookies),
     )?;
-    let j = serde_json::from_str(&resp.text)?;
+    let j = unsafe { simd_json::from_str(&mut resp.text)? };
     let current = get_the_weather_channel_current(&j).ok_or_else(|| "e".to_string())?;
 
     let forecast = vec![current.clone()];

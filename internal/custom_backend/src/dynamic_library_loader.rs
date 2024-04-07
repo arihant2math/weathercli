@@ -90,10 +90,10 @@ impl ExternalBackends {
         settings: Settings,
     ) -> crate::Result<WeatherForecast> {
         debug!("Calling function {name}");
-        self.functions
+        Ok(self.functions
             .get(name)
             .ok_or(crate::Error::FunctionNotFound)?
-            .call(coordinates, settings)
+            .call(coordinates, settings)?)
     }
 
     /// Load a plugin library and add all contained functions to the internal
@@ -182,7 +182,7 @@ impl WeatherForecastPlugin for BackendWrapper {
         &self,
         coordinates: &Coordinates,
         settings: Settings,
-    ) -> crate::Result<WeatherForecast> {
+    ) -> backend::Result<WeatherForecast> {
         self.backend.call(coordinates, settings)
     }
 

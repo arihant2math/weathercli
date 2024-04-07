@@ -22,6 +22,8 @@ pub enum Error {
     BincodeError(Box<shared_deps::bincode::ErrorKind>),
     #[error("Function not found")]
     FunctionNotFound, // TODO: Include name
+    #[error("Backend Error: {0}")]
+    BackendError(#[from] backend::Error),
     #[error("Other Error: {0}")]
     Other(String),
 }
@@ -44,7 +46,7 @@ pub static CORE_VERSION: &str = "0.0";
 
 pub trait WeatherForecastPlugin {
     fn call(&self, coordinates: &Coordinates, settings: Settings)
-        -> crate::Result<WeatherForecast>;
+        -> backend::Result<WeatherForecast>;
 
     fn name(&self) -> Option<&str> {
         None
