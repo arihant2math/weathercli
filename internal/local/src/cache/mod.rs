@@ -103,3 +103,9 @@ pub fn prune() -> io::Result<()> {
     write_cache(rows)?;
     Ok(())
 }
+
+pub fn info() -> io::Result<()> {
+    let rows = read_cache()?;
+    println!("Cache Size: {}", rows.len());
+    Ok(())
+}

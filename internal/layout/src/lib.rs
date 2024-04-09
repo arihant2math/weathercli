@@ -9,7 +9,7 @@ use terminal::color;
 use crate::layout_input::LayoutInput;
 use crate::layout_serde::LayoutDefaultsSerde;
 use crate::row::Row;
-use crate::tera_functions::{Color, Units};
+use crate::tera_functions::{Color, Units, TerminalInfo};
 
 pub mod error;
 mod image_to_text;
@@ -226,6 +226,7 @@ impl LayoutFile {
                 let mut tera = Tera::default();
                 tera.register_function("color", Color::new());
                 tera.register_function("units", Units::new());
+                tera.register_function("terminal_info", TerminalInfo::new());
                 tera.add_raw_template("macros", "").unwrap();
                 tera.add_raw_template("layout", s).unwrap(); // TODO: no unwrap
                 let mut context = Context::new();

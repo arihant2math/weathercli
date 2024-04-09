@@ -5,7 +5,7 @@ use terminal::color::*;
 use crate::arguments::{PlaceOpts, SavedOpts};
 
 fn list(settings: Settings) -> crate::Result<()> {
-    let locations = settings.saved_locations;
+    let locations = &settings.saved_locations;
     for location in locations {
         println!("{FORE_BLUE}  {}", location.name);
     }
@@ -13,14 +13,14 @@ fn list(settings: Settings) -> crate::Result<()> {
 }
 
 pub fn select(settings: Settings) -> crate::Result<SavedLocation> {
-    let locations = settings.saved_locations;
+    let locations = &settings.saved_locations;
     let choices: Vec<String> = locations.iter().map(|l| l.name.clone()).collect();
     let choice = terminal::prompt::radio(&choices, 0, None)?;
     Ok(locations[choice].clone())
 }
 
 fn delete(settings: Settings) -> crate::Result<()> {
-    let locations = settings.saved_locations;
+    let locations = &settings.saved_locations;
     let choices: Vec<String> = locations.iter().map(|l| l.name.clone()).collect();
     let choice = terminal::prompt::radio(&choices, 0, None)?;
     let mut settings = Settings::new()?;

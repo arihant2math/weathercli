@@ -74,7 +74,7 @@ impl Function for Units {
     }
 }
 
-struct TerminalInfo;
+pub struct TerminalInfo;
 
 impl TerminalInfo {
     pub fn new() -> Self {
@@ -82,19 +82,19 @@ impl TerminalInfo {
     }
 }
 
-// impl Function for TerminalInfo {
-//     fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
-//         let v = get_required_arg(args, "type", "terminal_info")?;
-//         match from_value::<String>(v.clone()) {
-//             Ok(t) => {
-//                 match &*t {
-//                     "h" | "height" => Ok(to_value(terminal::terminal_size().unwrap()[0])),
-//                     "w" | "width" => Ok(to_value(terminal::terminal_size().unwrap()[1])),
-//                     "d" | "dimensions" => Ok(to_value(terminal::terminal_size().unwrap()).unwrap()),
-//                     _ => Err("Unknown type".into()),
-//                 }
-//             },
-//             Err(_) => Err("Could not convert \"type\" from val".into()),
-//         }
-//     }
-// }
+impl Function for TerminalInfo {
+    fn call(&self, args: &HashMap<String, Value>) -> tera::Result<Value> {
+        let v = get_required_arg(args, "type", "terminal_info")?;
+        match from_value::<String>(v.clone()) {
+            Ok(t) => {
+                match &*t {
+                    "h" | "height" => Ok(to_value(terminal::terminal_size().unwrap().0).unwrap()),
+                    "w" | "width" => Ok(to_value(terminal::terminal_size().unwrap().1).unwrap()),
+                    "d" | "dimensions" => Ok(to_value(terminal::terminal_size().unwrap()).unwrap()),
+                    _ => Err("Unknown type".into()),
+                }
+            },
+            Err(_) => Err("Could not convert \"type\" from val".into()),
+        }
+    }
+}

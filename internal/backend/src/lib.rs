@@ -5,6 +5,8 @@ pub use weather_structs::weather_data::{get_conditions_sentence, PrecipitationDa
 pub use weather_structs::weather_forecast::WeatherForecast;
 pub use weather_structs::wind_data::WindData;
 
+pub use datasource::Datasource;
+
 pub mod meteo;
 pub mod nws;
 pub mod openweathermap;

@@ -1,21 +1,21 @@
-use backend::{meteo, nws, openweathermap, openweathermap_onecall, WeatherForecast};
+use backend::datasource::Datasource as DatasourceTrait;
+use backend::WeatherForecast;
 use chrono::{DateTime, Duration, Utc};
+use custom_backend::dynamic_library_loader;
 use custom_backend::dynamic_library_loader::ExternalBackends;
 use custom_backend::wasm_loader::WasmLoader;
 use layout::layout_input::LayoutInput;
+use local::cache::info as cache_info;
 use local::cache::prune;
 use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 use log::{debug, error, warn};
 use parse_duration::parse as parse_duration;
-use shared_deps::serde_json::Value;
-use shared_deps::simd_json;
 use std::path::Path;
-use std::str::FromStr;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use terminal::color::*;
-use terminal::prompt;
 use weather_dirs::resources_dir;
 
 use crate::arguments::CacheOpts;
@@ -24,6 +24,7 @@ use crate::{print_out, Datasource};
 pub mod backend_commands;
 pub mod layout_commands;
 pub mod saved_commands;
+pub mod settings_commands;
 pub mod util;
 
 fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
@@ -42,12 +43,53 @@ fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
     }
 }
 
+fn get_datasource_class(
+    datasource: Datasource,
+    wasm_loader: Arc<Mutex<WasmLoader>>,
+    custom_backends: dynamic_library_loader::ExternalBackends,
+    enable_wasm_backends: bool,
+    enable_custom_backends: bool,
+) -> Box<dyn DatasourceTrait> {
+    match datasource {
+        Datasource::Openweathermap => Box::new(backend::openweathermap::OpenWeatherMap {}),
+        Datasource::OpenweathermapOneCall => {
+            Box::new(backend::openweathermap_onecall::OpenWeatherMapOneCall {})
+        }
+        Datasource::NWS => Box::new(backend::nws::NWS {}),
+        Datasource::Meteo => Box::new(backend::meteo::Meteo {}),
+        Datasource::Other(name) => Box::new(custom_backend::CustomBackend::new(
+            name,
+            wasm_loader,
+            custom_backends,
+            enable_wasm_backends,
+            enable_custom_backends,
+        )),
+    }
+}
+
+fn get_data(
+    datasource: Datasource,
+    coordinates: Coordinates,
+    settings: Settings,
+    custom_backends: ExternalBackends,
+    wasm_loader: Arc<Mutex<WasmLoader>>,
+) -> crate::Result<WeatherForecast> {
+    let attem = get_datasource_class(
+        datasource.clone(),
+        wasm_loader,
+        custom_backends,
+        settings.enable_wasm_backends,
+        settings.enable_custom_backends,
+    );
+    Ok(attem.get(&coordinates, settings)?)
+}
+
 pub fn get_data_from_datasource(
     datasource: Datasource,
     coordinates: Coordinates,
     settings: Settings,
     custom_backends: ExternalBackends,
-    wasm_loader: &mut WasmLoader,
+    wasm_loader: Arc<Mutex<WasmLoader>>,
 ) -> crate::Result<WeatherForecast> {
     let dir = resources_dir()?;
     let f1 = dir.join("weather_codes.res");
@@ -62,29 +104,13 @@ pub fn get_data_from_datasource(
         });
     }
     debug!("Getting data from datasource: {datasource:?}");
-    match datasource {
-        Datasource::Openweathermap => Ok(openweathermap::forecast::get_forecast(
-            &coordinates,
-            settings,
-        )?),
-        Datasource::OpenweathermapOneCall => Ok(openweathermap_onecall::forecast::get_forecast(
-            &coordinates,
-            settings,
-        )?),
-        Datasource::NWS => Ok(nws::forecast::get_forecast(&coordinates, settings)?),
-        Datasource::Meteo => Ok(meteo::forecast::get_forecast(&coordinates, settings)?),
-        Datasource::Other(s) => {
-            if settings.enable_wasm_backends {
-                Ok(wasm_loader.call(&s, coordinates, settings)?)
-            } else if settings.enable_custom_backends {
-                Ok(custom_backends.call(&s, &coordinates, settings)?)
-            } else {
-                return Err(backend::Error::Other(
-                    "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help (specifically which commands to run)
-                ))?;
-            }
-        }
-    }
+    get_data(
+        datasource,
+        coordinates,
+        settings,
+        custom_backends,
+        wasm_loader,
+    )
 }
 
 pub fn weather(
@@ -95,7 +121,7 @@ pub fn weather(
     true_metric: bool,
     json: bool,
     custom_backends: ExternalBackends,
-    wasm_backends: &mut WasmLoader,
+    wasm_backends: Arc<Mutex<WasmLoader>>,
 ) -> crate::Result<()> {
     debug!(
         "Coordinates: {} {}",
@@ -119,29 +145,6 @@ pub fn weather(
     Ok(())
 }
 
-pub fn config(key_name: String, value: Option<String>) -> crate::Result<()> {
-    match value {
-        None => {
-            let f = WeatherFile::settings()?;
-            unsafe {
-                let data: Value = simd_json::from_str(&mut f.get_text()?)?;
-                println!("{}: {}", &key_name, data[&key_name]);
-            }
-        }
-        Some(real_value) => {
-            println!("Writing {}={} ...", key_name.to_lowercase(), &real_value);
-            let mut f = WeatherFile::settings()?;
-            unsafe {
-                let mut data: Value = simd_json::from_str(&mut f.get_text()?)?;
-                data[key_name.to_uppercase()] = Value::from_str(&real_value)?;
-                f.data = Vec::from(simd_json::to_string(&data)?);
-                f.write()?;
-            }
-        }
-    };
-    Ok(())
-}
-
 pub fn cache(opts: CacheOpts) -> crate::Result<()> {
     match opts {
         CacheOpts::Clear => {
@@ -153,16 +156,18 @@ pub fn cache(opts: CacheOpts) -> crate::Result<()> {
             f.write()?;
         }
         CacheOpts::Prune => prune()?,
+        CacheOpts::Info => cache_info()?,
     }
     Ok(())
 }
 
 pub fn about() {
-    println!("Weather, in your terminal");
+    println!("{BOLD}{UNDERLINE}{FORE_LIGHTRED}Weather, in your terminal{RESET}");
     println!(
-        "{BOLD}{FORE_LIGHTBLUE}Version{RESET} {FORE_GREEN}{}",
-        env!("CARGO_PKG_VERSION")
+        "{BOLD}{FORE_LIGHTBLUE}Version{RESET} {FORE_LIGHTGREEN}{version}{RESET}",
+        version = env!("CARGO_PKG_VERSION")
     );
+    println!("{FORE_LIGHTBLUE} view {RESET}weather credits{FORE_LIGHTBLUE} for more info{RESET}");
 }
 
 pub fn credits() {
@@ -173,31 +178,6 @@ Open Weather Map - https://openweathermap.org/
 NWS - https://weather.gov"
     );
     println!("App icons from Icons8: https://icons8.com/");
-}
-
-pub fn settings() -> crate::Result<()> {
-    let mut settings = Settings::new()?;
-    let result = prompt::multiselect(
-        &[
-            "Metric",
-            "Show Alerts",
-            "Constant Location",
-            "Auto Update Resources",
-        ],
-        &[
-            settings.metric_default,
-            settings.show_alerts,
-            settings.constant_location,
-            settings.auto_update_internet_resources,
-        ],
-        None,
-    )?;
-    settings.metric_default = result[0];
-    settings.show_alerts = result[1];
-    settings.constant_location = result[2];
-    settings.auto_update_internet_resources = result[3];
-    settings.write()?;
-    Ok(())
 }
 
 #[cfg(feature = "gui")]

@@ -8,6 +8,7 @@ pub use multiselect::multiselect;
 pub use radio::radio;
 pub use textarea::textarea;
 
+// TODO: Accept prompt
 pub fn yes_no<B>(default: B, multiline: Option<bool>) -> std::io::Result<bool>
 where
     usize: From<B>,

@@ -4,6 +4,7 @@ use local::location::Coordinates;
 use local::settings::Settings;
 use log::debug;
 use std::{fs, io};
+use std::sync::{Arc, Mutex};
 use weather_dirs::custom_backends_dir;
 
 use thiserror::Error;
@@ -119,6 +120,37 @@ pub fn is_valid_ext(f: &str) -> bool {
     wasm_loader::is_valid_ext(f) || dynamic_library_loader::is_valid_ext(f)
 }
 
-pub fn is_valid_file(f: &str) -> bool {
+pub fn is_valid_file(_f: &str) -> bool {
     true // TODO: fix
+}
+
+pub struct CustomBackend {
+    name: String,
+    wasm_loader: Option<Arc<Mutex<wasm_loader::WasmLoader>>>,
+    custom_backends: Option<dynamic_library_loader::ExternalBackends>,
+}
+
+impl CustomBackend {
+    pub fn new(name: String, wasm_loader: Arc<Mutex<wasm_loader::WasmLoader>>, custom_backends: dynamic_library_loader::ExternalBackends, enable_wasm_backends: bool, enable_custom_backends: bool) -> Self {
+        Self {
+            name,
+            wasm_loader: if enable_wasm_backends {Some(wasm_loader)} else {None},
+            custom_backends: if enable_custom_backends {Some(custom_backends)} else {None},
+        }
+    }
+}
+
+impl backend::Datasource for CustomBackend {
+    fn get(&self, coordinates: &Coordinates, settings: Settings) -> backend::Result<WeatherForecast> {
+        if let Some(wasm_loader) = &self.wasm_loader {
+            let mut plugins = wasm_loader.lock().unwrap();
+            return Ok(plugins.call(&self.name, *coordinates, settings).unwrap()); // TODO: Don't unwrap
+        }
+        if let Some(custom_backends) = &self.custom_backends {
+            return Ok(custom_backends.call(&self.name, coordinates, settings).unwrap());
+        }
+        return Err(backend::Error::Other(
+                "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help (specifically which commands to run)
+        ))?;
+    }
 }

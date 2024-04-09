@@ -5,11 +5,13 @@ use crate::openweathermap::json::{
     OpenWeatherMapAirQualityJson, OpenWeatherMapForecastJson, OpenWeatherMapJson,
 };
 use local::location::Coordinates;
+use local::settings::Settings;
 use networking;
 use networking::Resp;
+use weather_structs::WeatherForecast;
 
 mod current;
-pub mod forecast;
+mod forecast;
 mod future;
 pub mod json;
 
@@ -64,4 +66,14 @@ pub struct OpenWeatherMapFormattedData {
     pub air_quality: OpenWeatherMapAirQualityJson,
     pub forecast: OpenWeatherMapForecastJson,
     pub raw_data: Vec<Resp>,
+}
+
+pub struct OpenWeatherMap {
+
+}
+
+impl crate::Datasource for OpenWeatherMap {
+    fn get(&self, coordinates: &Coordinates, settings: Settings) -> crate::Result<WeatherForecast> {
+        forecast::get_forecast(coordinates, settings)
+    }
 }

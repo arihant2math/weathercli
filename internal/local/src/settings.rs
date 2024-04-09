@@ -5,6 +5,7 @@ use shared_deps::simd_json;
 use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
 
 use thiserror::Error;
+use shared_deps::serde_json::Value;
 
 use crate::location::Coordinates;
 use crate::weather_file::WeatherFile;
@@ -80,7 +81,7 @@ pub struct Settings {
     #[serde(default)]
     pub ncdc_api_key: String,
     #[serde(default)]
-    pub metric_default: bool,
+    pub metric_default: bool, // TODO: should be enum
     #[serde(default = "_meteo")]
     pub default_backend: String,
     #[serde(default = "_constant_location")]
@@ -144,6 +145,13 @@ impl Settings {
         self.file.write()?;
         Ok(())
     }
+
+    pub fn get(&self, key: &str) -> Result<String> {
+        unsafe {
+            let data: Value = simd_json::from_str(&mut self.file.get_text()?)?;
+            return Ok(simd_json::to_string_pretty(&data[key])?);
+        }
+    }
 }
 
 impl Default for Settings {
@@ -153,5 +161,11 @@ impl Default for Settings {
             let res = simd_json::from_str(&mut s);
             res.unwrap()
         }
+    }
+}
+
+impl Drop for Settings {
+    fn drop(&mut self) {
+        self.write().unwrap();
     }
 }

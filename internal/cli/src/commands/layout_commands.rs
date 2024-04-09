@@ -49,7 +49,7 @@ fn install(path: String) -> crate::Result<()> {
 
 fn list(settings: Settings) -> crate::Result<()> {
     let paths = fs::read_dir(layouts_dir()?)?;
-    let current_layout = settings.layout_file;
+    let current_layout = &settings.layout_file;
     for path in paths {
         let tmp = path?.file_name();
         let file_name = tmp.to_str().unwrap();

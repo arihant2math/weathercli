@@ -22,7 +22,7 @@ impl WasmPlugin {
         Self::load(custom_backends_dir()?.join(path))
     }
 
-    pub fn load(path: PathBuf) -> crate::Result<Self> {
+    pub fn load(_path: PathBuf) -> crate::Result<Self> {
         // let file = Wasm::file(path);
         // let mut manifest = Manifest::new([file]);
         // manifest.with_memory_max(1 << 30); // max memory = 1GB TODO: fix
@@ -52,7 +52,7 @@ impl WasmPlugin {
         coordinates: Coordinates,
         settings: Settings,
     ) -> crate::Result<WeatherForecast> {
-        let bytes = shared_deps::bincode::serialize(&WasmPluginInput {
+        let _bytes = shared_deps::bincode::serialize(&WasmPluginInput {
             coordinates: coordinates,
             metric: settings.metric_default,
         })?;

@@ -2,7 +2,10 @@ use shared_deps::simd_json;
 
 use crate::nws::json::{NWSPointJSON, NWSJSON};
 use local::location::Coordinates;
+use local::settings::Settings;
 use networking;
+
+use weather_structs::WeatherForecast;
 
 mod current;
 pub mod forecast;
@@ -43,5 +46,15 @@ mod tests {
             longitude: -121.955,
         };
         let _data = crate::nws::get_combined_data_formatted(&location, true).unwrap();
+    }
+}
+
+pub struct NWS {
+
+}
+
+impl crate::Datasource for NWS {
+    fn get(&self, coordinates: &Coordinates, settings: Settings) -> crate::Result<WeatherForecast> {
+        forecast::get_forecast(coordinates, settings)
     }
 }

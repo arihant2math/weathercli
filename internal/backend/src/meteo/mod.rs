@@ -3,10 +3,12 @@ use networking;
 use networking::Resp;
 use serde::{Deserialize, Serialize};
 use shared_deps::simd_json;
+use weather_structs::WeatherForecast;
+use local::settings::Settings;
 
 use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 
-pub mod forecast;
+mod forecast;
 mod json;
 mod weather_data;
 
@@ -50,6 +52,16 @@ pub struct MeteoFormattedData {
     pub weather: MeteoForecastJson,
     pub air_quality: MeteoAirQualityJson,
     pub raw_data: Vec<Resp>,
+}
+
+pub struct Meteo {
+
+}
+
+impl crate::Datasource for Meteo {
+    fn get(&self, coordinates: &Coordinates, settings: Settings) -> crate::Result<WeatherForecast> {
+        forecast::get_forecast(coordinates, settings)
+    }
 }
 
 #[cfg(test)]

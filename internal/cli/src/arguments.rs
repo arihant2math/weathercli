@@ -19,15 +19,8 @@ pub enum Command {
     Place(PlaceOpts),
     #[command(subcommand)]
     Saved(SavedOpts),
-    #[command(about = "Open a partial settings editor")]
-    Settings,
-    #[command(about = "Open the gui settings editor")]
-    GuiSettings,
-    #[command(
-        about = "Set a config variable via weather config [key] [value]",
-        long_about = "Set a config variable via weather config [key] [value]\n\nIf [value] is not provided, the value of [key] will be printed. `weather setup` and `weather gui-settings` are similar commands"
-    )]
-    Config(ConfigOpts),
+    #[command(subcommand)]
+    Settings(SettingsOpts),
     #[command(subcommand)]
     Cache(CacheOpts),
     #[command(subcommand)]
@@ -92,6 +85,8 @@ pub struct InfoOpts {
 
 #[derive(Clone, Subcommand)]
 pub enum CacheOpts {
+    #[command(about = "Info about the cache")]
+    Info,
     #[command(about = "Trim the size of the cache")]
     Prune,
     #[command(about = "Delete the cache")]
@@ -99,9 +94,24 @@ pub enum CacheOpts {
 }
 
 #[derive(Clone, Args)]
-pub struct ConfigOpts {
-    pub key: String,
+pub struct SettingsKeyOpts {
+    pub key: Option<String>,
+}
+
+#[derive(Clone, Args)]
+pub struct SettingsKeyValueOpts {
+    pub key: Option<String>,
     pub value: Option<String>,
+}
+
+#[derive(Clone, Subcommand)]
+pub enum SettingsOpts {
+    #[command(about = "View settings")]
+    View(SettingsKeyOpts),
+    #[command(about = "Open the settings editor")]
+    Edit(SettingsKeyValueOpts),
+    #[command(about = "Open the gui settings editor")]
+    GuiEdit,
 }
 
 #[derive(Clone, Args)]
