@@ -65,6 +65,12 @@ fn edit(settings: &mut Settings, arg: SettingsKeyValueOpts) -> crate::Result<()>
                 }
             } else {
                 match &*key.to_uppercase() {
+                    "BACKEND" | "DEFAULT_BACKEND" => {
+                        crate::commands::backend_commands::select(settings)?;
+                    },
+                    "LAYOUT" | "LAYOUT_FILE" => {
+                        crate::commands::layout_commands::select(settings)?;
+                    },
                     "METRIC_DEFAULT" | "UNITS" => {
                         println!("Use metric by default:");
                         terminal::prompt::yes_no(settings.metric_default, None).map(|b| settings.metric_default = b)?;

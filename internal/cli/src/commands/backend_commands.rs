@@ -41,7 +41,7 @@ fn list(settings: &mut Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn select(settings: &mut Settings) -> crate::Result<()> {
+pub fn select(settings: &mut Settings) -> crate::Result<()> {
     let selected = &settings.default_backend;
     let mut settings = Settings::new()?;
     let choices = ["openweathermap", "meteo", "nws", "openweathermap_onecall"];

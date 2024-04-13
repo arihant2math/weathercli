@@ -4,7 +4,10 @@ use std::sync::{Arc, Mutex};
 use clap::Parser;
 
 use cli::arguments::{App, Command};
-use cli::commands::{about, backend_commands, cache, credits, layout_commands, saved_commands, settings_commands, weather};
+use cli::commands::{
+    about, backend_commands, cache, credits, layout_commands, saved_commands, settings_commands,
+    weather,
+};
 use cli::commands::util::{setup, update};
 use cli::Datasource;
 use custom_backend::dynamic_library_loader::ExternalBackends;
@@ -73,14 +76,16 @@ fn run() -> Result<()> {
     } else {
         ExternalBackends::default()
     };
-    let wasm_backends = Arc::new(Mutex::new(if settings_s.enable_wasm_backends
-        && discriminant(&datasource) == discriminant(&Datasource::Other(String::new()))
-        && custom_backends_dir()?.exists()
-    {
-        custom_backend::wasm_loader::WasmLoader::new()?
-    } else {
-        custom_backend::wasm_loader::WasmLoader::default()
-    }));
+    let wasm_backends = Arc::new(Mutex::new(
+        if settings_s.enable_wasm_backends
+            && discriminant(&datasource) == discriminant(&Datasource::Other(String::new()))
+            && custom_backends_dir()?.exists()
+        {
+            custom_backend::wasm_loader::WasmLoader::new()?
+        } else {
+            custom_backend::wasm_loader::WasmLoader::default()
+        },
+    ));
     match args.command {
         Some(command) => {
             match command {
@@ -99,7 +104,7 @@ fn run() -> Result<()> {
                     } else {
                         weather(
                             datasource,
-                            saved_commands::select(settings_s.clone())?.into(),
+                            saved_commands::select(&mut settings_s)?.into(),
                             args.global_opts.future,
                             settings_s,
                             true_metric,
@@ -113,11 +118,11 @@ fn run() -> Result<()> {
                 Command::Backend(arg) => backend_commands::subcommand(arg, &mut settings_s)?,
                 Command::Cache(arg) => cache(arg)?,
                 Command::Credits => credits(),
-                Command::Settings(arg) => settings_commands::subcommand(arg, &mut settings_s)?, // TODO: Ability to view/reset settings or specific key and deprecate `config`
-                Command::Layout(arg) => layout_commands::subcommand(arg, settings_s)?,
+                Command::Settings(arg) => settings_commands::subcommand(arg, &mut settings_s)?, // TODO: Ability to view/reset settings or specific key
+                Command::Layout(arg) => layout_commands::subcommand(arg, &mut settings_s)?,
                 Command::Setup => setup(settings_s)?,
                 Command::Update(opts) => update(opts.force, opts.dry_run, version())?,
-                Command::Saved(arg) => saved_commands::subcommand(arg, settings_s)?,
+                Command::Saved(arg) => saved_commands::subcommand(arg, &mut settings_s)?,
             };
         }
         None => weather(

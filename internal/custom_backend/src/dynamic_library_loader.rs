@@ -32,13 +32,13 @@ pub fn is_valid_file(f: &str) -> Result<bool, local::weather_file::Error> {
 }
 
 #[cfg(target_os = "linux")]
-pub fn is_valid_file(f: &str) -> weather_error::Result<bool> {
+pub fn is_valid_file(f: &str) -> Result<bool, local::weather_file::Error> {
     let file = WeatherFile::new(custom_backends_dir()?.join(f).as_path().to_str().unwrap())?;
     Ok(file.data.starts_with(&[0x7f, 0x45, 0x4c, 0x46])) // TODO: untested
 }
 
 #[cfg(target_os = "macos")]
-pub fn is_valid_file(f: &str) -> weather_error::Result<bool> {
+pub fn is_valid_file(f: &str) -> Result<bool, local::weather_file::Error> {
     let file = WeatherFile::new(custom_backends_dir()?.join(f).as_path().to_str().unwrap())?;
     Ok(file.data.starts_with(&[0xcf, 0xfa, 0xed, 0xfe])) // TODO: untested
 }

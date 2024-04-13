@@ -4,7 +4,7 @@ use terminal::color::*;
 
 use crate::arguments::{PlaceOpts, SavedOpts};
 
-fn list(settings: Settings) -> crate::Result<()> {
+fn list(settings: &mut Settings) -> crate::Result<()> {
     let locations = &settings.saved_locations;
     for location in locations {
         println!("{FORE_BLUE}  {}", location.name);
@@ -12,14 +12,14 @@ fn list(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-pub fn select(settings: Settings) -> crate::Result<SavedLocation> {
+pub fn select(settings: &mut Settings) -> crate::Result<SavedLocation> {
     let locations = &settings.saved_locations;
     let choices: Vec<String> = locations.iter().map(|l| l.name.clone()).collect();
     let choice = terminal::prompt::radio(&choices, 0, None)?;
     Ok(locations[choice].clone())
 }
 
-fn delete(settings: Settings) -> crate::Result<()> {
+fn delete(settings: &mut Settings) -> crate::Result<()> {
     let locations = &settings.saved_locations;
     let choices: Vec<String> = locations.iter().map(|l| l.name.clone()).collect();
     let choice = terminal::prompt::radio(&choices, 0, None)?;
@@ -29,7 +29,7 @@ fn delete(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn add(opts: PlaceOpts, settings: Settings) -> crate::Result<()> {
+fn add(opts: PlaceOpts, settings: &mut Settings) -> crate::Result<()> {
     let query = opts
         .query
         .unwrap_or(terminal::prompt::input(Some("Search: ".to_string()), None)?);
@@ -45,7 +45,7 @@ fn add(opts: PlaceOpts, settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-pub fn subcommand(arg: SavedOpts, settings: Settings) -> crate::Result<()> {
+pub fn subcommand(arg: SavedOpts, settings: &mut Settings) -> crate::Result<()> {
     match arg {
         SavedOpts::List => list(settings)?,
         SavedOpts::Delete => delete(settings)?,

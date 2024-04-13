@@ -47,7 +47,7 @@ fn install(path: String) -> crate::Result<()> {
     Ok(())
 }
 
-fn list(settings: Settings) -> crate::Result<()> {
+fn list(settings: &mut Settings) -> crate::Result<()> {
     let paths = fs::read_dir(layouts_dir()?)?;
     let current_layout = &settings.layout_file;
     for path in paths {
@@ -62,7 +62,7 @@ fn list(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn select(settings: Settings) -> crate::Result<()> {
+pub fn select(settings: &mut Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
     let current = &*settings.layout_file;
     let current_index = paths
@@ -76,7 +76,7 @@ fn select(settings: Settings) -> crate::Result<()> {
     Ok(())
 }
 
-fn delete(settings: Settings) -> crate::Result<()> {
+fn delete(settings: &mut Settings) -> crate::Result<()> {
     let paths = list_dir(layouts_dir()?)?;
     let current = &*settings.layout_file;
     let current_index = paths
@@ -108,7 +108,7 @@ fn info(name: String) -> crate::Result<()> {
     Ok(())
 }
 
-pub fn subcommand(arg: LayoutOpts, settings: Settings) -> crate::Result<()> {
+pub fn subcommand(arg: LayoutOpts, settings: &mut Settings) -> crate::Result<()> {
     match arg {
         LayoutOpts::Install(opts) => install(opts.path)?,
         LayoutOpts::List => list(settings)?,
