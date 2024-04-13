@@ -6,10 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dark-light = "1.0"
-image = "0.24"
+dark-light = "1.1"
+image = "0.25"
 iced = { version = "0.12", features = ["image"] }
-rfd = "0.13"
+rfd = "0.14"
 local = { path = "../local" }
 weather_dirs = { path = "../weather_dirs" }
 log = "0.4.20"
