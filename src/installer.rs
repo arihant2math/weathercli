@@ -9,10 +9,10 @@ use winreg::RegKey;
 
 use local::settings::Settings;
 use updater::component::update as update_component;
-use updater::resource::update_web_resources;
 use updater::CONFIG;
+use updater::resource::update_web_resources;
 
-pub type Result<T> = std::result::Result<T, weather_error::Error>;
+pub type Result<T> = std::result::Result<T, cli::Error>;
 
 #[derive(Clone, Parser)]
 struct Cli {
