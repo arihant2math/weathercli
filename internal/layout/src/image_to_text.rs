@@ -1,9 +1,9 @@
-use image;
-
 use std::path::Path;
 
-use image::{imageops, GenericImageView};
-use terminal::color::rgb;
+use image;
+use image::{GenericImageView, imageops};
+
+use terminal::color::rgb_foreground;
 
 pub fn ascii_image(input_path: &str, scale: f64) -> crate::Result<String> {
     let img = image::open(Path::new(input_path)).map_err(|_e| "Failed to open image")?;
@@ -21,7 +21,7 @@ pub fn ascii_image(input_path: &str, scale: f64) -> crate::Result<String> {
             text += "\n";
         }
         let pixel = p.2 .0;
-        text += &rgb(pixel[0], pixel[1], pixel[2]);
+        text += &rgb_foreground(pixel[0], pixel[1], pixel[2]);
         text += "█";
     }
     Ok(text)

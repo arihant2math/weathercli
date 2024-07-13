@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use std::io;
-use std::thread;
 
+use log::error;
+use thiserror::Error;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
 #[cfg(target_os = "windows")]
@@ -10,13 +11,13 @@ use windows::Devices::Geolocation::PositionAccuracy;
 use networking;
 use shared_deps::serde_json::Value;
 use shared_deps::simd_json;
+use weather_dirs::cache_dir;
 pub use weather_structs::Coordinates;
 pub use weather_structs::LocationData;
 
-use crate::cache;
+use crate::cache_v2;
+use crate::cache_v2::Cacheable;
 use crate::json::bing::{BingJSON, ResourceSetsJSON};
-
-use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum CoordinateError {
@@ -27,6 +28,18 @@ pub enum CoordinateError {
     WinAPIError(#[from] windows::core::Error),
     #[error("JSON Error: {0}")]
     JSONError(#[from] shared_deps::simd_json::Error),
+    #[error("I/O Error: {0}")]
+    IOError(#[from] io::Error),
+    #[error("Weather Dirs Error: {0}")]
+    WeatherDirsError(#[from] weather_dirs::Error),
+    #[error("Cache Read Error: {0}")]
+    CacheReadError(#[from] cache_v2::CacheReadError),
+    #[error("Cache Item Read Error: {0}")]
+    CacheItemReadError(#[from] cache_v2::CacheItemReadError),
+    #[error("Cache Write Error: {0}")]
+    CacheWriteError(#[from] cache_v2::CacheWriteError),
+    #[error("Cache Item Write Error: {0}")]
+    CacheItemWriteError(#[from] cache_v2::CacheItemWriteError),
     #[error("Parsing Error: {0}")]
     ParsingError(String),
     #[error("Server Error")]
@@ -57,8 +70,16 @@ pub enum ReverseGeocodeError {
     JSONError(#[from] shared_deps::simd_json::Error),
     #[error("I/O Error: {0}")]
     IOError(#[from] io::Error),
-    #[error("Key Deletion Error: {0}")]
-    KeyDeletionError(#[from] cache::CacheError),
+    #[error("Weather Dirs Error: {0}")]
+    WeatherDirsError(#[from] weather_dirs::Error),
+    #[error("Cache Read Error: {0}")]
+    CacheReadError(#[from] cache_v2::CacheReadError),
+    #[error("Cache Item Read Error: {0}")]
+    CacheItemReadError(#[from] cache_v2::CacheItemReadError),
+    #[error("Cache Write Error: {0}")]
+    CacheWriteError(#[from] cache_v2::CacheWriteError),
+    #[error("Cache Item Write Error: {0}")]
+    CacheItemWriteError(#[from] cache_v2::CacheItemWriteError),
     #[error("Country not found")]
     CountryNotFound,
     #[error("Server Error")]
@@ -129,8 +150,6 @@ fn nominatim_reverse_geocode(coordinates: &Coordinates) -> Result<String, Revers
     Ok(r.text)
 }
 
-/// :param `no_sys_loc`: if true the location will not be retrieved with the OS location api,
-/// by default the location is retrieved with the OS api whenever possible
 #[cfg(target_os = "windows")]
 fn get_location_core(no_sys_loc: bool) -> Result<Coordinates, CoordinateError> {
     // If no_sys_loc is true, the location will always be gotten from the web
@@ -140,40 +159,34 @@ fn get_location_core(no_sys_loc: bool) -> Result<Coordinates, CoordinateError> {
     get_web()
 }
 
-/// :param no_sys_loc: if true the location will not be retrieved with the OS location api,
-/// by default the location is retrieved with the OS api whenever possible
 #[cfg(not(target_os = "windows"))]
 fn get_location_core(_no_sys_loc: bool) -> Result<Coordinates, CoordinateError> {
     get_web()
 }
 
-pub fn get(no_sys_loc: bool, constant_location: bool) -> Result<Coordinates, CoordinateError> {
+/// Gets the curent location of the user.
+/// # Safety
+/// This method interacts directly with the operating system when on Windows.
+pub fn get_location(no_sys_loc: bool, constant_location: bool) -> Result<Coordinates, CoordinateError> {
     if constant_location {
-        let attempt_cache = cache::read("current_location");
+        let attempt_cache = Coordinates::from_file(&cache_dir()?.join("current_location.cache")).ok(); // TODO: handle error
         return Ok(match attempt_cache {
-            Some(ca) => {
-                thread::spawn(|| {
-                    cache::update_hits("current_location").unwrap_or(());
-                });
-                let splt = ca.split(',');
-                let split_vec: Vec<&str> = splt.into_iter().collect();
-                Coordinates {
-                    latitude: split_vec[0].to_string().parse().unwrap(),
-                    longitude: split_vec[1].to_string().parse().unwrap(),
-                }
+            Some(coordinates) => {
+                coordinates
             }
             None => {
                 let location = get_location_core(no_sys_loc)?;
-                cache::write(
-                    "current_location",
-                    &format!("{},{}", location.latitude, location.longitude),
-                )
-                .unwrap();
+                location.to_file(&cache_dir()?.join("current_location.cache"))?;
                 location
             }
         });
     }
     get_location_core(no_sys_loc)
+}
+
+#[deprecated]
+pub fn get(no_sys_loc: bool, constant_location: bool) -> Result<Coordinates, CoordinateError> {
+    get_location(no_sys_loc, constant_location)
 }
 
 pub fn geocode(query: String, bing_maps_api_key: &str) -> Result<Coordinates, GeocodeError> {
@@ -216,10 +229,6 @@ pub fn geocode(query: String, bing_maps_api_key: &str) -> Result<Coordinates, Ge
         }
     }
     let real_coordinate = coordinates?;
-    let v = format!("{},{}", real_coordinate.latitude, real_coordinate.longitude);
-    thread::spawn(move || {
-        cache::write(&("location".to_string() + &query.to_lowercase()), &v).unwrap();
-    });
     Ok(real_coordinate)
 }
 
@@ -228,52 +237,18 @@ fn option_to_string(option: Option<&str>) -> Option<String> {
 }
 
 pub fn reverse_geocode(coordinates: &Coordinates) -> Result<LocationData, ReverseGeocodeError> {
-    fn convert_string(s: String) -> Option<String> {
-        if s.is_empty() {
-            None
-        } else {
-            Some(s)
-        }
-    }
+    let reverse_geocode_cache_path = cache_dir()?
+                .join("location.cache");
 
-    let k = "coordinates".to_string()
-        + &coordinates.latitude.to_string()
-        + ","
-        + &coordinates.longitude.to_string();
-    let attempt_cache = cache::read(&k);
+
+    let mut cache =
+        HashMap::<Coordinates, LocationData>::from_file(
+            &reverse_geocode_cache_path
+        ).unwrap_or_default(); // TODO: handle error
     unsafe {
-        match attempt_cache {
-            Some(real_cache) => {
-                let cache_string = "coordinates".to_string() + &k;
-                thread::spawn(move || {
-                    cache::update_hits(&cache_string).unwrap_or(());
-                });
-                let vec_collect: Vec<&str> = real_cache.split("||").collect();
-                if vec_collect.len() != 6 {
-                    cache::delete(&k)?; // Important it works or else it will be stuck in an infinite loop
-                    return reverse_geocode(coordinates);
-                }
-                let village_string = vec_collect[0].to_string();
-                let suburb_string = vec_collect[1].to_string();
-                let city_string = vec_collect[2].to_string();
-                let county_string = vec_collect[3].to_string();
-                let state_string = vec_collect[4].to_string();
-                let country = vec_collect[5].to_string();
-
-                let village = convert_string(village_string);
-                let suburb = convert_string(suburb_string);
-                let city = convert_string(city_string);
-                #[allow(clippy::similar_names)]
-                let county = convert_string(county_string);
-                let state = convert_string(state_string);
-                Ok(LocationData {
-                    village,
-                    suburb,
-                    city,
-                    county,
-                    state,
-                    country,
-                })
+        match cache.get(&coordinates) {
+            Some(cached) => {
+                Ok(cached.clone())
             }
             None => {
                 let mut data = nominatim_reverse_geocode(coordinates)?;
@@ -289,26 +264,19 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> Result<LocationData, Revers
                 #[allow(clippy::similar_names)]
                 let county: Option<String> = option_to_string(place["address"]["county"].as_str());
                 let state: Option<String> = option_to_string(place["address"]["state"].as_str());
-                let v = format!(
-                    "{}||{}||{}||{}||{}||{}",
-                    village.clone().unwrap_or_default(),
-                    suburb.clone().unwrap_or_default(),
-                    city.clone().unwrap_or_default(),
-                    county.clone().unwrap_or_default(),
-                    state.clone().unwrap_or_default(),
-                    country
-                );
-                thread::spawn(move || {
-                    cache::write(&k, &v).unwrap_or_default();
-                });
-                Ok(LocationData {
+                let loc = LocationData {
+                    country,
+                    city,
+                    state,
+                    county,
                     village,
                     suburb,
-                    city,
-                    county,
-                    state,
-                    country,
-                })
+                };
+                cache.insert(*coordinates, loc.clone());
+                cache.to_file(&reverse_geocode_cache_path).unwrap_or_else(|e| {
+                    error!("Failed to write cache: {}", e);
+                });
+                Ok(loc)
             }
         }
     }

@@ -4,7 +4,7 @@ use std::u128;
 
 use thiserror::Error;
 
-use internal::{get_date_string, read_cache, write_cache, Row};
+use internal::{get_date_string, read_cache, Row, write_cache};
 
 use crate::now;
 
@@ -101,11 +101,5 @@ pub fn prune() -> io::Result<()> {
         rows.remove(sort);
     }
     write_cache(rows)?;
-    Ok(())
-}
-
-pub fn info() -> io::Result<()> {
-    let rows = read_cache()?;
-    println!("Cache Size: {}", rows.len());
     Ok(())
 }

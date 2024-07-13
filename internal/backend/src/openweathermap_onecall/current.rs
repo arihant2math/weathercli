@@ -5,10 +5,10 @@ use chrono::Duration;
 
 use shared_deps::simd_json;
 
+use crate::{get_conditions_sentence, WeatherData};
 use crate::openweathermap_onecall::json::{CurrentJson, DailyJson};
 use crate::WeatherCondition;
 use crate::WindData;
-use crate::{get_conditions_sentence, WeatherData};
 
 pub fn get_current(
     data: &CurrentJson,
@@ -35,7 +35,7 @@ pub fn get_current(
         aqi: 42, // TODO: Fix
         cloud_cover: data.clouds,
         condition_sentence: get_conditions_sentence(&conditions),
-        conditions: conditions,
+        conditions,
         rain_data: weather_structs::PrecipitationData {
             amount: data.rain.unwrap_or_default().one_hour,
             time: Duration::hours(1),

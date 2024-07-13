@@ -1,13 +1,14 @@
+use std::{fs, io};
+use std::sync::{Arc, Mutex};
+
+use log::debug;
+use thiserror::Error;
+
 pub use backend::get_conditions_sentence;
 use backend::WeatherForecast;
 use local::location::Coordinates;
 use local::settings::Settings;
-use log::debug;
-use std::{fs, io};
-use std::sync::{Arc, Mutex};
 use weather_dirs::custom_backends_dir;
-
-use thiserror::Error;
 
 pub mod dynamic_library_loader;
 pub mod loader;
@@ -131,23 +132,21 @@ pub struct CustomBackend {
 }
 
 impl CustomBackend {
-    pub fn new(name: String, wasm_loader: Arc<Mutex<wasm_loader::WasmLoader>>, custom_backends: dynamic_library_loader::ExternalBackends, enable_wasm_backends: bool, enable_custom_backends: bool) -> Self {
+    pub fn new(name: String, wasm_loader: Arc<Mutex<wasm_loader::WasmLoader>>, custom_backends: dynamic_library_loader::ExternalBackends, settings: &Settings) -> Self {
         Self {
             name,
-            wasm_loader: if enable_wasm_backends {Some(wasm_loader)} else {None},
-            custom_backends: if enable_custom_backends {Some(custom_backends)} else {None},
+            wasm_loader: if settings.enable_wasm_backends {Some(wasm_loader)} else {None},
+            custom_backends: if settings.enable_custom_backends {Some(custom_backends)} else {None},
         }
     }
-}
 
-impl backend::Datasource for CustomBackend {
-    fn get(&self, coordinates: &Coordinates, settings: Settings) -> backend::Result<WeatherForecast> {
+    pub fn get(&self, coordinates: &Coordinates, settings: &Settings) -> backend::Result<WeatherForecast> {
         if let Some(wasm_loader) = &self.wasm_loader {
             let mut plugins = wasm_loader.lock().unwrap();
-            return Ok(plugins.call(&self.name, *coordinates, settings).unwrap()); // TODO: Don't unwrap
+            return Ok(plugins.call(&self.name, *coordinates, settings.clone()).unwrap()); // TODO: Don't unwrap
         }
         if let Some(custom_backends) = &self.custom_backends {
-            return Ok(custom_backends.call(&self.name, coordinates, settings).unwrap());
+            return Ok(custom_backends.call(&self.name, coordinates, settings.clone()).unwrap());
         }
         return Err(backend::Error::Other(
                 "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help (specifically which commands to run)

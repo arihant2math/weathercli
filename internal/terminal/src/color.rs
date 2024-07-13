@@ -44,16 +44,51 @@ pub const BACK_LIGHTMAGENTA: &str = "\x1b[105m";
 pub const BACK_LIGHTCYAN: &str = "\x1b[106m";
 pub const BACK_LIGHTWHITE: &str = "\x1b[107m";
 
+pub fn rgb_foreground(red: u8, green: u8, blue: u8) -> String {
+    format!("\x1b[38;2;{red};{green};{blue}m")
+}
+
+pub fn rgb_background(red: u8, green: u8, blue: u8) -> String {
+    format!("\x1b[48;2;{red};{green};{blue}m")
+}
+
+pub fn string_to_rgb_foreground(s: &str) -> Option<String> {
+    let split: Vec<&str> = s.split(',').collect();
+    if split.len() != 3 {
+        return None;
+    }
+    Some(rgb_foreground(
+        split.first()?.parse().ok()?,
+        split.get(1)?.parse().ok()?,
+        split.get(2)?.parse().ok()?,
+    ))
+}
+
+pub fn string_to_rgb_background(s: &str) -> Option<String> {
+    let split: Vec<&str> = s.split(',').collect();
+    if split.len() != 3 {
+        return None;
+    }
+    Some(rgb_background(
+        split.first()?.parse().ok()?,
+        split.get(1)?.parse().ok()?,
+        split.get(2)?.parse().ok()?,
+    ))
+}
+
+#[deprecated]
 pub fn rgb(red: u8, green: u8, blue: u8) -> String {
     // TODO: This is Foreground only
     format!("\x1b[38;2;{red};{green};{blue}m")
 }
 
+#[deprecated]
 pub fn string_to_rgb(s: &str) -> Option<String> {
     let split: Vec<&str> = s.split(',').collect();
     if split.len() != 3 {
         return None;
     }
+    #[allow(deprecated)]
     Some(rgb(
         split.first()?.parse().ok()?,
         split.get(1)?.parse().ok()?,
@@ -104,6 +139,6 @@ pub fn from_string(s: &str) -> Option<String> {
         "BACK_LIGHTCYAN" => Some(BACK_LIGHTCYAN.to_string()),
         "BACK_LIGHTWHITE" => Some(BACK_LIGHTWHITE.to_string()),
         "BACK_RESET" => Some(BACK_RESET.to_string()),
-        s => string_to_rgb(s),
+        s => string_to_rgb_foreground(s), // TODO: Background support (or return none)
     }
 }

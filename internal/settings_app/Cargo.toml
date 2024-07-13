@@ -12,4 +12,4 @@ iced = { version = "0.12", features = ["image"] }
 rfd = "0.14"
 local = { path = "../local" }
 weather_dirs = { path = "../weather_dirs" }
-log = "0.4.20"
+log = "0.4"

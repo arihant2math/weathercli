@@ -87,8 +87,6 @@ pub struct InfoOpts {
 pub enum CacheOpts {
     #[command(about = "Info about the cache")]
     Info,
-    #[command(about = "Trim the size of the cache")]
-    Prune,
     #[command(about = "Delete the cache")]
     Clear,
 }

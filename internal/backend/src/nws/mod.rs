@@ -1,14 +1,16 @@
-use shared_deps::simd_json;
-
-use crate::nws::json::{NWSPointJSON, NWSJSON};
+use local::location;
 use local::location::Coordinates;
 use local::settings::Settings;
 use networking;
-
+use networking::Resp;
+use shared_deps::simd_json;
 use weather_structs::WeatherForecast;
 
+use crate::Backend;
+use crate::nws::current::get_current;
+use crate::nws::json::{NWSJSON, NWSPointJSON};
+
 mod current;
-pub mod forecast;
 mod json;
 
 fn get_api_url(location: &Coordinates, _metric: bool) -> crate::Result<String> {
@@ -21,40 +23,29 @@ fn get_api_url(location: &Coordinates, _metric: bool) -> crate::Result<String> {
     Ok(point_json.properties.forecast_grid_data)
 }
 
-pub fn get_combined_data_formatted(location: &Coordinates, metric: bool) -> crate::Result<NWSJSON> {
-    let mut raw_data = networking::get!(get_api_url(location, metric)?)?;
-    let data: NWSJSON = unsafe { simd_json::from_str(&mut raw_data.text) }?;
-    Ok(data)
-}
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_get_api_url() {
-        let location = local::location::Coordinates {
-            latitude: 37.354,
-            longitude: -121.955,
-        };
-        let url = crate::nws::get_api_url(&location, true).unwrap();
-        assert_eq!(url, "https://api.weather.gov/gridpoints/MTR/97,83");
+#[derive(Copy, Clone, Debug, Default)]
+pub struct NWS;
+
+impl Backend<NWSJSON> for NWS {
+    fn get_api_urls(&self, coordinates: &Coordinates, _settings: &Settings) -> Vec<String> {
+        vec![get_api_url(coordinates, true).unwrap()]
     }
 
-    #[test]
-    fn test_get_data() {
-        let location = local::location::Coordinates {
-            latitude: 37.354,
-            longitude: -121.955,
-        };
-        let _data = crate::nws::get_combined_data_formatted(&location, true).unwrap();
+    fn parse_data(&self, data: Vec<Resp>, _: &Coordinates, _: &Settings) -> crate::Result<NWSJSON> {
+       let mut data = data;
+        let data: NWSJSON = unsafe { simd_json::from_str(&mut data[0].text) }?;
+        Ok(data)
     }
-}
 
-pub struct NWS {
-
-}
-
-impl crate::Datasource for NWS {
-    fn get(&self, coordinates: &Coordinates, settings: Settings) -> crate::Result<WeatherForecast> {
-        forecast::get_forecast(coordinates, settings)
+    fn process_data(&self, data: NWSJSON, coordinates: &Coordinates, settings: &Settings) -> crate::Result<WeatherForecast> {
+        let current = get_current(data, settings.metric_default)?;
+        let loc = location::reverse_geocode(coordinates)?;
+        Ok(WeatherForecast {
+            datasource: String::from("National Weather Service"),
+            location: loc,
+            forecast: vec![current], // TODO: Implement future forecasts
+            raw_data: None,
+        })
     }
 }

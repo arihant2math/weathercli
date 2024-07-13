@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Clone, Default, Serialize, Deserialize, PartialEq, Debug)]
 pub struct LocationData {
     pub village: Option<String>,
     pub suburb: Option<String>,

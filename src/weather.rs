@@ -127,7 +127,7 @@ fn run() -> Result<()> {
         }
         None => weather(
             datasource,
-            local::location::get(args.global_opts.no_sys_loc, settings_s.constant_location)?,
+            local::location::get_location(args.global_opts.no_sys_loc, settings_s.constant_location)?,
             args.global_opts.future,
             settings_s,
             true_metric,

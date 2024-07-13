@@ -1,25 +1,23 @@
-use backend::datasource::Datasource as DatasourceTrait;
-use backend::WeatherForecast;
-use chrono::{DateTime, Duration, Utc};
-use custom_backend::dynamic_library_loader;
-use custom_backend::dynamic_library_loader::ExternalBackends;
-use custom_backend::wasm_loader::WasmLoader;
-use layout::layout_input::LayoutInput;
-use local::cache::info as cache_info;
-use local::cache::prune;
-use local::location::Coordinates;
-use local::settings::Settings;
-use local::weather_file::WeatherFile;
-use log::{debug, error, warn};
-use parse_duration::parse as parse_duration;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
+
+use chrono::{DateTime, Duration, Utc};
+use log::{debug, error, warn};
+use parse_duration::parse as parse_duration;
+
+use backend::WeatherForecast;
+use custom_backend::dynamic_library_loader::ExternalBackends;
+use custom_backend::wasm_loader::WasmLoader;
+use layout::layout_input::LayoutInput;
+use local::location::Coordinates;
+use local::settings::Settings;
 use terminal::color::*;
+use weather_dirs::cache_dir;
 use weather_dirs::resources_dir;
 
+use crate::{Datasource, print_out};
 use crate::arguments::CacheOpts;
-use crate::{print_out, Datasource};
 
 pub mod backend_commands;
 pub mod layout_commands;
@@ -43,29 +41,6 @@ fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
     }
 }
 
-fn get_datasource_class(
-    datasource: Datasource,
-    wasm_loader: Arc<Mutex<WasmLoader>>,
-    custom_backends: dynamic_library_loader::ExternalBackends,
-    enable_wasm_backends: bool,
-    enable_custom_backends: bool,
-) -> Box<dyn DatasourceTrait> {
-    match datasource {
-        Datasource::Openweathermap => Box::new(backend::openweathermap::OpenWeatherMap {}),
-        Datasource::OpenweathermapOneCall => {
-            Box::new(backend::openweathermap_onecall::OpenWeatherMapOneCall {})
-        }
-        Datasource::NWS => Box::new(backend::nws::NWS {}),
-        Datasource::Meteo => Box::new(backend::meteo::Meteo {}),
-        Datasource::Other(name) => Box::new(custom_backend::CustomBackend::new(
-            name,
-            wasm_loader,
-            custom_backends,
-            enable_wasm_backends,
-            enable_custom_backends,
-        )),
-    }
-}
 
 fn get_data(
     datasource: Datasource,
@@ -74,14 +49,21 @@ fn get_data(
     custom_backends: ExternalBackends,
     wasm_loader: Arc<Mutex<WasmLoader>>,
 ) -> crate::Result<WeatherForecast> {
-    let attem = get_datasource_class(
-        datasource.clone(),
-        wasm_loader,
-        custom_backends,
-        settings.enable_wasm_backends,
-        settings.enable_custom_backends,
-    );
-    Ok(attem.get(&coordinates, settings)?)
+    // TODO: cleanup
+    Ok(match datasource {
+        Datasource::Openweathermap => backend::run(Box::new(&backend::openweathermap::OpenWeatherMap), &coordinates, &settings)?,
+        Datasource::OpenweathermapOneCall => {
+            backend::run(Box::new(&backend::openweathermap_onecall::OpenWeatherMapOneCall), &coordinates, &settings)?
+        }
+        Datasource::NWS => backend::run(Box::new(&backend::nws::NWS), &coordinates, &settings)?,
+        Datasource::Meteo => backend::run(Box::new(&backend::meteo::Meteo), &coordinates, &settings)?,
+        Datasource::Other(name) => custom_backend::CustomBackend::new(
+            name,
+            wasm_loader,
+            custom_backends,
+            &settings
+        ).get(&coordinates, &settings)?,
+    })
 }
 
 pub fn get_data_from_datasource(
@@ -131,9 +113,9 @@ pub fn weather(
     debug!("json: {json}");
     let mut s = settings.clone();
     s.metric_default = true_metric;
-    let data = get_data_from_datasource(datasource, coordinates, s, custom_backends, wasm_backends)
+    let data = get_data_from_datasource(datasource.clone(), coordinates, s, custom_backends, wasm_backends)
         .map_err(|e| {
-            error!("Error getting data from datasource: {e}");
+            error!("Error getting data from {datasource}: {e}");
             e
         })?;
     print_out(
@@ -148,15 +130,9 @@ pub fn weather(
 pub fn cache(opts: CacheOpts) -> crate::Result<()> {
     match opts {
         CacheOpts::Clear => {
-            let mut f = WeatherFile::new("d.cache")?;
-            f.data = Vec::new();
-            f.write()?;
-            let mut f = WeatherFile::new("f.cache")?;
-            f.data = Vec::new();
-            f.write()?;
-        }
-        CacheOpts::Prune => prune()?,
-        CacheOpts::Info => cache_info()?,
+            std::fs::remove_file(cache_dir()?)?;
+        },
+        CacheOpts::Info => println!("Coming soon!"), // TODO
     }
     Ok(())
 }

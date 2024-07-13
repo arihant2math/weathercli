@@ -1,9 +1,3 @@
-pub mod cache;
-pub(crate) mod json;
-pub mod location;
-pub mod settings;
-pub mod weather_file;
-
 use std::fs;
 use std::io;
 use std::path::Path;
@@ -11,6 +5,14 @@ use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use sha2::Digest;
+
+#[deprecated]
+pub mod cache;
+pub mod cache_v2;
+pub(crate) mod json;
+pub mod location;
+pub mod settings;
+pub mod weather_file;
 
 /// returns the sha-256 of the file
 pub fn hash_file(filename: &str) -> io::Result<String> {

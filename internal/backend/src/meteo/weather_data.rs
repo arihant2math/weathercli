@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use chrono::{Duration, NaiveDateTime, Utc};
 
 use shared_deps::simd_json;
+use weather_structs::{get_conditions_sentence, WeatherData};
 use weather_structs::get_clouds_condition;
 use weather_structs::WeatherCondition;
 use weather_structs::WindData;
-use weather_structs::{get_conditions_sentence, WeatherData};
 
 use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 
@@ -44,7 +44,7 @@ pub fn get_weather_data(
             .unwrap_or(0_u8),
         cloud_cover,
         condition_sentence: get_conditions_sentence(&conditions),
-        conditions: conditions,
+        conditions,
         rain_data: weather_structs::PrecipitationData {
             amount: data.hourly.rain[index],
             time: Duration::hours(1),

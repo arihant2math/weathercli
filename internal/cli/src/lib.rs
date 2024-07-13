@@ -1,16 +1,16 @@
+use std::fmt::{Display, Formatter};
+
 use log::warn;
 
-use layout::LayoutErr;
-
+pub use error::Error;
 use layout::layout_input::LayoutInput;
+use layout::LayoutErr;
 use layout::LayoutFile;
 use shared_deps::serde_json;
 
 pub mod arguments;
 pub mod commands;
 pub mod error;
-
-pub use error::Error;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -31,6 +31,18 @@ impl From<&str> for Datasource {
             "openweathermap_onecall" => Datasource::OpenweathermapOneCall,
             "meteo" => Datasource::Meteo,
             _ => Datasource::Other(s.to_string()),
+        }
+    }
+}
+
+impl Display for Datasource {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Datasource::Meteo => write!(f, "Meteo"),
+            Datasource::Openweathermap => write!(f, "OpenWeatherMap"),
+            Datasource::OpenweathermapOneCall => write!(f, "OpenWeatherMap OneCall"),
+            Datasource::NWS => write!(f, "NWS"),
+            Datasource::Other(s) => write!(f, "{}", s),
         }
     }
 }

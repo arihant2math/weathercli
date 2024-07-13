@@ -14,3 +14,4 @@ local = { path = "../local" }
 thiserror = "1.0"
 networking = { path = "../networking" }
 weather_structs = { path = "../weather_structs" }
+log = "0.4.21"

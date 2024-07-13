@@ -1,13 +1,12 @@
 use log::{debug, trace};
-use shared_deps::serde_json::Value;
-use shared_deps::simd_json;
+use thiserror::Error;
 
 use local::hash_file;
 use local::weather_file::WeatherFile;
 use networking;
+use shared_deps::serde_json::Value;
+use shared_deps::simd_json;
 use terminal::color;
-
-use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum UpdateError {
@@ -105,12 +104,12 @@ fn update_web_resource(
 pub fn update_web_resources(server: &str, quiet: Option<bool>) -> Result<(), UpdateError> {
     debug!("Updating web resources");
     let real_quiet = quiet.unwrap_or(false); // TODO: Fix naming (don't call it real_)
-    let fixed_server = if server.ends_with('/') {
+    let formatted_server = if server.ends_with('/') {
         server.to_string()
     } else {
         server.to_string() + "/"
     };
-    let resp = networking::get!(format!("{fixed_server}index.json"))?;
+    let resp = networking::get!(format!("{formatted_server}index.json"))?;
     unsafe {
         if resp.status == 200 {
             let mut web_text = resp.text;

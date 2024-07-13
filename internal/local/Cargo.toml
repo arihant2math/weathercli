@@ -14,6 +14,7 @@ log = "0.4"
 hex = "0.4"
 sha2 = "0.10"
 weather_structs = { path = "../weather_structs" }
+ahash = "0.8"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.52", features = ["Foundation", "Devices_Geolocation", "System_Power", "Win32_System_Power", "Win32_Foundation"] }

@@ -16,6 +16,10 @@ pub fn weathercli_dir() -> crate::Result<PathBuf> {
         .join(".weathercli"))
 }
 
+pub fn cache_dir() -> crate::Result<PathBuf> {
+    Ok(weathercli_dir()?.join("cache"))
+}
+
 pub fn layouts_dir() -> crate::Result<PathBuf> {
     Ok(weathercli_dir()?.join("layouts"))
 }
