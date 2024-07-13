@@ -99,7 +99,7 @@ fn get_windows() -> Result<Coordinates, CoordinateError> {
 }
 
 fn get_web() -> Result<Coordinates, CoordinateError> {
-    let mut resp = networking::get!("https://ipinfo.io")?.text;
+    let mut resp = networking::get!("https://ipinfo.io/json")?.text;
     let json: HashMap<String, String> = unsafe { simd_json::from_str(&mut resp)? };
     let location_vec: Vec<&str> = json
         .get("loc")
