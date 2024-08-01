@@ -1,8 +1,6 @@
 use std::io;
 use std::net::{SocketAddr, ToSocketAddrs};
-
 use ureq::Resolver;
-
 pub struct Ipv6Resolver;
 
 impl Resolver for Ipv6Resolver {

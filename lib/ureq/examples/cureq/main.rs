@@ -8,7 +8,6 @@ use std::{env, sync::Arc};
 use rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
 use rustls::ClientConfig;
 use rustls_pki_types::{CertificateDer, ServerName, UnixTime};
-
 use ureq;
 
 #[derive(Debug)]
