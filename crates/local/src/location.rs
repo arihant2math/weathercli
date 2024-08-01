@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::io;
 
-use firedbg_lib::fire;
 use log::{error, trace, debug};
 use thiserror::Error;
 #[cfg(target_os = "windows")]
