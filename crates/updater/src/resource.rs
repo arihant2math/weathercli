@@ -1,6 +1,6 @@
+use firedbg_lib::fire;
 use log::{debug, trace};
 use thiserror::Error;
-use firedbg_lib::fire;
 
 use local::hash_file;
 use local::weather_file::WeatherFile;

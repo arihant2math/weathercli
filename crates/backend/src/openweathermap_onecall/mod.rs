@@ -43,13 +43,23 @@ impl crate::Backend<MainJson> for OpenWeatherMapOneCall {
         )])
     }
 
-    fn parse_data(&self, data: Vec<Resp>, _: &Coordinates, _: &Settings) -> crate::Result<MainJson> {
+    fn parse_data(
+        &self,
+        data: Vec<Resp>,
+        _: &Coordinates,
+        _: &Settings,
+    ) -> crate::Result<MainJson> {
         let mut data = data;
         let r: MainJson = unsafe { simd_json::from_str(&mut data[0].text) }?;
         Ok(r)
     }
 
-    fn process_data(&self, data: MainJson, coordinates: &Coordinates, _: &Settings) -> crate::Result<WeatherForecast> {
+    fn process_data(
+        &self,
+        data: MainJson,
+        coordinates: &Coordinates,
+        _: &Settings,
+    ) -> crate::Result<WeatherForecast> {
         let mut forecast: Vec<WeatherData> = Vec::new();
         let weather_file = WeatherFile::weather_codes()?;
         let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&weather_file.data)?;

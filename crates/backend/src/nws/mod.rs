@@ -6,9 +6,9 @@ use networking::Resp;
 use shared_deps::simd_json;
 use weather_structs::WeatherForecast;
 
-use crate::Backend;
 use crate::nws::current::get_current;
-use crate::nws::json::{NWSJSON, NWSPointJSON};
+use crate::nws::json::{NWSPointJSON, NWSJSON};
+use crate::Backend;
 
 mod current;
 mod json;
@@ -23,7 +23,6 @@ fn get_api_url(location: &Coordinates, _metric: bool) -> crate::Result<String> {
     Ok(point_json.properties.forecast_grid_data)
 }
 
-
 #[derive(Copy, Clone, Debug, Default)]
 pub struct NWS;
 
@@ -33,12 +32,17 @@ impl Backend<NWSJSON> for NWS {
     }
 
     fn parse_data(&self, data: Vec<Resp>, _: &Coordinates, _: &Settings) -> crate::Result<NWSJSON> {
-       let mut data = data;
+        let mut data = data;
         let data: NWSJSON = unsafe { simd_json::from_str(&mut data[0].text) }?;
         Ok(data)
     }
 
-    fn process_data(&self, data: NWSJSON, coordinates: &Coordinates, settings: &Settings) -> crate::Result<WeatherForecast> {
+    fn process_data(
+        &self,
+        data: NWSJSON,
+        coordinates: &Coordinates,
+        settings: &Settings,
+    ) -> crate::Result<WeatherForecast> {
         let current = get_current(data, settings.metric_default)?;
         let loc = location::reverse_geocode(coordinates)?;
         Ok(WeatherForecast {

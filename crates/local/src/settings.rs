@@ -4,8 +4,8 @@ use shared_deps::simd_json;
 #[cfg(windows)]
 use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
 
-use thiserror::Error;
 use shared_deps::serde_json::Value;
+use thiserror::Error;
 
 use crate::location::Coordinates;
 use crate::weather_file::WeatherFile;

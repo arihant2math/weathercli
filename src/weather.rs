@@ -5,11 +5,11 @@ use clap::Parser;
 use firedbg_lib::fire;
 
 use cli::arguments::{App, Command};
+use cli::commands::util::{setup, update};
 use cli::commands::{
     about, backend_commands, cache, credits, layout_commands, saved_commands, settings_commands,
     weather,
 };
-use cli::commands::util::{setup, update};
 use cli::Datasource;
 use custom_backend::dynamic_library_loader::ExternalBackends;
 use custom_backend::load_custom_backends;
@@ -129,7 +129,10 @@ fn run() -> Result<()> {
         }
         None => weather(
             datasource,
-            local::location::get_location(args.global_opts.no_sys_loc, settings_s.constant_location)?,
+            local::location::get_location(
+                args.global_opts.no_sys_loc,
+                settings_s.constant_location,
+            )?,
             args.global_opts.future,
             settings_s,
             true_metric,

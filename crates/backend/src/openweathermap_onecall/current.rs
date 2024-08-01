@@ -5,10 +5,10 @@ use chrono::Duration;
 
 use shared_deps::simd_json;
 
-use crate::{get_conditions_sentence, WeatherData};
 use crate::openweathermap_onecall::json::{CurrentJson, DailyJson};
 use crate::WeatherCondition;
 use crate::WindData;
+use crate::{get_conditions_sentence, WeatherData};
 
 pub fn get_current(
     data: &CurrentJson,

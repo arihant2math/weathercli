@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::io;
 
-use log::{error, trace, debug};
+use log::{debug, error, trace};
 use thiserror::Error;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
@@ -136,8 +136,16 @@ fn nominatim_geocode(query: &str) -> Result<Vec<Coordinates>, GeocodeError> {
         "https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"
     ))?;
     let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
-    let latitude: f64 = j[0]["lat"].as_str().ok_or(GeocodeError::Latitude)?.parse().unwrap();
-    let longitude: f64 = j[0]["lon"].as_str().ok_or(GeocodeError::Longitude)?.parse().unwrap();
+    let latitude: f64 = j[0]["lat"]
+        .as_str()
+        .ok_or(GeocodeError::Latitude)?
+        .parse()
+        .unwrap();
+    let longitude: f64 = j[0]["lon"]
+        .as_str()
+        .ok_or(GeocodeError::Longitude)?
+        .parse()
+        .unwrap();
     Ok(vec![Coordinates {
         latitude,
         longitude,
@@ -169,13 +177,15 @@ fn get_location_core(_no_sys_loc: bool) -> Result<Coordinates, CoordinateError> 
 /// Gets the curent location of the user.
 /// # Safety
 /// This method interacts directly with the operating system when on Windows.
-pub fn get_location(no_sys_loc: bool, constant_location: bool) -> Result<Coordinates, CoordinateError> {
+pub fn get_location(
+    no_sys_loc: bool,
+    constant_location: bool,
+) -> Result<Coordinates, CoordinateError> {
     if constant_location {
-        let attempt_cache = Coordinates::from_file(&cache_dir()?.join("current_location.cache")).ok(); // TODO: handle error
+        let attempt_cache =
+            Coordinates::from_file(&cache_dir()?.join("current_location.cache")).ok(); // TODO: handle error
         return Ok(match attempt_cache {
-            Some(coordinates) => {
-                coordinates
-            }
+            Some(coordinates) => coordinates,
             None => {
                 let location = get_location_core(no_sys_loc)?;
                 location.to_file(&cache_dir()?.join("current_location.cache"))?;
@@ -241,19 +251,13 @@ fn option_to_string(option: Option<&str>) -> Option<String> {
 }
 
 pub fn reverse_geocode(coordinates: &Coordinates) -> Result<LocationData, ReverseGeocodeError> {
-    let reverse_geocode_cache_path = cache_dir()?
-                .join("location.cache");
+    let reverse_geocode_cache_path = cache_dir()?.join("location.cache");
 
-
-    let mut cache =
-        HashMap::<Coordinates, LocationData>::from_file(
-            &reverse_geocode_cache_path
-        ).unwrap_or_default(); // TODO: handle error
+    let mut cache = HashMap::<Coordinates, LocationData>::from_file(&reverse_geocode_cache_path)
+        .unwrap_or_default(); // TODO: handle error
     unsafe {
         match cache.get(&coordinates) {
-            Some(cached) => {
-                Ok(cached.clone())
-            }
+            Some(cached) => Ok(cached.clone()),
             None => {
                 let mut data = nominatim_reverse_geocode(coordinates)?;
                 let place: Value = simd_json::from_str(&mut data)?;
@@ -277,9 +281,11 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> Result<LocationData, Revers
                     suburb,
                 };
                 cache.insert(*coordinates, loc.clone());
-                cache.to_file(&reverse_geocode_cache_path).unwrap_or_else(|e| {
-                    error!("Failed to write cache: {}", e);
-                });
+                cache
+                    .to_file(&reverse_geocode_cache_path)
+                    .unwrap_or_else(|e| {
+                        error!("Failed to write cache: {}", e);
+                    });
                 Ok(loc)
             }
         }

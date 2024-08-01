@@ -9,8 +9,8 @@ use winreg::RegKey;
 
 use local::settings::Settings;
 use updater::component::update as update_component;
-use updater::CONFIG;
 use updater::resource::update_web_resources;
+use updater::CONFIG;
 
 pub type Result<T> = std::result::Result<T, cli::Error>;
 

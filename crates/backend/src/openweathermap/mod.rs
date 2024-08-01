@@ -37,7 +37,8 @@ impl crate::Backend<OpenWeatherMapFormattedData> for OpenWeatherMap {
         let latitude = coordinates.latitude;
         let url = "https://api.openweathermap.org/data/2.5/";
         let api_key = settings.open_weather_map_api_key.clone();
-        let mut weather_string = format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
+        let mut weather_string =
+            format!("{url}weather?lat={latitude}&lon={longitude}&appid={api_key}");
         let mut air_quality =
             format!("{url}air_pollution?lat={latitude}&lon={longitude}&appid={api_key}");
         let mut forecast = format!("{url}forecast?lat={latitude}&lon={longitude}&appid={api_key}");
@@ -53,7 +54,12 @@ impl crate::Backend<OpenWeatherMapFormattedData> for OpenWeatherMap {
         Vec::from([weather_string, air_quality, forecast])
     }
 
-    fn parse_data(&self, data: Vec<Resp>, _: &Coordinates, settings: &Settings) -> crate::Result<OpenWeatherMapFormattedData> {
+    fn parse_data(
+        &self,
+        data: Vec<Resp>,
+        _: &Coordinates,
+        settings: &Settings,
+    ) -> crate::Result<OpenWeatherMapFormattedData> {
         // TODO: check before sending requests ...
         if settings.open_weather_map_api_key.is_empty() {
             Err(format!(
@@ -72,7 +78,12 @@ impl crate::Backend<OpenWeatherMapFormattedData> for OpenWeatherMap {
         })
     }
 
-    fn process_data(&self, data: OpenWeatherMapFormattedData, coordinates: &Coordinates, _: &Settings) -> crate::Result<WeatherForecast> {
+    fn process_data(
+        &self,
+        data: OpenWeatherMapFormattedData,
+        coordinates: &Coordinates,
+        _: &Settings,
+    ) -> crate::Result<WeatherForecast> {
         let mut forecast: Vec<WeatherData> = Vec::new();
         let weather_file = WeatherFile::weather_codes()?;
         let weather_codes: HashMap<String, Vec<String>> = bincode::deserialize(&weather_file.data)?;

@@ -9,7 +9,7 @@ use terminal::color;
 use crate::layout_input::LayoutInput;
 use crate::layout_serde::LayoutDefaultsSerde;
 use crate::row::Row;
-use crate::tera_functions::{Color, Units, TerminalInfo};
+use crate::tera_functions::{Color, TerminalInfo, Units};
 
 pub mod error;
 mod image_to_text;

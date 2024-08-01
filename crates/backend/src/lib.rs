@@ -3,11 +3,11 @@ use thiserror::Error;
 
 pub use datasource::Backend;
 use local::settings::Settings;
-use weather_structs::Coordinates;
 pub use weather_structs::weather_condition::WeatherCondition;
 pub use weather_structs::weather_data::{get_conditions_sentence, PrecipitationData, WeatherData};
 pub use weather_structs::weather_forecast::WeatherForecast;
 pub use weather_structs::wind_data::WindData;
+use weather_structs::Coordinates;
 
 pub mod meteo;
 pub mod nws;
@@ -53,7 +53,11 @@ impl From<Box<shared_deps::bincode::ErrorKind>> for Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub fn run<T>(backend: Box<&dyn Backend<T>>, coordinates: &Coordinates, settings: &Settings) -> Result<WeatherForecast> {
+pub fn run<T>(
+    backend: Box<&dyn Backend<T>>,
+    coordinates: &Coordinates,
+    settings: &Settings,
+) -> Result<WeatherForecast> {
     let urls = backend.get_api_urls(coordinates, &settings);
     let raw_data = networking::gets!(&urls);
     match raw_data {
