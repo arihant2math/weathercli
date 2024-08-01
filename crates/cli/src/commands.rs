@@ -5,6 +5,7 @@ use std::thread;
 use chrono::{DateTime, Duration, Utc};
 use log::{debug, error, warn};
 use parse_duration::parse as parse_duration;
+use firedbg_lib::fire;
 
 use backend::WeatherForecast;
 use custom_backend::dynamic_library_loader::ExternalBackends;
@@ -109,6 +110,7 @@ pub fn weather(
         "Coordinates: {} {}",
         coordinates.latitude, coordinates.longitude
     );
+    fire::dbg!("coordinates", &coordinates);
     debug!("Metric: {true_metric}");
     debug!("json: {json}");
     let mut s = settings.clone();

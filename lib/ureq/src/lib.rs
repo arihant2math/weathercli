@@ -70,7 +70,7 @@
 //!
 //! For more involved tasks, you'll want to create an [Agent]. An Agent
 //! holds a connection pool for reuse, and a cookie store if you use the
-//! "cookies" feature. An Agent can be cheaply cloned due to an internal
+//! "cookies" feature. An Agent can be cheaply cloned due to an crates
 //! [Arc](std::sync::Arc) and all clones of an Agent share state among each other. Creating
 //! an Agent also allows setting options like the TLS configuration.
 //!

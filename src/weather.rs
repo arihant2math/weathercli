@@ -2,6 +2,7 @@ use std::mem::discriminant;
 use std::sync::{Arc, Mutex};
 
 use clap::Parser;
+use firedbg_lib::fire;
 
 use cli::arguments::{App, Command};
 use cli::commands::{
@@ -86,6 +87,7 @@ fn run() -> Result<()> {
             custom_backend::wasm_loader::WasmLoader::default()
         },
     ));
+    fire::dbg!("settings", &settings_s);
     match args.command {
         Some(command) => {
             match command {

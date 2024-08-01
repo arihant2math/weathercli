@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use std::io;
 
-use log::error;
+use firedbg_lib::fire;
+use log::{error, trace, debug};
 use thiserror::Error;
 #[cfg(target_os = "windows")]
 use windows::Devices::Geolocation::Geolocator;
@@ -99,7 +100,9 @@ fn get_windows() -> Result<Coordinates, CoordinateError> {
 }
 
 fn get_web() -> Result<Coordinates, CoordinateError> {
-    let mut resp = networking::get!("https://ipinfo.io")?.text;
+    let mut resp = networking::get!("https://ipinfo.io/json")?.text;
+    let resp_dbg = resp.clone();
+    trace!("{}", resp_dbg);
     let json: HashMap<String, String> = unsafe { simd_json::from_str(&mut resp)? };
     let location_vec: Vec<&str> = json
         .get("loc")
@@ -134,8 +137,8 @@ fn nominatim_geocode(query: &str) -> Result<Vec<Coordinates>, GeocodeError> {
         "https://nominatim.openstreetmap.org/search?q=\"{query}\"&format=jsonv2"
     ))?;
     let j: Value = unsafe { simd_json::from_str(&mut r.text) }?;
-    let latitude = j[0]["lat"].as_f64().ok_or(GeocodeError::Latitude)?;
-    let longitude = j[0]["lon"].as_f64().ok_or(GeocodeError::Longitude)?;
+    let latitude: f64 = j[0]["lat"].as_str().ok_or(GeocodeError::Latitude)?.parse().unwrap();
+    let longitude: f64 = j[0]["lon"].as_str().ok_or(GeocodeError::Longitude)?.parse().unwrap();
     Ok(vec![Coordinates {
         latitude,
         longitude,
@@ -192,6 +195,7 @@ pub fn get(no_sys_loc: bool, constant_location: bool) -> Result<Coordinates, Coo
 pub fn geocode(query: String, bing_maps_api_key: &str) -> Result<Coordinates, GeocodeError> {
     let coordinates: Result<Coordinates, GeocodeError>;
     if !bing_maps_api_key.is_empty() {
+        debug!("Using bing maps geocode");
         let coordinates_list = bing_maps_geocode(&query, bing_maps_api_key)?.resources;
 
         if coordinates_list.len() > 1 {
@@ -208,6 +212,7 @@ pub fn geocode(query: String, bing_maps_api_key: &str) -> Result<Coordinates, Ge
                 longitude: coordinates_list[index].point.coordinates[1],
             });
         } else {
+            debug!("Using openweathermap geocode");
             let index = 0;
             coordinates = Ok(Coordinates {
                 latitude: coordinates_list[index].point.coordinates[0],

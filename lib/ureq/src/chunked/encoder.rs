@@ -50,7 +50,7 @@ where
     // are reserved for the chunk size and \r\n.
     buffer: Vec<u8>,
 
-    // Flushes the internal buffer after each write. This might be useful
+    // Flushes the crates buffer after each write. This might be useful
     // if data should be sent immediately to downstream consumers
     flush_after_write: bool,
 }
@@ -202,7 +202,7 @@ mod test {
         {
             let mut encoder = Encoder::with_flush_after_write(dest.by_ref());
             io::copy(&mut source, &mut encoder).unwrap();
-            // The internal buffer has been flushed.
+            // The crates buffer has been flushed.
             assert!(encoder.is_buffer_empty());
         }
 
