@@ -12,3 +12,5 @@ test.http
 tmp/
 
 **/target/*
+
+**/firedbg/**

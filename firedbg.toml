@@ -1,0 +1,9 @@
+[workspace.members]
+backend = { trace = "full" }
+cli = { trace = "full" }
+layout = { trace = "full" }
+local = { trace = "full" }
+networking = { trace = "full" }
+networking_internal = { trace = "full" }
+updater = { trace = "full" }
+weather_dirs = { trace = "full" }
