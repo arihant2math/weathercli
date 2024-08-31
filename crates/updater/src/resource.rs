@@ -1,3 +1,4 @@
+use firedbg_lib::fire;
 use log::{debug, trace};
 use thiserror::Error;
 
@@ -72,6 +73,8 @@ fn update_web_resource(
             "Failed to get hash from web".to_string(),
         ))?
         .to_string();
+    fire::dbg!("web_hash", &web_hash);
+    fire::dbg!("file_hash", &file_hash);
     if web_hash != file_hash {
         debug!(
             "Updating {} web: {web_hash} file: {file_hash}",

@@ -2,14 +2,7 @@ use std::fmt;
 use std::ops::Deref;
 use std::sync::Arc;
 use std::time::Duration;
-
 use url::Url;
-
-#[cfg(feature = "cookies")]
-use {
-    crate::cookies::{CookieStoreGuard, CookieTin},
-    cookie_store::CookieStore,
-};
 
 use crate::header::Header;
 use crate::middleware::Middleware;
@@ -18,6 +11,12 @@ use crate::proxy::Proxy;
 use crate::request::Request;
 use crate::resolve::{ArcResolver, StdResolver};
 use crate::stream::TlsConnector;
+
+#[cfg(feature = "cookies")]
+use {
+    crate::cookies::{CookieStoreGuard, CookieTin},
+    cookie_store::CookieStore,
+};
 
 /// Strategy for keeping `authorization` headers during redirects.
 ///
@@ -686,17 +685,6 @@ impl AgentBuilder {
     pub fn middleware(mut self, m: impl Middleware) -> Self {
         self.middleware.push(Box::new(m));
         self
-    }
-}
-
-#[cfg(feature = "tls")]
-#[derive(Clone)]
-pub(crate) struct TLSClientConfig(pub(crate) Arc<rustls::ClientConfig>);
-
-#[cfg(feature = "tls")]
-impl fmt::Debug for TLSClientConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("TLSClientConfig").finish()
     }
 }
 

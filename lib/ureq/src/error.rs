@@ -1,8 +1,8 @@
+use url::{ParseError, Url};
+
 use std::error;
 use std::fmt::{self, Display};
 use std::io;
-
-use url::{ParseError, Url};
 
 use crate::Response;
 

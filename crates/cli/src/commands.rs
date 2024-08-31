@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use chrono::{DateTime, Duration, Utc};
+use firedbg_lib::fire;
 use log::{debug, error, warn};
 use parse_duration::parse as parse_duration;
 
@@ -112,6 +113,7 @@ pub fn weather(
         "Coordinates: {} {}",
         coordinates.latitude, coordinates.longitude
     );
+    fire::dbg!("coordinates", &coordinates);
     debug!("Metric: {true_metric}");
     debug!("json: {json}");
     let mut s = settings.clone();

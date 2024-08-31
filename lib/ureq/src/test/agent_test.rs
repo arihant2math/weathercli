@@ -1,12 +1,11 @@
 #![allow(dead_code)]
 
+use crate::error::Error;
+use crate::testserver::{read_request, TestServer};
 use std::io::{self, Read, Write};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpStream};
 use std::thread;
 use std::time::Duration;
-
-use crate::error::Error;
-use crate::testserver::{read_request, TestServer};
 
 use super::super::*;
 

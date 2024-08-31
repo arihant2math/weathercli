@@ -1,9 +1,9 @@
+use http_02 as http;
+
 use std::{
     io::{Cursor, Read},
     net::{IpAddr, Ipv4Addr, SocketAddr},
 };
-
-use http_02 as http;
 
 use crate::{header::HeaderLine, response::ResponseStatusIndex, Request, Response};
 
@@ -128,9 +128,10 @@ impl From<Response> for http::Response<String> {
 /// ```
 impl From<Response> for http::Response<Vec<u8>> {
     fn from(value: Response) -> Self {
-        create_builder(&value)
-            .body(value.into_string().unwrap().into_bytes())
-            .unwrap()
+        let respone_builder = create_builder(&value);
+        let mut body_buf: Vec<u8> = vec![];
+        value.into_reader().read_to_end(&mut body_buf).unwrap();
+        respone_builder.body(body_buf).unwrap()
     }
 }
 
@@ -163,7 +164,7 @@ impl From<Response> for http::Response<Vec<u8>> {
 /// let request = http_builder.body(()).expect("Builder error"); // Check the error
 /// let (parts, ()) = request.into_parts();
 /// let request: ureq::Request = parts.into();
-//// request.call()?;
+/// request.call()?;
 /// # Ok(())
 /// # }
 /// ```
@@ -277,12 +278,13 @@ impl From<Request> for http::request::Builder {
 
 #[cfg(test)]
 mod tests {
-    use http_02 as http;
-
     use crate::header::{add_header, get_header_raw, HeaderLine};
+    use http_02 as http;
 
     #[test]
     fn convert_http_response() {
+        use http::{Response, StatusCode, Version};
+
         let http_response_body = vec![0xaa; 10240];
         let http_response = Response::builder()
             .version(Version::HTTP_2)
@@ -308,6 +310,8 @@ mod tests {
 
     #[test]
     fn convert_http_response_string() {
+        use http::{Response, StatusCode, Version};
+
         let http_response_body = "Some body string".to_string();
         let http_response = Response::builder()
             .version(Version::HTTP_11)
@@ -323,6 +327,8 @@ mod tests {
 
     #[test]
     fn convert_http_response_bad_header() {
+        use http::{Response, StatusCode, Version};
+
         let http_response = Response::builder()
             .version(Version::HTTP_11)
             .status(StatusCode::OK)
@@ -338,6 +344,8 @@ mod tests {
 
     #[test]
     fn convert_to_http_response_string() {
+        use http::Response;
+
         let mut response = super::Response::new(418, "I'm a teapot", "some body text").unwrap();
         response.headers.push(
             HeaderLine::from("Content-Type: text/plain".as_bytes().to_vec())
@@ -363,19 +371,25 @@ mod tests {
 
     #[test]
     fn convert_to_http_response_bytes() {
-        use std::io::{Cursor, Read};
+        use http::Response;
+        use std::io::Cursor;
 
         let mut response = super::Response::new(200, "OK", "tbr").unwrap();
-        response.reader = Box::new(Cursor::new(vec![0xde, 0xad, 0xbe, 0xef]));
-        let http_response: Response<Box<dyn Read + Send + Sync + 'static>> = response.into();
+        // b'\xFF' as invalid UTF-8 character
+        response.reader = Box::new(Cursor::new(vec![b'\xFF', 0xde, 0xad, 0xbe, 0xef]));
+        let http_response: Response<Vec<u8>> = response.into();
 
-        let mut buf = vec![];
-        http_response.into_body().read_to_end(&mut buf).unwrap();
-        assert_eq!(buf, vec![0xde, 0xad, 0xbe, 0xef]);
+        assert_eq!(
+            http_response.body().to_vec(),
+            // non UTF-8 byte is preserved
+            vec![b'\xFF', 0xde, 0xad, 0xbe, 0xef]
+        );
     }
 
     #[test]
     fn convert_http_response_builder_with_invalid_utf8_header() {
+        use http::Response;
+
         let http_response = Response::builder()
             .header("Some-Key", b"some\xff\xffvalue".as_slice())
             .body(b"hello")
@@ -411,6 +425,8 @@ mod tests {
 
     #[test]
     fn convert_http_request_builder() {
+        use http::Request;
+
         let http_request = Request::builder()
             .method("PUT")
             .header("Some-Key", "some value")
@@ -424,6 +440,8 @@ mod tests {
 
     #[test]
     fn convert_to_http_request_builder() {
+        use http::request::Builder;
+
         let request = crate::agent()
             .head("http://some-website.com")
             .set("Some-Key", "some value");
@@ -443,6 +461,8 @@ mod tests {
 
     #[test]
     fn convert_http_request_builder_with_invalid_utf8_header() {
+        use http::Request;
+
         let http_request = Request::builder()
             .method("PUT")
             .header("Some-Key", b"some\xff\xffvalue".as_slice())
@@ -459,6 +479,8 @@ mod tests {
 
     #[test]
     fn convert_to_http_request_builder_with_invalid_utf8_header() {
+        use http::request::Builder;
+
         let mut request = crate::agent().head("http://some-website.com");
         add_header(
             &mut request.headers,

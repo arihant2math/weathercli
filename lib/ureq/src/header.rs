@@ -1,7 +1,6 @@
+use crate::error::{Error, ErrorKind};
 use std::fmt;
 use std::str::{from_utf8, FromStr};
-
-use crate::error::{Error, ErrorKind};
 
 /// Since a status line or header can contain non-utf8 characters the
 /// backing store is a `Vec<u8>`

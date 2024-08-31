@@ -354,30 +354,6 @@
 //! [actix-web](https://crates.io/crates/actix-web), and [hyper](https://crates.io/crates/hyper).
 //!
 
-use std::sync::atomic::{AtomicBool, Ordering};
-
-// re-export
-#[cfg(feature = "cookies")]
-pub use cookie::Cookie;
-use once_cell::sync::Lazy;
-#[cfg(feature = "json")]
-pub use serde_json::json;
-use url::Url;
-
-#[cfg(feature = "json")]
-pub use {serde, serde_json};
-
-pub use crate::agent::Agent;
-pub use crate::agent::AgentBuilder;
-pub use crate::agent::RedirectAuthHeaders;
-pub use crate::error::{Error, ErrorKind, OrAnyStatus, Transport};
-pub use crate::middleware::{Middleware, MiddlewareNext};
-pub use crate::proxy::Proxy;
-pub use crate::request::{Request, RequestUrl};
-pub use crate::resolve::Resolver;
-pub use crate::response::Response;
-pub use crate::stream::{ReadWrite, TlsConnector};
-
 mod agent;
 mod body;
 mod chunked;
@@ -433,6 +409,10 @@ pub(crate) fn default_tls_config() -> std::sync::Arc<dyn TlsConnector> {
 #[cfg(feature = "cookies")]
 mod cookies;
 
+#[cfg(feature = "json")]
+pub use serde_json::json;
+use url::Url;
+
 #[cfg(test)]
 mod test;
 #[doc(hidden)]
@@ -445,6 +425,24 @@ mod http_interop;
 #[cfg(feature = "http-crate")]
 // 1.0 version dependency.
 mod http_crate;
+
+pub use crate::agent::Agent;
+pub use crate::agent::AgentBuilder;
+pub use crate::agent::RedirectAuthHeaders;
+pub use crate::error::{Error, ErrorKind, OrAnyStatus, Transport};
+pub use crate::middleware::{Middleware, MiddlewareNext};
+pub use crate::proxy::Proxy;
+pub use crate::request::{Request, RequestUrl};
+pub use crate::resolve::Resolver;
+pub use crate::response::Response;
+pub use crate::stream::{ReadWrite, TlsConnector};
+
+// re-export
+#[cfg(feature = "cookies")]
+pub use cookie::Cookie;
+
+#[cfg(feature = "json")]
+pub use {serde, serde_json};
 
 #[cfg(feature = "json")]
 #[deprecated(note = "use ureq::serde_json::Map instead")]
@@ -461,6 +459,9 @@ pub fn serde_to_value<T: serde::Serialize>(
 ) -> std::result::Result<serde_json::Value, serde_json::Error> {
     serde_json::to_value(value)
 }
+
+use once_cell::sync::Lazy;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// Creates an [AgentBuilder].
 pub fn builder() -> AgentBuilder {

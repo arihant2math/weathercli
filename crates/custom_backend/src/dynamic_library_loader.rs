@@ -97,7 +97,7 @@ impl ExternalBackends {
             .call(coordinates, settings)?)
     }
 
-    /// Load a plugin library and add all contained functions to the internal
+    /// Load a plugin library and add all contained functions to the crates
     /// function table.
     ///
     /// # Safety

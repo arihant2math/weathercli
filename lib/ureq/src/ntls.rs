@@ -1,9 +1,9 @@
-use std::net::TcpStream;
-use std::sync::Arc;
-
 use crate::error::Error;
 use crate::error::ErrorKind;
 use crate::stream::{ReadWrite, TlsConnector};
+
+use std::net::TcpStream;
+use std::sync::Arc;
 
 #[allow(dead_code)]
 pub(crate) fn default_tls_config() -> std::sync::Arc<dyn TlsConnector> {

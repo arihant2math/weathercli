@@ -1,15 +1,14 @@
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, VecDeque};
-use std::fmt;
 use std::io::{self, Read};
 use std::sync::Mutex;
-
-use log::debug;
-use url::Url;
 
 use crate::agent::AgentState;
 use crate::stream::Stream;
 use crate::{Agent, Proxy};
+
+use log::debug;
+use url::Url;
 
 /// Holder of recycled connections.
 ///
@@ -194,6 +193,8 @@ pub(crate) struct PoolKey {
     port: Option<u16>,
     proxy: Option<Proxy>,
 }
+
+use std::fmt;
 
 impl fmt::Debug for PoolKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
