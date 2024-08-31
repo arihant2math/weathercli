@@ -49,8 +49,7 @@ fn add_to_path(dir: String) -> Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    run().await.unwrap();
-    Ok(())
+    run().await
 }
 
 async fn run() -> Result<()> {
