@@ -58,12 +58,12 @@ repository = "https://github.com/arihant2math/weathercli"
 winresource = "0.1"
 
 [dependencies]
-custom_backend = { path = "./internal/custom_backend" }
-cli = { path = "./internal/cli" }
-terminal = { path = "./internal/terminal" }
-weather_dirs = { path = "./internal/weather_dirs" }
-local = { path = "./internal/local" }
-updater = { path = "./internal/updater" }
+custom_backend = { path = "./crates/custom_backend" }
+cli = { path = "./crates/cli" }
+terminal = { path = "./crates/terminal" }
+weather_dirs = { path = "./crates/weather_dirs" }
+local = { path = "./crates/local" }
+updater = { path = "./crates/updater" }
 auto-launch = { version = "0.5", optional = true }
 bincode = { version = "1.3", optional = true }
 clap = { version = "4.5", features = ["derive"] }
