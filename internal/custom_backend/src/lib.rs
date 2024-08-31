@@ -1,5 +1,5 @@
-use std::{fs, io};
 use std::sync::{Arc, Mutex};
+use std::{fs, io};
 
 use log::debug;
 use thiserror::Error;
@@ -19,9 +19,9 @@ pub enum Error {
     #[error("Weather Dirs Error: {0}")]
     WeatherDirsError(#[from] weather_dirs::Error),
     #[error("I/O Error: {0}")]
-    IOError(#[from] std::io::Error),
+    IOError(#[from] io::Error),
     #[error("Bincode Error: {0}")]
-    BincodeError(Box<shared_deps::bincode::ErrorKind>),
+    BincodeError(Box<bincode::ErrorKind>),
     #[error("Function not found")]
     FunctionNotFound, // TODO: Include name
     #[error("Backend Error: {0}")]
@@ -36,8 +36,8 @@ impl From<String> for Error {
     }
 }
 
-impl From<Box<shared_deps::bincode::ErrorKind>> for Error {
-    fn from(b: Box<shared_deps::bincode::ErrorKind>) -> Self {
+impl From<Box<bincode::ErrorKind>> for Error {
+    fn from(b: Box<bincode::ErrorKind>) -> Self {
         Self::BincodeError(b)
     }
 }
@@ -47,8 +47,11 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub static CORE_VERSION: &str = "0.0";
 
 pub trait WeatherForecastPlugin {
-    fn call(&self, coordinates: &Coordinates, settings: Settings)
-        -> backend::Result<WeatherForecast>;
+    fn call(
+        &self,
+        coordinates: &Coordinates,
+        settings: Settings,
+    ) -> backend::Result<WeatherForecast>;
 
     fn name(&self) -> Option<&str> {
         None
@@ -132,24 +135,45 @@ pub struct CustomBackend {
 }
 
 impl CustomBackend {
-    pub fn new(name: String, wasm_loader: Arc<Mutex<wasm_loader::WasmLoader>>, custom_backends: dynamic_library_loader::ExternalBackends, settings: &Settings) -> Self {
+    pub fn new(
+        name: String,
+        wasm_loader: Arc<Mutex<wasm_loader::WasmLoader>>,
+        custom_backends: dynamic_library_loader::ExternalBackends,
+        settings: &Settings,
+    ) -> Self {
         Self {
             name,
-            wasm_loader: if settings.enable_wasm_backends {Some(wasm_loader)} else {None},
-            custom_backends: if settings.enable_custom_backends {Some(custom_backends)} else {None},
+            wasm_loader: if settings.enable_wasm_backends {
+                Some(wasm_loader)
+            } else {
+                None
+            },
+            custom_backends: if settings.enable_custom_backends {
+                Some(custom_backends)
+            } else {
+                None
+            },
         }
     }
 
-    pub fn get(&self, coordinates: &Coordinates, settings: &Settings) -> backend::Result<WeatherForecast> {
+    pub fn get(
+        &self,
+        coordinates: &Coordinates,
+        settings: &Settings,
+    ) -> backend::Result<WeatherForecast> {
         if let Some(wasm_loader) = &self.wasm_loader {
             let mut plugins = wasm_loader.lock().unwrap();
-            return Ok(plugins.call(&self.name, *coordinates, settings.clone()).unwrap()); // TODO: Don't unwrap
+            return Ok(plugins
+                .call(&self.name, *coordinates, settings.clone())
+                .unwrap()); // TODO: Don't unwrap
         }
         if let Some(custom_backends) = &self.custom_backends {
-            return Ok(custom_backends.call(&self.name, coordinates, settings.clone()).unwrap());
+            return Ok(custom_backends
+                .call(&self.name, coordinates, settings.clone())
+                .unwrap());
         }
         return Err(backend::Error::Other(
-                "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help (specifically which commands to run)
+            "Custom backends are disabled. Enable them in the settings.".to_string(), // TODO: more help (specifically which commands to run)
         ))?;
     }
 }

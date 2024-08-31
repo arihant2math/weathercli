@@ -4,7 +4,7 @@ use std::u128;
 
 use thiserror::Error;
 
-use internal::{get_date_string, read_cache, Row, write_cache};
+use internal::{get_date_string, read_cache, write_cache, Row};
 
 use crate::now;
 

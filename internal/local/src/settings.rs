@@ -1,11 +1,11 @@
 use log::warn;
 use serde::{Deserialize, Serialize};
-use shared_deps::simd_json;
+use simd_json;
 #[cfg(windows)]
 use windows::Win32::System::Power::SYSTEM_POWER_STATUS;
 
+use serde_json::Value;
 use thiserror::Error;
-use shared_deps::serde_json::Value;
 
 use crate::location::Coordinates;
 use crate::weather_file::WeatherFile;
@@ -116,7 +116,7 @@ pub enum Error {
     #[error("File Handling Error: {0}")]
     FileError(#[from] crate::weather_file::Error),
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error),
+    JSONError(#[from] simd_json::Error),
 }
 
 type Result<T> = std::result::Result<T, Error>;

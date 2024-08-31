@@ -6,12 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-log = "0.4"
-serde = "1.0"
-shared_deps = { path = "../shared_deps" }
+log = { workspace = true}
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true}
+simd-json = { workspace = true }
+thiserror = { workspace = true }
+
+self-replace = "1.4"
+reqwest = { version = "0.12", features = ["blocking"] }
+
 local = { path = "../local" }
 terminal = { path = "../terminal" }
 networking = { path = "../networking" }
-self-replace = "1.3"
-reqwest = { version = "0.12", features = ["blocking"] }
-thiserror = "1.0"

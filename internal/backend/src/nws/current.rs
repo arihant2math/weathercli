@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use chrono::{DateTime, Duration};
 
+use bincode;
 use local::weather_file::WeatherFile;
-use shared_deps::bincode;
 use weather_structs::get_clouds_condition;
 use weather_structs::weather_data::PrecipitationData;
 
@@ -71,8 +71,14 @@ pub fn get_current(data: NWSJSON, metric: bool) -> crate::Result<WeatherData> {
     let cloud_cover = data.properties.sky_cover.values[0].value.unwrap_or(-1) as u8;
     let conditions = get_conditions(data.clone(), metric, 0, cloud_cover)?;
     let d = WeatherData {
-        time: DateTime::parse_from_rfc3339(&data.properties.temperature.values[0].valid_time.split("/").nth(0).unwrap())?
-            .into(),
+        time: DateTime::parse_from_rfc3339(
+            &data.properties.temperature.values[0]
+                .valid_time
+                .split("/")
+                .nth(0)
+                .unwrap(),
+        )?
+        .into(),
         temperature: convert_temp(
             data.properties.temperature.values[0]
                 .value

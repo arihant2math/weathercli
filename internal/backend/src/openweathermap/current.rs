@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use chrono::{DateTime, Duration};
 
-use shared_deps::simd_json;
+use simd_json;
 use weather_structs::weather_data::PrecipitationData;
 use weather_structs::WeatherCondition;
 use weather_structs::WindData;

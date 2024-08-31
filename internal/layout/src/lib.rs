@@ -1,15 +1,15 @@
+use bincode;
 use local::weather_file::WeatherFile;
 use log::debug;
 use serde::{Deserialize, Serialize};
-use shared_deps::bincode;
-use shared_deps::serde_json;
+use serde_json;
 use tera::{Context, Tera};
 use terminal::color;
 
 use crate::layout_input::LayoutInput;
 use crate::layout_serde::LayoutDefaultsSerde;
 use crate::row::Row;
-use crate::tera_functions::{Color, Units, TerminalInfo};
+use crate::tera_functions::{Color, TerminalInfo, Units};
 
 pub mod error;
 mod image_to_text;

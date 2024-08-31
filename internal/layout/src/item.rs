@@ -1,5 +1,5 @@
 use crate::LayoutErr;
-use shared_deps::serde_json::Value;
+use serde_json::Value;
 
 use crate::layout_serde::ItemSerde;
 use crate::LayoutSettings;

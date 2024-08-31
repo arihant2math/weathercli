@@ -9,8 +9,8 @@ use windows::Devices::Geolocation::Geolocator;
 use windows::Devices::Geolocation::PositionAccuracy;
 
 use networking;
-use shared_deps::serde_json::Value;
-use shared_deps::simd_json;
+use serde_json::Value;
+use simd_json;
 use weather_dirs::cache_dir;
 pub use weather_structs::Coordinates;
 pub use weather_structs::LocationData;
@@ -27,7 +27,7 @@ pub enum CoordinateError {
     #[error("Win API error: {0}")]
     WinAPIError(#[from] windows::core::Error),
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error),
+    JSONError(#[from] simd_json::Error),
     #[error("I/O Error: {0}")]
     IOError(#[from] io::Error),
     #[error("Weather Dirs Error: {0}")]
@@ -51,7 +51,7 @@ pub enum GeocodeError {
     #[error("Network error: {0}")]
     NetworkError(#[from] networking::Error),
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error),
+    JSONError(#[from] simd_json::Error),
     #[error("I/O Error: {0}")]
     IOError(#[from] io::Error),
     #[error("Longitude not found")]
@@ -67,7 +67,7 @@ pub enum ReverseGeocodeError {
     #[error("Network error: {0}")]
     NetworkError(#[from] networking::Error),
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error),
+    JSONError(#[from] simd_json::Error),
     #[error("I/O Error: {0}")]
     IOError(#[from] io::Error),
     #[error("Weather Dirs Error: {0}")]
@@ -167,13 +167,15 @@ fn get_location_core(_no_sys_loc: bool) -> Result<Coordinates, CoordinateError> 
 /// Gets the curent location of the user.
 /// # Safety
 /// This method interacts directly with the operating system when on Windows.
-pub fn get_location(no_sys_loc: bool, constant_location: bool) -> Result<Coordinates, CoordinateError> {
+pub fn get_location(
+    no_sys_loc: bool,
+    constant_location: bool,
+) -> Result<Coordinates, CoordinateError> {
     if constant_location {
-        let attempt_cache = Coordinates::from_file(&cache_dir()?.join("current_location.cache")).ok(); // TODO: handle error
+        let attempt_cache =
+            Coordinates::from_file(&cache_dir()?.join("current_location.cache")).ok(); // TODO: handle error
         return Ok(match attempt_cache {
-            Some(coordinates) => {
-                coordinates
-            }
+            Some(coordinates) => coordinates,
             None => {
                 let location = get_location_core(no_sys_loc)?;
                 location.to_file(&cache_dir()?.join("current_location.cache"))?;
@@ -237,19 +239,13 @@ fn option_to_string(option: Option<&str>) -> Option<String> {
 }
 
 pub fn reverse_geocode(coordinates: &Coordinates) -> Result<LocationData, ReverseGeocodeError> {
-    let reverse_geocode_cache_path = cache_dir()?
-                .join("location.cache");
+    let reverse_geocode_cache_path = cache_dir()?.join("location.cache");
 
-
-    let mut cache =
-        HashMap::<Coordinates, LocationData>::from_file(
-            &reverse_geocode_cache_path
-        ).unwrap_or_default(); // TODO: handle error
+    let mut cache = HashMap::<Coordinates, LocationData>::from_file(&reverse_geocode_cache_path)
+        .unwrap_or_default(); // TODO: handle error
     unsafe {
         match cache.get(&coordinates) {
-            Some(cached) => {
-                Ok(cached.clone())
-            }
+            Some(cached) => Ok(cached.clone()),
             None => {
                 let mut data = nominatim_reverse_geocode(coordinates)?;
                 let place: Value = simd_json::from_str(&mut data)?;
@@ -273,9 +269,11 @@ pub fn reverse_geocode(coordinates: &Coordinates) -> Result<LocationData, Revers
                     suburb,
                 };
                 cache.insert(*coordinates, loc.clone());
-                cache.to_file(&reverse_geocode_cache_path).unwrap_or_else(|e| {
-                    error!("Failed to write cache: {}", e);
-                });
+                cache
+                    .to_file(&reverse_geocode_cache_path)
+                    .unwrap_or_else(|e| {
+                        error!("Failed to write cache: {}", e);
+                    });
                 Ok(loc)
             }
         }

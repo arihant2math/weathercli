@@ -32,9 +32,9 @@ pub enum Error {
     #[error("Network error: {0}")]
     NetworkError(#[from] networking::Error),
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error),
+    JSONError(#[from] simd_json::Error),
     #[error("Serde JSON Error: {0}")]
-    SerdeJSONError(#[from] shared_deps::serde_json::Error),
+    SerdeJSONError(#[from] serde_json::Error),
     #[error("I/O Error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Layout Error: {0}")]
@@ -46,7 +46,7 @@ pub enum Error {
     #[error("Chrono Parse Error: {0}")]
     ChronoParseError(#[from] chrono::ParseError),
     #[error("Bincode Error: {0}")]
-    BincodeError(Box<shared_deps::bincode::ErrorKind>),
+    BincodeError(Box<bincode::ErrorKind>),
     #[error("Other Error: {0}")]
     Other(String),
 }
@@ -63,8 +63,8 @@ impl From<&str> for Error {
     }
 }
 
-impl From<Box<shared_deps::bincode::ErrorKind>> for Error {
-    fn from(b: Box<shared_deps::bincode::ErrorKind>) -> Self {
+impl From<Box<bincode::ErrorKind>> for Error {
+    fn from(b: Box<bincode::ErrorKind>) -> Self {
         Self::BincodeError(b)
     }
 }

@@ -6,11 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+
 cookie_store = "0.21"
 rayon = "1.8"
-serde = "1.0"
-log = "0.4"
-shared_deps = { path = "../shared_deps" }
 url = "2.5"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

@@ -3,18 +3,19 @@ use std::collections::HashMap;
 use log::warn;
 use serde::{Deserialize, Serialize};
 
+use bincode;
 use local::location;
 use local::location::Coordinates;
 use local::settings::Settings;
 use local::weather_file::WeatherFile;
 use networking;
 use networking::Resp;
-use shared_deps::{bincode, simd_json};
+use simd_json;
 use weather_structs::{WeatherData, WeatherForecast};
 
-use crate::Backend;
 use crate::meteo::json::{MeteoAirQualityJson, MeteoForecastJson};
 use crate::meteo::weather_data::get_weather_data;
+use crate::Backend;
 
 mod json;
 mod weather_data;
@@ -22,7 +23,7 @@ mod weather_data;
 #[derive(Clone, Serialize, Deserialize)]
 pub struct MeteoFormattedData {
     pub weather: MeteoForecastJson,
-    pub air_quality: MeteoAirQualityJson
+    pub air_quality: MeteoAirQualityJson,
 }
 
 #[derive(Copy, Clone, Debug, Default)]
@@ -45,19 +46,29 @@ impl Backend<MeteoFormattedData> for Meteo {
             format!("{base_air_quaility_url}?latitude={latitude}&longitude={longitude}&hourly=european_aqi")])
     }
 
-    fn parse_data(&self, data: Vec<Resp>, _: &Coordinates, _: &Settings) -> crate::Result<MeteoFormattedData> {
+    fn parse_data(
+        &self,
+        data: Vec<Resp>,
+        _: &Coordinates,
+        _: &Settings,
+    ) -> crate::Result<MeteoFormattedData> {
         let mut data = data;
         unsafe {
             let r1: MeteoForecastJson = simd_json::from_str(&mut data[0].text)?;
             let r2: MeteoAirQualityJson = simd_json::from_str(&mut data[1].text)?;
             Ok(MeteoFormattedData {
                 weather: r1,
-                air_quality: r2
+                air_quality: r2,
             })
         }
     }
 
-    fn process_data(&self, data: MeteoFormattedData, coordinates: &Coordinates, settings: &Settings) -> crate::Result<WeatherForecast> {
+    fn process_data(
+        &self,
+        data: MeteoFormattedData,
+        coordinates: &Coordinates,
+        settings: &Settings,
+    ) -> crate::Result<WeatherForecast> {
         let mut forecast: Vec<WeatherData> = Vec::new();
         let now_option = data
             .weather

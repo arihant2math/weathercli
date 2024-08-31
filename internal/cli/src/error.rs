@@ -5,9 +5,9 @@ pub enum Error {
     #[error("Network error: {0}")]
     NetworkError(#[from] networking::Error),
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error),
+    JSONError(#[from] simd_json::Error),
     #[error("Serde JSON Error: {0}")]
-    SerdeJSONError(#[from] shared_deps::serde_json::Error),
+    SerdeJSONError(#[from] serde_json::Error),
     #[error("I/O Error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Weather dirs Error: {0}")]

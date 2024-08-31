@@ -21,7 +21,6 @@ members = [
     "internal/networking_internal",
     "internal/networking_macros",
     "internal/settings_app",
-    "internal/shared_deps",
     "internal/terminal",
     "internal/updater",
     "internal/weather_dirs",
@@ -32,6 +31,17 @@ members = [
 exclude = [
     "dev-scripts"
 ]
+
+[workspace.dependencies]
+bincode = "1.3"
+chrono = "0.4"
+log = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+simd-json = "0.13"
+thiserror = "1.0"
+windows = "0.58"
+
 
 [package]
 name = "weather"
@@ -59,9 +69,6 @@ bincode = { version = "1.3", optional = true }
 clap = { version = "4.5", features = ["derive"] }
 log = "0.4"
 log4rs = "1.3"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-simd-json = "0.13"
 reqwest = { version = "0.12", features = ["blocking"] }
 tokio = { version = "1", features = ["full"] }
 

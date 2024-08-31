@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use image;
-use image::{GenericImageView, imageops};
+use image::{imageops, GenericImageView};
 
 use terminal::color::rgb_foreground;
 

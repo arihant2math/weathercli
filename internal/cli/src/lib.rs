@@ -6,7 +6,7 @@ pub use error::Error;
 use layout::layout_input::LayoutInput;
 use layout::LayoutErr;
 use layout::LayoutFile;
-use shared_deps::serde_json;
+use serde_json;
 
 pub mod arguments;
 pub mod commands;

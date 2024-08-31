@@ -16,7 +16,7 @@ pub enum UpdateError {
     #[error("Reqwuest error: {0}")]
     ReqwuestError(String), // TODO: Store actual error
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error),
+    JSONError(#[from] simd_json::Error),
     #[error("I/O Error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Weather file Error: {0}")]

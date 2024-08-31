@@ -10,6 +10,7 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
+
 use thiserror::Error;
 
 use weather_structs::{Coordinates, LocationData};
@@ -29,7 +30,7 @@ pub enum CacheItemReadError {
     #[error("I/O error: {0}")]
     IoError(#[from] std::io::Error),
     #[error("unsupported version: {0}")]
-    Other(String)
+    Other(String),
 }
 
 #[derive(Debug, Error)]
@@ -49,7 +50,7 @@ pub enum CacheReadError {
     #[error("I/O error: {0}")]
     IoError(#[from] std::io::Error),
     #[error("other: {0}")]
-    Other(String)
+    Other(String),
 }
 
 #[derive(Debug, Error)]
@@ -57,7 +58,7 @@ pub enum CacheItemWriteError {
     #[error("I/O error: {0}")]
     IoError(#[from] std::io::Error),
     #[error("other: {0}")]
-    Other(String)
+    Other(String),
 }
 
 #[derive(Debug, Error)]
@@ -67,7 +68,7 @@ pub enum CacheWriteError {
     #[error("cache item write error: {0}")]
     ItemError(#[from] CacheItemWriteError),
     #[error("other: {0}")]
-    Other(String)
+    Other(String),
 }
 
 pub trait Cacheable: Sized {
@@ -84,7 +85,10 @@ pub trait Cacheable: Sized {
             return Err(CacheReadError::InvalidMagicNumber(bytes[0..3].to_vec()));
         }
         if &bytes[4] != &CACHE_VERSION {
-            return Err(CacheReadError::Other(format!("unsupported version: {}", bytes[0])));
+            return Err(CacheReadError::Other(format!(
+                "unsupported version: {}",
+                bytes[0]
+            )));
         }
         Ok(Self::from_cache_bytes(&bytes)?)
     }
@@ -105,7 +109,9 @@ pub trait Cacheable: Sized {
     fn to_file(&self, path: &std::path::Path) -> Result<(), CacheWriteError> {
         std::fs::create_dir_all(path.parent().unwrap())?;
         let mut file = std::fs::OpenOptions::new()
-            .write(true).create(true).truncate(true)
+            .write(true)
+            .create(true)
+            .truncate(true)
             .open(path)?;
         self.to_writer(&mut file)
     }
@@ -276,7 +282,8 @@ impl<T: Cacheable> Cacheable for Vec<T> {
             if bytes.len() < offset + 4 {
                 return Err(CacheItemReadError::TooShort(bytes.len(), offset + 4));
             }
-            let item_len = u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap()) as usize;
+            let item_len =
+                u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap()) as usize;
             offset += 4;
             if bytes.len() < offset + item_len {
                 return Err(CacheItemReadError::TooShort(bytes.len(), offset + item_len));
@@ -300,8 +307,7 @@ impl<T: Cacheable> Cacheable for Option<T> {
     fn from_cache_bytes(bytes: &[u8]) -> Result<Self, CacheItemReadError> {
         if bytes.is_empty() {
             Ok(None)
-        }
-        else {
+        } else {
             Ok(Some(T::from_cache_bytes(bytes)?))
         }
     }
@@ -314,12 +320,12 @@ impl<T: Cacheable, E: Cacheable> Cacheable for Result<T, E> {
                 let mut bytes = vec![0];
                 bytes.append(&mut item.to_cache_bytes()?);
                 Ok(bytes)
-            },
+            }
             Err(item) => {
                 let mut bytes = vec![1];
                 bytes.append(&mut item.to_cache_bytes()?);
                 Ok(bytes)
-            },
+            }
         }
     }
 
@@ -356,7 +362,8 @@ impl<K: Cacheable + std::hash::Hash + Eq, V: Cacheable> Cacheable for HashMap<K,
             if bytes.len() < offset + 2 {
                 return Err(CacheItemReadError::TooShort(bytes.len(), offset + 2));
             }
-            let key_len = u16::from_le_bytes(bytes[offset..offset + 2].try_into().unwrap()) as usize;
+            let key_len =
+                u16::from_le_bytes(bytes[offset..offset + 2].try_into().unwrap()) as usize;
             offset += 2;
             if bytes.len() < offset + key_len {
                 return Err(CacheItemReadError::TooShort(bytes.len(), offset + key_len));
@@ -366,10 +373,14 @@ impl<K: Cacheable + std::hash::Hash + Eq, V: Cacheable> Cacheable for HashMap<K,
             if bytes.len() < offset + 4 {
                 return Err(CacheItemReadError::TooShort(bytes.len(), offset + 4));
             }
-            let value_len = u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap()) as usize;
+            let value_len =
+                u32::from_le_bytes(bytes[offset..offset + 4].try_into().unwrap()) as usize;
             offset += 4;
             if bytes.len() < offset + value_len {
-                return Err(CacheItemReadError::TooShort(bytes.len(), offset + value_len));
+                return Err(CacheItemReadError::TooShort(
+                    bytes.len(),
+                    offset + value_len,
+                ));
             }
             let value = V::from_cache_bytes(&bytes[offset..offset + value_len])?;
             offset += value_len;
@@ -450,28 +461,40 @@ mod tests {
     #[test]
     fn test_empty_read_write() {
         let cache = Cache::<String>::new();
-        assert_eq!(Cache::<String>::from_bytes(&cache.to_bytes().unwrap()).unwrap(), cache)
+        assert_eq!(
+            Cache::<String>::from_bytes(&cache.to_bytes().unwrap()).unwrap(),
+            cache
+        )
     }
 
     #[test]
     fn test_blank_read_write() {
         let mut cache = Cache::<()>::new();
         cache.insert("key".to_string(), ());
-        assert_eq!(Cache::<()>::from_bytes(&cache.to_bytes().unwrap()).unwrap(), cache)
+        assert_eq!(
+            Cache::<()>::from_bytes(&cache.to_bytes().unwrap()).unwrap(),
+            cache
+        )
     }
 
     #[test]
     fn test_string_read_write() {
         let mut cache = Cache::<String>::new();
         cache.insert("key".to_string(), "value".to_string());
-        assert_eq!(Cache::<String>::from_bytes(&cache.to_bytes().unwrap()).unwrap(), cache)
+        assert_eq!(
+            Cache::<String>::from_bytes(&cache.to_bytes().unwrap()).unwrap(),
+            cache
+        )
     }
 
     #[test]
     fn test_u64_read_write() {
         let mut cache = Cache::<u64>::new();
         cache.insert("key".to_string(), 123);
-        assert_eq!(Cache::<u64>::from_bytes(&cache.to_bytes().unwrap()).unwrap(), cache)
+        assert_eq!(
+            Cache::<u64>::from_bytes(&cache.to_bytes().unwrap()).unwrap(),
+            cache
+        )
     }
 
     #[test]
@@ -479,6 +502,9 @@ mod tests {
         let mut cache = Cache::<()>::new();
         cache.insert("key".to_string(), ());
         cache.insert("key2".to_string(), ());
-        assert_eq!(Cache::<()>::from_bytes(&cache.to_bytes().unwrap()).unwrap(), cache)
+        assert_eq!(
+            Cache::<()>::from_bytes(&cache.to_bytes().unwrap()).unwrap(),
+            cache
+        )
     }
 }

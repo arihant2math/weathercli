@@ -52,12 +52,12 @@ impl WasmPlugin {
         coordinates: Coordinates,
         settings: Settings,
     ) -> crate::Result<WeatherForecast> {
-        let _bytes = shared_deps::bincode::serialize(&WasmPluginInput {
+        let _bytes = bincode::serialize(&WasmPluginInput {
             coordinates: coordinates,
             metric: settings.metric_default,
         })?;
         // let res = self.plugin.call::<&[u8], &[u8]>("get_forecast", &bytes)?;
-        // let forecast: WeatherForecast = shared_deps::bincode::deserialize(&res)?;
+        // let forecast: WeatherForecast = bincode::deserialize(&res)?;
         // Ok(forecast)
         todo!("WasmPlugin::run")
     }

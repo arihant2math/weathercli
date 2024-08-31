@@ -18,8 +18,7 @@ pub struct Coordinates {
     pub longitude: f64,
 }
 
-impl Eq for Coordinates {
-}
+impl Eq for Coordinates {}
 
 impl std::hash::Hash for Coordinates {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {

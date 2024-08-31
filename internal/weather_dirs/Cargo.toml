@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 home = "0.5"
-thiserror = "1.0"
+thiserror = { workspace = true }

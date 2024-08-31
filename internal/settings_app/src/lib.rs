@@ -3,7 +3,7 @@ use std::io::Cursor;
 use iced;
 use iced::window::{icon, Icon, Level};
 use iced::{Font, Sandbox, Size};
-use image::io::Reader as ImageReader;
+use image::ImageReader;
 
 use app::App;
 

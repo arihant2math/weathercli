@@ -6,15 +6,18 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-image = "0.25"
-serde = { version = "1.0", features = ["derive"] }
-regex = "1.10"
-log = "0.4"
-chrono = "0.4"
-tera = "1"
-thiserror = "1"
+bincode = { workspace = true }
+chrono = { workspace = true }
+log = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+simd-json = { workspace = true }
+thiserror = { workspace = true }
 
-shared_deps = { path = "../shared_deps" }
+image = "0.25"
+regex = "1.10"
+tera = "1"
+
 custom_backend = { path = "../custom_backend" }
 updater = { path = "../updater" }
 local = { path = "../local" }

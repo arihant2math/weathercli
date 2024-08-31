@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use chrono::DateTime;
 use chrono::Duration;
 
-use shared_deps::simd_json;
+use simd_json;
 
 use crate::openweathermap_onecall::json::{DailyJson, MomentJson};
 use crate::WeatherCondition;

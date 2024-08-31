@@ -1,10 +1,10 @@
+use log::LevelFilter;
 use log4rs::append::console::{ConsoleAppender, Target};
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Logger, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::filter::threshold::ThresholdFilter;
 use log4rs::Handle;
-use log::LevelFilter;
 
 use weather_dirs::weathercli_dir;
 
@@ -21,8 +21,7 @@ pub fn init_logging() -> crate::Result<Handle> {
     let logfile = FileAppender::builder()
         // Pattern: https://docs.rs/log4rs/*/log4rs/encode/pattern/index.html
         .encoder(Box::new(PatternEncoder::new("[{l} {M} {d}] {m}\n")))
-        .build(file_path.as_os_str().to_str().unwrap())
-        .unwrap();
+        .build(file_path.as_os_str().to_str().unwrap())?;
     let logfile_appender = Appender::builder().build("logfile", Box::new(logfile));
     let stderr_appender = Appender::builder()
         .filter(Box::new(ThresholdFilter::new(level)))

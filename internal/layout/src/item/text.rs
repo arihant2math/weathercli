@@ -1,4 +1,4 @@
-use shared_deps::serde_json::Value;
+use serde_json::Value;
 use terminal::color;
 
 use crate::item::ItemType;

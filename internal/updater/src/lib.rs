@@ -2,7 +2,7 @@ pub mod component;
 pub mod resource;
 mod update_server_json;
 
-use shared_deps::simd_json;
+use simd_json;
 
 use std::collections::HashMap;
 

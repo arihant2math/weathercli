@@ -16,8 +16,8 @@ use terminal::color::*;
 use weather_dirs::cache_dir;
 use weather_dirs::resources_dir;
 
-use crate::{Datasource, print_out};
 use crate::arguments::CacheOpts;
+use crate::{print_out, Datasource};
 
 pub mod backend_commands;
 pub mod layout_commands;
@@ -26,21 +26,18 @@ pub mod settings_commands;
 pub mod util;
 
 fn get_requested_time(time: Option<String>) -> DateTime<Utc> {
-    match time {
+    return match time {
         Some(t) => {
             let time = chrono::Utc::now()
                 + chrono::Duration::from_std(
                     parse_duration(&t).unwrap_or(std::time::Duration::new(0, 0)),
                 )
                 .unwrap_or(Duration::zero());
-            return time;
+            time
         }
-        None => {
-            return chrono::Utc::now();
-        }
-    }
+        None => chrono::Utc::now(),
+    };
 }
-
 
 fn get_data(
     datasource: Datasource,
@@ -51,18 +48,24 @@ fn get_data(
 ) -> crate::Result<WeatherForecast> {
     // TODO: cleanup
     Ok(match datasource {
-        Datasource::Openweathermap => backend::run(Box::new(&backend::openweathermap::OpenWeatherMap), &coordinates, &settings)?,
-        Datasource::OpenweathermapOneCall => {
-            backend::run(Box::new(&backend::openweathermap_onecall::OpenWeatherMapOneCall), &coordinates, &settings)?
-        }
+        Datasource::Openweathermap => backend::run(
+            Box::new(&backend::openweathermap::OpenWeatherMap),
+            &coordinates,
+            &settings,
+        )?,
+        Datasource::OpenweathermapOneCall => backend::run(
+            Box::new(&backend::openweathermap_onecall::OpenWeatherMapOneCall),
+            &coordinates,
+            &settings,
+        )?,
         Datasource::NWS => backend::run(Box::new(&backend::nws::NWS), &coordinates, &settings)?,
-        Datasource::Meteo => backend::run(Box::new(&backend::meteo::Meteo), &coordinates, &settings)?,
-        Datasource::Other(name) => custom_backend::CustomBackend::new(
-            name,
-            wasm_loader,
-            custom_backends,
-            &settings
-        ).get(&coordinates, &settings)?,
+        Datasource::Meteo => {
+            backend::run(Box::new(&backend::meteo::Meteo), &coordinates, &settings)?
+        }
+        Datasource::Other(name) => {
+            custom_backend::CustomBackend::new(name, wasm_loader, custom_backends, &settings)
+                .get(&coordinates, &settings)?
+        }
     })
 }
 
@@ -113,11 +116,17 @@ pub fn weather(
     debug!("json: {json}");
     let mut s = settings.clone();
     s.metric_default = true_metric;
-    let data = get_data_from_datasource(datasource.clone(), coordinates, s, custom_backends, wasm_backends)
-        .map_err(|e| {
-            error!("Error getting data from {datasource}: {e}");
-            e
-        })?;
+    let data = get_data_from_datasource(
+        datasource.clone(),
+        coordinates,
+        s,
+        custom_backends,
+        wasm_backends,
+    )
+    .map_err(|e| {
+        error!("Error getting data from {datasource}: {e}");
+        e
+    })?;
     print_out(
         &settings.layout_file,
         LayoutInput::from_forecast(data, get_requested_time(time))?,
@@ -131,7 +140,7 @@ pub fn cache(opts: CacheOpts) -> crate::Result<()> {
     match opts {
         CacheOpts::Clear => {
             std::fs::remove_file(cache_dir()?)?;
-        },
+        }
         CacheOpts::Info => println!("Coming soon!"), // TODO
     }
     Ok(())

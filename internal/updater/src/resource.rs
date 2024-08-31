@@ -4,8 +4,8 @@ use thiserror::Error;
 use local::hash_file;
 use local::weather_file::WeatherFile;
 use networking;
-use shared_deps::serde_json::Value;
-use shared_deps::simd_json;
+use serde_json::Value;
+use simd_json;
 use terminal::color;
 
 #[derive(Debug, Error)]
@@ -15,7 +15,7 @@ pub enum UpdateError {
     #[error("Reqwuest error: {0}")]
     ReqwuestError(String), // TODO: Store actual error
     #[error("JSON Error: {0}")]
-    JSONError(#[from] shared_deps::simd_json::Error),
+    JSONError(#[from] simd_json::Error),
     #[error("I/O Error: {0}")]
     IOError(#[from] std::io::Error),
     #[error("Weather file Error: {0}")]
