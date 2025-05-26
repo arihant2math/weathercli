@@ -10,14 +10,6 @@ pub enum Error {
     HomeDirectoryNotFound,
 }
 
-#[cfg(windows)]
-pub fn weathercli_dir() -> crate::Result<PathBuf> {
-    Ok(home::home_dir()
-        .ok_or(Error::HomeDirectoryNotFound)?
-        .join(".weathercli"))
-}
-
-#[cfg(any(unix, target_os = "redox"))]
 pub fn weathercli_dir() -> crate::Result<PathBuf> {
     Ok(std::env::home_dir()
         .ok_or(Error::HomeDirectoryNotFound)?
