@@ -16,7 +16,7 @@ thiserror = { workspace = true }
 parse_duration = "2.1"
 
 clap = { version = "4.5", features = ["derive"] }
-regex = "1.10"
+regex = "1.11"
 
 custom_backend = { path = "../custom_backend" }
 updater = { path = "../updater" }

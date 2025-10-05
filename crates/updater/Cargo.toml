@@ -13,7 +13,7 @@ serde_json = { workspace = true}
 simd-json = { workspace = true }
 thiserror = { workspace = true }
 
-self-replace = "1.4"
+self-replace = "1.5"
 reqwest = { version = "0.12", features = ["blocking"] }
 
 local = { path = "../local" }
