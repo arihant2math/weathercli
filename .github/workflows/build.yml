@@ -33,25 +33,25 @@ jobs:
       - name: Build with cargo
         run: cargo build -r --all-features
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: startsWith(matrix.os, 'windows')
         with:
           name: installer (Windows)
           path: ./target/release/installer.exe
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: installer (Linux)
           path: ./target/release/installer
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: startsWith(matrix.os, 'windows')
         with:
           name: weather (Windows)
           path: ./target/release/weather.exe
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: weather (Linux)
