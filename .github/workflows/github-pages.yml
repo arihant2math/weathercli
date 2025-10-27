@@ -47,7 +47,7 @@ jobs:
       url: ${{steps.deployment.outputs.page_url}}
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           name: page
           path: .
