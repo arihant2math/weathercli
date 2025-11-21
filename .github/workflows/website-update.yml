@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: 'true'
       - name: Install dependencies
@@ -22,7 +22,7 @@ jobs:
           ./dev-scripts/target/debug/dev-scripts update-docs "$GH_API_PAT"
         env:
           GH_API_PAT: ${{secrets.GH_API_PAT}}
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
