@@ -33,7 +33,7 @@ jobs:
           cd ..
           chmod 555 ./jc
           ./dev-scripts/target/debug/dev-scripts docs
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: page
           path: docs
