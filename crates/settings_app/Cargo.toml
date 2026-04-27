@@ -11,7 +11,7 @@ log = { workspace = true }
 dark-light = "1.1"
 image = "0.25"
 iced = { version = "0.12", features = ["image"] }
-rfd = "0.14"
+rfd = "0.17"
 
 local = { path = "../local" }
 weather_dirs = { path = "../weather_dirs" }
